@@ -1,1 +1,19 @@
-hi!
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Search Home
+{% endblock %}
+
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Search-Home").addClass("active")
+</script>
+
+<h1>Search Home</h1>
+
+{% endblock %}

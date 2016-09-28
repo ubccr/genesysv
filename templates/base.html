@@ -1,0 +1,126 @@
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- jQuery -->
+    <script src="{% static 'jquery/jquery-3.1.1.min.js' %}"></script>
+    <script src="{% static 'jqueryui/jquery-ui.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'jqueryui/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jqueryui/jquery-ui.theme.min.css' %}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'font_awesome/css/font-awesome.min.css' %}">
+
+    <!-- Data Tables -->
+    <script src="{% static 'data_tables/media/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'data_tables/media/js/dataTables.bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'data_tables/media/css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'data_tables/media/css/dataTables.bootstrap.min.css' %}">
+
+    <!-- Customization -->
+    <script src="{% static 'custom/js/custom.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}">
+
+
+    <title>
+        {% block title %}
+        Base
+        {% endblock %}
+    </title>
+
+    <meta charset="UTF-8">
+
+</head>
+
+<body>
+
+<div id="holder">
+        <div class="ubheader container-fluid">
+            <div class="inner container">
+                <a href="http://www.buffalo.edu/">
+                    <img style="display: inline-block;" class="img-responsive ublogo" src="{% static 'custom/images/ub-logo.png' %}" alt="University at Buffalo, The State University of New York">
+                </a>
+                <div class="pull-right">
+                <h4 id="big-text"><a href="http://www.buffalo.edu/big">Buffalo Institute for Genomics & Data Analytics</a></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden-xs title-div">
+          <h1 class="container">Genomics Data Warehouse <br></h1>
+        </div>
+        <div class="container-fluid blue-nav-bar-side">
+            {% include 'navbar.html' %}
+        </div>
+
+
+    <div class="clearfix"></div>
+        <div class="container main">
+
+                {% block content %}
+                    Hi!
+                {% endblock %}
+
+        </div>
+     <div class="clearfix"></div>
+
+    <div id="footer">
+        <footer class="footer">
+          <div class="container">
+           <div id="footer-div-main" class="row">
+              <div class="col-md-1">
+                <a href="http://www.buffalo.edu/">
+                    <img class="img-responsive" src="{% static 'custom/images/UB_WHT_RGB.png' %}" alt="University at Buffalo, The State University of New York">
+                </a>
+              </div>
+              <div class="col-md-4">
+                <div id="address">
+                    Buffalo Institute for Genomics <br>
+                    NYS Center of Excellence in Bioinformatics and Life Sciences <br>
+                    701 Ellicott St <br>
+                    Buffalo, New York 14203
+                </div>
+                <div class="clearfix"></div>
+                <br>
+                <div class="pull-left">
+                <a href="http://www.buffalo.edu/genomics/About-Us/contact-us.html" class="btn btn-primary-gdw" role="button">Contact Us</a>
+                </div>
+              </div>
+              <div id="partner-institutes" class="col-md-6 hidden-xs hidden-sm">
+                    <h5>Partner Institutes</h5>
+                    <ul>
+                        <li><a href="http://www.buffalo.edu/cbls">NYS Center of Excellence in Bioinformatics and Life Sciences (CBLS)</a></li>
+                        <li><a href="http://www.buffalo.edu/ccr">Center for Computational Research (CCR)</a></li>
+                        <li><a href="http://www.buffalo.edu/ihi">Institute for Healthcare Informatics (IHI)</a></li>
+
+                        <li><a href="http://www.buffalo.edu/big">Buffalo Institute for Genomics (BIG) and Data Analytics</a></li>
+
+                    </ul>
+              </div>
+            </div>
+
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+    </div>
+
+</div>
+
+
+
+</body>
+
+
+</html>
+

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+       Genomics Data warehouse
+{% endblock %}
+
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Home-Menu").addClass("active")
+    $("#navbarId-Home").addClass("active")
+</script>
+
+<h1>Welcome Home!</h1>
+{% endblock %}
