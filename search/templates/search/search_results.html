@@ -29,7 +29,7 @@
         <thead>
           <tr>
             {% for element in headers %}
-                <th>{{element}}</th>
+                <th>{{element.display_name}}</th>
             {% endfor %}
           </tr>
         </thead>
@@ -37,83 +37,7 @@
             {% for row in results %}
                 <tr>
                     {% for element in headers %}
-                        {% if element == "Gene_refGene" %}
-                            <td>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                          <tr>
-                                            <th>Symbol</th>
-                                            <th>Reference Gene ID</th>
-                                            <th>Location</th>
-                                            <th>cDNA Change</th>
-                                            <th>AA Change</th>
-                                            <th>Distance to Gene</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for ele in row|get_value_from_dict:element %}
-                                              <tr>
-                                                <td>{{ele.symbol}}</td>
-                                                <td>{{ele.refgene_id}}</td>
-                                                <td>{{ele.location}}</td>
-                                                <td>{{ele.cDNA_change}}</td>
-                                                <td>{{ele.aa_change}}</td>
-                                                <td>{{ele.distance_to_gene}}</td>
-                                              </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </td>
-                          {% elif element == "Gene_ensGene" %}
-                            <td>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                          <tr>
-                                            <th>Gene ID</th>
-                                            <th>Transcript ID</th>
-                                            <th>Location</th>
-                                            <th>cDNA Change</th>
-                                            <th>AA Change</th>
-                                            <th>Distance to Gene</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for ele in row|get_value_from_dict:element %}
-                                              <tr>
-                                                <td>{{ele.gene_id}}</td>
-                                                <td>{{ele.transcript_id}}</td>
-                                                <td>{{ele.location}}</td>
-                                                <td>{{ele.cDNA_change}}</td>
-                                                <td>{{ele.aa_change}}</td>
-                                                <td>{{ele.distance_to_gene}}</td>
-                                              </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </td>
-                        {% elif element == "sample" %}
-                            <td>
-                                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#{{element}}-{{row|get_value_from_dict:"Variant"}}">{{ row|get_value_from_dict:element|length }}</button>
-                                  <div id="{{element}}-{{row|get_value_from_dict:"Variant"}}" class="collapse">
-                                    {{row|get_value_from_dict:element}}
-                                  </div>
-                            </td>
-                        {% elif element == "clinvar_20150629" %}
-                            <td>
-                                {% if row|get_value_from_dict:element %}
-                                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#{{element}}-{{row|get_value_from_dict:"Variant"}}">{{ row|get_value_from_dict:element|length }}</button>
-                                  <div id="{{element}}-{{row|get_value_from_dict:"Variant"}}" class="collapse">
-                                    {{row|get_value_from_dict:element}}
-                                  </div>
-                                {% endif %}
-                            </td>
-                        {% else %}
-                            <td>{{ row|get_value_from_dict:element|safe }}</td>
-                        {% endif %}
+                        <td>{{ row|get_value_from_dict:element.es_name|safe }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}

@@ -15,12 +15,28 @@ import time
 from operator import itemgetter, attrgetter, methodcaller
 import itertools
 
-def filter_array_dicts(array, key, values):
+def filter_dicts(array, key, values):
     output = []
+    print(array,key, values)
     for ele in array:
         tmp = ele.get(key)
         if tmp in values:
             output.append(ele)
+
+def filter_array_dicts(array, key, values):
+    output = []
+    print(array,key, values)
+    for ele in array:
+        tmp = ele.get(key)
+        if tmp in values:
+            output.append(ele)
+
+    return output
+
+def merge_two_dicts_array(input):
+    output = []
+    for x, y in input:
+        output.append(merge_two_dicts(x, y))
 
     return output
 
@@ -32,7 +48,8 @@ def merge_two_dicts(x, y):
 
 
 def subset_dict(input, keys):
-    return {key:input[key] for key in keys}
+
+    return {key:input[key] for key in keys if input.get(key)}
 
 
 @gzip_page
@@ -103,7 +120,6 @@ def get_attribute_form(request):
 
     context = {}
     context['tabs'] = tabs
-    print(context)
     return render(request, "search/get_attribute_snippet.html", context)
 
 
@@ -136,7 +152,6 @@ def search_old_home(request):
                                       'sub_form': sub_form })
         tabs.append(tmp_dict)
 
-    print(tabs)
     context = {}
     context['tabs'] = tabs
     return render(request, 'search/search_old_home.html', context)
@@ -158,36 +173,51 @@ def search_result(request):
         POST_data = QueryDict(request.POST['form_data'])
         es_filter_form = ESFilterForm(POST_data, prefix='filter_')
         es_attribute_form = ESAttributeForm(POST_data, prefix='attribute_group')
-        # print(es_attribute_form)
+        study_form = StudyForm(request.user, POST_data)
+        study_form.is_valid()
+        study_string = study_form.cleaned_data['study']
+
+        dataset_form = DatasetForm(study_string, request.user, POST_data)
+        dataset_form.is_valid()
+        dataset_string = dataset_form.cleaned_data['dataset']
+
+        dataset_obj = Dataset.objects.get(description=dataset_string)
+
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
             es_filter = ElasticSearchFilter()
 
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
 
+            source_fields = []
+            non_nested_fields = []
+            nested_attribute_fields = {}
+            nested_filter_fields = {}
 
-            attributes = []
-            non_nested = []
-            nested = []
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
                     es_name, path = key.split('-')
                     if path:
-                        attributes.append(path)
-                        nested.append(path)
+                        source_fields.append(path)
+                        if path not in nested_fields:
+                            nested_attribute_fields[path] = []
+                            nested_filter_fields[path] = []
+                        nested_attribute_fields[path].append(es_name)
                     else:
-                        attributes.append(es_name)
-                        non_nested.append(es_name)
+                        source_fields.append(es_name)
+                        non_nested_fields.append(es_name)
 
-            nested = list(set(nested))
             terminate = True if request.POST.get('terminate') else False
             terminate = True
 
             keys = es_filter_form_data.keys()
             used_keys = []
+
             for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
                 data = es_filter_form_data[key]
+
+
 
                 if not data:
                     continue
@@ -208,25 +238,22 @@ def search_result(request):
                         es_filter.add_should_term(es_name, ele)
                 elif es_filter_type in 'nested_must_term' and isinstance(data, str):
                     for ele in data.split('\n'):
-                        print(es_name, ele.strip(), field_obj.path)
                         es_filter.add_nested_must_term(es_name, ele.strip(), field_obj.path)
                 elif es_filter_type in 'nested_must_term' and isinstance(data, list):
                     for ele in data:
                         es_filter.add_nested_must_term(es_name, ele, field_obj.path)
                 elif es_filter_type in 'nested_should_term' and isinstance(data, str):
                     for ele in data.split('\n'):
-                        print(es_name, ele.strip(), field_obj.path)
                         es_filter.add_nested_should_term(es_name, ele.strip(), field_obj.path)
                 elif es_filter_type in 'nested_should_term' and isinstance(data, list):
                     for ele in data:
-                        print(ele)
                         es_filter.add_nested_should_term(es_name, ele, field_obj.path)
                 elif es_filter_type in 'must_range_gte':
                     es_filter.add_must_range_gte(es_name, data)
                 elif es_filter_type in 'must_range_lte':
                     es_filter.add_must_range_lte(es_name, data)
 
-                for field in attributes:
+                for field in source_fields:
                     es_filter.add_source(field)
 
 
@@ -236,14 +263,11 @@ def search_result(request):
             query = json.dumps(content)
             # pprint(query)
             if terminate:
-                uri = 'http://199.109.195.45:9200/sim3/wgs_hg19_multianno/_search?terminate_after=80'
+                uri = '%s/%s/%s/_search?terminate_after=80' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
             else:
-                uri = 'http://199.109.195.45:9200/sim3/wgs_hg19_multianno/_search?'
+                uri = '%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
             results = json.loads(response.text)
-
-            # results = es.search(index=INDEX_NAME, body=content)
-
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
@@ -251,13 +275,11 @@ def search_result(request):
             context = {}
             headers = []
 
-
             for key, val in attribute_order.items():
-                # print('Hello,', key,val)
                 order, es_name, path = val.split('-')
-                headers.append((int(order), es_name))
+                attribute = AttributeField.objects.get(dataset=dataset_obj, es_name=es_name, path=path)
+                headers.append((int(order), attribute))
 
-            # print(attribute_order)
             headers = sorted(headers, key=itemgetter(0))
             _, headers  = zip(*headers)
 
@@ -266,24 +288,38 @@ def search_result(request):
             for ele in tmp_results:
                 results.append(ele['_source'])
 
-            final_results = []
-            for result in results:
+            if nested_attribute_fields:
+                final_results = []
+                for result in results:
+                    if len(final_results)> 1000:
+                        break
 
+                    for path, es_names in nested_attribute_fields.items():
+                        values = nested_attribute_fields[path]
+                        result[path] = filter_array_dicts(result[path], es_name, values)
+                        if not result[key]:
+                            continue
 
-                if result['refGene']:
-                    tmp_non_nested = subset_dict(result, non_nested)
-                    tmp_nested = subset_dict(result, ['refGene',])
-                    tmp_output = list(itertools.product([tmp_non_nested,], tmp_nested['refGene']))
+                        if idx == 0:
+                            combined_nested = result[key]
+                            continue
+                        else:
+                            combined_nested = list(itertools.product(combined_nested, result[key]))
+                            combined_nested = merge_two_dicts_array(combined_nested)
+
+                    tmp_non_nested = subset_dict(result, non_nested_fields)
+                    tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+
                     for x,y in tmp_output:
                         tmp = merge_two_dicts(x,y)
                         final_results.append(tmp)
-
-            print(final_results)
+            else:
+                final_results = results
 
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
-            context['results'] = results
+            context['results'] = final_results
             context['headers'] = headers
             context['content_generate_time'] = content_generate_time
             context['after_results_time'] = datetime.now() - start_after_results_time
