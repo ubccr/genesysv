@@ -1,0 +1,107 @@
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+        <ul class="nav nav-tabs">
+            {% for tab in tabs %}
+                {% if forloop.counter == 1 %}
+                    <li class="active"><a data-toggle="tab" href="#{{tab.name|slugify}}">{{tab.name}}</a></li>
+                {% else %}
+                    <li><a data-toggle="tab" href="#{{tab.name|slugify}}">{{tab.name}}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <br>
+          <div class="tab-content">
+            {% for tab in tabs %}
+                {% if forloop.counter == 1 %}
+                    <div id="{{tab.name|slugify}}" class="tab-pane fade in active">
+                {% else %}
+                    <div id="{{tab.name|slugify}}" class="tab-pane fade">
+                {% endif %}
+                    <div class="panel-group" id="accordion">
+                        {% for panel in tab.panels %}
+                            <div class="panel panel-primary">
+                              <div class="panel-heading">
+                                <h3 class="panel-title">
+                                  <a data-toggle="collapse" data-parent="#accordion" href="#{{panel.name|slugify}}">{{panel.display_name}}</a>
+                                </h3>
+                              </div>
+                              <div id="{{panel.name|slugify}}" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-condensed">
+                                        <tbody>
+                                        {% for field in panel.form %}
+                                               {% if forloop.first %}<tr>{% endif %}
+                                                    <td>{{ field|as_crispy_field }}</td>
+                                                {% if forloop.counter|divisibleby:4 %}</tr><tr>{% endif %}
+                                                {% if forloop.last %}</tr>{% endif %}
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                                {% for sub_panel in panel.sub_panels %}
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">{{sub_panel.display_name}}</div>
+                                    <div id="{{sub_panel.name|slugify}}">
+                                        <div class="panel-body">
+
+                                            <div>
+                                                <table class="table table-borderless table-condensed">
+                                                    {% for field in sub_panel.form %}
+                                                           {% if forloop.first %}<tr>{% endif %}
+                                                                <td>{{ field|as_crispy_field }}</td>
+                                                            {% if forloop.counter|divisibleby:4 %}</tr><tr>{% endif %}
+                                                            {% if forloop.last %}</tr>{% endif %}
+                                                    {% endfor %}
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                                </div>
+                              </div>
+
+                            </div>
+
+
+                        {% endfor %}
+
+                     </div>  {% comment %} End Accordion {% endcomment %}
+                </div>
+            {% endfor %}
+          </div>
+
+        </div>
+        </div>
+<script>
+$(".upload-field").each(function(){
+    var field_id = $(this).attr('id');
+    var field = document.getElementById(field_id);
+    var upload_field_id = field_id + "___uploadFieldId"
+    var parent_div = $(field).parent()
+    var content = "<input class='upload-file' type='file' id=\"" + upload_field_id +"\">"
+    parent_div.append(content)
+
+});
+
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+    $(":input[type=text]").each(function () {
+        if ($(this).val()) {
+            // console.log($(this).val())
+            $(this).trigger("change");
+        }
+
+    })
+});
+
+
+
+
+
+</script>

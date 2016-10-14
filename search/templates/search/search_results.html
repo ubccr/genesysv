@@ -1,0 +1,141 @@
+
+{% load crispy_forms_tags %}
+{% load search_tags %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+
+{% block content %}
+<h4>Total Hits: {{total|intcomma}}</h4>
+<h4>Query String Generation Time: {{content_generate_time}}</h4>
+<h4>Database Took: {{took}} ms</h4>
+<h4>Post Processing Time: {{after_results_time}}</h4>
+<h4>Total Time: {{total_time}}</h4>
+
+{% for ele in used_keys %}
+    {{ele.0}}: <strong>{{ele.1}}</strong><br>
+{% endfor %}
+
+<br>
+
+<div class="panel panel-primary">
+<div class="panel-body">
+<div class="table-responsive">
+    <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            {% for element in headers %}
+                <th>{{element}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+                <tr>
+                    {% for element in headers %}
+                        {% if element == "Gene_refGene" %}
+                            <td>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th>Symbol</th>
+                                            <th>Reference Gene ID</th>
+                                            <th>Location</th>
+                                            <th>cDNA Change</th>
+                                            <th>AA Change</th>
+                                            <th>Distance to Gene</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ele in row|get_value_from_dict:element %}
+                                              <tr>
+                                                <td>{{ele.symbol}}</td>
+                                                <td>{{ele.refgene_id}}</td>
+                                                <td>{{ele.location}}</td>
+                                                <td>{{ele.cDNA_change}}</td>
+                                                <td>{{ele.aa_change}}</td>
+                                                <td>{{ele.distance_to_gene}}</td>
+                                              </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                          {% elif element == "Gene_ensGene" %}
+                            <td>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th>Gene ID</th>
+                                            <th>Transcript ID</th>
+                                            <th>Location</th>
+                                            <th>cDNA Change</th>
+                                            <th>AA Change</th>
+                                            <th>Distance to Gene</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ele in row|get_value_from_dict:element %}
+                                              <tr>
+                                                <td>{{ele.gene_id}}</td>
+                                                <td>{{ele.transcript_id}}</td>
+                                                <td>{{ele.location}}</td>
+                                                <td>{{ele.cDNA_change}}</td>
+                                                <td>{{ele.aa_change}}</td>
+                                                <td>{{ele.distance_to_gene}}</td>
+                                              </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        {% elif element == "sample" %}
+                            <td>
+                                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#{{element}}-{{row|get_value_from_dict:"Variant"}}">{{ row|get_value_from_dict:element|length }}</button>
+                                  <div id="{{element}}-{{row|get_value_from_dict:"Variant"}}" class="collapse">
+                                    {{row|get_value_from_dict:element}}
+                                  </div>
+                            </td>
+                        {% elif element == "clinvar_20150629" %}
+                            <td>
+                                {% if row|get_value_from_dict:element %}
+                                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#{{element}}-{{row|get_value_from_dict:"Variant"}}">{{ row|get_value_from_dict:element|length }}</button>
+                                  <div id="{{element}}-{{row|get_value_from_dict:"Variant"}}" class="collapse">
+                                    {{row|get_value_from_dict:element}}
+                                  </div>
+                                {% endif %}
+                            </td>
+                        {% else %}
+                            <td>{{ row|get_value_from_dict:element|safe }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+</div>
+<br>
+
+<script>
+    $(document).ready(function() {
+        $('#result-table').DataTable({
+            "iDisplayLength": 25,
+            "bSortClasses": false
+        });
+
+    });
+
+
+
+</script>
+
+{% endblock %}
