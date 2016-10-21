@@ -317,6 +317,7 @@ body {
     padding-bottom: 1px !important;
     padding-left: 1px !important;
     vertical-align: middle;
+    white-space: nowrap !important;
 }
 
 
@@ -474,6 +475,3 @@ html,body{
     border: none !important;
 }
 
-/*table.dataTable tbody th, table.dataTable tbody td {
-    padding: 0;
-}*/

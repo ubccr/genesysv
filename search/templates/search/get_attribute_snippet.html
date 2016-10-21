@@ -23,11 +23,22 @@
                             <div class="panel panel-primary">
                               <div class="panel-heading">
                                 <h3 class="panel-title">
-                                  <a data-toggle="collapse" data-parent="#accordion" href="#{{panel.name|slugify}}">{{panel.display_name}}</a>
+                                  <a data-toggle="collapse" data-parent="#accordion" href="#attribute-{{panel.name|slugify}}">{{panel.display_name}}</a>
                                 </h3>
                               </div>
-                              <div id="{{panel.name|slugify}}" class="panel-collapse collapse in">
-                                <div class="panel-body">
+                              {% if forloop.counter == 1 %}
+                                <div id="attribute-{{panel.name|slugify}}" class="panel-collapse collapse in">
+                              {% else %}
+                                <div id="attribute-{{panel.name|slugify}}" class="panel-collapse collapse">
+                              {% endif %}
+                            <div class="panel-body">
+                                {% if panel.form %}
+                                    <div class="pull-right">
+                                        <button id="{{panel.attribute_group_id}}" type="button" class="btn btn-primary select-all">Select All</button>
+                                        <button id="{{panel.attribute_group_id}}" type="button" class="btn btn-primary select-none">Select None</button>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                {% endif %}
                                 <div class="table-responsive">
                                     <table class="table table-borderless table-condensed">
                                         <tbody>
@@ -47,8 +58,14 @@
                                     <div class="panel-heading">{{sub_panel.display_name}}</div>
                                     <div id="{{sub_panel.name|slugify}}">
                                         <div class="panel-body">
-
-                                            <div>
+                                            {% if sub_panel.form %}
+                                                <div class="pull-right">
+                                                    <button id="{{sub_panel.attribute_group_id}}" type="button" class="btn btn-info select-all">Select All</button>
+                                                    <button id="{{sub_panel.attribute_group_id}}" type="button" class="btn btn-info select-none">Select None</button>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            {% endif %}
+                                            <div class="table-responsive">
                                                 <table class="table table-borderless table-condensed">
                                                     {% for field in sub_panel.form %}
                                                            {% if forloop.first %}<tr>{% endif %}
@@ -79,15 +96,6 @@
         </div>
         </div>
 <script>
-$(".upload-field").each(function(){
-    var field_id = $(this).attr('id');
-    var field = document.getElementById(field_id);
-    var upload_field_id = field_id + "___uploadFieldId"
-    var parent_div = $(field).parent()
-    var content = "<input class='upload-file' type='file' id=\"" + upload_field_id +"\">"
-    parent_div.append(content)
-
-});
 
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover();

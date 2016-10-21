@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import FilterField, FilterFieldChoice, Dataset, Study
+from .models import FilterField, FilterFieldChoice, Dataset, Study, FilterSubPanel
 from django.db.models import Q
 from crispy_forms.helper import FormHelper
 
@@ -35,37 +35,49 @@ class DatasetForm(forms.Form):
 
 
 class ESFilterFormPart(forms.Form):
-    def __init__(self, fields, *args, **kwargs):
+    def __init__(self, fields, MEgroup=None, *args, **kwargs):
         super(ESFilterFormPart, self).__init__(*args, **kwargs)
 
 
         for field in fields:
 
-            BOOLEAN_CHOICES = (('', '----'), ('only', 'only',), ('excluded', 'excluded',))
-
             if field.tooltip:
                 tooltip = ' <i data-toggle="popover" data-trigger="hover" data-content="%s" class="fa fa-info-circle" aria-hidden="true"></i>' %(field.tooltip)
             else:
                 tooltip = ''
-            label = field.display_name + tooltip
 
+            label = '%s %s %s' %(field.display_name, field.in_line_tooltip, tooltip)
 
 
             field_name = '%s-%s-%s' %(field.es_name, field.es_filter_type, field.path)
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(label=label, required=False)
+                if MEgroup:
+                    self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
                 CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
                 self.fields[field_name] = forms.MultipleChoiceField(label=label, required=False, choices=CHOICES)
+                if MEgroup:
+                    self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
                 CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
                 CHOICES.insert(0,('', '----'))
                 self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
+                if MEgroup:
+                    self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
             elif field.form_type.name == "CharField" and field.widget_type.name == "Textarea":
                 self.fields[field_name] = forms.CharField(widget=forms.Textarea(), label=label, required=False)
+                if MEgroup:
+                    self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
+
+            elif field.form_type.name == "CharField" and field.widget_type.name == "UploadField":
+                self.fields[field_name] = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'class':'upload-field'}), label=label, required=False)
+                if MEgroup:
+                    self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
+
 
 
 class ESFilterForm(forms.Form):
@@ -75,19 +87,17 @@ class ESFilterForm(forms.Form):
 
         for field in FilterField.objects.all():
 
-            BOOLEAN_CHOICES = (('', '----'), ('only', 'only',), ('excluded', 'excluded',))
-
-
             if field.tooltip:
                 tooltip = ' <i data-toggle="popover" data-trigger="hover" data-content="%s" class="fa fa-info-circle" aria-hidden="true"></i>' %(field.tooltip)
             else:
                 tooltip = ''
-            label = field.display_name + tooltip
+            label = '%s %s %s' %(field.display_name, field.in_line_tooltip, tooltip)
 
 
             field_name = '%s-%s-%s' %(field.es_name, field.es_filter_type, field.path)
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(label=label, required=False)
+                self.fields[field_name].widget.attrs.update({'Khawar': 'off'})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
                 CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
@@ -98,8 +108,9 @@ class ESFilterForm(forms.Form):
                 CHOICES.insert(0,('', '----'))
                 self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
 
-            elif field.form_type.name == "CharField" and field.widget_type.name == "Textarea":
-                self.fields[field_name] = forms.CharField(widget=forms.Textarea(), label=label, required=False)
+            elif field.form_type.name == "CharField" and field.widget_type.name == "UploadField":
+                self.fields[field_name] = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'class':'upload-field'}), label=label, required=False)
+
 
 class ESAttributeFormPart(forms.Form):
     def __init__(self, fields, *args, **kwargs):

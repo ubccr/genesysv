@@ -50,18 +50,17 @@ $(document).on("click", "input[type=checkbox][id*=attribute_group]", (function(e
             label_id="label[for=\"" + attribute_id + "\"]";
             label_field = $(label_id);
             label_val = $.trim(label_field.text())
-
-            p_id =  attribute_id + "_p";
+            p_id =  attribute_id + "___p";
             p_text = '<li class="ui-state-default" style="border-bottom: thin solid;" id="' + p_id + '\"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' + label_val + '<i id="'+ p_id + '_reset_sidebar' + '\" class="fa fa-times reset_button pull-right" aria-hidden="true"></i></li>'
 
             p_ele = $(document.getElementById(p_id));
             $(p_ele).remove();
-            $("#attribute_p").append(p_text);
+            $("#attribute___p").append(p_text);
             $("#li-step4").removeClass("disabled");
 
     } else {
         attribute_id = checkbox.id
-        p_id =  attribute_id + "_p";
+        p_id =  attribute_id + "___p";
         p_ele = $(document.getElementById(p_id));
         $(p_ele).remove();
         checked = $("input[type=checkbox][id*=attribute_group]:checked");
@@ -108,11 +107,11 @@ $(document).on("click", '.select-all', (function(event){
                     label_id="label[for=\"" + attribute_id + "\"]";
                     label_field = $(label_id);
                     label_val = $.trim(label_field.text())
-                    p_id =  attribute_id + "_p";
-                    p_text = '<p style="border-bottom: thin solid;" id="' + p_id + '\">' + label_val + ' <i id="'+ p_id + '_reset_sidebar' + '\" class="fa fa-times reset_button pull-right" aria-hidden="true"></i></p>'
+                    p_id =  attribute_id + "___p";
+                    p_text = '<li class="ui-state-default" style="border-bottom: thin solid;" id="' + p_id + '\"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' + label_val + '<i id="'+ p_id + '_reset_sidebar' + '\" class="fa fa-times reset_button pull-right" aria-hidden="true"></i></li>'
                     p_ele = $(document.getElementById(p_id));
                     $(p_ele).remove();
-                    $("#attribute_p").append(p_text);
+                    $("#attribute___p").append(p_text);
 
                }
       }
@@ -127,12 +126,12 @@ $(document).on("click", '.select-all', (function(event){
  $(document).on("click", '.select-none', (function(event){
       var id = event.target.id;
 
-      var checkboxes =  $("input[type=checkbox][id*=" + id + "]")
+      var checkboxes =  $("input[type=checkbox][id*=id_" + id + "]")
       for (var i = 0; i < checkboxes.length; i++) {
                if (checkboxes[i].type == 'checkbox') {
                    checkboxes[i].checked = false;
                     attribute_id = checkboxes[i].id
-                    p_id =  attribute_id + "_p";
+                    p_id =  attribute_id + "___p";
                     p_ele = $(document.getElementById(p_id));
                     $(p_ele).remove();
                }
@@ -150,48 +149,58 @@ $(document).on("click", '.select-all', (function(event){
 
 
 $(document).on("change", ":input", (function(event){
-        console.log('change')
         var id = event.target.id;
         var field = document.getElementById(id);
         var reset_div_id = id+"_reset_div";
         var reset_div = document.getElementById(reset_div_id);
         if (reset_div) {
-            var field_jq = $(field);
+            var field_jq = $("#"+id);
 
             label_id="label[for=\"" + id + "\"]";
 
             label_field = $(label_id);
             label_val = $.trim(label_field.text())
+
             filter_text = label_val + ": " + field_jq.val()
-            p_id =  id + "_p";
+            p_id =  id + "___p";
             p_text = '<p style="border-bottom: thin solid;" id="' + p_id + '\">' + filter_text + ' <i id="'+ p_id + '_reset_sidebar' + '\" class="fa fa-times reset_button pull-right" aria-hidden="true"></i></p>'
             p_ele = $(document.getElementById(p_id));
             $(p_ele).remove();
-            $("#filter_p").append(p_text);
-            reset_div = $(reset_div);
-            reset_div.show();
+            console.log(field_jq.val())
+            if (field_jq.val() != "") {
+                $("#filter___p").append(p_text);
+                reset_div = $(reset_div);
+                reset_div.show();
+            } else {
+                reset_id = id + "_reset_main";
+                $("#"+reset_id).trigger('click')
+            }
         }
 
   }));
 
 
 $(document).on("change", "input:file", (function(event){
-    id = event.target.id;
-    var fileInput = document.getElementById(id)
-    var fileDisplayArea = document.getElementById(id.split("___uploadFieldId")[0])
-    var file = fileInput.files[0];
+    upload_field_id = event.target.id;
+    var id = upload_field_id.split("___uploadFieldId")[0];
+    var fileDisplayArea = $("#"+id)
+    var file = document.getElementById(upload_field_id).files[0];
     var textType = /text.*/;
-
     if (file.type.match(textType)) {
         var reader = new FileReader();
-        reader.onload = function(e) {
-            fileDisplayArea.innerText = reader.result;
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            console.log(evt.target.result);
+            fileDisplayArea.append(evt.target.result);
+            fileDisplayArea.trigger('change');
         }
 
-        reader.readAsText(file);
-    } else {
-        fileDisplayArea.innerText = "File not supported!"
+    } else{
+        $("#"+upload_field_id).val('');
+        reset_id = id + "_reset_main";
+        $("#"+reset_id).trigger('click')
     }
+
 
 
 }));
@@ -207,7 +216,7 @@ $(document).on("click", '.reset_button', (function(event){
       id = event.target.id;
 
       id = id.split('_reset_main')[0];
-      id = id.split('_p_reset_sidebar')[0];
+      id = id.split('___p_reset_sidebar')[0];
 
       var field = document.getElementById(id);
       var field_jq = $(field);
@@ -228,7 +237,7 @@ $(document).on("click", '.reset_button', (function(event){
       var reset_div = document.getElementById(reset_div_id);
       reset_div = $(reset_div);
       reset_div.hide();
-      p_id =  id + "_p";
+      p_id =  id + "___p";
       p_ele = $(document.getElementById(p_id));
       $(p_ele).remove();
       checked = $("input[type=checkbox][id*=attribute_group]:checked");

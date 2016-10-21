@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+{% csrf_token %}
+<div class="panel panel-primary">
+  <div class="panel-heading"><h3 class="panel-title" style="text-align: left;"><i class="fa fa-lock fa-lg" aria-hidden="true"></i> Sign In</h3></div>
+  <div class="panel-body">
+    {% crispy form %}
+    <input class="btn btn-primary" type="submit" value="Sign In" />
+    <input type="hidden" name="next" value="{{ next }}" />
+    <br>
+    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+  </div>
+  {# Assumes you setup the password_reset view in your URLconf #}
+
+
+</div>
+
+
+</form>
+
+
+{% endblock %}

@@ -71,7 +71,9 @@
                             </div>
                             <ul class="list-inline">
                                 <li><button type="button" class="btn btn-primary next-step to_step2" disabled>Next <i class="fa fa-long-arrow-right"></i></button></li>
-                                <li class="pull-right"><button class="btn btn-warning" data-toggle="confirmation">Reset</button>
+                                <li class="pull-right">
+                                    <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?"
+                                         href="/search">Reset</a>
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
@@ -94,7 +96,9 @@
                             <ul class="list-inline">
                                 <li><button type="button" class="btn btn-default prev-step pull-left"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
                                 <li><button type="button" class="btn btn-primary next-step pull-right">Next <i class="fa fa-long-arrow-right"></i></button></li>
-                                <li class="pull-right"><button class="btn btn-warning" data-toggle="confirmation">Reset</button>
+                                <li class="pull-right">
+                                        <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?"
+                                         href="/search">Reset</a>
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
@@ -114,7 +118,9 @@
                             <ul class="list-inline">
                                 <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
                                 <li><button type="button" class="btn btn-success submit_via_ajax disabled">Search</button></li>
-                                <li class="pull-right"><button class="btn btn-warning" data-toggle="confirmation">Reset</button>
+                                <li class="pull-right">
+                                    <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?"
+                                         href="/search">Reset</a>
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
@@ -148,13 +154,13 @@
               </div>
               <div class="panel-body">
                 <h4 class="add-bottom-border">Study</h4>
-                <p id="study_p">None Selected</p>
+                <p id="study___p">None Selected</p>
                 <h4 class="add-bottom-border">Dataset</h4>
-                <p id="dataset_p">None Selected</p>
+                <p id="dataset___p">None Selected</p>
                 <h4 class="add-bottom-border">Filters</h4>
-                <div id="filter_p" style="word-wrap: break-word;"></div>
+                <div id="filter___p" style="word-wrap: break-word;"></div>
                 <h4 class="add-bottom-border">Attributes</h4>
-                <ul id="attribute_p">
+                <ul id="attribute___p">
                 </ul>
 
 
@@ -175,15 +181,11 @@
 
 <script>
 
-    var options = {
-        onConfirm: function() {
-            $(location).attr('href','/martwizard');
-        },
-    }
 
-    $('[data-toggle=confirmation]').confirmation(options);
-
-
+    $('[data-toggle=confirmation]').confirmation({
+      rootSelector: '[data-toggle=confirmation]',
+      // other options
+    });
 
     function getCookie(name) {
     var cookieValue = null;
@@ -283,20 +285,20 @@
     $( "#step1-study-select" ).on("change", function(event) {
         var selected_study = $(this).find('option:selected').text();
         if (selected_study != '---') {
-            $('#filter_p').html("");
-            $('#attribute_p').html("");
-            $("#study_p").text(selected_study);
+            $('#filter___p').html("");
+            $('#attribute___p').html("");
+            $("#study___p").text(selected_study);
             get_dataset(selected_study);
 
 
         } else {
             $(".to_step2").attr("disabled", true);
             $("#step1-dataset-select").html(blank_select_dataset);
-            $("#study_p").text('None Selected');
+            $("#study___p").text('None Selected');
             $('#step3-attribute-select').html("");
             $('#step2-filter-select').html("");
-            $('#filter_p').html("");
-            $('#attribute_p').html("");
+            $('#filter___p').html("");
+            $('#attribute___p').html("");
         }
     });
 
@@ -304,10 +306,10 @@
     $( "#step1-dataset-select" ).on("change", function(event) {
         var selected_dataset = $(this).find('option:selected').text();
         if (selected_dataset != '---') {
-          $('#filter_p').html("");
-          $('#attribute_p').html("");
+          $('#filter___p').html("");
+          $('#attribute___p').html("");
           $("#dataset_description").val(selected_dataset);
-          $("#dataset_p").text(selected_dataset);
+          $("#dataset___p").text(selected_dataset);
           get_filter(selected_dataset);
           get_attribute(selected_dataset);
           $("#li-step2").removeClass("disabled")
@@ -315,14 +317,14 @@
 
         } else {
 
-            $("#dataset_p").text('None Selected');
+            $("#dataset___p").text('None Selected');
             $('#step3-attribute-select').html("");
             $('#step2-filter-select').html("");
             $(".to_step2").attr("disabled", true);
             $("#li-step2").addClass("disabled");
             $("#li-step3").addClass("disabled");
-            $('#filter_p').html("");
-            $('#attribute_p').html("");
+            $('#filter___p').html("");
+            $('#attribute___p').html("");
 
         }
 
@@ -341,14 +343,16 @@ $(".submit_via_ajax").on("click", function(event) {
         $('#top_container').hide();
         $('#results_div').show();
         var attribute_order = {}
-        $("#attribute_p>li" ).each(function( index ) {
+        $("#attribute___p>li" ).each(function( index ) {
             var tmp = $(this).attr('id')
-            console.log( index + "_" + tmp.split("id_attribute_group-")[1].split("_p")[0] );
-            attribute_order[index] = index + "-" + tmp.split("id_attribute_group-")[1].split("_p")[0]
+            tmp = tmp.replace(/id_\d+___/g, "id_");
+            tmp = tmp.replace(/id_\d+_\d+___/g, "id_");
+            attribute_order[index] = index + "-" + tmp.split("id_attribute_group-")[1].split("___p")[0]
         });
         // console.log(attribute_order)
         // attribute_order = $(attribute_order).serialize();
-        console.log(attribute_order)
+        form_data = form_data.replace(/\d+_\d+___/g, "");
+        form_data = form_data.replace(/\d+___/g, "");
         $.ajax(
             {
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
@@ -412,15 +416,15 @@ $("#li-step4").on("click", function() {
 });
 
 $( function() {
-    $( "#attribute_p" ).sortable();
-    $( "#attribute_p" ).disableSelection();
+    $( "#attribute___p" ).sortable();
+    $( "#attribute___p" ).disableSelection();
   } );
 </script>
 
  <style>
-  #attribute_p { list-style-type: none; margin: 0; padding: 0;}
-  #attribute_p li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
-  #attribute_p li span { position: absolute; margin-left: -1.3em; }
+  #attribute___p { list-style-type: none; margin: 0; padding: 0;}
+  #attribute___p li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
+  #attribute___p li span { position: absolute; margin-left: -1.3em; }
   </style>
 
 {% endblock %}

@@ -19,6 +19,7 @@ import search.urls as search_urls
 from .views import home
 
 urlpatterns = [
+    url('^', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^$', home, name='home'),
     url(r'^search/', include(search_urls)),

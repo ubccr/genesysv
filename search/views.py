@@ -17,19 +17,42 @@ import itertools
 
 def filter_dicts(array, key, values):
     output = []
-    print(array,key, values)
     for ele in array:
         tmp = ele.get(key)
         if tmp in values:
             output.append(ele)
 
-def filter_array_dicts(array, key, values):
+def filter_array_dicts(array, key, values, comparison_type):
     output = []
-    print(array,key, values)
+    # print(values)
     for ele in array:
         tmp = ele.get(key)
-        if tmp in values:
-            output.append(ele)
+        if not tmp:
+            continue
+        # print(tmp)
+        for val in values:
+            if comparison_type == "lt":
+                if float(tmp) < float(val):
+                    output.append(ele)
+
+            elif comparison_type == "lte":
+                if float(tmp) <= float(val):
+                    output.append(ele)
+
+            elif comparison_type == "gt":
+                if float(tmp) > float(val):
+                    output.append(ele)
+
+            elif comparison_type == "gte":
+                if float(tmp) >= float(val):
+                    output.append(ele)
+
+            elif comparison_type == "equal":
+                if tmp == val:
+                    output.append(ele)
+            else:
+                if tmp == val:
+                    output.append(ele)
 
     return output
 
@@ -76,11 +99,16 @@ def get_filter_form(request):
             es_form = ESFilterFormPart(panel.filter_fields.all(), prefix='filter_')
 
             sub_panels = []
+
             for sub_panel in panel.filtersubpanel_set.all():
+                if panel.are_sub_panels_mutually_exclusive:
+                    MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
+                else:
+                    MEgroup = None
                 tmp_sub_panel_dict = {}
                 tmp_sub_panel_dict['display_name'] = sub_panel.name
                 tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.all(), prefix='filter_')
+                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.all(), MEgroup, prefix='filter_')
                 sub_panels.append(tmp_sub_panel_dict)
 
             tmp_dict['panels'].append({'display_name': panel.name,
@@ -101,20 +129,30 @@ def get_attribute_form(request):
         tmp_dict = {}
         tmp_dict['name'] = tab.name
         tmp_dict['panels'] = []
-        for panel in AttributePanel.objects.filter(attribute_tab=tab):
-            es_form = ESAttributeFormPart(panel.attribute_fields.all(), prefix='attribute_group')
+        for idx_panel, panel in enumerate(AttributePanel.objects.filter(attribute_tab=tab), start=1):
+            if panel.attribute_fields.all():
+                es_form = ESAttributeFormPart(panel.attribute_fields.all(), prefix='%d___attribute_group' %(idx_panel))
+            else:
+                es_form = None
 
             sub_panels = []
-            for sub_panel in panel.attributesubpanel_set.all():
+            for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.all(), start=1):
                 tmp_sub_panel_dict = {}
                 tmp_sub_panel_dict['display_name'] = sub_panel.name
                 tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.all(), prefix='attribute_group')
+                if sub_panel.attribute_fields.all():
+                    tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.all(), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+                else:
+                    tmp_sub_panel_dict['form'] = None
+                tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
+
                 sub_panels.append(tmp_sub_panel_dict)
 
+            # print(panel.name, es_form)
             tmp_dict['panels'].append({'display_name': panel.name,
                                       'name': ''.join(panel.name.split()).lower(),
                                       'form': es_form,
+                                      'attribute_group_id': '%d___attribute_group' %(idx_panel),
                                       'sub_panels': sub_panels })
         tabs.append(tmp_dict)
 
@@ -188,24 +226,21 @@ def search_result(request):
 
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
-
+            # print(es_attribute_form_data)
             source_fields = []
-            non_nested_fields = []
-            nested_attribute_fields = {}
-            nested_filter_fields = {}
+            non_nested_attribute_fields = []
+            nested_attribute_fields = []
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
+                    # print(key,val)
                     es_name, path = key.split('-')
                     if path:
                         source_fields.append(path)
-                        if path not in nested_fields:
-                            nested_attribute_fields[path] = []
-                            nested_filter_fields[path] = []
-                        nested_attribute_fields[path].append(es_name)
+                        nested_attribute_fields.append(path)
                     else:
                         source_fields.append(es_name)
-                        non_nested_fields.append(es_name)
+                        non_nested_attribute_fields.append(es_name)
 
             terminate = True if request.POST.get('terminate') else False
             terminate = True
@@ -213,57 +248,97 @@ def search_result(request):
             keys = es_filter_form_data.keys()
             used_keys = []
 
+
+            nested_attribute_fields = list(set(nested_attribute_fields))
+            dict_filter_fields = {}
+
+
             for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
                 data = es_filter_form_data[key]
 
 
-
                 if not data:
                     continue
+
+                # print(key, es_name, es_filter_type, path, data, type(data))
+
+                if path and path not in source_fields:
+                    source_fields.append(path)
+                elif not path and es_name not in source_fields:
+                    source_fields.append(es_name)
+
+                if path.strip():
+                    post_filter_field = "%s___%s___%s" %(path, es_name, es_filter_type)
+                    dict_filter_fields[post_filter_field] = []
+
                 used_keys.append((key.split('-')[0], data))
                 # print(key, es_name, es_filter_type, es_form_data[key], type(es_form_data[key]))
                 field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type, path=path)
                 if es_filter_type in 'must_term':
                     if isinstance(data, list):
                         for ele in data:
-                            es_filter.add_must_term(es_name, ele)
+                            es_filter.add_must_term(es_name, ele.strip())
                     else:
                         es_filter.add_must_term(es_name, data)
+
                 elif es_filter_type in 'should_term' and isinstance(data, str):
                     for ele in data.split('\n'):
                         es_filter.add_should_term(es_name, ele.strip())
+
                 elif es_filter_type in 'should_term' and isinstance(data, list):
                     for ele in data:
-                        es_filter.add_should_term(es_name, ele)
+                        es_filter.add_should_term(es_name, ele.strip())
+
                 elif es_filter_type in 'nested_must_term' and isinstance(data, str):
                     for ele in data.split('\n'):
                         es_filter.add_nested_must_term(es_name, ele.strip(), field_obj.path)
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type in 'nested_must_term' and isinstance(data, list):
                     for ele in data:
-                        es_filter.add_nested_must_term(es_name, ele, field_obj.path)
+                        es_filter.add_nested_must_term(es_name, ele.strip(), field_obj.path)
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type in 'nested_should_term' and isinstance(data, str):
                     for ele in data.split('\n'):
                         es_filter.add_nested_should_term(es_name, ele.strip(), field_obj.path)
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type in 'nested_should_term' and isinstance(data, list):
                     for ele in data:
-                        es_filter.add_nested_should_term(es_name, ele, field_obj.path)
+                        es_filter.add_nested_should_term(es_name, ele.strip(), field_obj.path)
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type in 'must_range_gte':
                     es_filter.add_must_range_gte(es_name, data)
+
                 elif es_filter_type in 'must_range_lte':
                     es_filter.add_must_range_lte(es_name, data)
 
-                for field in source_fields:
-                    es_filter.add_source(field)
+                elif es_filter_type in 'nested_must_range_gte':
+                    es_filter.add_nested_must_range_gte(es_name, data, path)
+                    dict_filter_fields[post_filter_field].append(int(data.strip()))
+
+                elif es_filter_type in 'must_exists':
+                    if data == 'only':
+                        es_filter.add_must_exists(es_name, data)
+                    else:
+                        es_filter.add_must_missing(es_name, data)
+
+            for field in source_fields:
+                # if field:
+                es_filter.add_source(field)
 
 
             content =  es_filter.generate_query_string()
 
+            # pprint(content)
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            # pprint(query)
-            if terminate:
-                uri = '%s/%s/%s/_search?terminate_after=80' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
+            # print(query)
+            if True:
+                uri = '%s/%s/%s/_search?terminate_after=200' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
             else:
                 uri = '%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
@@ -276,6 +351,7 @@ def search_result(request):
             headers = []
 
             for key, val in attribute_order.items():
+                # print(val)
                 order, es_name, path = val.split('-')
                 attribute = AttributeField.objects.get(dataset=dataset_obj, es_name=es_name, path=path)
                 headers.append((int(order), attribute))
@@ -288,33 +364,51 @@ def search_result(request):
             for ele in tmp_results:
                 results.append(ele['_source'])
 
+            # print(results)
+            # print(dict_filter_fields)
             if nested_attribute_fields:
                 final_results = []
-                for result in results:
-                    if len(final_results)> 1000:
+                results_count = 0
+                for idx, result in enumerate(results):
+                    if results_count>1000:
                         break
+                    # print(results)
+                    for idx, path in enumerate(nested_attribute_fields):
 
-                    for path, es_names in nested_attribute_fields.items():
-                        values = nested_attribute_fields[path]
-                        result[path] = filter_array_dicts(result[path], es_name, values)
-                        if not result[key]:
-                            continue
+                        if dict_filter_fields:
+                            for key, val in dict_filter_fields.items():
+                                key_path, key_es_name, key_es_filter_type = key.split('___')
+                                if key_es_filter_type in ["must_range_gte",
+                                                          "must_range_lte",
+                                                          "must_range_lt",
+                                                          "nested_must_range_gte",]:
+                                    comparison_type = key_es_filter_type.split('_')[-1]
+                                else:
+                                    comparison_type = 'equal'
+
+                                # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
+
+                                result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
 
                         if idx == 0:
-                            combined_nested = result[key]
+                            combined_nested = result[path]
                             continue
                         else:
-                            combined_nested = list(itertools.product(combined_nested, result[key]))
+                            combined_nested = list(itertools.product(combined_nested, result[path]))
                             combined_nested = merge_two_dicts_array(combined_nested)
 
-                    tmp_non_nested = subset_dict(result, non_nested_fields)
+
+
+                    tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
                     tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
 
                     for x,y in tmp_output:
                         tmp = merge_two_dicts(x,y)
                         final_results.append(tmp)
+                        results_count += 1
             else:
                 final_results = results
+
 
             context['used_keys'] = used_keys
             context['took'] = took

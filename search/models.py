@@ -50,7 +50,9 @@ class FilterField(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     display_name = models.CharField(max_length=255)
+    in_line_tooltip = models.CharField(max_length=255, null=True, blank=True)
     tooltip = models.CharField(max_length=255, null=True, blank=True)
+    default_value = models.CharField(max_length=255, null=True, blank=True)
     form_type = models.ForeignKey(
         'FormType',
         on_delete=models.CASCADE,

@@ -23,15 +23,21 @@
                             <div class="panel panel-primary">
                               <div class="panel-heading">
                                 <h3 class="panel-title">
-                                  <a data-toggle="collapse" data-parent="#accordion" href="#{{panel.name|slugify}}">{{panel.display_name}}</a>
+                                  <a data-toggle="collapse" data-parent="#accordion" href="#filter-{{panel.name|slugify}}">{{panel.display_name}}</a>
                                 </h3>
                               </div>
-                              <div id="{{panel.name|slugify}}" class="panel-collapse collapse in">
+                              {% if forloop.counter == 1 %}
+                                    <div id="filter-{{panel.name|slugify}}" class="panel-collapse collapse in">
+                              {% else %}
+                                    <div id="filter-{{panel.name|slugify}}" class="panel-collapse collapse">
+                              {% endif %}
                                 <div class="panel-body">
                                 {% for field in panel.form %}
                                     <div class="row">
                                         <div class="col-md-11">{{field|as_crispy_field}}</div>
-                                        <div id="{{field.auto_id}}_reset_div" class="col-md-1" style="display: none;"><i id="{{field.auto_id}}_reset_main"  class="fa fa-times reset_button" aria-hidden="true"></i></div>
+                                        <div id="{{field.auto_id}}_reset_div" class="col-md-1" style="display: none;">
+                                            <i id="{{field.auto_id}}_reset_main"  class="fa fa-times reset_button" aria-hidden="true"></i>
+                                        </div>
                                     </div>
                                  {% endfor %}
 
@@ -73,10 +79,11 @@ $(".upload-field").each(function(){
     var field = document.getElementById(field_id);
     var upload_field_id = field_id + "___uploadFieldId"
     var parent_div = $(field).parent()
-    var content = "<input class='upload-file' type='file' id=\"" + upload_field_id +"\">"
+    var content = "<input type='file' id=\"" + upload_field_id +"\">"
     parent_div.append(content)
 
 });
+
 
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover();
