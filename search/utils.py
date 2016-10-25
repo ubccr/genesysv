@@ -163,7 +163,7 @@ class ElasticSearchFilter():
                         "path": path,
                         "filter": {
                             "bool": {
-                                "must": []
+                                "should": []
                             }
                         }
                     }
@@ -171,7 +171,7 @@ class ElasticSearchFilter():
 
                 for field_name, value in nested_must_term[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
-                    nested["nested"]["filter"]["bool"]["must"].append({"term" : {path_fieldname: value}})
+                    nested["nested"]["filter"]["bool"]["should"].append({"term" : {path_fieldname: value}})
 
                 query_string["filter"]["bool"]["must"].append(nested)
 
@@ -297,6 +297,6 @@ class ElasticSearchFilter():
                 query_string["filter"]["bool"]["must"].append({"missing" : {"field": field_name}})
 
         if self.get_source():
-            query_string['_source'] = self.get_source()
+            query_string['_source'] = sorted(list(set(self.get_source())))
 
         return query_string

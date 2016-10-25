@@ -175,3 +175,15 @@ class AttributeSubPanel(TimeStampedModel):
     def __str__(self):
         return self.name
 
+
+class SearchResultDownload(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    headers = models.TextField()
+    query = models.TextField()
+    nested_attribute_fields = models.TextField(null=True, blank=True)
+    non_nested_attribute_fields = models.TextField(null=True, blank=True)
+    dict_filter_fields = models.TextField(null=True, blank=True)
+    used_keys = models.TextField(null=True, blank=True)

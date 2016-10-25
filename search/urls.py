@@ -10,4 +10,5 @@ urlpatterns = (
     url(r'^search_old_home$', search_old_home, name='search-old-home'),
     # url(r'^result$', search_result, name='search-result'),
     url(r'^results$', search_result, name='search-result'),
+     url(r'^result_download$', search_result_download, name='search-result-download'),
 )

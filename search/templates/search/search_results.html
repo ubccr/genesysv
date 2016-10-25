@@ -22,6 +22,21 @@
 
 <br>
 
+<div class="well">
+    <a class="btn btn-primary back_to_top_container" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
+    <a class="btn btn-primary " role="button" href="/search">New Search</a>
+    {% if user.is_authenticated %}
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
+    {% endif %}
+    <a class="btn btn-primary pull-right download-results" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
+    <form id="download-form" role="form"  method="POST" action="{% url 'search-result-download' %}">
+        {% csrf_token %}
+        <input style="display: none;" type="hidden" name="search_result_download_obj_id" value="{{search_result_download_obj_id}}">
+    </form>
+    <div class="clearfix"></div>
+</div>
+
+
 <div class="panel panel-primary">
 <div class="panel-body">
 <div class="table-responsive">
@@ -47,6 +62,9 @@
 
 </div>
 </div>
+
+<br>
+
 <br>
 
 <script>
@@ -58,6 +76,9 @@
 
     });
 
+    $(".download-results").on("click", function() {
+        $("#download-form").submit();
+    });
 
 
 </script>

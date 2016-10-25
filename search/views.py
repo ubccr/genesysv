@@ -14,6 +14,7 @@ from pprint import pprint
 import time
 from operator import itemgetter, attrgetter, methodcaller
 import itertools
+from django.core import serializers
 
 def filter_dicts(array, key, values):
     output = []
@@ -50,8 +51,11 @@ def filter_array_dicts(array, key, values, comparison_type):
             elif comparison_type == "equal":
                 if tmp == val:
                     output.append(ele)
+            elif comparison_type == "in":
+                # if val in tmp:
+                    output.append(ele)
             else:
-                if tmp == val:
+                if val in tmp:
                     output.append(ele)
 
     return output
@@ -336,7 +340,7 @@ def search_result(request):
             # pprint(content)
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            # print(query)
+            print(query)
             if True:
                 uri = '%s/%s/%s/_search?terminate_after=200' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
             else:
@@ -384,7 +388,7 @@ def search_result(request):
                                                           "nested_must_range_gte",]:
                                     comparison_type = key_es_filter_type.split('_')[-1]
                                 else:
-                                    comparison_type = 'equal'
+                                    comparison_type = 'in'
 
                                 # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
 
@@ -410,12 +414,84 @@ def search_result(request):
                 final_results = results
 
 
+            header_json = serializers.serialize("json", headers)
+            query_json = json.dumps(query)
+            if nested_attribute_fields:
+                nested_attribute_fields_json = json.dumps(nested_attribute_fields)
+            else:
+                nested_attribute_fields_json = None
+
+            if non_nested_attribute_fields:
+                non_nested_attribute_fields_json = json.dumps(non_nested_attribute_fields)
+            else:
+                non_nested_attribute_fields_json = None
+
+            if dict_filter_fields:
+                dict_filter_fields_json = json.dumps(dict_filter_fields)
+            else:
+                dict_filter_fields_json = None
+
+            if used_keys:
+                used_keys_json = json.dumps(used_keys)
+            else:
+                used_keys_json = None
+
+
+            search_result_download_obj = SearchResultDownload.objects.create(
+                                                dataset=dataset_obj,
+                                                headers=header_json,
+                                                query=query_json,
+                                                nested_attribute_fields=nested_attribute_fields_json,
+                                                non_nested_attribute_fields=non_nested_attribute_fields_json,
+                                                dict_filter_fields=dict_filter_fields_json,
+                                                used_keys=used_keys_json
+                                            )
+
+
+            # print("dict_filter_fields",dict_filter_fields)
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
             context['results'] = final_results
-            context['headers'] = headers
             context['content_generate_time'] = content_generate_time
             context['after_results_time'] = datetime.now() - start_after_results_time
             context['total_time'] = datetime.now() - start_time
+            context['headers'] = headers
+            context['search_result_download_obj_id'] = search_result_download_obj.id
+
             return render(request, 'search/search_results.html', context)
+
+
+@gzip_page
+def search_result_download(request):
+    search_result_download_obj_id = request.POST['search_result_download_obj_id']
+    search_result_download_obj = SearchResultDownload.objects.get(id=search_result_download_obj_id)
+    dataset_obj = search_result_download_obj.dataset
+    headers = search_result_download_obj.headers
+    headers = [ele.object for ele in serializers.deserialize("json", headers)]
+    query = json.loads(search_result_download_obj.query)
+
+    if search_result_download_obj.nested_attribute_fields:
+        nested_attribute_fields = json.loads(search_result_download_obj.nested_attribute_fields)
+    else:
+        nested_attribute_fields = []
+
+    if search_result_download_obj.non_nested_attribute_fields:
+        non_nested_attribute_fields = json.loads(search_result_download_obj.non_nested_attribute_fields)
+    else:
+        non_nested_attribute_fields = []
+
+    if search_result_download_obj.dict_filter_fields:
+        dict_filter_fields = json.loads(search_result_download_obj.dict_filter_fields)
+    else:
+        dict_filter_fields = []
+
+    if search_result_download_obj.used_keys:
+        used_keys = json.loads(search_result_download_obj.used_keys)
+    else:
+        used_keys = []
+
+
+    print(headers)
+    return HttpResponse(search_result_download_obj)
+
