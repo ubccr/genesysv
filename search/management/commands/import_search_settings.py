@@ -206,7 +206,8 @@ class Command(BaseCommand):
              'Static Induced Myopathy WGS',
              'sim',
              'wgs_hg19_multianno',
-             'http://199.109.195.45:9200/'),
+             '199.109.195.45',
+             '9200'),
         )
 
         for name, description in studies:
@@ -215,13 +216,14 @@ class Command(BaseCommand):
 
         study_obj = Study.objects.get(name='Statin Induced Myopathy')
 
-        for name, description, es_index_name, es_type_name, es_host in datasets:
+        for name, description, es_index_name, es_type_name, es_host, es_port in datasets:
             dataset_object, _ = Dataset.objects.get_or_create(study=study_obj,
                                           name=name,
                                           description=description,
                                           es_index_name=es_index_name,
                                           es_type_name=es_type_name,
                                           es_host=es_host,
+                                          es_port=es_port,
                                           is_public=True)
 
 
@@ -506,6 +508,7 @@ class Command(BaseCommand):
        ##
         filter_panel = (
             ('Variant', 'must_term'),
+            ('Chr', 'should_term'),
             ('Start', 'must_term'),
             ('Ref', 'must_term'),
             ('Alt', 'must_term'),
@@ -778,6 +781,7 @@ class Command(BaseCommand):
        ##
         attribute_panel = (
             ('Variant', ''),
+            ('Chr', ''),
             ('Start', ''),
             ('Ref', ''),
             ('Alt', ''),

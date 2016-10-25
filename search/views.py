@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.gzip import gzip_page
+from django.http import StreamingHttpResponse
 from datetime import datetime
 from functools import lru_cache
 from django.http import QueryDict
 from .utils import ElasticSearchFilter
+from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 from .forms import ESFilterForm, ESFilterFormPart, ESAttributeFormPart, ESAttributeForm
 import requests
 import json
@@ -15,6 +18,7 @@ import time
 from operator import itemgetter, attrgetter, methodcaller
 import itertools
 from django.core import serializers
+import csv
 
 def filter_dicts(array, key, values):
     output = []
@@ -51,9 +55,11 @@ def filter_array_dicts(array, key, values, comparison_type):
             elif comparison_type == "equal":
                 if tmp == val:
                     output.append(ele)
-            elif comparison_type == "in":
-                # if val in tmp:
-                    output.append(ele)
+            elif comparison_type == "default":
+                for ele_tmp in tmp.split('_'):
+                    if val.lower() == ele_tmp.lower():
+                        output.append(ele)
+                        break
             else:
                 if val in tmp:
                     output.append(ele)
@@ -342,9 +348,9 @@ def search_result(request):
             query = json.dumps(content)
             print(query)
             if True:
-                uri = '%s/%s/%s/_search?terminate_after=200' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
+                uri = 'http://%s:%s/%s/%s/_search?terminate_after=200' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             else:
-                uri = '%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_index_name, dataset_obj.es_type_name)
+                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
             results = json.loads(response.text)
 
@@ -388,9 +394,9 @@ def search_result(request):
                                                           "nested_must_range_gte",]:
                                     comparison_type = key_es_filter_type.split('_')[-1]
                                 else:
-                                    comparison_type = 'in'
+                                    comparison_type = 'default'
 
-                                # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
+                                print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
 
                                 result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
 
@@ -461,7 +467,77 @@ def search_result(request):
 
             return render(request, 'search/search_results.html', context)
 
+def yield_results(dataset_obj,
+                    header_keys,
+                    query,
+                    nested_attribute_fields,
+                    non_nested_attribute_fields,
+                    dict_filter_fields,
+                    used_keys):
 
+
+    es = Elasticsearch(host=dataset_obj.es_host)
+    # query = json.dumps(query)
+    yield header_keys
+    for ele in helpers.scan(es,
+                            query=query,
+                            scroll=u'5m',
+                            size=1000,
+                            preserve_order=False,
+                            index=dataset_obj.es_index_name,
+                            doc_type=dataset_obj.es_type_name):
+
+        result = ele['_source']
+        final_results = []
+        if nested_attribute_fields:
+            for idx, path in enumerate(nested_attribute_fields):
+                if dict_filter_fields:
+                    for key, val in dict_filter_fields.items():
+                        key_path, key_es_name, key_es_filter_type = key.split('___')
+                        if key_es_filter_type in ["must_range_gte",
+                                                  "must_range_lte",
+                                                  "must_range_lt",
+                                                  "nested_must_range_gte",]:
+                            comparison_type = key_es_filter_type.split('_')[-1]
+                        else:
+                            comparison_type = 'in'
+
+                        result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+
+                if idx == 0:
+                    combined_nested = result[path]
+                    continue
+                else:
+                    combined_nested = list(itertools.product(combined_nested, result[path]))
+                    combined_nested = merge_two_dicts_array(combined_nested)
+
+            tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
+            tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+
+            for x,y in tmp_output:
+                tmp = merge_two_dicts(x,y)
+                final_results.append(tmp)
+        else:
+            final_results = [result,]
+
+
+
+        for idx, result in enumerate(final_results):
+            tmp = []
+
+            for header in header_keys:
+                tmp.append(str(result.get(header, None)))
+            yield tmp
+
+
+
+class Echo(object):
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
 @gzip_page
 def search_result_download(request):
     search_result_download_obj_id = request.POST['search_result_download_obj_id']
@@ -470,7 +546,9 @@ def search_result_download(request):
     headers = search_result_download_obj.headers
     headers = [ele.object for ele in serializers.deserialize("json", headers)]
     query = json.loads(search_result_download_obj.query)
-
+    query = json.loads(query)
+    print(type(query))
+    print(query)
     if search_result_download_obj.nested_attribute_fields:
         nested_attribute_fields = json.loads(search_result_download_obj.nested_attribute_fields)
     else:
@@ -491,7 +569,27 @@ def search_result_download(request):
     else:
         used_keys = []
 
+    header_keys = [ele.es_name for ele in headers]
 
-    print(headers)
-    return HttpResponse(search_result_download_obj)
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer, delimiter='\t')
+
+
+    results = yield_results(dataset_obj,
+                    header_keys,
+                    query,
+                    nested_attribute_fields,
+                    non_nested_attribute_fields,
+                    dict_filter_fields,
+                    used_keys)
+    response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="results.tsv"'
+    return response
+
+    # for ele in results:
+    #     print(ele)
+    # return HttpResponse(ele)
+
+
 

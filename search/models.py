@@ -38,6 +38,7 @@ class Dataset(TimeStampedModel):
     es_index_name = models.CharField(max_length=255)
     es_type_name = models.CharField(max_length=255)
     es_host = models.CharField(max_length=255)
+    es_port = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, blank=True)
 
@@ -187,3 +188,7 @@ class SearchResultDownload(TimeStampedModel):
     non_nested_attribute_fields = models.TextField(null=True, blank=True)
     dict_filter_fields = models.TextField(null=True, blank=True)
     used_keys = models.TextField(null=True, blank=True)
+
+
+    def __str__(self):
+        return self.query
