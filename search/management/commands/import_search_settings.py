@@ -203,9 +203,9 @@ class Command(BaseCommand):
             #  'sim',
             #  'wgs_hg19_multianno'),
             ('sim_wgs',
-             'Static Induced Myopathy WGS',
-             'sim',
-             'wgs_hg19_multianno',
+             'SIM Case and Control',
+             'sim3',
+             'SIM_case_control',
              '199.109.195.45',
              '9200'),
         )
@@ -274,6 +274,12 @@ class Command(BaseCommand):
                     sample_id_obj = FilterField.objects.get(dataset=dataset_object, display_name="Sample ID")
                     for choice in SAMPLE_CHOICES:
                         FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice)
+
+
+                if display_name in 'Sample Cohort':
+                    sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name="Sample Cohort")
+                    for choice in ["case", "control"]:
+                        FilterFieldChoice.objects.get_or_create(filter_field=sample_cohort_obj, value=choice)
 
                 if display_name in 'Genotype':
                     genotype_obj = FilterField.objects.get(dataset=dataset_object, display_name="Genotype")
@@ -387,7 +393,9 @@ class Command(BaseCommand):
             FilterFieldChoice.objects.get_or_create(filter_field=SIFT_pred, value=choice)
 
 
-        for es_name in ['avsnp142',
+        for es_name in ['AC_case',
+                        'AC_control',
+                        'avsnp142',
                         'snp138NonFlagged',
                         'wgRna',
                         'cosmic70',
@@ -514,13 +522,21 @@ class Command(BaseCommand):
             ('Alt', 'must_term'),
             ('Type', 'must_term'),
             ('cytoBand', 'should_term'),
-            ('gatk_qs', 'must_range_gte'),
-            ('AC', 'must_range_gte'),
-            ('AC', 'must_range_lte'),
-            ('AN', 'must_range_gte'),
-            ('AN', 'must_range_lte'),
-            ('AF', 'must_range_gte'),
-            ('AF', 'must_range_lte'),
+            ('qs', 'must_range_gte'),
+            ('AC_case', 'must_exists'),
+            ('AC_control', 'must_exists'),
+            ('AC_case', 'must_range_gte'),
+            ('AC_case', 'must_range_lte'),
+            ('AN_case', 'must_range_gte'),
+            ('AN_case', 'must_range_lte'),
+            ('AF_case', 'must_range_gte'),
+            ('AF_case', 'must_range_lte'),
+            ('AC_control', 'must_range_gte'),
+            ('AC_control', 'must_range_lte'),
+            ('AN_control', 'must_range_gte'),
+            ('AN_control', 'must_range_lte'),
+            ('AF_control', 'must_range_gte'),
+            ('AF_control', 'must_range_lte'),
             ('avsnp142', 'should_term'),
             ('avsnp142', 'must_exists')
         )
@@ -746,6 +762,7 @@ class Command(BaseCommand):
             ('sample_ID', 'nested_should_term'),
             ('sample_GT', 'nested_should_term'),
             ('sample_DP', 'nested_must_range_gte'),
+            ('sample_cohort', 'nested_must_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -787,13 +804,13 @@ class Command(BaseCommand):
             ('Alt', ''),
             ('Type', ''),
             ('cytoBand', ''),
-            ('gatk_qs', ''),
-            ('AC', ''),
-            ('AC', ''),
-            ('AN', ''),
-            ('AN', ''),
-            ('AF', ''),
-            ('AF', ''),
+            ('qs', 'gatkQS'),
+            ('AC_case', ''),
+            ('AN_case', ''),
+            ('AF_case', ''),
+            ('AC_control', ''),
+            ('AN_control', ''),
+            ('AF_control', ''),
             ('avsnp142', ''),
         )
 
@@ -1023,6 +1040,7 @@ class Command(BaseCommand):
             ('sample_ID', 'sample'),
             ('sample_GT', 'sample'),
             ('sample_DP', 'sample'),
+            ('sample_cohort', 'sample'),
         )
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
