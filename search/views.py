@@ -20,6 +20,22 @@ import itertools
 from django.core import serializers
 import csv
 
+def compare_array_dictionaries(array_dict1, array_dict2):
+    if len(array_dict1) != len(array_dict2):
+        return False
+
+    compare_results = []
+    for ele1 in array_dict1:
+        status = False
+        for ele2 in array_dict2:
+            if ele2.__eq__(ele1):
+                status = True
+                break
+        compare_results.append(status)
+
+
+    return True if all(compare_results) else False
+
 def filter_dicts(array, key, values):
     output = []
     for ele in array:
@@ -500,7 +516,7 @@ def yield_results(dataset_obj,
                                                   "nested_must_range_gte",]:
                             comparison_type = key_es_filter_type.split('_')[-1]
                         else:
-                            comparison_type = 'in'
+                            comparison_type = 'default'
 
                         result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
 
