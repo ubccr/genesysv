@@ -4,25 +4,22 @@ class ElasticSearchFilter():
         self.size = 1000
         self.source = []
 
-        self.must_term = []
-        self.should_term = []
-        self.nested_must_term = {}
-        self.nested_should_term = {}
+        self.filter_term = []
+        self.filter_terms = []
+        self.nested_filter_term = {}
+        self.nested_filter_terms = {}
 
         self.must_wildcard = []
         self.nested_must_wildcard = []
 
-        self.must_range_gt = []
-        self.must_range_gte = []
-        self.must_range_lt = []
-        self.must_range_lte = []
-        self.nested_must_range_gte = {}
+        self.filter_range_gt = []
+        self.filter_range_gte = []
+        self.filter_range_lt = []
+        self.filter_range_lte = []
+        self.nested_filter_range_gte = {}
 
-        self.must_exists = []
-        self.must_missing = []
-
-
-
+        self.filter_exists = []
+        self.must_not_exists = []
 
 
     def add_source(self, field_name):
@@ -31,38 +28,35 @@ class ElasticSearchFilter():
     def get_source(self):
         return self.source
 
-    def add_must_term(self, field_name, value):
-        self.must_term.append((field_name, value))
+    def add_filter_term(self, field_name, value):
+        self.filter_term.append((field_name, value))
 
-    def get_must_term(self):
-        return self.must_term
+    def get_filter_term(self):
+        return self.filter_term
 
-    def add_should_term(self, field_name, value):
-        self.should_term.append((field_name, value))
+    def add_filter_terms(self, field_name, value):
+        self.filter_terms.append((field_name, value))
 
-    def get_should_term(self):
-        return self.should_term
+    def get_filter_terms(self):
+        return self.filter_terms
 
-    def add_nested_must_term(self, field_name, value, path):
-        if path not in self.nested_must_term:
-            self.nested_must_term[path] = []
-        self.nested_must_term[path].append((field_name, value))
+    def add_nested_filter_term(self, field_name, value, path):
+        if path not in self.nested_filter_term:
+            self.nested_filter_term[path] = []
+        self.nested_filter_term[path].append((field_name, value))
 
-    def get_nested_must_term(self):
-        if list(self.nested_must_term):
-            return self.nested_must_term
-        else:
-            None
-    def add_nested_should_term(self, field_name, value, path):
-        if path not in self.nested_should_term:
-            self.nested_should_term[path] = []
-        self.nested_should_term[path].append((field_name, value))
+    def get_nested_filter_term(self):
+        if list(self.nested_filter_term):
+            return self.nested_filter_term
 
-    def get_nested_should_term(self):
-        if list(self.nested_should_term):
-            return self.nested_should_term
-        else:
-            None
+    def add_nested_filter_terms(self, field_name, value, path):
+        if path not in self.nested_filter_terms:
+            self.nested_filter_terms[path] = []
+        self.nested_filter_terms[path].append((field_name, value))
+
+    def get_nested_filter_terms(self):
+        if list(self.nested_filter_terms):
+            return self.nested_filter_terms
 
     def add_must_wildcard(self, field_name, value):
         self.must_wildcard.append((field_name, value))
@@ -76,53 +70,51 @@ class ElasticSearchFilter():
     def get_nested_must_wildcard(self):
         return self.nested_must_wildcard
 
-    def add_must_range_gt(self, field_name, value):
-        self.must_range_gt.append((field_name, value))
+    def add_filter_range_gt(self, field_name, value):
+        self.filter_range_gt.append((field_name, value))
 
-    def get_must_range_gt(self):
-        return self.must_range_gt
+    def get_filter_range_gt(self):
+        return self.filter_range_gt
 
-    def add_must_range_gte(self, field_name, value):
-        self.must_range_gte.append((field_name, value))
+    def add_filter_range_gte(self, field_name, value):
+        self.filter_range_gte.append((field_name, value))
 
-    def get_must_range_gte(self):
-        return self.must_range_gte
+    def get_filter_range_gte(self):
+        return self.filter_range_gte
 
-    def add_must_range_lt(self, field_name, value):
-        self.must_range_lt.append((field_name, value))
+    def add_filter_range_lt(self, field_name, value):
+        self.filter_range_lt.append((field_name, value))
 
-    def get_must_range_lt(self):
-        return self.must_range_lt
+    def get_filter_range_lt(self):
+        return self.filter_range_lt
 
-    def add_must_range_lte(self, field_name, value):
-        self.must_range_lte.append((field_name, value))
+    def add_filter_range_lte(self, field_name, value):
+        self.filter_range_lte.append((field_name, value))
 
-    def get_must_range_lte(self):
-        return self.must_range_lte
+    def get_filter_range_lte(self):
+        return self.filter_range_lte
 
 
-    def add_nested_must_range_gte(self, field_name, value, path):
-        if path not in self.nested_must_range_gte:
-            self.nested_must_range_gte[path] = []
-        self.nested_must_range_gte[path].append((field_name, value))
+    def add_nested_filter_range_gte(self, field_name, value, path):
+        if path not in self.nested_filter_range_gte:
+            self.nested_filter_range_gte[path] = []
+        self.nested_filter_range_gte[path].append((field_name, value))
 
-    def get_nested_must_range_gte(self):
-        if list(self.nested_must_range_gte):
-            return self.nested_must_range_gte
-        else:
-            None
+    def get_nested_filter_range_gte(self):
+        if list(self.nested_filter_range_gte):
+            return self.nested_filter_range_gte
 
-    def add_must_exists(self, field_name, value):
-        self.must_exists.append((field_name, value))
+    def add_filter_exists(self, field_name, value):
+        self.filter_exists.append((field_name, value))
 
-    def get_must_exists(self):
-        return self.must_exists
+    def get_filter_exists(self):
+        return self.filter_exists
 
-    def add_must_missing(self, field_name, value):
-        self.must_missing.append((field_name, value))
+    def add_must_not_exists(self, field_name, value):
+        self.must_not_exists.append((field_name, value))
 
-    def get_must_missing(self):
-        return self.must_missing
+    def get_must_not_exists(self):
+        return self.must_not_exists
 
     def generate_query_string(self):
         query_string = {
@@ -133,73 +125,73 @@ class ElasticSearchFilter():
             }
 
 
-        if self.get_must_term():
-            must_term = self.get_must_term()
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+        if self.get_filter_term():
+            filter_term = self.get_filter_term()
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in must_term:
-                query_string["query"]["bool"]["must"].append({"term" : {field_name: value}})
+            for field_name, value in filter_term:
+                query_string["query"]["bool"]["filter"].append({"term" : {field_name: value}})
 
-        if self.get_should_term():
-            should_term = self.get_should_term()
+        if self.get_filter_terms():
+            filter_terms = self.get_filter_terms()
 
-            if "should" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["should"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in should_term:
-                query_string["query"]["bool"]["should"].append({"term" : {field_name: value}})
+            for field_name, value in filter_terms:
+                query_string["query"]["bool"]["filter"].append({"terms" : {field_name: value}})
 
-        if self.get_nested_must_term():
-            nested_must_term = self.get_nested_must_term()
+        if self.get_nested_filter_term():
+            nested_filter_term = self.get_nested_filter_term()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
 
-            for path in list(nested_must_term):
+            for path in list(nested_filter_term):
                 nested = {
                     "nested" : {
                         "path": path,
                         "query": {
                             "bool": {
-                                "should": []
+                                "filter": []
                             }
                         }
                     }
                 }
 
-                for field_name, value in nested_must_term[path]:
+                for field_name, value in nested_filter_term[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
-                    nested["nested"]["query"]["bool"]["should"].append({"term" : {path_fieldname: value}})
+                    nested["nested"]["query"]["bool"]["filter"].append({"term" : {path_fieldname: value}})
 
-                query_string["query"]["bool"]["must"].append(nested)
+                query_string["query"]["bool"]["filter"].append(nested)
 
-        if self.get_nested_should_term():
-            nested_should_term = self.get_nested_should_term()
+        if self.get_nested_filter_terms():
+            nested_filter_terms = self.get_nested_filter_terms()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
 
-            for path in list(nested_should_term):
+            for path in list(nested_filter_terms):
                 nested = {
                     "nested" : {
                         "path": path,
                         "query": {
                             "bool": {
-                                "should": []
+                                "filter": []
                             }
                         }
                     }
                 }
 
 
-                for field_name, value in nested_should_term[path]:
+                for field_name, value in nested_filter_terms[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
-                    nested["nested"]["query"]["bool"]["should"].append({"term" : {path_fieldname: value}})
+                    nested["nested"]["query"]["bool"]["filter"].append({"terms" : {path_fieldname: value}})
 
-                query_string["query"]["bool"]["must"].append(nested)
+                query_string["query"]["bool"]["filter"].append(nested)
 
         if self.get_nested_must_wildcard():
             nested_must_wildcard = self.get_nested_must_wildcard()
@@ -216,92 +208,97 @@ class ElasticSearchFilter():
             query_string["query"]["bool"]["must"].append(nested)
 
 
-        if self.get_must_range_gt():
-            must_range_gt = self.get_must_range_gt()
+        if self.get_filter_range_gt():
+            filter_range_gt = self.get_filter_range_gt()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in must_range_gt:
-                query_string["query"]["bool"]["must"].append({"range" : {field_name: {"gt": value}}})
+            for field_name, value in filter_range_gt:
+                query_string["query"]["bool"]["filter"].append({"range" : {field_name: {"gt": value}}})
 
-        if self.get_must_range_gte():
-            must_range_gte = self.get_must_range_gte()
+        if self.get_filter_range_gte():
+            filter_range_gte = self.get_filter_range_gte()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in must_range_gte:
-                query_string["query"]["bool"]["must"].append({"range" : {field_name: {"gte": value}}})
+            for field_name, value in filter_range_gte:
+                query_string["query"]["bool"]["filter"].append({"range" : {field_name: {"gte": value}}})
 
-        if self.get_must_range_lt():
-            must_range_lt = self.get_must_range_lt()
+        if self.get_filter_range_lt():
+            filter_range_lt = self.get_filter_range_lt()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in must_range_lt:
-                query_string["query"]["bool"]["must"].append({"range" : {field_name: {"lt": value}}})
+            for field_name, value in filter_range_lt:
+                query_string["query"]["bool"]["filter"].append({"range" : {field_name: {"lt": value}}})
 
-        if self.get_must_range_lte():
-            must_range_lte = self.get_must_range_lte()
+        if self.get_filter_range_lte():
+            filter_range_lte = self.get_filter_range_lte()
 
 
-            for field_name, value in must_range_lte:
+            for field_name, value in filter_range_lte:
                 if value == "0":
                     if "must_not" not in query_string["query"]["bool"]:
                         query_string["query"]["bool"]["must_not"] = []
                     query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name}})
                 else:
-                    if "must" not in query_string["query"]["bool"]:
-                        query_string["query"]["bool"]["must"] = []
-                    query_string["query"]["bool"]["must"].append({"range" : {field_name: {"lte": value}}})
+                    if "filter" not in query_string["query"]["bool"]:
+                        query_string["query"]["bool"]["filter"] = []
+                    query_string["query"]["bool"]["filter"].append({"range" : {field_name: {"lte": value}}})
 
 
-        if self.get_nested_must_range_gte():
-            nested_must_range_gte = self.get_nested_must_range_gte()
+        if self.get_nested_filter_range_gte():
+            nested_filter_range_gte = self.get_nested_filter_range_gte()
 
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
 
-            for path in list(nested_must_range_gte):
+            for path in list(nested_filter_range_gte):
                 nested = {
                     "nested" : {
                         "path": path,
                         "query": {
                             "bool": {
-                                "must": []
+                                "filter": []
                             }
                         }
                     }
                 }
 
 
-                for field_name, value in nested_must_range_gte[path]:
+                for field_name, value in nested_filter_range_gte[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
-                    nested["nested"]["query"]["bool"]["must"].append({"range" : {path_fieldname: {"gte": value}}})
+                    nested["nested"]["query"]["bool"]["filter"].append({"range" : {path_fieldname: {"gte": value}}})
 
-                    query_string["query"]["bool"]["must"].append(nested)
+                    query_string["query"]["bool"]["filter"].append(nested)
 
 
-        if self.get_must_exists():
-            must_exists = self.get_must_exists()
-            if "must" not in query_string["query"]["bool"]:
-                query_string["query"]["bool"]["must"] = []
+        if self.get_filter_exists():
+            filter_exists = self.get_filter_exists()
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
 
-            for field_name, value in must_exists:
-                query_string["query"]["bool"]["must"].append({"exists" : {"field": field_name}})
+            for field_name, value in filter_exists:
+                query_string["query"]["bool"]["filter"].append({"exists" : {"field": field_name}})
 
-        if self.get_must_missing():
-            must_missing = self.get_must_missing()
-            if "must" not in query_string["query"]["bool"]:
+        if self.get_must_not_exists():
+            must_not_exists = self.get_must_not_exists()
+            if "must_not" not in query_string["query"]["bool"]:
                 query_string["query"]["bool"]["must_not"] = []
 
-            for field_name, value in must_missing:
-                query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name}})
+            for field_name, value in must_not_exists:
+                query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name+value.strip()}})
 
         if self.get_source():
             query_string['_source'] = sorted(list(set(self.get_source())))
 
+
+        if not query_string['query']['bool']:
+            query_string.pop('query')
+        else:
+            query_string['query']['bool']['disable_coord'] = True
         return query_string

@@ -73,7 +73,7 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
             elif comparison_type == "default":
                 for ele_tmp in tmp.split('_'):
-                    if val.lower() == ele_tmp.lower():
+                    if val.lower() in ele_tmp.lower():
                         output.append(ele)
                         break
             else:
@@ -251,6 +251,7 @@ def search_result(request):
             es_filter = ElasticSearchFilter()
 
             es_filter_form_data = es_filter_form.cleaned_data
+            # print(es_filter_form_data)
             es_attribute_form_data = es_attribute_form.cleaned_data
             # print(es_attribute_form_data)
             source_fields = []
@@ -299,58 +300,58 @@ def search_result(request):
                     dict_filter_fields[post_filter_field] = []
 
                 used_keys.append((key.split('-')[0], data))
-                # print(key, es_name, es_filter_type, es_form_data[key], type(es_form_data[key]))
+                print(key, data, type(data), es_filter_type)
                 field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type, path=path)
-                if es_filter_type in 'must_term':
+                if es_filter_type == 'filter_term':
                     if isinstance(data, list):
                         for ele in data:
-                            es_filter.add_must_term(es_name, ele.strip())
+                            es_filter.add_filter_term(es_name, ele.strip())
                     else:
-                        es_filter.add_must_term(es_name, data)
+                        es_filter.add_filter_term(es_name, data)
 
-                elif es_filter_type in 'should_term' and isinstance(data, str):
-                    for ele in data.split('\n'):
-                        es_filter.add_should_term(es_name, ele.strip())
+                elif es_filter_type == 'filter_terms' and isinstance(data, str):
+                    es_filter.add_filter_terms(es_name, data.splitlines())
 
-                elif es_filter_type in 'should_term' and isinstance(data, list):
+                elif es_filter_type == 'filter_terms' and isinstance(data, list):
+                    es_filter.add_filter_terms(es_name, data)
+
+                elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
+                    for ele in data.splitlines():
+                        es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+
+                elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
-                        es_filter.add_should_term(es_name, ele.strip())
-
-                elif es_filter_type in 'nested_must_term' and isinstance(data, str):
-                    for ele in data.split('\n'):
-                        es_filter.add_nested_must_term(es_name, ele.strip(), field_obj.path)
+                        es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
                         dict_filter_fields[post_filter_field].append(ele.strip())
-
-                elif es_filter_type in 'nested_must_term' and isinstance(data, list):
+                elif es_filter_type == 'nested_filter_terms' and isinstance(data, str):
+                    es_filter.add_nested_filter_terms(es_name, data.splitlines(), field_obj.path)
+                    for ele in data.splitlines():
+                        dict_filter_fields[post_filter_field].append(ele.strip())
+                elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
+                    print(332,data)
+                    es_filter.add_nested_filter_terms(es_name, data, field_obj.path)
                     for ele in data:
-                        es_filter.add_nested_must_term(es_name, ele.strip(), field_obj.path)
                         dict_filter_fields[post_filter_field].append(ele.strip())
 
-                elif es_filter_type in 'nested_should_term' and isinstance(data, str):
-                    for ele in data.split('\n'):
-                        es_filter.add_nested_should_term(es_name, ele.strip(), field_obj.path)
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                elif es_filter_type == 'filter_range_gte':
+                    es_filter.add_filter_range_gte(es_name, data)
 
-                elif es_filter_type in 'nested_should_term' and isinstance(data, list):
-                    for ele in data:
-                        es_filter.add_nested_should_term(es_name, ele.strip(), field_obj.path)
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                elif es_filter_type == 'filter_range_lte':
+                    es_filter.add_filter_range_lte(es_name, data)
 
-                elif es_filter_type in 'must_range_gte':
-                    es_filter.add_must_range_gte(es_name, data)
-
-                elif es_filter_type in 'must_range_lte':
-                    es_filter.add_must_range_lte(es_name, data)
-
-                elif es_filter_type in 'nested_must_range_gte':
-                    es_filter.add_nested_must_range_gte(es_name, data, path)
+                elif es_filter_type == 'nested_filter_range_gte':
+                    es_filter.add_nested_filter_range_gte(es_name, data, path)
                     dict_filter_fields[post_filter_field].append(int(data.strip()))
 
-                elif es_filter_type in 'must_exists':
+                elif es_filter_type == 'filter_exists':
                     if data == 'only':
-                        es_filter.add_must_exists(es_name, data)
+                        es_filter.add_filter_exists(es_name, data)
                     else:
-                        es_filter.add_must_missing(es_name, data)
+                        es_filter.add_must_not_exists(es_name, '')
+
+                elif es_filter_type == 'must_not_exists':
+                    es_filter.add_must_not_exists(es_name, data)
 
             for field in source_fields:
                 # if field:
@@ -372,6 +373,7 @@ def search_result(request):
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
+            print('Total results:', total)
             took = results['took']
             context = {}
             headers = []
@@ -404,15 +406,15 @@ def search_result(request):
                         if dict_filter_fields:
                             for key, val in dict_filter_fields.items():
                                 key_path, key_es_name, key_es_filter_type = key.split('___')
-                                if key_es_filter_type in ["must_range_gte",
-                                                          "must_range_lte",
-                                                          "must_range_lt",
-                                                          "nested_must_range_gte",]:
+                                if key_es_filter_type in ["filter_range_gte",
+                                                          "filter_range_lte",
+                                                          "filter_range_lt",
+                                                          "nested_filter_range_gte",]:
                                     comparison_type = key_es_filter_type.split('_')[-1]
                                 else:
                                     comparison_type = 'default'
 
-                                print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
+                                # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
 
                                 result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
 
@@ -510,10 +512,10 @@ def yield_results(dataset_obj,
                 if dict_filter_fields:
                     for key, val in dict_filter_fields.items():
                         key_path, key_es_name, key_es_filter_type = key.split('___')
-                        if key_es_filter_type in ["must_range_gte",
-                                                  "must_range_lte",
-                                                  "must_range_lt",
-                                                  "nested_must_range_gte",]:
+                        if key_es_filter_type in ["filter_range_gte",
+                                                  "filter_range_lte",
+                                                  "filter_range_lt",
+                                                  "nested_filter_range_gte",]:
                             comparison_type = key_es_filter_type.split('_')[-1]
                         else:
                             comparison_type = 'default'

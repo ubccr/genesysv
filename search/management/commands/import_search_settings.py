@@ -6,17 +6,17 @@ FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
 
 WIDGET_TYPES = ("TextInput", "Select", "SelectMultiple", "Textarea", "UploadField")
 
-ES_FILTER_TYPES = ( "must_term",
-                    "should_term",
-                    "nested_must_term",
-                    "nested_should_term",
-                    "must_wildcard",
-                    "nested_must_wildcard",
-                    "must_range_gte",
-                    "must_range_lte",
-                    "must_range_lt",
-                    "nested_must_range_gte",
-                    "must_exists",
+ES_FILTER_TYPES = ( "filter_term",
+                    "filter_terms",
+                    "nested_filter_term",
+                    "nested_filter_terms",
+                    "filter_exists",
+                    "filter_range_gte",
+                    "filter_range_gt",
+                    "filter_range_lte",
+                    "filter_range_lt",
+                    "nested_filter_range_gte",
+                    "must_not_exists",
 )
 
 CHR_CHOICES = (
@@ -126,60 +126,6 @@ CLINSIG_CHOICES = ( "unknown",
 
 EXIST_CHOICES = ("only", "excluded")
 
-
-SAMPLE_CHOICES = (
-    "1344",
-    "1394",
-    "1406",
-    "1409",
-    "2003",
-    "2017",
-    "2021",
-    "2023",
-    "2024",
-    "2042",
-    "2048",
-    "2052",
-    "2059",
-    "2063",
-    "2066",
-    "2072",
-    "2074",
-    "2077",
-    "2078",
-    "2087",
-    "2102",
-    "2134",
-    "2142",
-    "2145",
-    "2152",
-    "2155",
-    "2157",
-    "2161",
-    "2162",
-    "2166",
-    "2168",
-    "2170",
-    "2171",
-    "2173",
-    "2179",
-    "2181",
-    "2184",
-    "2185",
-    "2193",
-    "2194",
-    "2196",
-    "2198",
-    "2208",
-    "2214",
-    "2221",
-    "2239",
-    "2257",
-    "2261",
-    "2269",
-    "2517",
-)
-
 GENOTYPE_CHOICES = (
     '1/1',
     '1/0',
@@ -202,9 +148,9 @@ class Command(BaseCommand):
             #  'http://199.109.192.242:9200/',
             #  'sim',
             #  'wgs_hg19_multianno'),
-            ('sim_wgs',
+            ('sim_case_control',
              'SIM Case and Control',
-             'sim3',
+             'sim',
              'SIM_case_control',
              '199.109.195.45',
              '9200'),
@@ -236,7 +182,7 @@ class Command(BaseCommand):
         for name in ES_FILTER_TYPES:
             ESFilterType.objects.get_or_create(name=name)
 
-        dataset_object = Dataset.objects.get(name='sim_wgs')
+        dataset_object = Dataset.objects.get(name='sim_case_control')
 
 
         with open('./search/management/commands/data/sim_WGS_filter.txt','r') as fp:
@@ -271,18 +217,18 @@ class Command(BaseCommand):
 
 
                 if display_name in 'Sample ID':
-                    sample_id_obj = FilterField.objects.get(dataset=dataset_object, display_name="Sample ID")
-                    for choice in SAMPLE_CHOICES:
-                        FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice)
+                    sample_id_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
+                    for choice in open('./search/management/commands/data/case_control_ids.txt','r'):
+                        FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice.strip())
 
 
-                if display_name in 'Sample Cohort':
-                    sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name="Sample Cohort")
+                if display_name in 'Sample Cohort Label':
+                    sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
                     for choice in ["case", "control"]:
                         FilterFieldChoice.objects.get_or_create(filter_field=sample_cohort_obj, value=choice)
 
                 if display_name in 'Genotype':
-                    genotype_obj = FilterField.objects.get(dataset=dataset_object, display_name="Genotype")
+                    genotype_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
                     for choice in GENOTYPE_CHOICES:
                         FilterFieldChoice.objects.get_or_create(filter_field=genotype_obj, value=choice)
 
@@ -393,8 +339,7 @@ class Command(BaseCommand):
             FilterFieldChoice.objects.get_or_create(filter_field=SIFT_pred, value=choice)
 
 
-        for es_name in ['AC_case',
-                        'AC_control',
+        for es_name in [
                         'avsnp142',
                         'snp138NonFlagged',
                         'wgRna',
@@ -405,18 +350,23 @@ class Command(BaseCommand):
                         'targetScanS',
                         'tfbsConsSites',
                     ]:
-            filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='must_exists')
+            filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='filter_exists')
             for choice in EXIST_CHOICES:
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
 
+        for es_name in ['AC_',]:
+            filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='must_not_exists')
+            for choice in ["case", "control"]:
+                FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
 
 
         ### create tabs
-        dataset_object = Dataset.objects.get(name='sim_wgs')
+        dataset_object = Dataset.objects.get(name='sim_case_control')
 
         filter_tab_obj, _ = FilterTab.objects.get_or_create(dataset=dataset_object, name='Simple')
 
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Variant Related Information')
+        FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Cohort Information')
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Functional Consequence')
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Gene/Transcript')
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Pathogenic Prediction')
@@ -426,6 +376,17 @@ class Command(BaseCommand):
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='Patient/Sample Related Information')
         FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj, name='microRNA/snoRNA')
 
+
+
+        filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
+                                     filter_tab__name='Simple',
+                                     name='Cohort Information')
+
+        FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
+                                     name='Case')
+
+        FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
+                                     name='Control')
 
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -465,6 +426,7 @@ class Command(BaseCommand):
         attribute_tab_obj, _ = AttributeTab.objects.get_or_create(dataset=dataset_object, name='Simple')
 
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Variant Related Information')
+        AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Cohort Information')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Functional Consequence')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Gene/Transcript')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Pathogenic Prediction')
@@ -474,6 +436,18 @@ class Command(BaseCommand):
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Patient/Sample Related Information')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='microRNA/snoRNA')
 
+
+
+
+        attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
+                                                         attribute_tab__name='Simple',
+                                                         name='Cohort Information')
+
+        AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
+                                                name='Case')
+
+        AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
+                                     name='Control')
 
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
@@ -515,30 +489,16 @@ class Command(BaseCommand):
 
        ##
         filter_panel = (
-            ('Variant', 'must_term'),
-            ('Chr', 'should_term'),
-            ('Start', 'must_term'),
-            ('Ref', 'must_term'),
-            ('Alt', 'must_term'),
-            ('Type', 'must_term'),
-            ('cytoBand', 'should_term'),
-            ('qs', 'must_range_gte'),
-            ('AC_case', 'must_exists'),
-            ('AC_control', 'must_exists'),
-            ('AC_case', 'must_range_gte'),
-            ('AC_case', 'must_range_lte'),
-            ('AN_case', 'must_range_gte'),
-            ('AN_case', 'must_range_lte'),
-            ('AF_case', 'must_range_gte'),
-            ('AF_case', 'must_range_lte'),
-            ('AC_control', 'must_range_gte'),
-            ('AC_control', 'must_range_lte'),
-            ('AN_control', 'must_range_gte'),
-            ('AN_control', 'must_range_lte'),
-            ('AF_control', 'must_range_gte'),
-            ('AF_control', 'must_range_lte'),
-            ('avsnp142', 'should_term'),
-            ('avsnp142', 'must_exists')
+            ('Variant', 'filter_term'),
+            ('Chr', 'filter_terms'),
+            ('Start', 'filter_term'),
+            ('Ref', 'filter_term'),
+            ('Alt', 'filter_term'),
+            ('Type', 'filter_term'),
+            ('cytoBand', 'filter_terms'),
+            ('qs', 'filter_range_gte'),
+            ('avsnp142', 'filter_terms'),
+            ('avsnp142', 'filter_exists')
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -550,12 +510,62 @@ class Command(BaseCommand):
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
+        filter_panel = (
+            ('AC_', 'must_not_exists'),
+        )
+
+        filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
+                                     filter_tab__name='Simple',
+                                     name='Cohort Information')
+
+        for es_name, es_filter_type in filter_panel:
+            print(es_name, es_filter_type)
+            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_panel_obj.filter_fields.add(filter_field_obj)
+
+
+
+        filter_panel = (
+            ('AC_case', 'filter_range_gte'),
+            ('AC_case', 'filter_range_lte'),
+            ('AN_case', 'filter_range_gte'),
+            ('AN_case', 'filter_range_lte'),
+            ('AF_case', 'filter_range_gte'),
+            ('AF_case', 'filter_range_lte'),
+        )
+
+        filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
+                                     name='Case')
+
+        for es_name, es_filter_type in filter_panel:
+            print(es_name, es_filter_type)
+            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_sub_panel_obj.filter_fields.add(filter_field_obj)
+
+
+        filter_panel = (
+            ('AC_control', 'filter_range_gte'),
+            ('AC_control', 'filter_range_lte'),
+            ('AN_control', 'filter_range_gte'),
+            ('AN_control', 'filter_range_lte'),
+            ('AF_control', 'filter_range_gte'),
+            ('AF_control', 'filter_range_lte'),
+        )
+
+        filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
+                                     name='Control')
+
+        for es_name, es_filter_type in filter_panel:
+            print(es_name, es_filter_type)
+            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_sub_panel_obj.filter_fields.add(filter_field_obj)
+
        ##
         filter_panel = (
-            ('Func_refGene', 'should_term'),
-            ('Func_ensGene', 'should_term'),
-            ('ExonicFunc_refGene', 'should_term'),
-            ('ExonicFunc_ensGene', 'should_term'),
+            ('Func_refGene', 'filter_terms'),
+            ('Func_ensGene', 'filter_terms'),
+            ('ExonicFunc_refGene', 'filter_terms'),
+            ('ExonicFunc_ensGene', 'filter_terms'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -569,8 +579,8 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('tfbsConsSites', 'must_exists'),
-            ('gerp_plus_gt2', 'must_range_gte'),
+            ('tfbsConsSites', 'filter_exists'),
+            ('gerp_plus_gt2', 'filter_range_gte'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -583,10 +593,10 @@ class Command(BaseCommand):
 
        ##
         filter_panel = (
-            ('refGene_symbol', 'nested_should_term'),
-            ('refGene_refgene_id', 'nested_should_term'),
-            ('refGene_cDNA_change', 'nested_must_term'),
-            ('refGene_aa_change', 'nested_must_term'),
+            ('refGene_symbol', 'nested_filter_terms'),
+            ('refGene_refgene_id', 'nested_filter_terms'),
+            ('refGene_cDNA_change', 'nested_filter_term'),
+            ('refGene_aa_change', 'nested_filter_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -603,10 +613,10 @@ class Command(BaseCommand):
 
        ##
         filter_panel = (
-            ('ensGene_gene_id', 'nested_should_term'),
-            ('ensGene_transcript_id', 'nested_should_term'),
-            ('ensGene_cDNA_change', 'nested_must_term'),
-            ('ensGene_aa_change', 'nested_must_term'),
+            ('ensGene_gene_id', 'nested_filter_terms'),
+            ('ensGene_transcript_id', 'nested_filter_terms'),
+            ('ensGene_cDNA_change', 'nested_filter_term'),
+            ('ensGene_aa_change', 'nested_filter_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -622,19 +632,19 @@ class Command(BaseCommand):
 
        ##
         filter_panel = (
-            ('FATHMM_pred', 'should_term'),
-            ('fathmm_MKL_coding_pred', 'should_term'),
-            ('LRT_pred', 'should_term'),
-            ('LR_pred', 'should_term'),
-            ('MetaLR_pred', 'should_term'),
-            ('MetaSVM_pred', 'should_term'),
-            ('MutationAssessor_pred', 'should_term'),
-            ('MutationTaster_pred', 'should_term'),
-            ('PROVEAN_pred', 'should_term'),
-            ('Polyphen2_HDIV_pred', 'should_term'),
-            ('Polyphen2_HVAR_pred', 'should_term'),
-            ('RadialSVM_pred', 'should_term'),
-            ('SIFT_pred', 'should_term'),
+            ('FATHMM_pred', 'filter_term'),
+            ('fathmm_MKL_coding_pred', 'filter_term'),
+            ('LRT_pred', 'filter_terms'),
+            ('LR_pred', 'filter_term'),
+            ('MetaLR_pred', 'filter_term'),
+            ('MetaSVM_pred', 'filter_term'),
+            ('MutationAssessor_pred', 'filter_terms'),
+            ('MutationTaster_pred', 'filter_terms'),
+            ('PROVEAN_pred', 'filter_term'),
+            ('Polyphen2_HDIV_pred', 'filter_terms'),
+            ('Polyphen2_HVAR_pred', 'filter_terms'),
+            ('RadialSVM_pred', 'filter_term'),
+            ('SIFT_pred', 'filter_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -653,8 +663,8 @@ class Command(BaseCommand):
 
        ##
         filter_panel = (
-            ('dbscSNV_ADA_SCORE', 'must_range_gte'),
-            ('dbscSNV_RF_SCORE', 'must_range_gte'),
+            ('dbscSNV_ADA_SCORE', 'filter_range_gte'),
+            ('dbscSNV_RF_SCORE', 'filter_range_gte'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -674,14 +684,14 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('ExAC_ALL', 'must_range_lt'),
-            ('ExAC_AFR', 'must_range_lt'),
-            ('ExAC_AMR', 'must_range_lt'),
-            ('ExAC_EAS', 'must_range_lt'),
-            ('ExAC_FIN', 'must_range_lt'),
-            ('ExAC_NFE', 'must_range_lt'),
-            ('ExAC_OTH', 'must_range_lt'),
-            ('ExAC_SAS', 'must_range_lt'),
+            ('ExAC_ALL', 'filter_range_lt'),
+            ('ExAC_AFR', 'filter_range_lt'),
+            ('ExAC_AMR', 'filter_range_lt'),
+            ('ExAC_EAS', 'filter_range_lt'),
+            ('ExAC_FIN', 'filter_range_lt'),
+            ('ExAC_NFE', 'filter_range_lt'),
+            ('ExAC_OTH', 'filter_range_lt'),
+            ('ExAC_SAS', 'filter_range_lt'),
         )
 
 
@@ -702,11 +712,11 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('1000g2015aug_all', 'must_range_lt'),
-            ('1000g2015aug_afr', 'must_range_lt'),
-            ('1000g2015aug_amr', 'must_range_lt'),
-            ('1000g2015aug_eur', 'must_range_lt'),
-            ('1000g2015aug_sas', 'must_range_lt'),
+            ('1000g2015aug_all', 'filter_range_lt'),
+            ('1000g2015aug_afr', 'filter_range_lt'),
+            ('1000g2015aug_amr', 'filter_range_lt'),
+            ('1000g2015aug_eur', 'filter_range_lt'),
+            ('1000g2015aug_sas', 'filter_range_lt'),
         )
 
         filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
@@ -723,9 +733,9 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('esp6500siv2_all', 'must_range_lt'),
-            ('esp6500siv2_aa', 'must_range_lt'),
-            ('esp6500siv2_ea', 'must_range_lt'),
+            ('esp6500siv2_all', 'filter_range_lt'),
+            ('esp6500siv2_aa', 'filter_range_lt'),
+            ('esp6500siv2_ea', 'filter_range_lt'),
         )
 
         filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
@@ -740,10 +750,10 @@ class Command(BaseCommand):
 
          ##
         filter_panel = (
-            ('gwasCatalog', 'must_term'),
-            ('clinvar_20150629_CLNDBN', 'nested_must_term'),
-            ('clinvar_20150629_CLINSIG', 'nested_should_term'),
-            ('snp138NonFlagged', 'must_exists'),
+            ('gwasCatalog', 'filter_term'),
+            ('clinvar_20150629_CLNDBN', 'nested_filter_term'),
+            ('clinvar_20150629_CLINSIG', 'nested_filter_terms'),
+            ('snp138NonFlagged', 'filter_exists'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -759,10 +769,10 @@ class Command(BaseCommand):
 
          ##
         filter_panel = (
-            ('sample_ID', 'nested_should_term'),
-            ('sample_GT', 'nested_should_term'),
-            ('sample_DP', 'nested_must_range_gte'),
-            ('sample_cohort', 'nested_must_term'),
+            ('sample_ID', 'nested_filter_terms'),
+            ('sample_GT', 'nested_filter_terms'),
+            ('sample_DP', 'nested_filter_range_gte'),
+            ('sample_cohort', 'nested_filter_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -780,8 +790,8 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('wgRna', 'must_exists'),
-            ('targetScanS', 'must_exists'),
+            ('wgRna', 'filter_exists'),
+            ('targetScanS', 'filter_exists'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -805,12 +815,6 @@ class Command(BaseCommand):
             ('Type', ''),
             ('cytoBand', ''),
             ('qs', 'gatkQS'),
-            ('AC_case', ''),
-            ('AN_case', ''),
-            ('AF_case', ''),
-            ('AC_control', ''),
-            ('AN_control', ''),
-            ('AF_control', ''),
             ('avsnp142', ''),
         )
 
@@ -822,6 +826,48 @@ class Command(BaseCommand):
             print(es_name, path)
             attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
+
+
+
+       ##
+        attribute_panel = (
+            ('AC_case', ''),
+            ('AN_case', ''),
+            ('AF_case', ''),
+        )
+
+        attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
+                                     attribute_tab__name='Simple',
+                                     name='Cohort Information')
+
+        attribute_sub_panel_obj = AttributeSubPanel.objects.get(attribute_panel=attribute_panel_obj,
+                                     name='Case')
+
+        for es_name, path in attribute_panel:
+            print(es_name, path)
+            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
+
+
+       ##
+        attribute_panel = (
+            ('AC_control', ''),
+            ('AN_control', ''),
+            ('AF_control', ''),
+        )
+
+        attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
+                                     attribute_tab__name='Simple',
+                                     name='Cohort Information')
+
+        attribute_sub_panel_obj = AttributeSubPanel.objects.get(attribute_panel=attribute_panel_obj,
+                                     name='Control')
+
+        for es_name, path in attribute_panel:
+            print(es_name, path)
+            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
+
 
 
        ##
