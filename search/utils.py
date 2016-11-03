@@ -293,6 +293,7 @@ class ElasticSearchFilter():
             for field_name, value in must_not_exists:
                 query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name+value.strip()}})
 
+        self.add_source("_id")
         if self.get_source():
             query_string['_source'] = sorted(list(set(self.get_source())))
 
@@ -302,3 +303,7 @@ class ElasticSearchFilter():
         else:
             query_string['query']['bool']['disable_coord'] = True
         return query_string
+
+def get_es_result(es, index_name, type_name, es_id):
+    result = es.get(index=index_name, doc_type=type_name, id=es_id)
+    return result['_source']

@@ -19,6 +19,9 @@ from operator import itemgetter, attrgetter, methodcaller
 import itertools
 from django.core import serializers
 import csv
+from .utils import get_es_result
+import elasticsearch
+
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -258,13 +261,19 @@ def search_result(request):
             non_nested_attribute_fields = []
             nested_attribute_fields = []
 
+
+            ### I am going to treat gatkqs as a non-nested field
+
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
                     # print(key,val)
                     es_name, path = key.split('-')
-                    if path:
+                    if path and es_name != "qs":
                         source_fields.append(path)
                         nested_attribute_fields.append(path)
+                    elif es_name == "qs":
+                        source_fields.append(path)
+                        non_nested_attribute_fields.append("gatkQS")
                     else:
                         source_fields.append(es_name)
                         non_nested_attribute_fields.append(es_name)
@@ -300,7 +309,7 @@ def search_result(request):
                     dict_filter_fields[post_filter_field] = []
 
                 used_keys.append((key.split('-')[0], data))
-                print(key, data, type(data), es_filter_type)
+                print(key, data, es_filter_type)
                 field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type, path=path)
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
@@ -329,7 +338,6 @@ def search_result(request):
                     for ele in data.splitlines():
                         dict_filter_fields[post_filter_field].append(ele.strip())
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
-                    print(332,data)
                     es_filter.add_nested_filter_terms(es_name, data, field_obj.path)
                     for ele in data:
                         dict_filter_fields[post_filter_field].append(ele.strip())
@@ -373,7 +381,7 @@ def search_result(request):
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
-            print('Total results:', total)
+            # print('Total results:', total)
             took = results['took']
             context = {}
             headers = []
@@ -390,7 +398,10 @@ def search_result(request):
             tmp_results = results['hits']['hits']
             results = []
             for ele in tmp_results:
-                results.append(ele['_source'])
+                tmp_source = ele['_source']
+                # print(ele['_id'])
+                tmp_source['es_id'] = ele['_id']
+                results.append(tmp_source)
 
             # print(results)
             # print(dict_filter_fields)
@@ -432,6 +443,7 @@ def search_result(request):
 
                     for x,y in tmp_output:
                         tmp = merge_two_dicts(x,y)
+                        tmp["es_id"] = result["es_id"]
                         final_results.append(tmp)
                         results_count += 1
             else:
@@ -473,6 +485,7 @@ def search_result(request):
 
 
             # print("dict_filter_fields",dict_filter_fields)
+            # print(final_results)
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
@@ -610,4 +623,15 @@ def search_result_download(request):
     # return HttpResponse(ele)
 
 
+def get_variant(request, dataset_id, variant_id):
+    dataset = Dataset.objects.get(id=dataset_id)
+    es = elasticsearch.Elasticsearch(host=dataset.es_host)
+    index_name = dataset.es_index_name
+    type_name = dataset.es_type_name
+    result = get_es_result(es, index_name, type_name, variant_id)
+
+    context = {}
+    # print(result)
+    context["result"] = result
+    return render(request, 'search/variant_info.html', context)
 

@@ -496,7 +496,7 @@ class Command(BaseCommand):
             ('Alt', 'filter_term'),
             ('Type', 'filter_term'),
             ('cytoBand', 'filter_terms'),
-            ('qs', 'filter_range_gte'),
+            ('qs', 'nested_filter_range_gte'),
             ('avsnp142', 'filter_terms'),
             ('avsnp142', 'filter_exists')
         )

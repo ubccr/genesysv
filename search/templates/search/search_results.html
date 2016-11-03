@@ -52,7 +52,7 @@
             {% for row in results %}
                 <tr>
                     {% for element in headers %}
-                        <td>{{ row|get_value_from_dict:element.es_name|safe }}</td>
+                        <td>{{ row|get_value_from_dict_search:element|safe }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}

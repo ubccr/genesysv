@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = (
     url(r'^$', search_home, name='search-home'),
+    url(r'^variant/(?P<dataset_id>[0-9]+)/(?P<variant_id>.*)/$', get_variant, name='get-variant'),
     url(r'^get-study-form/$', get_study_form , name='get-study-form'),
     url(r'^get-dataset-form/$', get_dataset_form , name='get-dataset-form'),
     url(r'^get-filter-form/$', get_filter_form , name='get-filter-form'),

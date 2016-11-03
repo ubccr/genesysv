@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load search_tags %}
+
+
+{% block title %}
+    Variant Home
+{% endblock %}
+
+    Basic panel example
+
+
+{% block content %}
+<div class="col-md-6">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Variant Information</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <tbody>
+        <tr>
+            <td>Variant</td>
+            <td><strong>{{ result.Variant }} <a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a></strong></td>
+        </tr>
+        <tr>
+            <td>Chromosome</td>
+            <td><strong>{{ result.Chr }}</strong></td>
+        </tr>
+        <tr>
+            <td>Start</td>
+            <td><strong>{{ result.Start }}</strong></td>
+        </tr>
+        <tr>
+            <td>Reference Allele</td>
+            <td><strong>{{ result.Ref }}</strong></td>
+        </tr>
+        <tr>
+            <td>Alternate Allele</td>
+            <td><strong>{{ result.Alt }}</strong></td>
+        </tr>
+        <tr>
+            <td>Mutation Type</td>
+            <td><strong>{{ result|get_value_from_dict:"Type" }}</strong></td>
+        </tr>
+        <tr>
+            <td>Cytoband</td>
+            <td><strong>{{ result|get_value_from_dict:"cytoBand" }}</strong></td>
+        </tr>
+        <tr>
+            <td>GATK Quality Score</td>
+            <td><strong>{{ result.gatkQS|format_gatkqs_array }}</strong></td>
+        </tr>
+
+        {% if result.avsnp142 %}
+            <tr>
+                <td>avsnp142</td>
+                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.avsnp142}}"><strong>{{ result.avsnp142 }}</strong></a></td>
+            </tr>
+        {% endif %}
+
+
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Functional Consequence</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <tbody>
+        <tr>
+            <td>RefSeq gene/transcript</td>
+            <td><strong>{{ result.Func_refGene }}</strong></td>
+        </tr>
+        <tr>
+            <td>Ensembl gene/transcript</td>
+            <td><strong>{{ result.Func_ensGene }}</strong></td>
+        </tr>
+        {% if result.ExonicFunc_refGene %}
+        <tr>
+            <td>Exonic RefSeq gene/transcript</td>
+            <td><strong>{{ result.ExonicFunc_refGene }}</strong></td>
+        </tr>
+        {% endif %}
+        {% if result.ExonicFunc_ensGene %}
+        <tr>
+            <td>Exonic Ensembl gene/transcript</td>
+            <td><strong>{{ result.ExonicFunc_ensGene }}</strong></td>
+        </tr>
+        {% endif %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Cohort Information</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <tbody>
+        {% if result.AC_case %}
+            <tr>
+                <td>Allele Count Case</td>
+                <td><strong>{{ result.AC_case }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Number Case</td>
+                <td><strong>{{ result.AN_case }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Frequency Case</td>
+                <td><strong>{{ result.AF_case }}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.AC_control %}
+            <tr>
+                <td>Allele Count Control</td>
+                <td><strong>{{ result.AC_control }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Number Control</td>
+                <td><strong>{{ result.AN_control }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Frequency Control</td>
+                <td><strong>{{ result.AF_control }}</strong></td>
+            </tr>
+        {% endif %}
+
+        {% if result.ExonicFunc_ensGene %}
+        <tr>
+            <td>Exonic Ensembl gene/transcript</td>
+            <td><strong>{{ result.ExonicFunc_ensGene }}</strong></td>
+        </tr>
+        {% endif %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+
+
+{% if result.ensGene %}
+<div class="col-md-12">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">RefSeq Identifier</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>RefGene ID</th>
+        <th>cDNA change</th>
+        <th>Amino acid change</th>
+        <th>Location</th>
+        <th>Distance to Gene</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for ele in result.refGene %}
+      <tr>
+        <td><a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ele.refGene_symbol}}">{{ele.refGene_symbol}}</a></td>
+        <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/nuccore/{{ele.refGene_refgene_id}}">{{ele.refGene_refgene_id}}</a></td>
+        <td>{{ele.refGene_cDNA_change}}</td>
+        <td>{{ele.refGene_aa_change}}</td>
+        <td>{{ele.refGene_location}}</td>
+        <td>{{ele.refGene_distance_to_gene}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+{% endif %}
+
+{% if result.ensGene %}
+<div class="col-md-12">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Ensembl Identifier</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <thead>
+      <tr>
+        <th>Gene ID</th>
+        <th>Transcript ID</th>
+        <th>cDNA change</th>
+        <th>Amino acid change</th>
+        <th>Location</th>
+        <th>Distance to Gene</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for ele in result.ensGene %}
+      <tr>
+        <td><a target="_blank" href="http://www.ensembl.org/homo_sapiens/Gene/Summary?g={{ele.ensGene_gene_id}}">{{ele.ensGene_gene_id}}</a></td>
+        <td><a target="_blank" href="http://www.ensembl.org/id/{{ele.ensGene_transcript_id}}">{{ele.ensGene_transcript_id}}</a></td>
+        <td>{{ele.ensGene_cDNA_change}}</td>
+        <td>{{ele.ensGene_aa_change}}</td>
+        <td>{{ele.ensGene_location}}</td>
+        <td>{{ele.ensGene_distance_to_gene}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+{% endif %}
+
+<div class="col-md-12">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Sample Information</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table id="sample_table" class="table table-condensed">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Read Depth</th>
+        <th>Genotype</th>
+        <th>Genotype Quality</th>
+        <th>Cohort Label</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for ele in result.sample %}
+      <tr>
+        <td>{{ele.sample_ID}}</td>
+        <td>{{ele.sample_DP}}</td>
+        <td>{{ele.sample_GT}}</td>
+        <td>{{ele.sample_GQ}}</td>
+        <td>{{ele.sample_cohort}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#sample_table').DataTable({
+            "iDisplayLength": 10,
+            "bSortClasses": false
+        });
+
+    });
+</script>
+
+{% endblock %}
