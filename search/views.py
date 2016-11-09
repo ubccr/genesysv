@@ -309,7 +309,7 @@ def search_result(request):
                     dict_filter_fields[post_filter_field] = []
 
                 used_keys.append((key.split('-')[0], data))
-                print(key, data, es_filter_type)
+                # print(key, data, es_filter_type)
                 field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type, path=path)
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
@@ -372,8 +372,14 @@ def search_result(request):
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
             print(query)
-            if True:
-                uri = 'http://%s:%s/%s/%s/_search?terminate_after=200' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
+
+            search_options = SearchOptions.objects.get(dataset=dataset_obj)
+            if search_options.es_terminate:
+                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
+                                                                        dataset_obj.es_port,
+                                                                        dataset_obj.es_index_name,
+                                                                        dataset_obj.es_type_name,
+                                                                        search_options.es_terminate_size_per_shard)
             else:
                 uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
@@ -381,7 +387,6 @@ def search_result(request):
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
-            # print('Total results:', total)
             took = results['took']
             context = {}
             headers = []
@@ -409,7 +414,7 @@ def search_result(request):
                 final_results = []
                 results_count = 0
                 for idx, result in enumerate(results):
-                    if results_count>1000:
+                    if results_count>search_options.maximum_table_size:
                         break
                     # print(results)
                     for idx, path in enumerate(nested_attribute_fields):

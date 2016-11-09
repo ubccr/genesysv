@@ -173,6 +173,9 @@ class Command(BaseCommand):
                                           is_public=True)
 
 
+
+        SearchOptions.objects.get_or_create(dataset=dataset_object)
+
         for name in FORM_TYPES:
             FormType.objects.get_or_create(name=name)
 

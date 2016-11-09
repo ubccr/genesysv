@@ -45,6 +45,16 @@ class Dataset(TimeStampedModel):
     def __str__(self):
         return self.name
 
+class SearchOptions(TimeStampedModel):
+    dataset = models.OneToOneField(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    es_terminate = models.BooleanField(default=True)
+    es_terminate_size_per_shard = models.IntegerField(default=80)
+    maximum_table_size = models.IntegerField(default=400)
+
+
 class FilterField(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',

@@ -296,7 +296,6 @@ class ElasticSearchFilter():
         if self.get_source():
             query_string["_source"] = sorted(list(set(self.get_source())))
 
-
         if not query_string["query"]["bool"]:
             query_string.pop("query")
         else:
