@@ -2,7 +2,7 @@ class ElasticSearchFilter():
     def __init__(self):
         self.query_string = {}
         self.size = 1000
-        self.source = []
+        self.source = ["_id",]
 
         self.filter_term = []
         self.filter_terms = []
@@ -204,7 +204,7 @@ class ElasticSearchFilter():
                             "query": {"bool": {"must": []}}}
                         }
                 path_fieldname = "%s.%s" %(path, field_name)
-                nested["nested"]["query"]["bool"]["must"].append({"wildcard" : {path_fieldname: '%s' %(value)}})
+                nested["nested"]["query"]["bool"]["must"].append({"wildcard" : {path_fieldname: "%s" %(value)}})
             query_string["query"]["bool"]["must"].append(nested)
 
 
@@ -293,17 +293,16 @@ class ElasticSearchFilter():
             for field_name, value in must_not_exists:
                 query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name+value.strip()}})
 
-        self.add_source("_id")
         if self.get_source():
-            query_string['_source'] = sorted(list(set(self.get_source())))
+            query_string["_source"] = sorted(list(set(self.get_source())))
 
 
-        if not query_string['query']['bool']:
-            query_string.pop('query')
+        if not query_string["query"]["bool"]:
+            query_string.pop("query")
         else:
-            query_string['query']['bool']['disable_coord'] = True
+            query_string["query"]["bool"]["disable_coord"] = True
         return query_string
 
 def get_es_result(es, index_name, type_name, es_id):
     result = es.get(index=index_name, doc_type=type_name, id=es_id)
-    return result['_source']
+    return result["_source"]
