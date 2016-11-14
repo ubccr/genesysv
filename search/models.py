@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from common.models import TimeStampedModel
 
 
+
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=255)
 

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    PyBamview
+{% endblock %}
+
+
+{% block content %}
+
+<div class="wizard container-fluid">
+    <h3>Select samples to view in pybamview for Variant: {{Variant}}</h3>
+
+    <form id="pybamview-form" role="form"  method="POST" action="">
+        {% csrf_token %}
+        <input type="hidden" name="dataset_id" value="{{dataset_id}}">
+        <input type="hidden" name="variant_id" value="{{variant_id}}">
+        <input type="hidden" name="Variant" value="{{Variant}}">
+        <input type="hidden" name="Chr" value="{{Chr}}">
+        <input type="hidden" name="Start" value="{{Start}}">
+        <input type="hidden" name="pybamredirect" value="pybamredirect">
+        <input id="submit-button-pybamview" type="submit" class="btn btn-success" value="View selected samples" disabled>
+        <div class="pull-right">
+            <a id="select-all" class="btn btn-info ">Select All</a>
+            <a id="select-none" class="btn btn-info ">Select None</a>
+        </div>
+        {{sample_select_form|crispy}}
+    </form>
+</div>
+
+
+<script>
+    $('#select-all').click(function(event){
+        var id = event.target.id;
+        console.log('id = ' + id);
+        var checkboxes =  $("input:checkbox")
+        for (var i = 0; i < checkboxes.length; i++) {
+                 if (checkboxes[i].type == 'checkbox') {
+                     checkboxes[i].checked = true;
+                 }
+        }
+        $('input[type="submit"]').each(function() {
+                $( this ).prop('disabled', false);
+            });
+    });
+
+    $('#select-none').click(function(event){
+        var id = event.target.id;
+        console.log('id = ' + id);
+        var checkboxes =  $("input:checkbox")
+        for (var i = 0; i < checkboxes.length; i++) {
+                 if (checkboxes[i].type == 'checkbox') {
+                     checkboxes[i].checked = false;
+                 }
+        }
+        $('input[type="submit"]').each(function() {
+            $( this ).prop('disabled', true);
+        });
+    });
+
+
+    $('input:checkbox').bind('change', function(){
+        if ($('input:checkbox').is(":checked"))
+        {
+            $('input[type="submit"]').each(function() {
+                $( this ).prop('disabled', false);
+            });
+        } else {
+            $('input[type="submit"]').each(function() {
+                $( this ).prop('disabled', true);
+            });
+        }
+    });
+
+    $("#pybamview-form").submit(function(e){
+        e.preventDefault();
+        $("#submit-button-pybamview").replaceWith('<button class="btn btn-warning"><i class="fa fa-refresh fa-spin fa-fw"></i> Loading...</button>')
+        var form = this;
+        form.submit(); // submit bypassing the jQuery bound event
+
+    });
+</script>
+{% endblock %}

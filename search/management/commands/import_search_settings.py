@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from search.models import *
+from pybamview.models import SampleBamInfo
 
 
 FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
@@ -221,10 +222,24 @@ class Command(BaseCommand):
 
                 if display_name in 'Sample ID':
                     sample_id_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
-                    for choice in open('./search/management/commands/data/case_control_ids.txt','r'):
+                    for choice in open('./search/management/commands/data/wgs_case_ids.txt','r'):
                         FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice.strip())
+                        file_path = "/gpfs/projects/academic/big/SIM/WGS_case/hc_bam/SIMWGS09292016_p%s_merged_hc.bam" %(choice.strip())
+                        print(file_path)
+                        a, b = SampleBamInfo.objects.get_or_create(dataset=dataset_object,
+                                                        sample_id=choice.strip(),
+                                                        file_path=file_path)
+                        print(a)
 
+                    for choice in open('./search/management/commands/data/wes_control_ids.txt','r'):
+                        FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice.strip())
+                        file_path = "/gpfs/projects/academic/big/SIM/WES_control/hc_bam/SIMCT20160930_%s_merged_hc.bam" %(choice.strip())
+                        print(file_path)
+                        a, b = SampleBamInfo.objects.get_or_create(dataset=dataset_object,
+                                                        sample_id=choice.strip(),
+                                                        file_path=file_path)
 
+                        print(a)
                 if display_name in 'Sample Cohort Label':
                     sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
                     for choice in ["case", "control"]:

@@ -1,6 +1,37 @@
 from django import template
+from django.utils.html import mark_safe
 from django.template import Context, Template, loader
 register = template.Library()
+
+
+@register.filter('gene_link')
+def gene_link(input_string):
+    """
+    usage example {{ your_array|format_gatkqs_array }}
+    """
+    if input_string:
+        output = ''
+        for ele in input_string.split():
+            if ele.lower() != 'none':
+                output += '<a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s">%s</a> ' %(ele,ele)
+            else:
+                output += 'NONE '
+        return output
+
+
+@register.filter('ensembl_link')
+def ensembl_link(input_string):
+    """
+    usage example {{ your_array|format_gatkqs_array }}
+    """
+    if input_string:
+        output = ''
+        for ele in input_string.split():
+            if ele.lower() != 'none':
+                output += '<a target="_blank" href="http://www.ensembl.org/homo_sapiens/Gene/Summary?g=%s">%s</a> ' %(ele,ele)
+            else:
+                output += 'NONE '
+        return output
 
 
 @register.filter('format_gatkqs_array')

@@ -638,5 +638,9 @@ def get_variant(request, dataset_id, variant_id):
     context = {}
     # print(result)
     context["result"] = result
+    context["variant_id"] = variant_id
+    context["dataset_id"] = dataset.id
+    context["index_name"] = index_name
+    context["type_name"] = type_name
     return render(request, 'search/variant_info.html', context)
 
