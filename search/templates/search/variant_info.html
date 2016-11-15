@@ -12,6 +12,8 @@
 
 
 {% block content %}
+{{result}}
+
 <div class="col-md-6">
 <div class="panel panel-primary">
 <div class="panel-heading">
@@ -58,6 +60,12 @@
             <tr>
                 <td>avsnp142</td>
                 <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.avsnp142}}"><strong>{{ result.avsnp142 }}</strong></a></td>
+            </tr>
+        {% endif %}
+        {% if result.snp138NonFlagged %}
+            <tr>
+                <td>snp138NonFlagged</td>
+                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.snp138NonFlagged}}"><strong>{{ result.snp138NonFlagged }}</strong></a></td>
             </tr>
         {% endif %}
 
@@ -271,6 +279,132 @@
 <div class="col-md-12">
 <div class="panel panel-primary">
 <div class="panel-heading">
+    <h3 class="panel-title">Minor Allele Frequency</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+        <table id="map_table" class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Frequency Type</th>
+                <th>Frequency Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if result.1000g2015aug_all %}
+                <tr>
+                    <td>1000 Genomes Project (Aug. 2015) ALL</td>
+                    <td>{{result.1000g2015aug_all}}</td>
+                </tr>
+            {% endif %}
+            {% if result.1000g2015aug_afr %}
+                <tr>
+                    <td>1000 Genomes Project (Aug. 2015) AFR</td>
+                    <td>{{result.1000g2015aug_afr}}</td>
+                </tr>
+            {% endif %}
+            {% if result.1000g2015aug_amr %}
+                <tr>
+                    <td>1000 Genomes Project (Aug. 2015) AMR</td>
+                    <td>{{result.1000g2015aug_amr}}</td>
+                </tr>
+            {% endif %}
+            {% if result.1000g2015aug_amr %}
+                <tr>
+                    <td>1000 Genomes Project (Aug. 2015) EUR</td>
+                    <td>{{result.1000g2015aug_amr}}</td>
+                </tr>
+            {% endif %}
+            {% if result.1000g2015aug_sas %}
+                <tr>
+                    <td>1000 Genomes Project (Aug. 2015) SAS</td>
+                    <td>{{result.1000g2015aug_sas}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_ALL %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) ALL</td>
+                    <td>{{result.ExAC_ALL}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_AFR %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) AFR</td>
+                    <td>{{result.ExAC_AFR}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_AMR %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) AMR</td>
+                    <td>{{result.ExAC_AMR}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_EAS %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) EAS</td>
+                    <td>{{result.ExAC_EAS}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_FIN %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) FIN</td>
+                    <td>{{result.ExAC_FIN}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_NFE %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) NFE</td>
+                    <td>{{result.ExAC_NFE}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_OTH %}
+                <tr>
+                    <td>The Exome Aggregation Consortium (ExAC) OTH</td>
+                    <td>{{result.ExAC_OTH}}</td>
+                </tr>
+            {% endif %}
+            {% if result.ExAC_SAS %}
+            <tr>
+                <td>The Exome Aggregation Consortium (ExAC) SAS</td>
+                <td>{{result.ExAC_SAS}}</td>
+            </tr>
+            {% endif %}
+            {% if result.ExAC_SAS %}
+            <tr>
+                <td>The Exome Aggregation Consortium (ExAC) SAS</td>
+                <td>{{result.ExAC_SAS}}</td>
+            </tr>
+            {% endif %}
+            {% if result.esp6500siv2_all %}
+            <tr>
+                <td>Esp6500 ALL</td>
+                <td>{{result.esp6500siv2_all}}</td>
+            </tr>
+            {% endif %}
+            {% if result.esp6500siv2_aa %}
+            <tr>
+                <td>Esp6500 African American</td>
+                <td>{{result.esp6500siv2_aa}}</td>
+            </tr>
+            {% endif %}
+            {% if result.esp6500siv2_ea %}
+            <tr>
+                <td>Esp6500 European American</td>
+                <td>{{result.esp6500siv2_ea}}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+        </table>
+    </div>
+
+  </div>
+</div>
+</div>
+
+
+<div class="col-md-12">
+<div class="panel panel-primary">
+<div class="panel-heading">
     <h3 class="panel-title">Visualization</h3>
   </div>
   <div class="panel-body">
@@ -293,15 +427,323 @@
   </div>
 </div>
 </div>
+<div class="clearfix">
+</div>
+
+<div class="col-md-6">
+    <div class="panel-group">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#pathogenic_predictions">Pathogenic Predictions</a>
+              </h4>
+            </div>
+            <div id="pathogenic_predictions" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">Coding Region</div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table id="pathogenic_predictions_table" class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Pathogenic Predictor</th>
+                                        <th>Prediction</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if result.fathmm_MKL_coding_pred %}
+                                        <tr>
+                                            <td>FATHMM MKL Prediction</td>
+                                            <td>{{result.fathmm_MKL_coding_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.FATHMM_pred %}
+                                        <tr>
+                                            <td>FATHMM Prediction</td>
+                                            <td>{{result.FATHMM_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.LRT_pred %}
+                                        <tr>
+                                            <td>LRT Prediction</td>
+                                            <td>{{result.LRT_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.LR_pred %}
+                                        <tr>
+                                            <td>LR Prediction</td>
+                                            <td>{{result.LR_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.MetaLR_pred %}
+                                        <tr>
+                                            <td>Metal LR Prediction</td>
+                                            <td>{{result.MetaLR_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.MetaSVM_pred %}
+                                        <tr>
+                                            <td>MetaSVM Prediction</td>
+                                            <td>{{result.MetaSVM_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.MutationAssessor_pred %}
+                                        <tr>
+                                            <td>Mutation Assessor Prediction</td>
+                                            <td>{{result.MutationAssessor_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.MutationTaster_pred %}
+                                        <tr>
+                                            <td>Mutation Taster Prediction</td>
+                                            <td>{{result.MutationTaster_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.PROVEAN_pred %}
+                                        <tr>
+                                            <td>PROVEAN Prediction</td>
+                                            <td>{{result.PROVEAN_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.Polyphen2_HDIV_pred %}
+                                        <tr>
+                                            <td>Polyphen2 HDIV Prediction</td>
+                                            <td>{{result.Polyphen2_HDIV_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.Polyphen2_HVAR_pred %}
+                                        <tr>
+                                            <td>Polyphen2 HVAR Prediction</td>
+                                            <td>{{result.Polyphen2_HVAR_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.RadialSVM_pred %}
+                                        <tr>
+                                            <td>Radial SVM Prediction</td>
+                                            <td>{{result.RadialSVM_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if result.SIFT_pred %}
+                                        <tr>
+                                            <td>SIFT Prediction</td>
+                                            <td>{{result.SIFT_pred}}</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading">Splice Junctions</div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                            <table class="table table-condensed">
+                            <tbody>
+                                {% if result.dbscSNV_ADA_SCORE %}
+                                    <tr>
+                                        <td>DbscSNV ADA SCORE </td>
+                                        <td><strong>{{result.dbscSNV_ADA_SCORE}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.dbscSNV_RF_SCORE %}
+                                    <tr>
+                                        <td>DbscSNV RF SCORE </td>
+                                        <td><strong>{{result.dbscSNV_RF_SCORE}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                          </table>
+                          </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
+<div class="col-md-6">
+    <div class="panel-group">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#conserved_elements">Conserved/Constrained Genomic Elements/Positions</a>
+              </h4>
+            </div>
+            <div id="conserved_elements" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                            <table class="table table-condensed">
+                            <tbody>
+                                {% if result.gerp_plus_gt2 %}
+                                    <tr>
+                                        <td>GERP++ score</td>
+                                        <td><strong>{{result.gerp_plus_gt2}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.genomicSuperDups %}
+                                    <tr>
+                                        <td>genomicSuperDups</td>
+                                        <td><strong>{{result.genomicSuperDups}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.phastConsElements100way %}
+                                    <tr>
+                                        <td>PhastConsElements100way</td>
+                                        <td><strong>{{result.phastConsElements100way}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.phastConsElements46way %}
+                                    <tr>
+                                        <td>PhastConsElements46way</td>
+                                        <td><strong>{{result.phastConsElements46way}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.tfbsConsSites %}
+                                    <tr>
+                                        <td>Transcription-Factor Binding Sites</td>
+                                        <td><strong>{{result.tfbsConsSites}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                          </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-md-6">
+    <div class="panel-group">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#microrna_snorna">microRNA/snoRNA</a>
+              </h4>
+            </div>
+            <div id="microrna_snorna" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                            <table class="table table-condensed">
+                            <tbody>
+                                {% if result.wgRna %}
+                                    <tr>
+                                        <td>microRNA/snoRNA Disrupted</td>
+                                        <td><strong>{{result.wgRna}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                                {% if result.targetScanS %}
+                                    <tr>
+                                        <td>Predicted microRNA</td>
+                                        <td><strong>{{result.targetScanS}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                          </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if result.clinvar_20150629 or result.gwasCatalog %}
+<div class="col-md-12">
+    <div class="panel-group">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#clinical_annotations">Clinical Annotations</a>
+              </h4>
+            </div>
+            <div id="clinical_annotations" class="panel-collapse collapse">
+                <div class="panel-body">
+
+                    {% if result.clinvar_20150629 %}
+                    <div class="panel panel-info">
+                        <div class="panel-heading">ClinVar</div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Disease Name</th>
+                                        <th>Clinical Significance</th>
+                                        <th>Review Status</th>
+                                        <th>Disease Database Name</th>
+                                        <th>Disease Disease Database ID</th>
+                                        <th>Accession and Versions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ele in result.clinvar_20150629 %}
+                                        <tr>
+                                            <td>{{ele.clinvar_20150629_CLNDBN}}</td>
+                                            <td>{{ele.clinvar_20150629_CLINSIG}}</td>
+                                            <td>{{ele.clinvar_20150629_CLNREVSTAT}}</td>
+                                            <td>{{ele.clinvar_20150629_CLNDSDB}}</td>
+                                            <td>{{ele.clinvar_20150629_CLNDSDBID}}</td>
+                                            <td>{{ele.clinvar_20150629_CLNACC}}</td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if result.gwasCatalog %}
+                    <div class="panel panel-info">
+                        <div class="panel-heading">GWAS Catalog</div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                            <table class="table table-condensed">
+                            <tbody>
+                                {% if result.gwasCatalog %}
+                                    <tr>
+                                        <td>GWAS Catalog</td>
+                                        <td><strong>{{result.gwasCatalog}}</strong></td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                          </table>
+                          </div>
+
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <script>
     $(document).ready(function() {
         $('#sample_table').DataTable({
-            "iDisplayLength": 10,
-            "bSortClasses": false
+            "iDisplayLength": 10
+
+        });
+
+        $('#pathogenic_predictions_table').DataTable({
+            "bPaginate": false
+        });
+
+        $('#map_table').DataTable({
+            "bPaginate": false
         });
 
     });

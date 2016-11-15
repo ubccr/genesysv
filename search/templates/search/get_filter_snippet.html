@@ -23,7 +23,7 @@
                             <div class="panel panel-primary">
                               <div class="panel-heading">
                                 <h3 class="panel-title">
-                                  <a data-toggle="collapse" data-parent="#accordion" href="#filter-{{panel.name|slugify}}">{{panel.display_name}}</a>
+                                  <a data-toggle="collapse" data-parent="#accordion" href="#filter-{{panel.name|slugify}}">{{panel.display_name|safe}}</a>
                                 </h3>
                               </div>
                               {% if forloop.counter == 1 %}
@@ -43,7 +43,7 @@
 
                                 {% for sub_panel in panel.sub_panels %}
                                 <div class="panel panel-info">
-                                    <div class="panel-heading">{{sub_panel.display_name}}</div>
+                                    <div class="panel-heading">{{sub_panel.display_name|safe}}</div>
                                     <div id="{{sub_panel.name|slugify}}">
                                         <div class="panel-body">
                                             {% for field in sub_panel.form %}

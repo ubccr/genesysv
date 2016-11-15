@@ -72,8 +72,9 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
             elif comparison_type == "equal":
-                if tmp == val:
+                if val in tmp.split():
                     output.append(ele)
+
             elif comparison_type == "default":
                 for ele_tmp in tmp.split('_'):
                     if val.lower() in ele_tmp.lower():
@@ -293,7 +294,6 @@ def search_result(request):
 
                 data = es_filter_form_data[key]
 
-
                 if not data:
                     continue
 
@@ -348,6 +348,9 @@ def search_result(request):
                 elif es_filter_type == 'filter_range_lte':
                     es_filter.add_filter_range_lte(es_name, data)
 
+                elif es_filter_type == 'filter_range_lt':
+                    es_filter.add_filter_range_lt(es_name, data)
+
                 elif es_filter_type == 'nested_filter_range_gte':
                     es_filter.add_nested_filter_range_gte(es_name, data, path)
                     dict_filter_fields[post_filter_field].append(int(data.strip()))
@@ -360,6 +363,8 @@ def search_result(request):
 
                 elif es_filter_type == 'must_not_exists':
                     es_filter.add_must_not_exists(es_name, data)
+
+
 
             for field in source_fields:
                 # if field:
@@ -417,6 +422,7 @@ def search_result(request):
                     if results_count>search_options.maximum_table_size:
                         break
                     # print(results)
+                    combined = False
                     for idx, path in enumerate(nested_attribute_fields):
 
                         if dict_filter_fields:
@@ -427,30 +433,48 @@ def search_result(request):
                                                           "filter_range_lt",
                                                           "nested_filter_range_gte",]:
                                     comparison_type = key_es_filter_type.split('_')[-1]
+                                elif key_es_filter_type in ["nested_filter_term",
+                                                            "nested_filter_terms",]:
+                                    comparison_type = 'equal'
                                 else:
                                     comparison_type = 'default'
 
                                 # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
+                                filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                                # print(filtered_results)
 
-                                result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                                if filtered_results:
+                                    result[key_path] = filtered_results
 
-                        if idx == 0:
-                            combined_nested = result[path]
-                            continue
+
+
+                        if len(nested_attribute_fields) == 1:
+                            if path in result:
+                                combined_nested = result[path]
+                            else:
+                                combined_nested = None
                         else:
-                            combined_nested = list(itertools.product(combined_nested, result[path]))
-                            combined_nested = merge_two_dicts_array(combined_nested)
-
-
+                            if not combined:
+                                if path in result:
+                                    combined_nested = result[path]
+                                    combined = True
+                                    continue
+                            else:
+                                combined_nested = list(itertools.product(combined_nested, result[path]))
+                                combined_nested = merge_two_dicts_array(combined_nested)
 
                     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
-                    tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
-
-                    for x,y in tmp_output:
-                        tmp = merge_two_dicts(x,y)
-                        tmp["es_id"] = result["es_id"]
-                        final_results.append(tmp)
+                    if combined_nested:
+                        tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+                        for x,y in tmp_output:
+                            tmp = merge_two_dicts(x,y)
+                            tmp["es_id"] = result["es_id"]
+                            final_results.append(tmp)
+                            results_count += 1
+                    else:
+                        final_results.append(result)
                         results_count += 1
+
             else:
                 final_results = results
 
@@ -538,7 +562,9 @@ def yield_results(dataset_obj,
                         else:
                             comparison_type = 'default'
 
-                        result[key_path] = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                        filtered_result = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                        if filtered_result:
+                            result[key_path] = filtered_result
 
                 if idx == 0:
                     combined_nested = result[path]
