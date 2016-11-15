@@ -663,7 +663,43 @@ def get_variant(request, dataset_id, variant_id):
 
     context = {}
     # print(result)
+
+
+    conserved_elements = [
+        "gerp_plus_gt2",
+        "genomicSuperDups",
+        "phastConsElements100way",
+        "phastConsElements46way",
+        "tfbsConsSites",
+
+    ]
+
+    conserved_elements_available = True if any(True for ele in conserved_elements if result.get(ele)) else False
+
+    coding_regions = [
+        "fathmm_MKL_coding_pred",
+        "FATHMM_pred",
+        "LRT_pred",
+        "LR_pred",
+        "MetaLR_pred",
+        "MetaSVM_pred",
+        "MutationAssessor_pred",
+        "MutationTaster_pred",
+        "PROVEAN_pred",
+        "Polyphen2_HDIV_pred",
+        "Polyphen2_HVAR_pred",
+        "RadialSVM_pred",
+        "SIFT_pred"]
+
+    splice_junctions = ["dbscSNV_ADA_SCORE", "dbscSNV_RF_SCORE"]
+
+    coding_region_available = True if any(True for ele in coding_regions if result.get(ele)) else False
+    splice_junctions_available = True if any(True for ele in splice_junctions if result.get(ele)) else False
+
     context["result"] = result
+    context["conserved_elements_available"] = conserved_elements_available
+    context["coding_region_available"] = coding_region_available
+    context["splice_junctions_available"] = splice_junctions_available
     context["variant_id"] = variant_id
     context["dataset_id"] = dataset.id
     context["index_name"] = index_name

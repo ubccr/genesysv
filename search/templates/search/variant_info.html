@@ -12,7 +12,6 @@
 
 
 {% block content %}
-{{result}}
 
 <div class="col-md-6">
 <div class="panel panel-primary">
@@ -430,6 +429,8 @@
 <div class="clearfix">
 </div>
 
+
+{% if coding_region_available or splice_junctions_available %}
 <div class="col-md-6">
     <div class="panel-group">
         <div class="panel panel-primary">
@@ -440,6 +441,7 @@
             </div>
             <div id="pathogenic_predictions" class="panel-collapse collapse">
                 <div class="panel-body">
+                    {% if coding_region_available %}
                     <div class="panel panel-info">
                         <div class="panel-heading">Coding Region</div>
                         <div class="panel-body">
@@ -535,7 +537,9 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
 
+                    {% if splice_junctions_available %}
                     <div class="panel panel-info">
                         <div class="panel-heading">Splice Junctions</div>
                         <div class="panel-body">
@@ -557,18 +561,18 @@
                             </tbody>
                           </table>
                           </div>
-
                         </div>
                     </div>
+                    {% endif %}
 
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
-
-
+{% if conserved_elements_available %}
 <div class="col-md-6">
     <div class="panel-group">
         <div class="panel panel-primary">
@@ -620,8 +624,9 @@
         </div>
     </div>
 </div>
+{% endif %}
 
-
+{% if result.wgRna or result.targetScanS %}
 <div class="col-md-6">
     <div class="panel-group">
         <div class="panel panel-primary">
@@ -655,6 +660,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 {% if result.clinvar_20150629 or result.gwasCatalog %}
 <div class="col-md-12">
