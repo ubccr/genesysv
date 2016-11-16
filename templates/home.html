@@ -14,5 +14,56 @@
     $("#navbarId-Home").addClass("active")
 </script>
 
-<h1>Welcome Home!</h1>
+
+
+
+<div class="col-md-6">
+     <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title text-center">Search GDW</h3>
+      </div>
+      <div class="panel-body">
+        <a class="btn btn-success btn-block" href="{% url 'search-home' %}"><i class="fa fa-search" aria-hidden="true"></i> Start Searching</a>
+      </div>
+    </div>
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">GA4GH Beacon</h3>
+      </div>
+      <div class="panel-body">
+        <div id="beacon_form_div">
+
+        </div>
+      </div>
+    </div>
+
+
+</div>
+
+<div class="col-md-6">
+    <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">News</h3>
+          </div>
+          <div class="panel-body">
+                {% for ele in news %}
+                    <h3>{{ele.title}}</h3>
+                    {{ele.content|safe}}
+                {% endfor %}
+          </div>
+    </div>
+
+    <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Data Summary V2 (July 8th, 2016)</h3>
+          </div>
+          <div class="panel-body">
+              <a href="#"><img src="{% static 'custom/images/sample_size.png' %}" class="img-responsive" alt="Data Summary"></a>
+          </div>
+    </div>
+</div>
+
+
+
 {% endblock %}
