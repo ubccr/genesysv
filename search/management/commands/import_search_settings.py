@@ -11,13 +11,14 @@ ES_FILTER_TYPES = ( "filter_term",
                     "filter_terms",
                     "nested_filter_term",
                     "nested_filter_terms",
-                    "filter_exists",
                     "filter_range_gte",
                     "filter_range_gt",
                     "filter_range_lte",
                     "filter_range_lt",
                     "nested_filter_range_gte",
+                    "filter_exists",
                     "must_not_exists",
+                    "nested_filter_exists",
 )
 
 CHR_CHOICES = (
@@ -367,8 +368,16 @@ class Command(BaseCommand):
                         'phastConsElements46way',
                         'targetScanS',
                         'tfbsConsSites',
+                        'gwasCatalog'
                     ]:
             filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='filter_exists')
+            for choice in EXIST_CHOICES:
+                FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
+
+
+        for es_name in ['clinvar_20150629_CLNDBN'
+                    ]:
+            filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='nested_filter_exists')
             for choice in EXIST_CHOICES:
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
 
@@ -768,6 +777,8 @@ class Command(BaseCommand):
 
          ##
         filter_panel = (
+            ('gwasCatalog', 'filter_exists'),
+            ('clinvar_20150629_CLNDBN', 'nested_filter_exists'),
             ('gwasCatalog', 'filter_term'),
             ('clinvar_20150629_CLNDBN', 'nested_filter_term'),
             ('clinvar_20150629_CLINSIG', 'nested_filter_terms'),

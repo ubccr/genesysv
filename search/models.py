@@ -56,6 +56,20 @@ class SearchOptions(TimeStampedModel):
     maximum_table_size = models.IntegerField(default=400)
 
 
+class SampleReadDepth(TimeStampedModel):
+    dataset = models.OneToOneField(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    sample_id = models.CharField(max_length=255)
+    rd_10x = models.FloatField()
+    rd_15x = models.FloatField()
+    rd_20x = models.FloatField()
+    rd_40x = models.FloatField()
+    rd_50x = models.FloatField()
+    variant_count = models.IntegerField()
+
+
 class FilterField(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',

@@ -16,6 +16,7 @@
       <ul class="nav navbar-nav">
         <li id="navbarId-Home"><a href="/">Home</a></li>
         <li id="navbarId-Search-Home"><a href="{% url 'search-home' %}">Search</a></li>
+        <li id="navbarId-Viz-Home"><a href="{% url 'viz-home' %}">Visualization</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
       {% if user.is_authenticated %}

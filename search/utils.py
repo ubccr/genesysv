@@ -2,7 +2,7 @@ class ElasticSearchFilter():
     def __init__(self):
         self.query_string = {}
         self.size = 1000
-        self.source = ["_id",]
+        self.source = []
 
         self.filter_term = []
         self.filter_terms = []
@@ -20,6 +20,7 @@ class ElasticSearchFilter():
 
         self.filter_exists = []
         self.must_not_exists = []
+        self.nested_filter_exists = {}
 
 
     def add_source(self, field_name):
@@ -104,6 +105,8 @@ class ElasticSearchFilter():
         if list(self.nested_filter_range_gte):
             return self.nested_filter_range_gte
 
+
+
     def add_filter_exists(self, field_name, value):
         self.filter_exists.append((field_name, value))
 
@@ -115,6 +118,15 @@ class ElasticSearchFilter():
 
     def get_must_not_exists(self):
         return self.must_not_exists
+
+    def add_nested_filter_exists(self, field_name, value, path):
+        if path not in self.nested_filter_exists:
+            self.nested_filter_exists[path] = []
+        self.nested_filter_exists[path].append((field_name, value))
+
+    def get_nested_filter_exists(self):
+        if list(self.nested_filter_exists):
+            return self.nested_filter_exists
 
     def generate_query_string(self):
         query_string = {
@@ -293,13 +305,38 @@ class ElasticSearchFilter():
             for field_name, value in must_not_exists:
                 query_string["query"]["bool"]["must_not"].append({"exists" : {"field": field_name+value.strip()}})
 
+        if self.get_nested_filter_exists():
+            nested_filter_exists = self.get_nested_filter_exists()
+
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
+
+
+            for path in list(nested_filter_exists):
+                nested = {
+                    "nested" : {
+                        "path": path,
+                        "query": {
+                            "bool": {
+                                "filter": []
+                            }
+                        }
+                    }
+                }
+
+
+                for field_name, value in nested_filter_exists[path]:
+                    path_fieldname = "%s.%s" %(path, field_name)
+                    nested["nested"]["query"]["bool"]["filter"].append({"exists" : {"field" : path_fieldname}})
+
+                    query_string["query"]["bool"]["filter"].append(nested)
+
         if self.get_source():
             query_string["_source"] = sorted(list(set(self.get_source())))
 
         if not query_string["query"]["bool"]:
             query_string.pop("query")
-        else:
-            query_string["query"]["bool"]["disable_coord"] = True
+
         return query_string
 
 def get_es_result(es, index_name, type_name, es_id):

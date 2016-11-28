@@ -25,7 +25,7 @@ SECRET_KEY = '4*6$y+wz$!8mjq01t=th10(0rl^z89$)t4g#9*86kk-+0_sd5i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['199.109.194.239',]
 
 
 # Application definition
@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'search',
     'pybamview',
+    'subject_report',
+    'visualization',
 ]
 
 MIDDLEWARE = [

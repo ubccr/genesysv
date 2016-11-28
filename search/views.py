@@ -75,7 +75,7 @@ def filter_array_dicts(array, key, values, comparison_type):
                 if val in tmp.split():
                     output.append(ele)
 
-            elif comparison_type == "default":
+            elif comparison_type == "val_in":
                 for ele_tmp in tmp.split('_'):
                     if val.lower() in ele_tmp.lower():
                         output.append(ele)
@@ -364,6 +364,8 @@ def search_result(request):
                 elif es_filter_type == 'must_not_exists':
                     es_filter.add_must_not_exists(es_name, data)
 
+                elif es_filter_type == 'nested_filter_exists':
+                    es_filter.add_nested_filter_exists(es_name, data, path)
 
 
             for field in source_fields:
@@ -423,6 +425,7 @@ def search_result(request):
                         break
                     # print(results)
                     combined = False
+                    combined_nested = None
                     for idx, path in enumerate(nested_attribute_fields):
 
                         if dict_filter_fields:
@@ -435,33 +438,46 @@ def search_result(request):
                                     comparison_type = key_es_filter_type.split('_')[-1]
                                 elif key_es_filter_type in ["nested_filter_term",
                                                             "nested_filter_terms",]:
-                                    comparison_type = 'equal'
+                                    comparison_type = 'val_in'
+                                # elif key_es_filter_type in ["nested_filter_terms"]:
+                                #     comparison_type = None
                                 else:
-                                    comparison_type = 'default'
-
+                                    comparison_type = 'val_in'
+                                # print(result)
+                                if comparison_type:
                                 # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
-                                filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                                    filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                                 # print(filtered_results)
+
 
                                 if filtered_results:
                                     result[key_path] = filtered_results
 
+                        if path not in result:
+                            continue
 
-
-                        if len(nested_attribute_fields) == 1:
-                            if path in result:
-                                combined_nested = result[path]
-                            else:
-                                combined_nested = None
+                        if not combined:
+                            combined_nested = result[path]
+                            combined = True
+                            continue
                         else:
-                            if not combined:
-                                if path in result:
-                                    combined_nested = result[path]
-                                    combined = True
-                                    continue
-                            else:
-                                combined_nested = list(itertools.product(combined_nested, result[path]))
-                                combined_nested = merge_two_dicts_array(combined_nested)
+                            combined_nested = list(itertools.product(combined_nested, result[path]))
+                            combined_nested = merge_two_dicts_array(combined_nested)
+
+                        # if len(nested_attribute_fields) == 1:
+                        #     if path in result:
+                        #         combined_nested = result[path]
+                        #     else:
+                        #         combined_nested = None
+                        # else:
+                        #     if not combined:
+                        #         if path in result:
+                        #             combined_nested = result[path]
+                        #             combined = True
+                        #             continue
+                        #     else:
+                        #         combined_nested = list(itertools.product(combined_nested, result[path]))
+                        #         combined_nested = merge_two_dicts_array(combined_nested)
 
                     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
                     if combined_nested:
