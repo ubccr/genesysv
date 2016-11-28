@@ -10,6 +10,7 @@ import subprocess
 from django.conf import settings
 from django.views.static import serve
 from pprint import pprint
+from common.utils import filter_array_dicts
 
 def put_findings_in_array(findings, keys):
     output = []
@@ -106,27 +107,42 @@ class SubjectReportWizard(SessionWizardView):
             not_relevant_gwascatalog = self.request.session.pop('not_relevant_gwascatalog')
 
             relevant_clinvar_id_keys = data_2['relevant_clinvar']
-            # relevant_clinvar_id_keys = [ele for ele in relevant_clinvar_id_keys]
+            not_relevant_clinvar_id_keys = data_2['not_relevant_clinvar']
 
-            print(relevant_clinvar_id_keys)
-            incidental_findings_variant_id_keys = data_2['incidental_findings']
-            incidental_findings_variant_id_keys = [int(ele) for ele in incidental_findings_variant_id_keys]
+            relevant_gwascatalog_id_keys = data_2['relevant_gwascatalog']
+            not_relevant_gwascatalog_id_keys = data_2['not_relevant_gwascatalog']
 
-            if relevant_findings_variant_id_keys:
-                relevant_findings = put_findings_in_array(relevant_findings, relevant_findings_variant_id_keys)
+
+            #filter_array_dicts(array, key, values, comparison_type):
+            if relevant_clinvar_id_keys:
+                relevant_clinvar = filter_array_dicts(relevant_clinvar, 'es_id', relevant_clinvar_id_keys, 'equal')
             else:
-                relevant_findings = None
+                relevant_clinvar = None
 
-            if incidental_findings_variant_id_keys:
-                incidental_findings = put_findings_in_array(incidental_findings, incidental_findings_variant_id_keys)
+            if not_relevant_clinvar_id_keys:
+                not_relevant_clinvar = filter_array_dicts(not_relevant_clinvar, 'es_id', not_relevant_clinvar_id_keys, 'equal')
             else:
-                incidental_findings = None
+                not_relevant_clinvar = None
 
+            if relevant_gwascatalog_id_keys:
+                relevant_gwascatalog = filter_array_dicts(relevant_gwascatalog, 'es_id', relevant_gwascatalog_id_keys, 'equal')
+            else:
+                relevant_gwascatalog = None
 
-            context['relevant_findings'] = relevant_findings
-            context['incidental_findings'] = incidental_findings
-            self.request.session['relevant_findings'] = relevant_findings
-            self.request.session['incidental_findings'] = incidental_findings
+            if not_relevant_gwascatalog_id_keys:
+                not_relevant_gwascatalog = filter_array_dicts(not_relevant_gwascatalog, 'es_id', not_relevant_gwascatalog_id_keys, 'equal')
+            else:
+                not_relevant_gwascatalog = None
+
+            context['relevant_clinvar'] = relevant_clinvar
+            context['not_relevant_clinvar'] = not_relevant_clinvar
+            context['relevant_gwascatalog'] = relevant_gwascatalog
+            context['not_relevant_gwascatalog'] = not_relevant_gwascatalog
+
+            self.request.session['relevant_clinvar'] = relevant_clinvar
+            self.request.session['not_relevant_clinvar'] = not_relevant_clinvar
+            self.request.session['relevant_gwascatalog'] = relevant_gwascatalog
+            self.request.session['not_relevant_gwascatalog'] = not_relevant_gwascatalog
 
         return context
 

@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
-{% load subjectreport_tags %}
-
+{% load subject_report_tags %}
 
 {% block head %}
 {{ wizard.form.media }}
@@ -26,10 +25,10 @@
     {% else %}
         <div class="panel panel-primary">
             <div class="panel-body">
-                {% if relevant_findings %}
-            <h3>Selected: Variants Relevant to Indicated for Finding ({{relevant_findings|length}}) </h3>
+                {% if relevant_clinvar %}
+            <h3>Selected: Variants Relevant to Indicated for Finding ({{relevant_clinvar|length}}) </h3>
             <div class="table-responsive">
-                <table id="relevant_findings" class="table display compact table-striped" cellspacing="0" width="100%">
+                <table id="relevant_clinvar" class="table display compact table-striped" cellspacing="0" width="100%">
                             <thead>
                               <tr>
                                 <th>Variant ID</th>
@@ -44,7 +43,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                        {% for finding in relevant_findings %}
+                        {% for finding in relevant_clinvar %}
                             <tr>
                                 <td>{{finding.1}}</td>
                                 <td>{{finding.2}}</td>
@@ -112,7 +111,65 @@
                          </table>
                     </div>
 
-         {% endif %}
+        {% endif %}
+        {% if relevant_gwascatalog %}
+                    <h3>Selected: Relevant Findings Using GWAS Catalog ({{relevant_gwascatalog|length}}) </h3>
+                    <div class="table-responsive">
+                        <table id="relevant_gwascatalog" class="table display compact table-striped" cellspacing="0" width="100%">
+                            <thead>
+                              <tr>
+                                <th>Variant</th>
+                                <th>Allele Frequency</th>
+                                <th>Zygosity</th>
+                                <th>Gene</th>
+                                <th>RefSeq ID</th>
+                                <th>GWAS Catalog</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for finding in relevant_gwascatalog %}
+                                    <tr>
+                                        <td nowrap>{{finding.Variant}}</td>
+                                        <td>{{finding.AF}}</td>
+                                        <td>{{finding.sample.sample_GT}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
+                                        <td>{{finding.gwasCatalog}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                         </table>
+                    </div>
+            {% endif %}
+        {% if not_relevant_gwascatalog %}
+                    <h3>Selected: Incidental Findings Using GWAS Catalog ({{not_relevant_gwascatalog|length}}) </h3>
+                    <div class="table-responsive">
+                        <table id="not_relevant_gwascatalog" class="table display compact table-striped" cellspacing="0" width="100%">
+                            <thead>
+                              <tr>
+                                <th>Variant</th>
+                                <th>Allele Frequency</th>
+                                <th>Zygosity</th>
+                                <th>Gene</th>
+                                <th>RefSeq ID</th>
+                                <th>GWAS Catalog</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for finding in not_relevant_gwascatalog %}
+                                    <tr>
+                                        <td nowrap>{{finding.Variant}}</td>
+                                        <td>{{finding.AF}}</td>
+                                        <td>{{finding.sample.sample_GT}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
+                                        <td>{{finding.gwasCatalog}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                         </table>
+                    </div>
+            {% endif %}
           </div>
     </div>
 

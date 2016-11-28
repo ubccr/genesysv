@@ -46,7 +46,8 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
     {
     "query": {
         "bool": {
-            "filter": [
+            "minimum_should_match": 1,
+            "must": [
                     {"nested": {
                         "path": "clinvar_20150629",
                         "query": {
@@ -74,8 +75,14 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
                             }
                         }
                     }
-                ]
-            }
+                ],
+            "should" : [
+                {"term" : {"SIFT_pred": "Deleterious"}},
+                {"term" : {"LRT_pred": "Deleterious"}},
+                {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
+                {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+            ]
+        }
         },
         "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all"],
         "size": 1000
@@ -126,6 +133,7 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
     {
         "query": {
             "bool": {
+                "minimum_should_match": 1,
                 "filter": [
                         {"nested": {
                             "path": "clinvar_20150629",
@@ -154,11 +162,17 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
                                 }
                             }
                         }
-                    ]
+                    ],
+                "should" : [
+                    {"term" : {"SIFT_pred": "Deleterious"}},
+                    {"term" : {"LRT_pred": "Deleterious"}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                ]
                 }
             },
         "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all"],
-        "size": 10
+        "size": 25
     }
 
     """
@@ -205,7 +219,8 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
     {
         "query": {
             "bool": {
-                "filter": [
+                "minimum_should_match": 1,
+                "must": [
                     {"term": {"gwasCatalog":"%s"}},
                     {"nested": {
                         "path": "sample",
@@ -216,7 +231,13 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
                             }
                         }
                     }
-                    ]
+                    ],
+                "should" : [
+                    {"term" : {"SIFT_pred": "Deleterious"}},
+                    {"term" : {"LRT_pred": "Deleterious"}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                ]
                 }
             },
         "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all"],
@@ -226,6 +247,7 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
 
     es_query_string = es_query_string_template %(indication_for_testing, subject)
     body = json.loads(es_query_string)
+    print(es_query_string)
     response = es.search(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, body=body)
 
     total = response['hits']['total']
@@ -238,6 +260,12 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
                                                      'sample_ID',
                                                      [subject,],
                                                      'equal')[0]
+        if 'ExAC_ALL' in tmp_source:
+            tmp_source['AF'] = tmp_source['ExAC_ALL']
+        elif '1000g2015aug_all' in tmp_source:
+            tmp_source['AF'] = tmp_source['1000g2015aug_all']
+        else:
+            tmp_source['AF'] = 'N/A'
         results.append(tmp_source)
 
     # print(results)
@@ -252,6 +280,7 @@ def get_not_relevant_gwascatalog(subject, database_name, indication_for_testing)
     {
         "query": {
             "bool": {
+                "minimum_should_match": 1,
                 "must_not": {
                     "term": {"gwasCatalog":"%s"}
                 },
@@ -266,11 +295,17 @@ def get_not_relevant_gwascatalog(subject, database_name, indication_for_testing)
                             }
                         }
                     }
-                    ]
-                }
-            },
+                    ],
+                "should" : [
+                    {"term" : {"SIFT_pred": "Deleterious"}},
+                    {"term" : {"LRT_pred": "Deleterious"}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
+                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                ]
+            }
+        },
         "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all"],
-        "size": 10
+        "size": 25
     }
     """
 
@@ -289,6 +324,12 @@ def get_not_relevant_gwascatalog(subject, database_name, indication_for_testing)
                                                      'sample_ID',
                                                      [subject,],
                                                      'equal')[0]
+        if 'ExAC_ALL' in tmp_source:
+            tmp_source['AF'] = tmp_source['ExAC_ALL']
+        elif '1000g2015aug_all' in tmp_source:
+            tmp_source['AF'] = tmp_source['1000g2015aug_all']
+        else:
+            tmp_source['AF'] = 'N/A'
         results.append(tmp_source)
 
     # print(results)
@@ -557,16 +598,16 @@ class SubjectReportForm4(forms.Form):
         indication_for_testing = extra_data['indication_for_testing']
         super(SubjectReportForm4, self).__init__(*args, **kwargs)
 
-        if database in list(map_database_name_table_name) and database not in 'demo_demo':
-            x15, x20, x40, variant_count = get_read_depth(database, subject)
-            result_summary = result_summary_template %(map_database_name_table_name[database][-1],
-                                                        x15, x20, x40, variant_count, indication_for_testing)
-            methodology = methodology_default_value %(map_database_name_table_name[database][-1])
-            additional_notes = 'DISCLAIMER: The findings in this report have not been verified by a physician.'
-        else:
-            result_summary = 'Demo database'
-            methodology = 'Demo database'
-            additional_notes = 'Demo database'
+        # if database in list(map_database_name_table_name) and database not in 'demo_demo':
+        #     x15, x20, x40, variant_count = get_read_depth(database, subject)
+        #     result_summary = result_summary_template %(map_database_name_table_name[database][-1],
+        #                                                 x15, x20, x40, variant_count, indication_for_testing)
+        #     methodology = methodology_default_value %(map_database_name_table_name[database][-1])
+        #     additional_notes = 'DISCLAIMER: The findings in this report have not been verified by a physician.'
+        # else:
+        result_summary = 'Demo database'
+        methodology = 'Demo database'
+        additional_notes = 'Demo database'
 
         self.fields['result_summary'] = forms.CharField(widget=forms.Textarea, initial=result_summary)
         self.fields['methodology'] = forms.CharField(widget=forms.Textarea, initial=methodology)
