@@ -181,57 +181,7 @@
                          </table>
                     </div>
                  {% endif %}
-                 {% if incidental_findings %}
-                 <hr>
-                    <h3>Other Variants of Medical Significance (Incidental Findings) ({{incidental_findings|length}}) </h3>
-                    <div class="table-responsive">
-                        <table id="incidental_findings" class="table display compact table-striped" cellspacing="0" width="100%">
-                            <thead>
-                               <tr>
-                                <th></th>
-                                <th>Variant ID</th>
-                                <th>Allele Frequency</th>
-                                <th>Zygosity</th>
-                                <th>Gene</th>
-                                <th>RefSeq ID</th>
-                                <th>Variant</th>
-                                <th>ClinVar</th>
-                                <th>ClinVar Classification</th>
-                                <th>GWAS Catalog</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                {% for field, finding in wizard.form.incidental_findings|zip:incidental_findings %}
-                                     <tr>
-                                        <td>
-                                            <div>
-                                                {{ field.errors }}
-                                                {{ field }} {{ field.text }}
-                                            </div>
-                                        </td>
-                                        <td nowrap>{{finding.1}}</td>
-                                        <td>{{finding.2}}</td>
-                                        <td>{{finding.3}}</td>
-                                        <td>{{finding.4}}</td>
-                                        <td>{{finding.5 |addbrarrayremoveslash |safe}}</td>
-                                        <td>{{finding.6 |addbrarray |safe }}</td>
-                                        <td nowrap>
-                                            {% for clinvar, clinsig in finding.7 %}
-                                                {{clinvar}} <br>
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% for clinvar, clinsig in finding.7 %}
-                                                {{clinsig}} <br>
-                                            {% endfor %}
-                                        </td>
-                                        <td nowrap>{{finding.8|addbrstring|safe}}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                         </table>
-                    </div>
-                 {% endif %}
+
             {% endif %}
         </div>
     </div>

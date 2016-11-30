@@ -1,4 +1,5 @@
 *._*
+report.*
 *.DS_Store
 *.pyc
 db.sqlite3

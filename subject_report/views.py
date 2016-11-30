@@ -20,8 +20,61 @@ def put_findings_in_array(findings, keys):
 
     return output
 
-def generate_latex_patient_report(report_type,
-                                  result_summary,
+def findings_dict_to_array(findings):
+    output = []
+    for ele in findings:
+        row = []
+        row.append(ele['es_id'])
+        row.append(ele['Variant'])
+        row.append(ele['AF'])
+
+        zygocity = ele['sample']['sample_GT']
+        zygocity = 'Homozygous' if zygocity == '1/1' else 'Heterozygous'
+
+        row.append(zygocity)
+
+        gene = []
+        refseq_ids = []
+        variants = []
+        if ele.get('refGene', False):
+            for eleGene in ele['refGene']:
+                gene.append(eleGene['refGene_symbol'])
+                if eleGene.get('refGene_refgene_id', False):
+                    tmp = eleGene.get('refGene_refgene_id')
+                    tmp = tmp.replace('_','\\_')
+                    refseq_ids.append(tmp)
+                else:
+                    refseq_ids.append("")
+                if eleGene.get('refGene_cDNA_change', False) or eleGene.get('refGene_aa_change', False):
+                    variants.append("%s/%s" %(eleGene.get('refGene_cDNA_change', ''), eleGene.get('refGene_aa_change', '')))
+                else:
+                    variants.append("")
+
+
+        tmp_gene = list(set(gene))
+        if len(tmp_gene) == 1:
+            gene = tmp_gene
+        row.append(gene)
+        row.append(refseq_ids)
+        row.append(variants)
+
+        clinvar = []
+
+        if ele.get('clinvar_20150629', False):
+            for eleClinvar in ele['clinvar_20150629']:
+                tmp = (eleClinvar['clinvar_20150629_CLNDBN'], eleClinvar['clinvar_20150629_CLINSIG'])
+                clinvar.append(tmp)
+        row.append(clinvar)
+
+
+        row.append(ele.get('gwasCatalog', None))
+
+
+        output.append(row)
+    return output
+
+
+def generate_latex_patient_report(result_summary,
                                   methodology,
                                   additional_notes,
                                   relevant_findings,
@@ -45,9 +98,8 @@ def generate_latex_patient_report(report_type,
 
 
     basedir = settings.BASE_DIR
-    template = latex_jinja_env.get_template(os.path.join('subjectreport', 'subject_report.tex'))
-    rendered = template.render( report_type=report_type,
-                                result_summary=result_summary,
+    template = latex_jinja_env.get_template(os.path.join('subject_report', 'subject_report.tex'))
+    rendered = template.render( result_summary=result_summary,
                                 methodology=methodology,
                                 additional_notes=additional_notes,
                                 relevant_findings=relevant_findings,
@@ -56,9 +108,6 @@ def generate_latex_patient_report(report_type,
 
     rendered = rendered.replace('&nbsp;','')
 
-
-    pprint(relevant_findings)
-    pprint(incidental_findings)
     with open(output_name, "wt") as fh:
         fh.write(rendered)
 
@@ -80,7 +129,7 @@ class SubjectReportWizard(SessionWizardView):
 
             database_name = data_0['dataset']
             subject = data_1['subject']
-            indication_for_testing = data_1['indication_for_testing']
+            indication_for_testing = data_1['indication_for_testing'].lower()
 
             # relevant_findings, incidental_findings = get_clinvar_gwascatalog(subject, database_name, indication_for_testing)
             relevant_clinvar = get_relevant_clinvar(subject, database_name, indication_for_testing)
@@ -170,22 +219,40 @@ class SubjectReportWizard(SessionWizardView):
                 additional_notes = data['additional_notes']
             if 'dataset' in list(data):
                 dataset = data['dataset']
+        relevant_clinvar = self.request.session['relevant_clinvar']
+        not_relevant_clinvar = self.request.session['not_relevant_clinvar']
+        relevant_gwascatalog = self.request.session['relevant_gwascatalog']
+        not_relevant_gwascatalog = self.request.session['not_relevant_gwascatalog']
 
-        report_type = map_database_name_table_name[dataset][-1].title()
-        relevant_findings = self.request.session['relevant_findings']
-        incidental_findings = self.request.session['incidental_findings']
+        relevant_findings = []
+        incidental_findings = []
+
+        if relevant_clinvar:
+            relevant_findings.extend(relevant_clinvar)
+
+        if relevant_gwascatalog:
+            relevant_findings.extend(relevant_gwascatalog)
+
+        if not_relevant_clinvar:
+            incidental_findings.extend(not_relevant_clinvar)
+
+        if not_relevant_gwascatalog:
+            incidental_findings.extend(not_relevant_gwascatalog)
+
+        relevant_findings = findings_dict_to_array(relevant_findings)
+        incidental_findings = findings_dict_to_array(incidental_findings)
 
 
-        generate_latex_patient_report(report_type,
-                                        result_summary,
+
+        generate_latex_patient_report(result_summary,
                                         methodology,
                                         additional_notes,
                                         relevant_findings,
                                         incidental_findings,
                                         'report.tex')
 
-        test_file = open('/home/mkzia/bigdw-website/report.pdf', 'rb')
-        response = HttpResponse(content=test_file)
+        pdf_file = open('/home/mkzia/gdw/report.pdf', 'rb')
+        response = HttpResponse(content=pdf_file)
         response['Content-Type'] = 'application/pdf'
         response['Content-Disposition'] = 'attachment; filename="report.pdf"'
         return response
@@ -207,7 +274,7 @@ class SubjectReportWizard(SessionWizardView):
 
             database_name = data_0['dataset']
             subject = data_1['subject']
-            indication_for_testing = data_1['indication_for_testing']
+            indication_for_testing = data_1['indication_for_testing'].lower()
 
             extra_data = {'database_name': database_name,
                           'subject': subject,
@@ -219,7 +286,7 @@ class SubjectReportWizard(SessionWizardView):
             data_1 = self.get_cleaned_data_for_step('1')
             subject = data_1['subject']
             database_name = data_0['dataset']
-            indication_for_testing = data_1['indication_for_testing']
+            indication_for_testing = data_1['indication_for_testing'].lower()
             extra_data = {'subject': subject, 'database_name':database_name, 'indication_for_testing': indication_for_testing}
             form = SubjectReportForm4(extra_data=extra_data, data=data)
 

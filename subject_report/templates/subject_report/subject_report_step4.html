@@ -25,99 +25,51 @@
     {% else %}
         <div class="panel panel-primary">
             <div class="panel-body">
-                {% if relevant_clinvar %}
-            <h3>Selected: Variants Relevant to Indicated for Finding ({{relevant_clinvar|length}}) </h3>
-            <div class="table-responsive">
-                <table id="relevant_clinvar" class="table display compact table-striped" cellspacing="0" width="100%">
+        {% if relevant_clinvar %}
+                    <h3>Selected Variants Relevant to Indicated for Finding Using ClinVar ({{relevant_clinvar|length}}) </h3>
+                    <div class="table-responsive">
+                        <table id="relevant_clinvar" class="table display compact table-striped" cellspacing="0" width="100%">
                             <thead>
                               <tr>
-                                <th>Variant ID</th>
+                                <th></th>
+                                <th>Variant</th>
                                 <th>Allele Frequency</th>
                                 <th>Zygosity</th>
                                 <th>Gene</th>
                                 <th>RefSeq ID</th>
-                                <th>Variant</th>
                                 <th>ClinVar</th>
                                 <th>ClinVar Classification</th>
-                                <th>GWAS Catalog</th>
                               </tr>
                             </thead>
                             <tbody>
-                        {% for finding in relevant_clinvar %}
-                            <tr>
-                                <td>{{finding.1}}</td>
-                                <td>{{finding.2}}</td>
-                                <td>{{finding.3}}</td>
-                                <td>{{finding.4}}</td>
-                                <td>{{finding.5 |addbrarrayremoveslash |safe}}</td>
-                                <td>{{finding.6 |addbrarray |safe }}</td>
-                                <td nowrap>
-                                    {% for clinvar, clinsig in finding.7 %}
-                                        {{clinvar}} <br>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for clinvar, clinsig in finding.7 %}
-                                        {{clinsig}} <br>
-                                    {% endfor %}
-                                </td>
-                                <td nowrap>{{finding.8|addbrstring|safe}}</td>
-                        {% endfor %}
-                        </tbody>
-                         </table>
-            </div>
-         {% endif %}
-
-    {% if incidental_findings %}
-            <h3>Selected: Other Variants of Medical Significance (Incidental Findings) ({{incidental_findings|length}}) </h3>
-            <div class="table-responsive">
-                <table id="incidental_findings" class="table display compact table-striped" cellspacing="0" width="100%">
-                            <thead>
-                               <tr>
-                                <th>Variant ID</th>
-                                <th>Allele Frequency</th>
-                                <th>Zygosity</th>
-                                <th>Gene</th>
-                                <th>RefSeq ID</th>
-                                <th>Variant</th>
-                                <th>ClinVar</th>
-                                <th>ClinVar Classification</th>
-                                <th>GWAS Catalog</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                {% for finding in incidental_findings %}
-                                     <tr>
-                                        <td nowrap>{{finding.1}}</td>
-                                        <td>{{finding.2}}</td>
-                                        <td>{{finding.3}}</td>
-                                        <td>{{finding.4}}</td>
-                                        <td>{{finding.5 |addbrarrayremoveslash |safe}}</td>
-                                        <td>{{finding.6 |addbrarray |safe }}</td>
-                                        <td nowrap>
-                                            {% for clinvar, clinsig in finding.7 %}
-                                                {{clinvar}} <br>
-                                            {% endfor %}
-                                        </td>
+                                {% for finding in relevant_clinvar %}
+                                    <tr>
                                         <td>
-                                            {% for clinvar, clinsig in finding.7 %}
-                                                {{clinsig}} <br>
-                                            {% endfor %}
+                                            <div>
+                                                {{ field.errors }}
+                                                {{ field }} {{ field.text }}
+                                            </div>
                                         </td>
-                                        <td nowrap>{{finding.8|addbrstring|safe}}</td>
+                                        <td nowrap>{{finding.Variant}}</td>
+                                        <td>{{finding.AF}}</td>
+                                        <td>{{finding.sample.sample_GT}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
+                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLNDBN'|safe}}</td>
+                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLINSIG'|safe}}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                          </table>
                     </div>
-
-        {% endif %}
-        {% if relevant_gwascatalog %}
-                    <h3>Selected: Relevant Findings Using GWAS Catalog ({{relevant_gwascatalog|length}}) </h3>
+                {% endif %}
+                {% if relevant_gwascatalog %}
+                    <h3>Selected Variants Relevant to Indicated for Finding Using GWAS Catalog ({{relevant_gwascatalog|length}}) </h3>
                     <div class="table-responsive">
                         <table id="relevant_gwascatalog" class="table display compact table-striped" cellspacing="0" width="100%">
                             <thead>
                               <tr>
+                                <th></th>
                                 <th>Variant</th>
                                 <th>Allele Frequency</th>
                                 <th>Zygosity</th>
@@ -129,6 +81,12 @@
                             <tbody>
                                 {% for finding in relevant_gwascatalog %}
                                     <tr>
+                                        <td>
+                                            <div>
+                                                {{ field.errors }}
+                                                {{ field }} {{ field.text }}
+                                            </div>
+                                        </td>
                                         <td nowrap>{{finding.Variant}}</td>
                                         <td>{{finding.AF}}</td>
                                         <td>{{finding.sample.sample_GT}}</td>
@@ -140,9 +98,48 @@
                             </tbody>
                          </table>
                     </div>
-            {% endif %}
+                 {% endif %}
+        {% if not_relevant_clinvar %}
+                    <h3>Selected Incidental Findings Using ClinVar ({{not_relevant_clinvar|length}}) </h3>
+                    <div class="table-responsive">
+                        <table id="not_relevant_clinvar" class="table display compact table-striped" cellspacing="0" width="100%">
+                            <thead>
+                              <tr>
+                                <th></th>
+                                <th>Variant</th>
+                                <th>Allele Frequency</th>
+                                <th>Zygosity</th>
+                                <th>Gene</th>
+                                <th>RefSeq ID</th>
+                                <th>ClinVar</th>
+                                <th>ClinVar Classification</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for finding in not_relevant_clinvar %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                {{ field.errors }}
+                                                {{ field }} {{ field.text }}
+                                            </div>
+                                        </td>
+                                        <td nowrap>{{finding.Variant}}</td>
+                                        <td>{{finding.AF}}</td>
+                                        <td>{{finding.sample.sample_GT}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
+                                        <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
+                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLNDBN'|safe}}</td>
+                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLINSIG'|safe}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                         </table>
+                    </div>
+                {% endif %}
+
         {% if not_relevant_gwascatalog %}
-                    <h3>Selected: Incidental Findings Using GWAS Catalog ({{not_relevant_gwascatalog|length}}) </h3>
+                    <h3>Selected Incidental Findings Using GWAS Catalog ({{not_relevant_gwascatalog|length}}) </h3>
                     <div class="table-responsive">
                         <table id="not_relevant_gwascatalog" class="table display compact table-striped" cellspacing="0" width="100%">
                             <thead>

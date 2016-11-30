@@ -57,7 +57,7 @@ class SearchOptions(TimeStampedModel):
 
 
 class SampleReadDepth(TimeStampedModel):
-    dataset = models.OneToOneField(
+    dataset = models.ForeignKey(
         'Dataset',
         on_delete=models.CASCADE,
     )

@@ -1,0 +1,195 @@
+\documentclass[10pt]{article}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{adjustbox}
+\usepackage{titlesec}
+%\usepackage{helvet}
+\usepackage{tabularx}
+
+\usepackage[headsep=0.05in,headheight=4in,margin=0.8in]{geometry}
+
+\usepackage{fancyhdr}
+
+\usepackage{graphicx}
+
+\usepackage{lipsum}
+\fancyhf{}% Clear header/footer
+\setlength{\headwidth}{\textwidth}
+\fancyhead[R]{\color{NavyBlue}\textbf{\sffamily \Large Buffalo Institute for Genomics}}
+\fancyhead[L]{ % right
+   \includegraphics[trim={5cm 7cm 5cm 5cm},clip,height=0.60in]{image001.jpg}
+}
+\renewcommand{\footrulewidth}{1pt}% default is 0pt
+\fancyfoot[L]{Page \thepage }
+\fancyfoot[R]{701 Ellicott Street, Buffalo, NY 14203 $\bullet$ 716-881-7514}
+\pagestyle{fancy}
+\titlespacing\section{0pt}{12pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titleformat*{\section}{\normalfont\fontsize{12}{14}\color{NavyBlue}\mdseries}
+\renewcommand{\familydefault}{\sfdefault}
+\newcommand\Tstrut{\rule{0pt}{2.5ex}}       % "top" strut
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}} % "bottom" strut
+\newcommand{\TBstrut}{\Tstrut\Bstrut} % top&bottom struts
+\begin{document}
+\begin{Form}
+\begin{table}[h]
+\begin{tabularx}{\linewidth}{@{}lll}
+\textbf{\textsf{\color{NavyBlue}Patient}} &
+\textbf{\textsf{\color{NavyBlue}Specimen}} &
+\textbf{\textsf{\color{NavyBlue}Provider}} \\
+\TextField[charsize=8pt,width=3.63cm,color=black,bordercolor=1 1 1]{Name:} &
+\TextField[charsize=8pt,width=2.44cm,color=black,bordercolor=1 1 1]{Date/Time Collected:} &
+\TextField[charsize=8pt,width=2.67cm,color=black,bordercolor=1 1 1]{Requesting Physician:} \\
+\TextField[charsize=8pt,width=2.50cm,color=black,bordercolor=1 1 1]{Date of Birth:} &
+\TextField[charsize=8pt,width=2.50cm,color=black,bordercolor=1 1 1]{Date/Time Received:} &
+\TextField[charsize=8pt,width=3.0cm,color=black,bordercolor=1 1 1]{Requesting Facility:} \Tstrut \\
+\TextField[charsize=8pt,width=3.45cm,color=black,bordercolor=1 1 1]{Gender:} &
+\TextField[charsize=8pt,width=2.45cm,color=black,bordercolor=1 1 1]{Date/Time Reported:} &
+\hfill \Tstrut \\
+\TextField[charsize=8pt,width=3.77cm,color=black,bordercolor=1 1 1]{Race:} &
+\TextField[charsize=8pt,width=3.71cm,color=black,bordercolor=1 1 1]{Accession \#:} &
+\hfill \Tstrut \\
+\end{tabularx}
+\end{table}
+\end{Form}
+\bigskip
+\hfill
+\begin{center}
+\Large\textbf{\textsf{\color{NavyBlue}Report}}
+\end{center}
+\section*{Result Summary}
+\noindent \VAR{result_summary}
+\section*{Variants Relevant to Indication for Testing}
+%% if relevant_findings
+\bigskip
+\footnotesize
+\noindent\begin{tabularx}{\textwidth}{@{}p{0.2in}@{}p{1.2in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}}
+    \multicolumn{2}{@{}l}{\textbf{Variant ID }} &
+    \textbf{Allele Frequency*} &
+    \textbf{Zygosity} &
+    \textbf{Gene} &
+    \textbf{RefSeq ID} &
+    \textbf{Variant} \\
+    \cmidrule[1pt](r{1pt}){1-2}
+    \cmidrule[1pt](r{1pt}){3-3}
+    \cmidrule[1pt](r{1pt}){4-4}
+    \cmidrule[1pt](r{1pt}){5-5}
+    \cmidrule[1pt](r{1pt}){6-6}
+    \cmidrule[1pt](r{1pt}){7-7}
+    %% for (id, variant_id, allele_frequency, zygosity, genes, refseq_ids, variants, clinvar, gwas) in relevant_findings
+    \multicolumn{2}{@{}l}{\VAR{variant_id}} &
+    \VAR{allele_frequency} &
+    \VAR{zygosity} &
+    %% for gene in genes
+        \VAR{gene} \newline
+    %% endfor
+    &
+    %% for refseq_id in refseq_ids
+        \VAR{refseq_id} \newline
+    %% endfor
+    &
+    %% for variant in variants
+        \VAR{variant} \newline
+    %% endfor
+    \\
+    %% if not refseq_ids and not variants
+        \\
+    %% endif
+    %% if clinvar
+        %% for cvar, sig in clinvar
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{ClinVar:}} &
+        \multicolumn{5}{@{}m{12cm}}{\VAR{cvar}} \\
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{Classification:}} &
+        \multicolumn{5}{@{}l}{\VAR{sig}} \\
+        %% endfor
+    %% endif
+    %% if gwas
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{GWAS Catalog:}} &
+        \multicolumn{5}{@{}m{12cm}}{\VAR{gwas}} \\
+    %% endif
+    \cmidrule{1-7}
+    %% endfor
+\end{tabularx}
+%% endif
+%% if incidental_findings
+\section*{Other Variants of Medical Significance (Incidental Findings)}
+\bigskip
+\noindent\begin{tabularx}{\textwidth}{@{}p{0.2in}@{}p{1.2in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}}
+    \multicolumn{2}{@{}l}{\textbf{Variant ID}} &
+    \textbf{Allele Frequency*} &
+    \textbf{Zygosity} &
+    \textbf{Gene} &
+    \textbf{RefSeq ID} &
+    \textbf{Variant} \\
+    \cmidrule[1pt](r{1pt}){1-2}
+    \cmidrule[1pt](r{1pt}){3-3}
+    \cmidrule[1pt](r{1pt}){4-4}
+    \cmidrule[1pt](r{1pt}){5-5}
+    \cmidrule[1pt](r{1pt}){6-6}
+    \cmidrule[1pt](r{1pt}){7-7}
+    %% for (id, variant_id, allele_frequency, zygosity, genes, refseq_ids, variants, clinvar, gwas) in incidental_findings
+    \multicolumn{2}{@{}l}{\VAR{variant_id}} &
+    \VAR{allele_frequency} &
+    \VAR{zygosity} &
+    %% for gene in genes
+        \VAR{gene} \newline
+    %% endfor
+    &
+    %% for refseq_id in refseq_ids
+        \VAR{refseq_id} \newline
+    %% endfor
+    &
+    %% for variant in variants
+        \VAR{variant} \newline
+    %% endfor
+    \\
+    %% if not refseq_ids and not variants
+        \\
+    %% endif
+    %% if clinvar
+        %% for cvar, sig in clinvar
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{ClinVar:}} &
+        \multicolumn{5}{@{}m{12cm}}{\VAR{cvar}} \\
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{Classification:}} &
+        \multicolumn{5}{@{}l}{\VAR{sig}} \\
+        %% endfor
+    %% endif
+    %% if gwas
+        \hfill &
+        \multicolumn{1}{@{}l}{\textbf{GWAS Catalog:}} &
+        \multicolumn{5}{@{}m{12cm}}{\VAR{gwas}} \\
+    %% endif
+    \cmidrule{1-7}
+    %% endfor
+\end{tabularx}
+%% endif
+\normalsize
+\section*{Methodology}
+\noindent \VAR{methodology}
+\bigskip
+\noindent The following table shows the interpretation of the predictions:
+\newline
+\footnotesize
+\def\arraystretch{1.5}
+\begin{tabular}{|l|p{5.75in}|}
+  \hline
+  \textbf{Predictor Name} & \textbf{Description} \\ \hline
+  SIFT & D: Deleterious (sift score $\leq 0.05$); T: Tolerated (sift score $> 0.05$) \\ \hline
+  LRT & D: Deleterious; N: Neutral; U: Unknown \\ \hline
+  Polyphen2 HDIV & D: probably damaging (hdiv $\geq 0.957$); P: possibly damaging ($0.453 \leq$ hdiv $\leq 0.957$); B: benign (hdiv $\leq 0.957$) \\ \hline
+  Polyphen2 HVAR & D: probably damaging (hvar $\geq 0.909$); P: possibly damaging ($0.447 \leq$ hvar $\leq 0.909$); B: benign (hvar $\leq 0.446$) \\ \hline
+\end{tabular}
+\normalsize
+
+\bigskip
+
+\section*{Additional Notes}
+\noindent \VAR{additional_notes}
+\bigskip
+\newline \noindent Report generated: \today
+\end{document}

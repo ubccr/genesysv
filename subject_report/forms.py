@@ -9,9 +9,10 @@ from urllib.parse import parse_qs
 import elasticsearch
 import json
 from common.utils import filter_array_dicts, must_not_array_dicts
+from search.models import SampleReadDepth
 
 
-result_summary_template = """Whole %s sequencing of this individual's genome was performed and resulted
+result_summary_template = """Whole [----] sequencing of this individual's genome was performed and resulted
     in %s/%s/%s percent coverage at 15/20/40(X).
     A total of %s variants were identified when compared to a reference genome.
     These variant data were analyzed to identify previously reported variants of potential clinical
@@ -23,7 +24,7 @@ result_summary_template = " ".join((ele.strip() for ele in result_summary_templa
 
 methodology_default_value = """[Blood,Saliva,?] sample from
     this individual was used to prepare a library for sequencing.
-    Whole %s sequencing was performed using Illumina HiSeq 2500
+    Whole [---] sequencing was performed using Illumina HiSeq 2500
     sequencer at University at Buffalo's Genomics and Bioinformatics
     Core (check for proper name). Raw sequences were aligned with BWA MEM (v0.7.12)
     and variants were called using a GATK (v3.5) variant calling pipeline (v3.5.2).
@@ -90,6 +91,7 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
     """
 
     es_query_string = es_query_string_template %(indication_for_testing, subject)
+    # print(es_query_string)
     body = json.loads(es_query_string)
     response = es.search(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, body=body)
 
@@ -177,6 +179,7 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
 
     """
     es_query_string = es_query_string_template %(indication_for_testing, subject)
+    # print(es_query_string)
     body = json.loads(es_query_string)
     response = es.search(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, body=body)
 
@@ -247,7 +250,7 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
 
     es_query_string = es_query_string_template %(indication_for_testing, subject)
     body = json.loads(es_query_string)
-    print(es_query_string)
+    # print(es_query_string)
     response = es.search(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, body=body)
 
     total = response['hits']['total']
@@ -572,6 +575,7 @@ class SubjectReportForm3(forms.Form):
         subject = extra_data['subject']
         database_name = extra_data['database_name']
         indication_for_testing = extra_data['indication_for_testing'].lower()
+        print(indication_for_testing)
 
         relevant_clinvar = get_relevant_clinvar(subject, database_name, indication_for_testing)
         RELEVANT_CLINVAR_CHOICES = [(ele['es_id'], '') for ele in relevant_clinvar]
@@ -593,21 +597,25 @@ class SubjectReportForm3(forms.Form):
 class SubjectReportForm4(forms.Form):
     def __init__(self, *args, **kwargs):
         extra_data = kwargs.pop('extra_data', [])
-        database = extra_data['database_name']
+        database_name = extra_data['database_name']
         subject = extra_data['subject']
         indication_for_testing = extra_data['indication_for_testing']
         super(SubjectReportForm4, self).__init__(*args, **kwargs)
 
-        # if database in list(map_database_name_table_name) and database not in 'demo_demo':
-        #     x15, x20, x40, variant_count = get_read_depth(database, subject)
-        #     result_summary = result_summary_template %(map_database_name_table_name[database][-1],
-        #                                                 x15, x20, x40, variant_count, indication_for_testing)
-        #     methodology = methodology_default_value %(map_database_name_table_name[database][-1])
-        #     additional_notes = 'DISCLAIMER: The findings in this report have not been verified by a physician.'
-        # else:
-        result_summary = 'Demo database'
-        methodology = 'Demo database'
-        additional_notes = 'Demo database'
+        dataset_object = Dataset.objects.get(name=database_name)
+        try:
+            sample_read_depth_obj = SampleReadDepth.objects.get(dataset=dataset_object, sample_id=subject)
+            result_summary = result_summary_template %( sample_read_depth_obj.rd_15x,
+                                                        sample_read_depth_obj.rd_20x,
+                                                        sample_read_depth_obj.rd_40x,
+                                                        sample_read_depth_obj.variant_count,
+                                                        indication_for_testing)
+            methodology = methodology_default_value
+            additional_notes = 'DISCLAIMER: The findings in this report have not been verified by a physician.'
+        except:
+            result_summary = 'Demo database'
+            methodology = 'Demo database'
+            additional_notes = 'Demo database'
 
         self.fields['result_summary'] = forms.CharField(widget=forms.Textarea, initial=result_summary)
         self.fields['methodology'] = forms.CharField(widget=forms.Textarea, initial=methodology)
