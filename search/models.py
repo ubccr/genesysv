@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group
 from common.models import TimeStampedModel
+from django.contrib.auth.models import User
 
 
 
@@ -202,10 +203,15 @@ class AttributeSubPanel(TimeStampedModel):
         return self.name
 
 
-class SearchResultDownload(TimeStampedModel):
+class SearchLog(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',
         on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True, blank=True
     )
     headers = models.TextField()
     query = models.TextField()
@@ -213,6 +219,9 @@ class SearchResultDownload(TimeStampedModel):
     non_nested_attribute_fields = models.TextField(null=True, blank=True)
     dict_filter_fields = models.TextField(null=True, blank=True)
     used_keys = models.TextField(null=True, blank=True)
+    filters_used = models.TextField(null=True, blank=True)
+    attributes_selected = models.TextField(null=True, blank=True)
+
 
 
     def __str__(self):

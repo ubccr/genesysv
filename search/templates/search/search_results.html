@@ -31,7 +31,7 @@
     <a class="btn btn-primary pull-right download-results" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
     <form id="download-form" role="form"  method="POST" action="{% url 'search-result-download' %}">
         {% csrf_token %}
-        <input style="display: none;" type="hidden" name="search_result_download_obj_id" value="{{search_result_download_obj_id}}">
+        <input style="display: none;" type="hidden" name="search_log_obj_obj_id" value="{{search_log_obj_obj_id}}">
     </form>
     <div class="clearfix"></div>
 </div>

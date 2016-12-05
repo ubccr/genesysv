@@ -50,6 +50,11 @@ class DatasetAdmin(admin.ModelAdmin):
     list_display = ('name',)
     filter_horizontal = ('allowed_groups',)
 
+
+class SearchLogAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(FormType, FormTypeAdmin)
 admin.site.register(WidgetType, WidgetTypeAdmin)
 admin.site.register(ESFilterType, ESFilterTypeAdmin)
@@ -64,4 +69,5 @@ admin.site.register(AttributeSubPanel, AttributeSubPanelAdmin)
 admin.site.register(FilterField, FilterFieldAdmin)
 admin.site.register(FilterFieldChoice, FilterFieldChoiceAdmin)
 admin.site.register(AttributeField, AttributeFieldAdmin)
+admin.site.register(SearchLog, SearchLogAdmin)
 

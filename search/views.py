@@ -263,11 +263,14 @@ def search_result(request):
             nested_attribute_fields = []
 
 
-            ### I am going to treat gatkqs as a non-nested field
+            ### I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
+            ### not put on a separate line; Maybe better to add some attribute to the field in model instead.
+
+
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
-                    # print(key,val)
+                    print(key,val)
                     es_name, path = key.split('-')
                     if path and es_name != "qs":
                         source_fields.append(path)
@@ -289,7 +292,7 @@ def search_result(request):
             nested_attribute_fields = list(set(nested_attribute_fields))
             dict_filter_fields = {}
 
-
+            filters_used = {}
             for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
                 data = es_filter_form_data[key]
@@ -297,7 +300,10 @@ def search_result(request):
                 if not data:
                     continue
 
-                # print(key, es_name, es_filter_type, path, data, type(data))
+                filters_used[key] = data
+                print(key, es_name, es_filter_type, path, data, type(data))
+
+
 
                 if path and path not in source_fields:
                     source_fields.append(path)
@@ -407,6 +413,9 @@ def search_result(request):
             headers = sorted(headers, key=itemgetter(0))
             _, headers  = zip(*headers)
 
+            attributes_selected = []
+            for ele in headers:
+                attributes_selected.append('%s-%s' %(ele.es_name, ele.path))
             tmp_results = results['hits']['hits']
             results = []
             for ele in tmp_results:
@@ -518,16 +527,27 @@ def search_result(request):
                 used_keys_json = None
 
 
-            search_result_download_obj = SearchResultDownload.objects.create(
+
+            filters_used = json.dumps(filters_used)
+            attributes_selected = json.dumps(attributes_selected)
+
+
+            search_log_obj = SearchLog.objects.create(
                                                 dataset=dataset_obj,
                                                 headers=header_json,
                                                 query=query_json,
                                                 nested_attribute_fields=nested_attribute_fields_json,
                                                 non_nested_attribute_fields=non_nested_attribute_fields_json,
                                                 dict_filter_fields=dict_filter_fields_json,
-                                                used_keys=used_keys_json
+                                                used_keys=used_keys_json,
+                                                filters_used=filters_used,
+                                                attributes_selected=attributes_selected,
                                             )
 
+
+            if request.user.is_authenticated():
+                search_result_download_obj.user=request.user
+                search_result_download_obj.save()
 
             # print("dict_filter_fields",dict_filter_fields)
             # print(final_results)
@@ -539,7 +559,7 @@ def search_result(request):
             context['after_results_time'] = datetime.now() - start_after_results_time
             context['total_time'] = datetime.now() - start_time
             context['headers'] = headers
-            context['search_result_download_obj_id'] = search_result_download_obj.id
+            context['search_log_obj'] = search_log_obj.id
 
             return render(request, 'search/search_results.html', context)
 
@@ -619,14 +639,14 @@ class Echo(object):
 @gzip_page
 def search_result_download(request):
     search_result_download_obj_id = request.POST['search_result_download_obj_id']
-    search_result_download_obj = SearchResultDownload.objects.get(id=search_result_download_obj_id)
+    search_result_download_obj = SearchLog.objects.get(id=search_result_download_obj_id)
     dataset_obj = search_result_download_obj.dataset
     headers = search_result_download_obj.headers
     headers = [ele.object for ele in serializers.deserialize("json", headers)]
     query = json.loads(search_result_download_obj.query)
     query = json.loads(query)
-    print(type(query))
-    print(query)
+    # print(type(query))
+    # print(query)
     if search_result_download_obj.nested_attribute_fields:
         nested_attribute_fields = json.loads(search_result_download_obj.nested_attribute_fields)
     else:
