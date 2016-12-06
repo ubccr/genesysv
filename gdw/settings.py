@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'subject_report',
     'visualization',
     'beacon',
+    'msea',
 ]
 
 MIDDLEWARE = [

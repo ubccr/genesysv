@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+
+{% block title %}
+    MSEA Plot
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="page-header text-center">
+          <h1>MSEA Plots</h1>
+      </div>
+
+    <div id="div-loading">
+        <button class="btn btn-warning center-block"><i class="fa fa-refresh fa-spin fa-fw"></i> Loading Images...</button>'
+    </div>
+
+    <div class="row">
+    {% for file in files %}
+    <div class="col-md-6">
+    <div class="panel panel-default">
+          <div class="panel-body">
+              <img class="img-responsive" src="/static_root/rplots/{{file}}">
+          </div>
+    </div>
+    </div>
+
+    {% endfor %}
+    </div>
+
+<script>
+$(window).load(function(){
+    $("#div-loading").hide()
+});
+
+
+$(document).ready(function() {
+    console.log('page2');
+    sessionStorage.setItem("msea_results_visited", "True");
+});
+
+
+</script>
+
+{% endblock %}

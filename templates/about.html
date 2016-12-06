@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}
+       About
+{% endblock %}
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Home-Menu").addClass("active")
+    $("#navbarId-About").addClass("active")
+</script>
+
+<div class="page-header">
+    <h1>About</h1>
+</div>
+
+
+<p>
+The Genomic Data Warehouse (GDW), built-on top of <a href="http://www.biomart.org/">BioMart</a>, provides a database for efficiently storing and retrieving sequencing and variant data. It features tools for accurately selecting disease associated variants and for guiding variant/candidate gene selection process and provide assessment on how likely the selected variants/genes are involved in various genetic diseases.
+</p>
+<p>
+Currently, the GDW hosts data from clinical sequencing projects initiated by the core facilities located at the Center of Excellence in Bioinformatics & Life Sciences. The database currently contains genomic variant data collected at the University at Buffalo and it's collaborators for the following studies
+    <ul>
+     <li>Statin Induced Myopathy</li>
+     <li>Multiple Sclerosis</li>
+    </ul>
+</p>
+<p>
+Variants are called using a GATK (v3.5.0) pipeline developed in house.
+</p>
+<p>
+Data under this release (V2) are based on hg19/GRCh37 coordinates. A demo dataset, which is a subset of somatic mutation data from brain tumors (GBM) downloaded from the Cancer Genome Atlas (TCGA) data portal, is provided for users to explore the functionality of this database. To protect the privacy of patient data, all other datasets are under controlled access. If you are interested in mining this database in your research work, please contact our Data Access Office (big-help@buffalo.edu) to inquire about access.
+</p>
+<h4>The GDW Team</h4>
+<ul>
+    <li>Computational Scientist: Jason Wang PhD</li>
+    <li>Lead Programmer: Mohammad Zia PhD</li>
+    <li>Data Analyst: Paul Spurgeon</li>
+    <li>Project Manager: Adrian Levesque MBA</li>
+    <li>Project Advisors: Jonathan Bard, Brandon Marzullo, and Jie Wang PhD</li>
+</ul>
+
+<p>For account creation and access to GDW please contact us at big-help@buffalo.edu.</p>
+
+
+<div>
+    <h2>Release History</h2>
+    <hr>
+</div>
+
+<h4>15 July 2016 - v1.5.1</h4>
+<ul>
+    <li>Update tutorial</li>
+    <li>Fix minor bugs</li>
+</ul>
+
+<h4>8 July 2016 - v1.5</h4>
+<ul>
+    <li>Integrate PyBamview </li>
+    <li>Add plotting tool for Mutation Set Enrichment Analysis (MSEA)</li>
+    <li>Save filters/attributes selections for users</li>
+    <li>Update user interface</li>
+</ul>
+<h4>15 January 2016 - v1.0</h4>
+<ul>
+    <li>Initial release</li>
+</ul>
+
+{% endblock %}

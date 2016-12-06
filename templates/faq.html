@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+       FAQ
+{% endblock %}
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Help").addClass("active")
+    $("#navbarId-FAQ").addClass("active")
+</script>
+
+<div class="page-header">
+    <h1>Frequently Asked Questions</h1>
+</div>
+
+<div class="faq">
+
+<h2>Questions</h2>
+<h3>General Questions</h3>
+<ol>
+    <li><a href="#gq_1">What is GDW?</a></li>
+    <li><a href="#gq_2">What is the purpose of GDW?</a></li>
+    <li><a href="#gq_3">Where does the data for GDW come from?</a></li>
+    <li><a href="#gq_4">How can I get access to GDW?</a></li>
+</ol>
+
+
+</div>
+<div id="faq-answers" class="faq">
+<h2>Answers</h2>
+
+<h3>General Questions</h3>
+<ol>
+    <li id="gq_1">
+        What is GDW?
+        <p>The Genomics Data Warehouse (GDW) provides the UB community a tool for storing, searching and searching their genomic data.</p>
+    </li>
+
+    <li id="gq_2">
+        What is the purpose of GDW?
+        <p>The purpose of GDW is to support UB community's research. By providing them the tools to analyze their genomics data, we hope to accelerate their research.</p>
+    </li>
+
+    <li id="gq_3">
+        Where does the data for GDW come from?
+        <p>The data for GDW comes from the UB community.</p>
+    </li>
+
+    <li id="gq_4">
+        How can I get access to GDW?
+        <p>To get access to GDW please contact us at big-help@buffalo.edu.</p>
+    </li>
+
+
+
+</ol>
+</div>
+
+{% endblock %}

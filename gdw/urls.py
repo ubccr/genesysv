@@ -21,6 +21,8 @@ from .views import home
 import subject_report.urls as subject_report_urls
 import visualization.urls as visualization_urls
 import beacon.urls as beacon_urls
+import msea.urls as msea_urls
+from django.views.generic.base import TemplateView
 
 
 urlpatterns = [
@@ -32,4 +34,10 @@ urlpatterns = [
     url(r'^subject-report/', include(subject_report_urls)),
     url(r'^visualization/', include(visualization_urls)),
     url(r'^beacon/', include(beacon_urls)),
+    url(r'^msea/', include(msea_urls)),
+    url(r'^about/$', TemplateView.as_view(template_name="about.html"), name='about'),
+    url(r'^help/$', TemplateView.as_view(template_name="help.html"), name='help'),
+    url(r'^faq/$', TemplateView.as_view(template_name="faq.html"), name='faq'),
+    url(r'^dataset-summary/$', TemplateView.as_view(template_name="dataset_summary.html"), name='dataset-summary'),
+    url(r'^tutorial/$', TemplateView.as_view(template_name="tutorial.html"), name='tutorial'),
 ]

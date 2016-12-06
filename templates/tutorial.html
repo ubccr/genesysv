@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+       Tutorials
+{% endblock %}
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Help").addClass("active")
+    $("#navbarId-Tutorial").addClass("active")
+</script>
+
+<div id="top" class="page-header">
+    <h1>Tutorials</h1>
+</div>
+
+<ul>
+    <li><a href="#usecase1">Use Case 1</a></li>
+    <li><a href="#usecase2">Use Case 2</a></li>
+</ul>
+
+<hr>
+<div id="usecase1" class="container paragraph-justify bold-hr">
+
+  <div class="panel-group">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#tutorial1">Use Case 1</a>
+        </h3>
+      </div>
+      <div id="tutorial1" class="panel-collapse collapse in">
+        <div class="panel-body">
+            <div class="well"><p><strong>Use Case 1:</strong>
+                Retrieve variants from the Brain tumor (GBM from TCGA) study that are predicted to be
+                pathogenic by the SIFT and Polyphen2 algorithms, with MAF &lt;= 0.001 in
+                all of the populations from ExAC. Return
+                variant names, genomic coordinates, genes affected, samples that
+                harbor these variants and genotypes for these variants. Save results
+                to a tab-delimited text file.
+            </p>
+            </div>
+            <hr>
+              <div class="panel-body">
+                    <div class="well">To begin searching, click the green <strong>"Start Searching"</strong> button. You will be forwarded to a page that asks you to select study and dataset with two drop-down menus.</div>
+                    <div class="col-md-12">
+                        <img src="{% static 'custom/images/tutorial/tut1_1.png'%}" class="img-responsive">
+                    </div>
+              </div>
+              <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Select <strong>"Brain tumor (GBM, from TCGA, demo only)"</strong> and <strong>"Somatic Mutations"</strong> for study and dataset, respectively. Click the <strong>"Next"</strong> button to proceed to the filter selection page.
+                    </div>
+
+                        <img src="{% static 'custom/images/tutorial/tut1_2.png'%}" class="img-responsive">
+              </div>
+              <hr>
+
+              <div class="panel-body">
+
+                    <div class="well">
+                        You will be presented with the <strong>"Select Filters"</strong> page.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_3.png'%}" class="img-responsive">
+
+
+              </div>
+              <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Click the <strong>"Variant related information"</strong> text in the blue panel heading to collapse this section
+                        because we will not be choosing any filters from it.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_4.png'%}" class="img-responsive">
+              </div>
+              <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Click the  <strong>"Pathogenic predictions"</strong> text in the blue panel heading to expand this section. Select <strong>"D"</strong> for <strong>"SIFT pred"</strong>. Next select both <strong>"D"</strong> and <strong>"P"</strong> for <strong>"Polyphen2 HDIV pred"</strong> by shift-clicking in the multi-select box. If you are not sure about the meanings of
+                        the abbreviations used for the filters, you can hover-over the information icon to get detailed information.
+                    </div>
+                    <img src="{% static 'custom/images/tutorial/tut1_5.png'%}" class="img-responsive">
+
+              </div>
+              <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Click the  <strong>"Minor allele frequencies"</strong> text in the blue panel heading to expand this section. By default the following filters are already selected: <strong>"ExAC All"</strong>, <strong>"G1K All"</strong>, and <strong>"ESP6500 All"</strong>. Remove these filters by clicking the <strong>"x"</strong> symbols in the summary panel on the the right hand side of screen. Then the enter value <strong>"0.001"</strong> for all the <strong>"ExAC"</strong> filters except <strong>"ExAC All"</strong>. The selected filters also show up in the right panel. Click the <strong>"Next"</strong> button to proceed to the attribute selection page.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_6.png'%}" class="img-responsive">
+              </div>
+                <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        In the attribute selection page, you can select the attributes that you want to
+                        include in the search result. Check the attribute names <strong>"Variant name"</strong>, <strong>"Chromosome"</strong>, <strong>"Start position"</strong>, <strong>"Ref allele"</strong>, and <strong>"Alt allele"</strong> under the <strong>"Variant related information"</strong> section. Then click the <strong>"Variant related information"</strong> text in the blue panel heading to collapse it.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_7.png'%}" class="img-responsive">
+              </div>
+                <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Expand the <strong>"Gene/Transcript"</strong> section and select <strong>"Symbol"</strong> and <strong>"RefGene ID"</strong>under the <strong>"NCBI RefSeq IDs"</strong> sub-section. Click the panel heading to collapse it.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_8.png'%}" class="img-responsive">
+              </div>
+                <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        Click the <strong>"Patient/Sample Related Information"</strong> panel title text to expand it. Check <strong>"Patient/Sample ID</strong> and <strong>"Genotype"</strong>. Click the green <strong>"Search"</strong> button to begin searching.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_9.png'%}" class="img-responsive">
+              </div>
+            <hr>
+
+              <div class="panel-body">
+                    <div class="well">
+                        You can sort the results by columns and also filter the results by searching.
+                        By default, up to 1000 search results are shown as a
+                        preview. You can examine the results and decide if you need to modify
+                        your search criteria. You can use the "Back" button to go back to the attribute and/or filter pages and change the parameters and then click the <strong>"Search"</strong> button to update the search results. To download all results that match your criteria, you can click the <strong>"Download"</strong> button at the top-right corner to save the search result as a tab-delimited text file.
+                    </div>
+                        <img src="{% static 'custom/images/tutorial/tut1_10.png'%}" class="img-responsive">
+
+              </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<a href="#top">Go to top</a>
+<hr>
+
+<div id="usecase2" class="container paragraph-justify bold-hr">
+  <div class="panel-group">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#tutorial2">Use Case 2</a>
+        </h4>
+      </div>
+      <div id="tutorial2" class="panel-collapse collapse in">
+        <div class="panel-body">
+            <div class="well">
+            <p><strong>Use Case 2:</strong>
+                A researcher is interested in studying the <strong>"NFIX"</strong>
+                gene, which has been shown to affect muscle development. They are
+                interested in identifying non-silent variants in <strong>"NFIX"</strong> as well as other
+                genes from the nuclear factor 1 family, such as <strong>"NFIA"</strong>, <strong>"NFIB"</strong>
+                and <strong>"NFIC"</strong> genes from the samples in the Brain tumor (GBM from TCGA) dataset.
+            </p>
+            </div>
+            <hr>
+            <div class="well">Begin searching, by selecting the <strong>"Brain tumor (GBM, from TCGA, demo only)"</strong> study and the <strong>"Somatic Mutations"</strong> dataset.
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_1.png'%}" class="img-responsive">
+              <hr>
+
+            <div class="well">
+                In the filter selection page, expand the <strong>Genes/Transcript</strong> section and under the <strong>"NCBI refSeq identifier"</strong> sub-section, specify symbols: <strong>"NFIX"</strong>, <strong>"NFIA"</strong>, <strong>"NFIB"</strong>, and <strong>"NFIC"</strong>. Also remove the default filters: <strong>"ExAC All (&lt;): 0.001"</strong>, <strong>"G1K All (&lt;): 0.001"</strong> and <strong>"ESP6500(&lt;): 0.001"</strong> by clicking the <strong>"x"</strong> symbols next to them inside the summary panel on the right hand side under the <strong>"Filters</strong> section.
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_2.png'%}" class="img-responsive">
+
+              <hr>
+
+
+            <div class="well">
+                Expand the <strong>Functional consequences</strong> section and under the <strong>"Consequence(s) to RefSeq Gene/Transcript(s)"</strong> sub-section, select the following choices: <strong>"nonsynonymous_SNV"</strong>, <strong>"splicing"</strong>, <strong>"stopgain"</strong> and <strong>"stoploss"</strong>. You can select multiple choices by holding down the shiftkey and making the selections.
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_3.png'%}" class="img-responsive">
+              <hr>
+
+               <div class="well">
+                Expand the <strong>"Minor allele frequencies"</strong> section and under the <strong>"The Exome Aggregation Consortium (ExAC)"</strong> sub-section, input "0.05" for <strong>"ExAC All available populations (&lt;)"</strong>. Click the <strong>"Next"</strong> button to proceed to the attribute selection page.
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_4.png'%}" class="img-responsive">
+              <hr>
+
+            <div class="well">
+                From the <strong>"Variant Related Information"</strong> section select the following attributes: <strong>"Chromosome"</strong>, <strong>"Start position"</strong>, <strong>"Ref allele"</strong>, <strong>"Alt allele"</strong> and <strong>"dbSNP ID"</strong>. Collapse the current section by clicking the text in blue panel heading.
+
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_5.png'%}" class="img-responsive">
+              <hr>
+
+             <div class="well">
+                Expand the <strong>"Functional Consequences"</strong>. Select <strong>"Consequence to Ensembl gene/transcript(s)"</strong> attribute. Collapse the current section by clicking its title text in blue panel heading.
+
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_6.png'%}" class="img-responsive">
+              <hr>
+
+            <div class="well">
+                Expand the <strong>"Gene/Transcript"</strong> section. From the "NCBI RefSeq IDs" sub-section, select <strong>"Symbol"</strong> attribute. Collapse the current section by clicking its title text in blue panel heading.
+
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_7.png'%}" class="img-responsive">
+              <hr>
+
+
+            <div class="well">
+                Expand the <strong>"Patient/Sample Related Information"</strong> section. Select the attributes <strong>"Patient ID"</strong> and <strong>"Genotype"</strong>. Click the green <strong>"Search"</strong> button to begin searching.
+
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_8.png'%}" class="img-responsive">
+              <hr>
+
+
+            <div class="well">
+                Results show that the demo dataset only has one match.
+
+            </div>
+                <img src="{% static 'custom/images/tutorial/tut2_9.png'%}" class="img-responsive">
+              <hr>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<a href="#top">Go to top</a>
+
+{% endblock %}
