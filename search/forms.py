@@ -3,7 +3,12 @@ from django.contrib.auth.models import User
 from .models import FilterField, FilterFieldChoice, Dataset, Study, FilterSubPanel
 from django.db.models import Q
 from crispy_forms.helper import FormHelper
-
+from datetime import date
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
+from .models import SavedSearch
 
 class StudyForm(forms.Form):
     # You have to comment out study choices before migrating
@@ -132,3 +137,32 @@ class ESAttributeForm(forms.Form):
             label = field.display_name
             field_name = '%s-%s' %(field.es_name, field.path)
             self.fields[field_name] = forms.BooleanField(label=label, required=False)
+
+
+class SaveSearchForm(forms.ModelForm):
+    def __init__(self, user, dataset, filters_used, attributes_selected, *args, **kwargs):
+        super(SaveSearchForm, self).__init__(*args, **kwargs)
+        self.fields['user'].initial = User.objects.get(id=user.id)
+        self.fields['dataset'].initial = dataset
+        self.fields['filters_used'].initial = filters_used
+        self.fields['attributes_selected'].initial = attributes_selected
+
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_tag = False # don't render form DOM element
+        helper.render_unmentioned_fields = True # render all fields
+        helper.label_class = 'col-md-2'
+        helper.field_class = 'col-md-10'
+        return helper
+
+    class Meta:
+        model = SavedSearch
+        fields = '__all__'
+        widgets = {
+            'user': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'dataset': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'filters_used': forms.HiddenInput(attrs={'readonly': 'readonly',}),
+            'attributes_selected': forms.HiddenInput(attrs={'readonly': 'readonly', 'required': True}),
+            'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),
+        }

@@ -178,8 +178,23 @@
 <br>
 </div>
 
+<div id="loading_div">
+<button class="btn btn-warning text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Loading Saved Search...</button>
+</div>
+
+
+
+<input id="load_search" type="hidden" name="load_search" value="{{load_search|safe}}">
+<input id="study_loaded" type="hidden" name="study_loaded" value="false">
+<input id="dataset_loaded" type="hidden" name="dataset_loaded" value="false">
+<input id="filters_loaded" type="hidden" name="filters_loaded" value="false">
+<input id="attributes_loaded" type="hidden" name="attributes_loaded" value="false">
+
+<input id="results_loaded" type="hidden" name="results_loaded" value="false">
+<input id="automated_submit" type="hidden" name="automated_submit" value="false">
 
 <script>
+    var data = {{information_json|safe }};
 
 
     $('[data-toggle=confirmation]').confirmation({
@@ -210,6 +225,7 @@
             url : "{% url 'get-study-form' %}",
             success:function(data) {
                 $('#step1-study-select').html(data);
+                $('#study_loaded').val(true).trigger("change");
             }
         }
 
@@ -227,6 +243,7 @@
             },
             success:function(data) {
                 $('#step1-dataset-select').html(data);
+                $('#dataset_loaded').val(true).trigger("change");
             }
         }
 
@@ -247,6 +264,7 @@
                 $('#step2-filter-select').html(data);
                 $("#collapse1-filter").addClass("in");
                 $(".to_step2").attr("disabled", false);
+                $('#filters_loaded').val(true).trigger("change");
 
             }
         }
@@ -267,6 +285,7 @@
                 $('#step3-attribute-select').html(data);
                 $("#collapse1-attribute").addClass("in");
                 $(".to_step2").attr("disabled", false);
+                $('#attributes_loaded').val(true).trigger("change");
             }
         }
 
@@ -274,11 +293,82 @@
   };
 
     $( document ).ready(function() {
+        $('#loading_div').hide();
         $('#results_div').hide();
         $('#my_popup').popup();
+        if ($('#load_search').val() == 'true') {
+            $('#results_div').hide();
+            $('#top_container').hide();
+        }
         get_study();
     });
 
+    $("#study_loaded").on('change', function(){
+        if ($("#study_loaded").val() == "true" && $("#load_search").val() == "true") {
+            $("#id_study").val(data['study']).trigger("change");
+            $("#study_loaded").removeAttr('id');
+        }
+    });
+
+    $("#dataset_loaded").on('change', function(){
+        if ($("#dataset_loaded").val() == "true" && $("#load_search").val() == "true") {
+            $("#id_dataset").val(data['dataset']).trigger("change");
+            $("#dataset_loaded").removeAttr('id');
+            $(".next-step").click();
+        }
+    });
+
+
+     $("#filters_loaded").on('change', function(){
+        if ($("#filters_loaded").val() == "true" && $("#load_search").val() == "true") {
+            $('[id ^=id_filter][id $=reset_sidebar]').each(function() {
+                $(this).trigger("click");
+            });
+            $(data['filters_used']).each(function( index ) {
+                var filter = data['filters_used'][index];
+                filter_name = filter[0];
+                filter_value = filter[2];
+                $(document.getElementById("id_filter_-"+filter_name)).val(filter_value).trigger("change");
+            });
+            $("#filters_loaded").removeAttr('id');
+            $("#automated_submit").val(true).trigger("change");
+            $(".next-step").click();
+        }
+    });
+
+
+    $("#attributes_loaded").on('change', function(){
+        if ($("#attributes_loaded").val() == "true" && $("#load_search").val() == "true") {
+            $(data['attributes_selected']).each(function( index ) {
+                var attribute_name = data['attributes_selected'][index];
+                var id = "input:checkbox[id$=attribute_group-"+ attribute_name + "]";
+                // $("input:checkbox[id$=attribute_group-"+ attribute_name + "]")[0].prop("checked", true );
+                // console.log(id);
+                $(id).prop("checked", true );
+            });
+            $(data['attributes_selected']).each(function( index ) {
+                var attribute_name = data['attributes_selected'][index];
+                var id = "input:checkbox[id$=attribute_group-"+ attribute_name + "]";
+                // console.log(id);
+                $(id).trigger("click");
+                $(id).trigger("click");
+            });
+            $("#attributes_loaded").removeAttr('id');
+            $(".next-step").click();
+            $("#automated_submit").val(true).trigger("change");
+
+        }
+    });
+
+
+
+    $("#automated_submit").on("change", function() {
+        if($("#filters_loaded").length == 0 && $("#attributes_loaded").length == 0) {
+            $("#loading_div").hide()
+            $(".submit_via_ajax").trigger("click");
+
+        }
+    });
 
     var blank_select_dataset = "<div class='form-group'><select class='select form-control'><option value='select_a_study'>Select a study</option></select></div>";
 
@@ -357,7 +447,7 @@ $(".submit_via_ajax").on("click", function(event) {
             {
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
                 type: "POST",
-                url : "{% url 'search-result' %}",
+                url : "{% url 'search' %}",
                 data: {
                         form_data: form_data,
                         attribute_order: JSON.stringify(attribute_order)

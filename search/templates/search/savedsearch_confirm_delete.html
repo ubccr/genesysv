@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block title %}
+{{ block.super }} - Delete Saved Search
+{% endblock %}
+
+{% block content %}
+ <script>
+            $("#main-nav-bar > ul > li.active").removeClass("active")
+            $("#navbarId-SavedSearch").addClass("active")
+
+    </script>
+<div class="page-header">
+  <h1>Delete Search</h1>
+</div>
+<div class="table-responsive table-bordered">
+<table class="table">
+    <tbody>
+        <tr>
+            <td>Study:</td>
+            <td><strong>{{object.dataset.study}}</strong></td>
+        </tr>
+        <tr>
+            <td>Dataset:</td>
+            <td><strong>{{object.dataset.description}}</strong></td>
+        </tr>
+        <tr>
+            <td>Filters Used:</td>
+            <td>
+                {% if object.get_filters_used %}
+                 <div class="table-responsive">
+                   <table class="table table-condensed table-bordered">
+                     <thead>
+                         <tr>
+                             <th>Filter Name</th>
+                             <th>Value</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                     {% for key, value in object.get_filters_used %}
+                         <tr> <td>{{key}}</td> <td><strong>{{value}}</strong></td>
+                         </tr>
+                     {% endfor %}
+                     </tbody>
+                     </table>
+                 </div>
+                {% else %}
+                None
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>
+</div>
+
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+           <form action="" method="post">{% csrf_token %}
+        <p>Are you sure you want to delete this project?</p>
+        <input type="submit" value="Confirm" class="btn btn-danger"/>
+        <a class="btn btn-default" href="{% url 'saved-search-list' %}" role="button">Cancel</a>
+    </form>
+      </div>
+    </div>
+
+
+
+
+{% endblock %}

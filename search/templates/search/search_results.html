@@ -23,15 +23,15 @@
 <br>
 
 <div class="well">
-    <a class="btn btn-primary back_to_top_container" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
-    <a class="btn btn-primary " role="button" href="/search">New Search</a>
+    <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
+    <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
     {% if user.is_authenticated %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
     {% endif %}
-    <a class="btn btn-primary pull-right download-results" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
-    <form id="download-form" role="form"  method="POST" action="{% url 'search-result-download' %}">
+    <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
+    <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
         {% csrf_token %}
-        <input style="display: none;" type="hidden" name="search_log_obj_obj_id" value="{{search_log_obj_obj_id}}">
+        <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
     </form>
     <div class="clearfix"></div>
 </div>
@@ -67,8 +67,31 @@
 
 <br>
 
+<!-- Modal -->
+<div class="modal fade" id="saveResultsModal" tabindex="-1" role="dialog" aria-labelledby="saveResultsModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="saveResultsModalLabel">Save Search</h4>
+      </div>
+      <div class="modal-body">
+         <form class="form-horizontal" action="{% url 'save-search' %}" method="POST">
+            {% csrf_token %}
+            {% crispy save_search_form %}
+            <input type="submit" class="btn btn-submit btn-primary col-md-offset-2">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
     $(document).ready(function() {
+        // $('#result-table').destroy();
         $('#result-table').DataTable({
             "iDisplayLength": 25,
             "bSortClasses": false
@@ -76,11 +99,18 @@
 
     });
 
-    $(".download-results").on("click", function() {
-        $("#download-form").submit();
+    $("#back-to-top-container").on("click", function() {
+        $('#results_div').hide()
+        $('#top_container').show()
+        $("#main-nav-bar > ul > li.active").removeClass("active")
+        $("#li-step4").removeClass("active")
+        $("#li-step3").addClass("active")
+        $('#li-step3').show()
     });
 
-
+    $("#download-results-button").on("click", function() {
+        $("#download-results-form").submit();
+    });
 </script>
 
 {% endblock %}

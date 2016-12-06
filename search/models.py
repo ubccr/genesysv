@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import Group
 from common.models import TimeStampedModel
 from django.contrib.auth.models import User
+import json
 
 
 
@@ -220,9 +221,50 @@ class SearchLog(TimeStampedModel):
     dict_filter_fields = models.TextField(null=True, blank=True)
     used_keys = models.TextField(null=True, blank=True)
     filters_used = models.TextField(null=True, blank=True)
-    attributes_selected = models.TextField(null=True, blank=True)
+    attributes_selected = models.TextField()
 
 
 
     def __str__(self):
         return self.query
+
+
+class SavedSearch(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    filters_used = models.TextField(null=True, blank=True)
+    attributes_selected = models.TextField()
+    description = models.TextField()
+
+    def _get_filters_used(self):
+        if self.filters_used.strip():
+            filters_used = json.loads(self.filters_used)
+            output = []
+            for key, val in filters_used.items():
+                es_name, es_filter_type, path = key.split('-')
+                print(es_name, es_filter_type, path)
+                filter_field_obj = FilterField.objects.get(dataset=self.dataset,
+                                                           es_name=es_name,
+                                                           es_filter_type__name=es_filter_type)
+                output.append((key, filter_field_obj.display_name, val))
+            return output
+        else:
+            return None
+    get_filters_used = property(_get_filters_used)
+
+    def _get_attributes_selected(self):
+        if self.attributes_selected.strip():
+            attributes_selected = json.loads(self.attributes_selected)
+            return attributes_selected
+        else:
+            return None
+    get_attributes_selected = property(_get_attributes_selected)
+
+    class Meta:
+        unique_together = ('dataset', 'user', 'filters_used', 'attributes_selected')

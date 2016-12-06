@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.gzip import gzip_page
 from django.http import StreamingHttpResponse
 from datetime import datetime
@@ -21,7 +23,10 @@ from django.core import serializers
 import csv
 from .utils import get_es_result
 import elasticsearch
-
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
+    )
+from django.shortcuts import get_object_or_404
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -104,13 +109,14 @@ def subset_dict(input, keys):
 
     return {key:input[key] for key in keys if input.get(key)}
 
-
+@lru_cache(maxsize=None)
 @gzip_page
 def get_study_form(request):
     form = StudyForm(request.user)
     context = {'form':form}
     return render(request, "search/get_study_snippet.html", context)
 
+@lru_cache(maxsize=None)
 @gzip_page
 def get_dataset_form(request):
     selected_study = request.GET['selected_study']
@@ -118,6 +124,7 @@ def get_dataset_form(request):
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
+@lru_cache(maxsize=None)
 @gzip_page
 def get_filter_form(request):
     tabs = []
@@ -152,6 +159,7 @@ def get_filter_form(request):
     # print(context)
     return render(request, "search/get_filter_snippet.html", context)
 
+@lru_cache(maxsize=None)
 @gzip_page
 def get_attribute_form(request):
     tabs = []
@@ -190,11 +198,35 @@ def get_attribute_form(request):
     context['tabs'] = tabs
     return render(request, "search/get_attribute_snippet.html", context)
 
-
+@lru_cache(maxsize=None)
 @gzip_page
 def search_home(request):
     context = {}
+    context['load_search'] = 'false'
+    context['information_json'] = 'false'
     return render(request, 'search/search.html', context)
+
+
+@lru_cache(maxsize=None)
+@gzip_page
+def retrieve_saved_search(request, pk):
+
+    saved_search_obj = get_object_or_404(SavedSearch, pk=pk)
+
+
+    information = {}
+    information['study'] = saved_search_obj.dataset.study.name
+    information['dataset'] = saved_search_obj.dataset.description
+    information['filters_used'] = saved_search_obj.get_filters_used
+    information['attributes_selected'] = saved_search_obj.get_attributes_selected
+
+    information_json = json.dumps(information, cls=DjangoJSONEncoder)
+
+    context = {}
+    context['information_json'] = information_json
+    context['load_search'] = 'true'
+    return render(request, 'search/search.html', context)
+
 
 @gzip_page
 def search_old_home(request):
@@ -233,7 +265,7 @@ def search_home2(request):
 
 
 @gzip_page
-def search_result(request):
+def search(request):
 
     if request.POST:
         start_time = datetime.now()
@@ -301,7 +333,7 @@ def search_result(request):
                     continue
 
                 filters_used[key] = data
-                print(key, es_name, es_filter_type, path, data, type(data))
+                # print(key, es_name, es_filter_type, path, data, type(data))
 
 
 
@@ -546,8 +578,16 @@ def search_result(request):
 
 
             if request.user.is_authenticated():
-                search_result_download_obj.user=request.user
-                search_result_download_obj.save()
+                search_log_obj.user=request.user
+                search_log_obj.save()
+
+
+            if request.user.is_authenticated():
+                save_search_form = SaveSearchForm(request.user, dataset_obj, filters_used or 'None', attributes_selected)
+                context['save_search_form'] = save_search_form
+            else:
+                context['save_search_form'] = None
+
 
             # print("dict_filter_fields",dict_filter_fields)
             # print(final_results)
@@ -559,7 +599,8 @@ def search_result(request):
             context['after_results_time'] = datetime.now() - start_after_results_time
             context['total_time'] = datetime.now() - start_time
             context['headers'] = headers
-            context['search_log_obj'] = search_log_obj.id
+            context['search_log_obj_id'] = search_log_obj.id
+
 
             return render(request, 'search/search_results.html', context)
 
@@ -637,7 +678,7 @@ class Echo(object):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 @gzip_page
-def search_result_download(request):
+def download_results(request):
     search_result_download_obj_id = request.POST['search_result_download_obj_id']
     search_result_download_obj = SearchLog.objects.get(id=search_result_download_obj_id)
     dataset_obj = search_result_download_obj.dataset
@@ -742,3 +783,39 @@ def get_variant(request, dataset_id, variant_id):
     context["type_name"] = type_name
     return render(request, 'search/variant_info.html', context)
 
+
+def save_search(request):
+    if request.POST:
+        dataset = Dataset.objects.get(id=request.POST.get('dataset'))
+        filters_used = request.POST.get('filters_used')
+        attributes_selected = request.POST.get('attributes_selected')
+        form = SaveSearchForm(request.user, dataset, filters_used, attributes_selected, request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = data.get('user')
+            dataset = data.get('dataset')
+            filters_used = data.get('filters_used')
+            attributes_selected = data.get('attributes_selected')
+            description = data.get('description')
+            SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used, attributes_selected=attributes_selected, description=description)
+            return redirect('search-home')
+        else:
+            return HttpResponseServerError()
+
+class SavedSearchList(ListView):
+    model = SavedSearch
+    context_object_name = 'saved_search_list'
+    template_name = 'search/savedsearch_list.html'
+    def get_queryset(self):
+        return SavedSearch.objects.filter(user=self.request.user)
+
+class SavedSearchUpdate(UpdateView):
+    model = SavedSearch
+    fields = ('description',)
+    success_url = reverse_lazy('saved-search-list')
+    template_name = 'search/savedsearch_form_update.html'
+
+class SavedSearchDelete(DeleteView):
+    model = SavedSearch
+    success_url = reverse_lazy('saved-search-list')
+    template_name = 'search/savedsearch_confirm_delete.html'

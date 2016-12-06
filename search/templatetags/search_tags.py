@@ -1,8 +1,13 @@
 from django import template
 from django.utils.html import mark_safe
 from django.template import Context, Template, loader
+import json
 register = template.Library()
 
+@register.filter('json_loads')
+def json_loads(input_string):
+    if input_string:
+        return json.loads(input_string)
 
 @register.filter('gene_link')
 def gene_link(input_string):
