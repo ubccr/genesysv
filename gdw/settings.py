@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'pybamview',
     'subject_report',
     'visualization',
+    'beacon',
 ]
 
 MIDDLEWARE = [

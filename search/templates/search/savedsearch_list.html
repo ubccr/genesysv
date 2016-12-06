@@ -41,9 +41,9 @@
                     <div class="table-responsive">
                        <table class="table table-bordered">
                         <tbody>
-                         {% for key, value in ele.get_filters_used %}
+                         {% for key, display_name, value in ele.get_filters_used %}
                             <tr>
-                                <td>{{key}}</td>
+                                <td>{{display_name}}</td>
                                 <td><strong>{{value}}</strong></td>
                             </tr>
                          {% endfor %}
@@ -56,7 +56,7 @@
             </td>
             <td>{{ele.description}}</td>
             <td style="white-space:nowrap;">
-                <a href="#"><i class="fa fa-search fa-lg" aria-hidden="true"></i></a>
+                <a href="{% url 'retrieve-saved-search' ele.id %}"><i class="fa fa-search fa-lg" aria-hidden="true"></i></a>
                 <a href="{% url 'saved-search-update' ele.id %}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
                 <a href="{% url 'saved-search-delete' ele.id %}"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i></a>
             </td>

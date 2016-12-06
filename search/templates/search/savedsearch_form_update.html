@@ -33,8 +33,8 @@
                  <div class="table-responsive">
                    <table class="table table-condensed table-bordered">
                      <tbody>
-                     {% for key, value in object.get_filters_used %}
-                         <tr> <td>{{key}}</td> <td><strong>{{value}}</strong></td>
+                     {% for key, display_name, value in object.get_filters_used %}
+                         <tr> <td>{{display_name}}</td> <td><strong>{{value}}</strong></td>
                          </tr>
                      {% endfor %}
                      </tbody>

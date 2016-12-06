@@ -20,6 +20,8 @@ import pybamview.urls as  pybamview_urls
 from .views import home
 import subject_report.urls as subject_report_urls
 import visualization.urls as visualization_urls
+import beacon.urls as beacon_urls
+
 
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
@@ -29,4 +31,5 @@ urlpatterns = [
     url(r'^pybamview/', include(pybamview_urls)),
     url(r'^subject-report/', include(subject_report_urls)),
     url(r'^visualization/', include(visualization_urls)),
+    url(r'^beacon/', include(beacon_urls)),
 ]

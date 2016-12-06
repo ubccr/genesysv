@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Beacon
+{% endblock %}
+
+
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Tools").addClass("active")
+    $("#navbarId-beacon").addClass("active")
+</script>
+
+
+<div id="beacon_form_div">
+
+</div>
+
+
+
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+  function get_beacon_form(){
+    $.ajax(
+        {
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            type: "GET",
+            url : "{% url 'get-beacon-form' %}",
+            success:function(data) {
+                $('#beacon_form_div').html(data);
+            },
+
+        }
+
+    );
+  };
+
+  $( document ).ready(function() {
+        get_beacon_form();
+    });
+
+  $('html').bind('keypress', function(e)
+    {
+       if(e.keyCode == 13)
+       {
+          return false;
+       }
+    });
+
+
+
+</script>
+
+
+{% endblock %}
+
+
+

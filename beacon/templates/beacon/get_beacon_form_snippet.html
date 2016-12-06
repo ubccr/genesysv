@@ -1,0 +1,42 @@
+{% load crispy_forms_tags %}
+
+
+ <form id="beacon-form" role="form"  method="GET" action="{% url 'beacon-query' %}">
+    {% csrf_token %}
+    {{ beacon_query_form|crispy }}
+
+</form>
+<button style="display: inline;" id="beacon_form_submit_button" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+
+<div style="display: inline;" id="query_results">
+
+{% if exists == True%}<h4 class="pull-right">Exists: <i class="fa fa-check fa-1x" aria-hidden="true" style="color:green;"></i></h4>{% endif %}
+
+{% if exists == False %}<h4 class="pull-right">Exists: <i class="fa fa-times fa-1x" aria-hidden="true" style="color:red;"></i></h4>{% endif %}
+
+</div>
+
+<script>
+
+    $("#beacon_form_submit_button" ).on("click", function(event) {
+        var frm = $('#beacon-form');
+        $("#query_results").html('<h4 class="pull-right"><i class="fa fa-refresh fa-spin fa-fw"></i> Checking...</h4>')
+        $.ajax({
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                type: "GET",
+                url: "{% url 'beacon-query' %}",
+                data: frm.serialize(),
+                success: function (data) {
+                    $("#beacon_form_div").html(data);
+                },
+                error: function (data) {
+                    $("#beacon_form_div").html(data.responseText);
+                },
+            });
+            return false;
+        });
+
+
+
+
+</script>
