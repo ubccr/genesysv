@@ -8,7 +8,7 @@ import datetime
 import os
 import re
 
-
+from .utils import generate_variant_bplot
 from django.views.decorators.gzip import gzip_page
 from .forms import GeneForm, VariantForm
 from .models import Gene, ReferenceSequence
@@ -37,6 +37,37 @@ def msea_home(request):
     form = GeneForm()
     context = {'form':form}
     return render(request, 'msea/msea_home.html', context)
+
+
+def bokeh_plot(request):
+    if request.POST:
+        gene_form = GeneForm(request.POST)
+        rs_id = request.POST['rs_id']
+        variant_form = VariantForm(rs_id, request.POST)
+        if gene_form.is_valid() and variant_form.is_valid():
+            gene_data = gene_form.cleaned_data
+            variant_data = variant_form.cleaned_data
+
+            dataset = gene_data['dataset']
+            gene_name = gene_data['search_term']
+            gene, rs_id = gene_name.split()
+            rs_id = rs_id[1:-1]
+
+            expand_option = gene_data['expand_option']
+            variants_selected = variant_data['variant_choices']
+            # variants_selected = ','.join(variants_selected)
+
+            msea_type_name = "%s_%s" %(dataset, expand_option)
+            files = []
+            for vset in variants_selected:
+                file_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+                files.append(os.path.basename(file_path))
+                # files.append(file_path)
+            print(files)
+            context = {}
+            context['files'] = files
+
+            return render(request, 'msea/msea_bokeh_plot.html', context)
 
 @gzip_page
 def plots(request):

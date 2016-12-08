@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+
+{% block title %}
+    MSEA Plot
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="page-header text-center">
+          <h1>MSEA Plots</h1>
+      </div>
+
+
+    {% for file in files %}
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="/static/bokeh_outputs/{{file}}"></iframe>
+        </div>
+    {% endfor %}
+
+
+<script>
+
+
+$(document).ready(function() {
+    console.log('page2');
+    sessionStorage.setItem("msea_results_visited", "True");
+});
+
+
+</script>
+
+{% endblock %}

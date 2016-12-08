@@ -29,7 +29,7 @@
       <h1>MSEA Plotting Tool</h1>
     </div>
 
-    <form id="msea-form" role="form"  method="POST" action="{% url 'plots' %}" autocomplete="off">
+    <form id="msea-form" role="form"  method="POST" action="{% url 'bokeh-plot' %}" autocomplete="off">
         {% csrf_token %}
         {{form|crispy}}
 

@@ -21,6 +21,12 @@ class GeneForm(forms.Form):
                        ('noexpand', 'Not Expanded (recurrent variants are collapsed into a single variant for analysis​)'),
                        )
 
+    DATASET_CHOICE = (  ('sim_wgs', 'SIM Sensitive Genome'),
+                        ('sim_sen', 'SIM Sensitive Exome'),
+                        ('sim_res', 'SIM Resistant Exome'),
+    )
+
+    dataset = forms.ChoiceField(choices=DATASET_CHOICE)
     search_term = forms.CharField(help_text='Enter gene name or reference sequence ID', required=True)
     # variant_file_type = forms.ChoiceField(choices=VARIANT_FILE_TYPE_CHOICES, required=True, initial='dnsi')
     expand_option = forms.ChoiceField(widget=forms.RadioSelect, choices=EXPAND_OPTIONS, required=True, initial='expand')
