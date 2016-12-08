@@ -10,8 +10,25 @@ from django.conf import settings
 import os
 #from bokeh.models import HoverTool
 
+def format_domain_for_R(results):
+    # print(results)
+    formatted_results = {}
+    for ele in results:
+        for key,val in ele.items():
+            # print(key,val)
+            if key not in formatted_results:
+                formatted_results[key] = []
+            formatted_results[key].append(val)
+
+
+
+    formatted_results['refseq.ID'] = formatted_results['refseq.ID'][0]
+    formatted_results['symbol'] = formatted_results['symbol'][0]
+    return formatted_results
+
 import elasticsearch
 def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
+    import json
 
     es = elasticsearch.Elasticsearch(host="199.109.195.45")
     if vset == "prom":
@@ -29,7 +46,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
             "query": {
                 "bool": {
                     "filter": [
-                        {"term": {"gene_name":"%s"}},
+                        {"term": {"refgene_id":"%s"}},
                         {"term": {"vset":"%s"}}
                     ]
                 }
@@ -38,11 +55,15 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
         }
     """
 
-    body = query_string_template %(gene,vset)
+    body = query_string_template %(rs_id,vset)
     index_name = "msea"
     response = es.search(index=index_name, doc_type=msea_type_name, body=body)
     total = response['hits']['total']
     gene_results = response['hits']['hits'][0]['_source']
+
+    gene_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_gene.json' %(rs_id, vset))
+    with open(gene_json_output, 'w') as outfile:
+        json.dump(gene_results, outfile, indent=4, sort_keys=True)
 
     vset_map = {'ans':'All nonsilent SNVs',
                 'ansi':'All nonsilent SNVs and Indels',
@@ -106,6 +127,14 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
     tmp_results = response['hits']['hits']
     domain_results = [ele["_source"] for ele in tmp_results]
 
+
+    if domain_results:
+        domain_data = format_domain_for_R(domain_results)
+        domain_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_domain.json' %(rs_id, vset))
+        with open(domain_json_output, 'w') as outfile:
+            json.dump(domain_data, outfile, indent=4, sort_keys=True)
+
+
     ############## DOMAIN END
 
 
@@ -125,7 +154,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
 
     domain_type_count_val = len(set(domain_types))
 
-    if domain_type_count_val == 1:
+    if domain_type_count_val <= 1:
         color_height = y_range *.04
         color_top = gray_y_value+color_height/2
         color_bot = gray_y_value-color_height/2
@@ -138,6 +167,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
 
         color_multi_dom_top = gray_y_value-color_base
         color_multi_dom_bot = gray_y_value-color_height
+
 
     #############
 
@@ -199,14 +229,14 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
         colors_dicts = {}
 
         for idx, name in enumerate(unique_legend):
-            colors_dicts[name] = colors[idx]
+            colors_dicts[name] = colors[idx%9]
 
         colors = []
         for ele in legend:
             colors.append(colors_dicts[ele])
 
         domain_source = ColumnDataSource(data=dict(
-                top=top,bottom=bottom,left=left,right=right,legend=legend,))
+                top=top,bottom=bottom,left=left,right=right,legend=legend,colors=colors,))
         domain_tooltips = [("(Start,End)","(@left, @right)"),
                                ("Name", "@legend"),]
 
@@ -236,7 +266,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
         line_width=1,
         x_start=gene_length*1.01,
         x_end=gene_length*1.01,
-        y_start=(min(y)+max(y[min_mas:]))/2,
+        y_start=(min(y)+max(y[mas_min:]))/2,
         y_end=max(y)))
 
         mes_text = p.add_layout(Label(
@@ -293,7 +323,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
                               color='blue', alpha=alphanorms, source=domain_source)
     else:
         domain_quads = p.quad(top='top', bottom='bottom', left='left', right='right',
-                              color=colors, source=domain_source)
+                              color='colors', source=domain_source)
 
     p.add_tools(HoverTool(renderers=[domain_quads], tooltips=domain_tooltips))
 
@@ -320,12 +350,12 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
                         ("Frequency", "@frequency"),]
 
     hover_tools = []
-    variant_rects = p.rect(x='x', y='y', width=2.5, height=5, color='mutation_types',
+    variant_rects = p.rect(x='x', y='y', width=1.0, height=7, color='mutation_types',
                            width_units='screen', height_units='screen', source=ColumnDataSource(data=rects))
 
     hover_tools.append(variant_rects)
     p.add_tools(HoverTool(renderers=hover_tools, tooltips=variant_tooltips))
-    p.add_tools(HoverTool(renderers=[domain_quads], tooltips=domain_tooltips))
+
     p.yaxis.axis_label = 'Mutation Accumulation Score (MAS)'
     p.yaxis.axis_label_text_font_style = "normal"
 
