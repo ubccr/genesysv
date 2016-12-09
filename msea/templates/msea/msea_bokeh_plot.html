@@ -16,8 +16,8 @@
           <h1>MSEA Plots</h1>
       </div>
 
-
-    {% for file in files %}
+    {% for gene, rs_id, vset, file in plots %}
+        <a target="_blank" href="{% url 'download-svg' %}?dataset={{dataset}}&gene={{gene}}&rs_id={{rs_id}}&vset={{vset}}" class="btn btn-success" role="button">Download as SVG</a>
         <div class="embed-responsive embed-responsive-16by9">
             <iframe class="embed-responsive-item" src="/static/bokeh_outputs/{{file}}"></iframe>
         </div>
@@ -26,12 +26,9 @@
 
 <script>
 
-
-$(document).ready(function() {
-    console.log('page2');
-    sessionStorage.setItem("msea_results_visited", "True");
-});
-
+    $(document).ready(function() {
+        sessionStorage.setItem("msea_results_visited", "True");
+    });
 
 </script>
 

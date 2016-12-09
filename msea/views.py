@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 
+import subprocess
 import datetime
 import hashlib
 import datetime
@@ -16,32 +17,59 @@ from django.conf import settings
 # Create your views here.
 
 
-def generate_r_plot(rdata_filename, output_folder, variants_to_generate):
-    # Define command and arguments
-    command = 'Rscript'
-    path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.bigdw.R')
+@gzip_page
+def download_svg(request):
+    if request.GET:
+        print(request.GET)
+        try:
+            dataset = request.GET.get('dataset')
+            gene = request.GET.get('gene')
+            rs_id = request.GET.get('rs_id')
+            vset = request.GET.get('vset')
+        except:
+            return HttpResponse('Missing parameter')
+        # # Define command and arguments
+        # # Rscript make.msea.plot.json-v12-2016.R $PWD/NM_138420_ansi_gene.json /tmp/ ansi $PWD/NM_138420_ansi_domain.json
+        command = 'Rscript'
+        path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.json-v12-2016.R')
 
-    # Variable number of args in a list
-    args = [os.path.join(settings.BASE_DIR, 'msea/output/%s' %(rdata_filename)) , output_folder, variants_to_generate]
-
-    # Build subprocess command
-    cmd = [command, path2script] + args
-    print(cmd)
-    print(' '.join(cmd))
-    # check_output will run the command and store to result
-    import subprocess
-    subprocess.check_call(cmd)
+        # # Variable number of args in a list
+        output_json_path = os.path.join(settings.BASE_DIR, 'msea/output_json')
 
 
+        gene_filename = os.path.join(output_json_path, "%s_%s_gene.json" %(rs_id, vset))
+        domain_filename = os.path.join(output_json_path, "%s_%s_domain.json" %(rs_id, vset))
+
+        output_folder = os.path.join(settings.BASE_DIR, 'msea/output_svg/')
+        output_filename = "%s-%s-%s.svg" %(gene, rs_id, vset)
+        output_path = os.path.join(output_folder, output_filename)
+
+        args = [gene_filename , output_folder, vset, domain_filename]
+
+        # # Build subprocess command
+        cmd = [command, path2script] + args
+        # print(cmd)
+        print(' '.join(cmd))
+        # # check_output will run the command and store to result
+
+        subprocess.check_call(cmd)
+
+        svg_data = open(output_path,'r')
+        response = HttpResponse(svg_data, content_type="image/svg+xml")
+        response["Content-Disposition"]= "attachment; filename=%s" %(output_filename)
+        return response
+        # return HttpResponse('test')
+
+@gzip_page
 def msea_home(request):
-    form = GeneForm()
+    form = GeneForm(request.user)
     context = {'form':form}
     return render(request, 'msea/msea_home.html', context)
 
-
+@gzip_page
 def bokeh_plot(request):
     if request.POST:
-        gene_form = GeneForm(request.POST)
+        gene_form = GeneForm(request.user, request.POST)
         rs_id = request.POST['rs_id']
         variant_form = VariantForm(rs_id, request.POST)
         if gene_form.is_valid() and variant_form.is_valid():
@@ -58,14 +86,14 @@ def bokeh_plot(request):
             # variants_selected = ','.join(variants_selected)
 
             msea_type_name = "%s_%s" %(dataset, expand_option)
-            files = []
+            plots = []
             for vset in variants_selected:
-                file_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
-                files.append(os.path.basename(file_path))
-                # files.append(file_path)
-            print(files)
+                plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+                plots.append((gene, rs_id, vset, os.path.basename(plot_path)))
+            print(plots)
             context = {}
-            context['files'] = files
+            context['plots'] = plots
+            context['dataset'] = dataset
 
             return render(request, 'msea/msea_bokeh_plot.html', context)
 
@@ -130,7 +158,7 @@ def plots(request):
 
             return render(request, 'msea/msea_plot.html', context)
 
-
+@gzip_page
 def search_gene_rs_id(request):
     q = request.GET.get('q', None)
     if q:
@@ -155,7 +183,7 @@ def search_gene_rs_id(request):
                     ]}
         return JsonResponse(json_response)
 
-
+@gzip_page
 def get_variant_form(request):
     rs_id = request.GET['selected_rs_id']
     variant_form = VariantForm(rs_id)

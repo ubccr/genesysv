@@ -1,10 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import Group
 from common.models import TimeStampedModel
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 import json
-
-
 
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=255)

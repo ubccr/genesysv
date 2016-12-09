@@ -3,34 +3,29 @@ from django.contrib.auth.models import User
 from search.models import Study, Dataset
 from django.db.models import Q
 from crispy_forms.helper import FormHelper
-from .models import ReferenceSequence
+from .models import ReferenceSequence, MSEADataset
 import re
 
 class GeneForm(forms.Form):
 
-    # VARIANT_FILE_TYPE_CHOICES = (('ass', 'All Silent SNVs'),
-    #                      ('asbns', 'All Silent Benign non-Silent SNVs'),
-    #                      ('ansi', 'All non-Silent SNVs and Indels'),
-    #                      ('ans', 'All non-Silent SNVs' ),
-    #                      ('dnsi', 'Deleterious non-Silent SNVs and Indels'),
-    #                      ('dns', 'Deleterious non-Silent SNVs'),
-    #                      ('prom', 'Variants in Promoter Region'),
-    #                 )
+    def __init__(self, user, *args, **kwargs):
+        super(GeneForm, self).__init__(*args, **kwargs)
+        try:
+            user_group_ids = [group.id for group in user.groups.all()]
+        except:
+            user_group_ids = []
+        msea_dataset = MSEADataset.objects.all()
+        msea_dataset = msea_dataset.filter(Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
+        DATASET_CHOICE = [(ele.dataset, ele.display_name) for ele in msea_dataset]
 
-    EXPAND_OPTIONS = (('expand', 'Expanded (recurrent variants are used independently for analysis)'),
+        EXPAND_OPTIONS = (('expand', 'Expanded (recurrent variants are used independently for analysis)'),
                        ('noexpand', 'Not Expanded (recurrent variants are collapsed into a single variant for analysis​)'),
                        )
 
-    DATASET_CHOICE = (  ('sim_wgs', 'SIM Sensitive Genome'),
-                        ('sim_sen', 'SIM Sensitive Exome'),
-                        ('sim_res', 'SIM Resistant Exome'),
-    )
 
-    dataset = forms.ChoiceField(choices=DATASET_CHOICE)
-    search_term = forms.CharField(help_text='Enter gene name or reference sequence ID', required=True)
-    # variant_file_type = forms.ChoiceField(choices=VARIANT_FILE_TYPE_CHOICES, required=True, initial='dnsi')
-    expand_option = forms.ChoiceField(widget=forms.RadioSelect, choices=EXPAND_OPTIONS, required=True, initial='expand')
-
+        self.fields['dataset'] = forms.ChoiceField(choices=DATASET_CHOICE)
+        self.fields['search_term'] = forms.CharField(help_text='Enter gene name or reference sequence ID', required=True)
+        self.fields['expand_option'] = forms.ChoiceField(widget=forms.RadioSelect, choices=EXPAND_OPTIONS, required=True, initial='expand')
 
 class VariantForm(forms.Form):
     def __init__(self, rs_id, *args, **kwargs):

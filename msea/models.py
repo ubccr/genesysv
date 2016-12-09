@@ -1,8 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from common.models import TimeStampedModel
 
-
+class MSEADataset(TimeStampedModel):
+    dataset = models.CharField(max_length=255)
+    display_name = models.CharField(max_length=255)
+    is_public = models.BooleanField(default=False)
+    allowed_groups = models.ManyToManyField(Group, blank=True)
 
 class VariantSet(TimeStampedModel):
     full_name = models.CharField(max_length=128)

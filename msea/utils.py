@@ -61,7 +61,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
     total = response['hits']['total']
     gene_results = response['hits']['hits'][0]['_source']
 
-    gene_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_gene.json' %(rs_id, vset))
+    gene_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_gene.json' %(rs_id, vset))
     with open(gene_json_output, 'w') as outfile:
         json.dump(gene_results, outfile, indent=4, sort_keys=True)
 
@@ -130,7 +130,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
 
     if domain_results:
         domain_data = format_domain_for_R(domain_results)
-        domain_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_domain.json' %(rs_id, vset))
+        domain_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_domain.json' %(rs_id, vset))
         with open(domain_json_output, 'w') as outfile:
             json.dump(domain_data, outfile, indent=4, sort_keys=True)
 
