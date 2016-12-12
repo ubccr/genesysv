@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from common.models import TimeStampedModel
 
-class MSEADataset(TimeStampedModel):
+class MseaDataset(TimeStampedModel):
     dataset = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
@@ -22,6 +22,10 @@ class Gene(TimeStampedModel):
         return self.gene_name
 
 class ReferenceSequence(TimeStampedModel):
+    msea_dataset = models.ForeignKey(
+        'MseaDataset',
+        on_delete=models.CASCADE,
+    )
     rs_id = models.CharField(max_length=12)
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     variants = models.ManyToManyField(VariantSet)

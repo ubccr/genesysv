@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from search.models import Study, Dataset
 from django.db.models import Q
 from crispy_forms.helper import FormHelper
-from .models import ReferenceSequence, MSEADataset
+from .models import ReferenceSequence, MseaDataset
 import re
 
 class GeneForm(forms.Form):
@@ -14,7 +14,7 @@ class GeneForm(forms.Form):
             user_group_ids = [group.id for group in user.groups.all()]
         except:
             user_group_ids = []
-        msea_dataset = MSEADataset.objects.all()
+        msea_dataset = MseaDataset.objects.all()
         msea_dataset = msea_dataset.filter(Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
         DATASET_CHOICE = [(ele.dataset, ele.display_name) for ele in msea_dataset]
 
@@ -28,12 +28,11 @@ class GeneForm(forms.Form):
         self.fields['expand_option'] = forms.ChoiceField(widget=forms.RadioSelect, choices=EXPAND_OPTIONS, required=True, initial='expand')
 
 class VariantForm(forms.Form):
-    def __init__(self, rs_id, *args, **kwargs):
+    def __init__(self, rs_id, dataset, *args, **kwargs):
         super(VariantForm, self).__init__(*args, **kwargs)
 
         m = re.search('\((.+)\)', rs_id)
         rs_id = m.group(1)
-        rf_obj = ReferenceSequence.objects.get(rs_id=rs_id)
+        rf_obj = ReferenceSequence.objects.get(rs_id=rs_id, msea_dataset__dataset=dataset)
         VARIANT_CHOICES = [(ele.short_name, ele.full_name) for ele in rf_obj.variants.all()]
-        print(VARIANT_CHOICES)
         self.fields['variant_choices'] = forms.MultipleChoiceField(choices=VARIANT_CHOICES, initial=[sn for sn, fl in VARIANT_CHOICES])

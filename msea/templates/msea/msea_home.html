@@ -71,14 +71,16 @@
     return cookieValue;
 }
 
-function get_variant_form(selected_rs_id){
+function get_variant_form(selected_rs_id, dataset){
 $.ajax(
     {
+
         headers: {'X-CSRFToken': getCookie('csrftoken')},
         type: "GET",
         url : "{% url 'get-variant-form' %}",
         data: {
                 selected_rs_id: selected_rs_id,
+                dataset: dataset,
         },
         success:function(data) {
             $('#select-variant').html(data);
@@ -97,13 +99,14 @@ $(document).ready(function() {
         minLength: 2,
         delay: 1,
         source: function (query, process) {
-            return $.get('/msea/search-gene-rs-id/?q=' + query, function (data) {
+            return $.get('/msea/search-gene-rs-id/?q=' + query + '&dataset=' + $( "#id_dataset" ).val(), function (data) {
                 return process(data.data);
             });
         },
         updater: function (selected_rs_id) {
             $('#select-variant').html();
-            get_variant_form(selected_rs_id);
+            var dataset = $( "#id_dataset" ).val()
+            get_variant_form(selected_rs_id, dataset);
             $("#msea-submit-button").removeClass("disabled")
             return selected_rs_id
         }

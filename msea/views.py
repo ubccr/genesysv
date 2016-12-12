@@ -71,7 +71,8 @@ def bokeh_plot(request):
     if request.POST:
         gene_form = GeneForm(request.user, request.POST)
         rs_id = request.POST['rs_id']
-        variant_form = VariantForm(rs_id, request.POST)
+        dataset = request.POST['dataset']
+        variant_form = VariantForm(rs_id, dataset, request.POST)
         if gene_form.is_valid() and variant_form.is_valid():
             gene_data = gene_form.cleaned_data
             variant_data = variant_form.cleaned_data
@@ -90,7 +91,7 @@ def bokeh_plot(request):
             for vset in variants_selected:
                 plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
                 plots.append((gene, rs_id, vset, os.path.basename(plot_path)))
-            print(plots)
+            # print(plots)
             context = {}
             context['plots'] = plots
             context['dataset'] = dataset
@@ -161,10 +162,11 @@ def plots(request):
 @gzip_page
 def search_gene_rs_id(request):
     q = request.GET.get('q', None)
-    if q:
+    dataset = request.GET.get('dataset', None)
+    if q and dataset:
         if len(q) > 0:
             genes = Gene.objects.filter(gene_name__icontains=q)
-            reference_sequences = ReferenceSequence.objects.filter(Q(rs_id__icontains=q) | Q(gene__gene_name__icontains=q))
+            reference_sequences = ReferenceSequence.objects.filter(msea_dataset__dataset=dataset).filter(Q(rs_id__icontains=q) | Q(gene__gene_name__icontains=q))
             results = ['%s (%s)' %(ele.gene.gene_name, ele.rs_id) for ele in reference_sequences]
 
             json_response = {"data": results}
@@ -186,7 +188,8 @@ def search_gene_rs_id(request):
 @gzip_page
 def get_variant_form(request):
     rs_id = request.GET['selected_rs_id']
-    variant_form = VariantForm(rs_id)
+    dataset = request.GET['dataset']
+    variant_form = VariantForm(rs_id, dataset)
     context = {'variant_form':variant_form,
                'rs_id': rs_id}
     # return HttpResponse(attribute_forms)
