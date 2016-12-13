@@ -6,6 +6,7 @@ from search.utils import get_es_result
 from pybamview.forms import SampleSelectForm
 from pybamview.models import SampleBamInfo
 from django.conf import settings
+from .utils import generate_url
 
 def get_sample_ids(result):
     return sorted([(ele['sample_ID']) for ele in result['sample']])
@@ -23,7 +24,9 @@ def igvview(request):
                 bam_files = []
                 for sample in (key for key,val in request.POST.items() if 'on' in val):
                     sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
-                    url = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big/','http://199.109.192.189/' )
+                    url = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big/','' )
+                    url = generate_url(url)
+                    url = "http://199.109.192.189/bam_files/"+url
                     name = sample
                     tmp = {'url': url, 'name': name}
                     bam_files.append(tmp)
