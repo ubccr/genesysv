@@ -202,7 +202,7 @@ class Command(BaseCommand):
                                                           rd_50x=rd_50x,
                                                           variant_count=variant_count)
 
-        with open('./search/management/commands/data/sim_WGS_filter.txt','r') as fp:
+        with open('./search/management/commands/data/sim_wes_case_filter.txt','r') as fp:
             for line in fp:
                 print(line)
                 if line.startswith("#"):

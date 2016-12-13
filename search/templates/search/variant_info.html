@@ -149,6 +149,20 @@
                 <td><strong>{{ result.AF_control }}</strong></td>
             </tr>
         {% endif %}
+        {% if result.AC %}
+            <tr>
+                <td>Allele Count</td>
+                <td><strong>{{ result.AC }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Number</td>
+                <td><strong>{{ result.AN }}</strong></td>
+            </tr>
+            <tr>
+                <td>Allele Frequency</td>
+                <td><strong>{{ result.AF }}</strong></td>
+            </tr>
+        {% endif %}
 
     </tbody>
   </table>

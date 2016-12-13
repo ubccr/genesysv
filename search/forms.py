@@ -86,11 +86,12 @@ class ESFilterFormPart(forms.Form):
 
 
 class ESFilterForm(forms.Form):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dataset, *args, **kwargs):
         super(ESFilterForm, self).__init__(*args, **kwargs)
 
 
-        for field in FilterField.objects.all():
+
+        for field in FilterField.objects.filter(dataset=dataset):
 
             if field.tooltip:
                 tooltip = ' <i data-toggle="popover" data-trigger="hover" data-content="%s" class="fa fa-info-circle" aria-hidden="true"></i>' %(field.tooltip)
@@ -129,11 +130,11 @@ class ESAttributeFormPart(forms.Form):
 
 
 class ESAttributeForm(forms.Form):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dataset, *args, **kwargs):
         super(ESAttributeForm, self).__init__(*args, **kwargs)
 
 
-        for field in FilterField.objects.all():
+        for field in FilterField.objects.filter(dataset=dataset):
             label = field.display_name
             field_name = '%s-%s' %(field.es_name, field.path)
             self.fields[field_name] = forms.BooleanField(label=label, required=False)

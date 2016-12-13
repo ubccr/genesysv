@@ -8,7 +8,7 @@ from .models import SampleBamInfo
 from django.conf import settings
 
 def get_sample_ids(result):
-    return sorted([int(ele['sample_ID']) for ele in result['sample']])
+    return sorted([(ele['sample_ID']) for ele in result['sample']])
 
 def pybamview(request):
     if request.POST:
@@ -19,15 +19,18 @@ def pybamview(request):
             dataset = Dataset.objects.get(id=dataset_id)
 
             url_string = settings.PYBAMVIEW_URI
-            for sample in (key for key,val in request.POST.items() if 'on' in val):
-                sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
-                url_string += 'samplebams={sample_name}:{sample_file}&'.format(sample_name=sample_bam_info_obj.sample_id,
-                                                                               sample_file=sample_bam_info_obj.file_path)
+            try:
+                for sample in (key for key,val in request.POST.items() if 'on' in val):
+                    sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
+                    url_string += 'samplebams={sample_name}:{sample_file}&'.format(sample_name=sample_bam_info_obj.sample_id,
+                                                                                   sample_file=sample_bam_info_obj.file_path)
 
-            url_string += 'zoomlevel=1'
-            url_string += '&region=%d:%d' %(Chr,Start)
-            return redirect(url_string)
-            # return redirect(url_string)
+                url_string += 'zoomlevel=1'
+                url_string += '&region=%d:%d' %(Chr,Start)
+                return redirect(url_string)
+                # return redirect(url_string)
+            except:
+                return HttpResponse('Missing BAM file for: %s' %(sample))
 
 
         else:

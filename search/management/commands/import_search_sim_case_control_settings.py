@@ -559,7 +559,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -578,7 +579,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -596,7 +598,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -612,7 +615,8 @@ class Command(BaseCommand):
                                      name='Functional Consequence')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -627,7 +631,8 @@ class Command(BaseCommand):
                                      name='Conserved/Constrained Genomic Elements/Positions')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -647,7 +652,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -666,7 +672,8 @@ class Command(BaseCommand):
                                      name='Ensembl Identifier')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -696,7 +703,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -716,7 +724,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -745,7 +754,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -764,7 +774,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -782,7 +793,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -804,7 +816,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -823,7 +836,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -842,7 +856,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -865,7 +880,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -886,7 +902,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -906,7 +923,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -924,7 +942,8 @@ class Command(BaseCommand):
                                      name='Functional Consequence')
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -942,7 +961,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -963,7 +983,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
        ##
@@ -982,7 +1003,8 @@ class Command(BaseCommand):
                                      name='Ensembl Identifier')
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
        ##
@@ -1012,7 +1034,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1032,7 +1055,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1061,7 +1085,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1080,7 +1105,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1098,7 +1124,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1118,7 +1145,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1137,7 +1165,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1154,5 +1183,6 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)

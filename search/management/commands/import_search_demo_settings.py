@@ -151,7 +151,7 @@ class Command(BaseCommand):
             #  'sim',
             #  'wgs_hg19_multianno'),
             ('demo',
-             'Brain tumor (GBM, from TCGA, demo only)',
+             'Somatic Mutations',
              'demo',
              'demo',
              '199.109.195.45',
@@ -189,7 +189,7 @@ class Command(BaseCommand):
 
         dataset_object = Dataset.objects.get(name='demo')
 
-        with open('./search/management/commands/data/sim_WGS_filter.txt','r') as fp:
+        with open('./search/management/commands/data/demo_filter.txt','r') as fp:
             for line in fp:
                 print(line)
                 if line.startswith("#"):
@@ -222,18 +222,19 @@ class Command(BaseCommand):
 
                 if display_name in 'Sample ID':
                     sample_id_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
-                    for choice in open('./search/management/commands/data/wes_case_ids.txt','r'):
+                    for choice in open('./search/management/commands/data/demo_ids.txt','r'):
+                        if not choice.strip(): continue
                         FilterFieldChoice.objects.get_or_create(filter_field=sample_id_obj, value=choice.strip())
-                        file_path = "/gpfs/projects/academic/big/SIM/WES_case/hc_bam/SIMWES20160930_%s_merged_hc.bam" %(choice.strip())
-                        print(file_path)
-                        a, b = SampleBamInfo.objects.get_or_create(dataset=dataset_object,
-                                                        sample_id=choice.strip(),
-                                                        file_path=file_path)
+                        # file_path = "/gpfs/projects/academic/big/SIM/WES_case/hc_bam/SIMWES20160930_%s_merged_hc.bam" %(choice.strip())
+                        # print(file_path)
+                        # a, b = SampleBamInfo.objects.get_or_create(dataset=dataset_object,
+                        #                                 sample_id=choice.strip(),
+                        #                                 file_path=file_path)
 
-                if display_name in 'Sample Cohort Label':
-                    sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
-                    for choice in ["case"]:
-                        FilterFieldChoice.objects.get_or_create(filter_field=sample_cohort_obj, value=choice)
+                # if display_name in 'Sample Cohort Label':
+                #     sample_cohort_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
+                #     for choice in ["case"]:
+                #         FilterFieldChoice.objects.get_or_create(filter_field=sample_cohort_obj, value=choice)
 
                 if display_name in 'Genotype':
                     genotype_obj = FilterField.objects.get(dataset=dataset_object, display_name=display_name)
@@ -241,7 +242,7 @@ class Command(BaseCommand):
                         FilterFieldChoice.objects.get_or_create(filter_field=genotype_obj, value=choice)
 
 
-        with open('./search/management/commands/data/sim_WGS_attribute.txt','r') as fp:
+        with open('./search/management/commands/data/demo_attribute.txt','r') as fp:
             for line in fp:
                 if line.startswith("#"):
                     continue
@@ -270,14 +271,6 @@ class Command(BaseCommand):
         Func_refGene_obj = FilterField.objects.get(dataset=dataset_object, es_name="Func_refGene")
         for choice in FUNC_REFGENE_CHOICES:
             FilterFieldChoice.objects.get_or_create(filter_field=Func_refGene_obj, value=choice)
-
-        ExonicFunc_ensGene_obj = FilterField.objects.get(dataset=dataset_object, es_name="ExonicFunc_ensGene")
-        for choice in EXONICFUNC_ENSGENE:
-            FilterFieldChoice.objects.get_or_create(filter_field=ExonicFunc_ensGene_obj, value=choice)
-
-        ExonicFunc_refGene_obj = FilterField.objects.get(dataset=dataset_object, es_name="ExonicFunc_refGene")
-        for choice in EXONICFUNC_REFGENE:
-            FilterFieldChoice.objects.get_or_create(filter_field=ExonicFunc_refGene_obj, value=choice)
 
 
         Type_obj = FilterField.objects.get(dataset=dataset_object, es_name="Type")
@@ -359,6 +352,7 @@ class Command(BaseCommand):
                         'tfbsConsSites',
                         'gwasCatalog'
                     ]:
+            print(es_name)
             filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='filter_exists')
             for choice in EXIST_CHOICES:
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
@@ -370,14 +364,9 @@ class Command(BaseCommand):
             for choice in EXIST_CHOICES:
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
 
-        for es_name in ['AC_',]:
-            filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='must_not_exists')
-            for choice in ["case"]:
-                FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
-
 
         ### create tabs
-        dataset_object = Dataset.objects.get(name='demo')
+        # dataset_object = Dataset.objects.get(name='demo')
 
         filter_tab_obj, _ = FilterTab.objects.get_or_create(dataset=dataset_object, name='Simple')
 
@@ -398,8 +387,6 @@ class Command(BaseCommand):
                                      filter_tab__name='Simple',
                                      name='Cohort Information')
 
-        FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
-                                     name='Case')
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
                                      filter_tab__name='Simple',
@@ -455,9 +442,6 @@ class Command(BaseCommand):
                                                          attribute_tab__name='Simple',
                                                          name='Cohort Information')
 
-        AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
-                                                name='Case')
-
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
                                                          attribute_tab__name='Simple',
                                                          name='Gene/Transcript')
@@ -504,7 +488,6 @@ class Command(BaseCommand):
             ('Alt', 'filter_term'),
             ('Type', 'filter_term'),
             ('cytoBand', 'filter_terms'),
-            ('qs', 'nested_filter_range_gte'),
             ('avsnp142', 'filter_terms'),
             ('avsnp142', 'filter_exists')
         )
@@ -514,49 +497,34 @@ class Command(BaseCommand):
                                      name='Variant Related Information')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
-
-
-        filter_panel = (
-            ('AC_', 'must_not_exists'),
-        )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
                                      filter_tab__name='Simple',
-                                     name='Cohort Information')
-
-        for es_name, es_filter_type in filter_panel:
-            print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
-            filter_panel_obj.filter_fields.add(filter_field_obj)
-
-
+                                     name='Frequency Information')
 
         filter_panel = (
-            ('AC_case', 'filter_range_gte'),
-            ('AC_case', 'filter_range_lte'),
-            ('AN_case', 'filter_range_gte'),
-            ('AN_case', 'filter_range_lte'),
-            ('AF_case', 'filter_range_gte'),
-            ('AF_case', 'filter_range_lte'),
+            ('AC', 'filter_range_gte'),
+            ('AC', 'filter_range_lte'),
+            ('AN', 'filter_range_gte'),
+            ('AN', 'filter_range_lte'),
+            ('AF', 'filter_range_gte'),
+            ('AF', 'filter_range_lte'),
         )
-
-        filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
-                                     name='Case')
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
-            filter_sub_panel_obj.filter_fields.add(filter_field_obj)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
        ##
         filter_panel = (
             ('Func_refGene', 'filter_terms'),
             ('Func_ensGene', 'filter_terms'),
-            ('ExonicFunc_refGene', 'filter_terms'),
-            ('ExonicFunc_ensGene', 'filter_terms'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -564,14 +532,14 @@ class Command(BaseCommand):
                                      name='Functional Consequence')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
         ##
         filter_panel = (
             ('tfbsConsSites', 'filter_exists'),
-            ('gerp_plus_gt2', 'filter_range_gte'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -579,7 +547,8 @@ class Command(BaseCommand):
                                      name='Conserved/Constrained Genomic Elements/Positions')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -599,7 +568,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -618,7 +588,8 @@ class Command(BaseCommand):
                                      name='Ensembl Identifier')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
        ##
@@ -648,7 +619,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -668,7 +640,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -697,7 +670,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -716,7 +690,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -734,7 +709,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -756,7 +732,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -764,8 +741,6 @@ class Command(BaseCommand):
         filter_panel = (
             ('sample_ID', 'nested_filter_terms'),
             ('sample_GT', 'nested_filter_terms'),
-            ('sample_DP', 'nested_filter_range_gte'),
-            ('sample_cohort', 'nested_filter_term'),
         )
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
@@ -775,7 +750,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -794,7 +770,8 @@ class Command(BaseCommand):
 
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
@@ -807,7 +784,6 @@ class Command(BaseCommand):
             ('Alt', ''),
             ('Type', ''),
             ('cytoBand', ''),
-            ('qs', 'gatkQS'),
             ('avsnp142', ''),
         )
 
@@ -817,37 +793,34 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
 
        ##
         attribute_panel = (
-            ('AC_case', ''),
-            ('AN_case', ''),
-            ('AF_case', ''),
+            ('AC', ''),
+            ('AN', ''),
+            ('AF', ''),
         )
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
                                      attribute_tab__name='Simple',
-                                     name='Cohort Information')
-
-        attribute_sub_panel_obj = AttributeSubPanel.objects.get(attribute_panel=attribute_panel_obj,
-                                     name='Case')
+                                     name='Frequency Information')
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
-            attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
+            attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
        ##
         attribute_panel = (
             ('Func_refGene', ''),
             ('Func_ensGene', ''),
-            ('ExonicFunc_refGene', ''),
-            ('ExonicFunc_ensGene', ''),
         )
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
@@ -855,13 +828,13 @@ class Command(BaseCommand):
                                      name='Functional Consequence')
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
        ##
         attribute_panel = (
-            ('gerp_plus_gt2', ''),
             ('phastConsElements46way', ''),
             ('phastConsElements100way', ''),
             ('tfbsConsSites', ''),
@@ -873,7 +846,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -894,7 +868,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
        ##
@@ -913,7 +888,8 @@ class Command(BaseCommand):
                                      name='Ensembl Identifier')
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
        ##
@@ -943,7 +919,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -963,7 +940,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -992,7 +970,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1011,7 +990,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1029,7 +1009,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1049,7 +1030,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1057,8 +1039,6 @@ class Command(BaseCommand):
         attribute_panel = (
             ('sample_ID', 'sample'),
             ('sample_GT', 'sample'),
-            ('sample_DP', 'sample'),
-            ('sample_cohort', 'sample'),
         )
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
@@ -1068,7 +1048,8 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
 
@@ -1085,5 +1066,6 @@ class Command(BaseCommand):
 
         for es_name, path in attribute_panel:
             print(es_name, path)
-            attribute_field_obj = AttributeField.objects.get(es_name=es_name, path=path)
+            attribute_field_obj = AttributeField.objects.get(dataset=dataset_object,
+                                                             es_name=es_name, path=path)
             attribute_panel_obj.attribute_fields.add(attribute_field_obj)

@@ -127,76 +127,82 @@ def get_dataset_form(request):
 @lru_cache(maxsize=None)
 @gzip_page
 def get_filter_form(request):
-    tabs = []
-    for tab in FilterTab.objects.all():
-        tmp_dict = {}
-        tmp_dict['name'] = tab.name
-        tmp_dict['panels'] = []
-        for panel in FilterPanel.objects.filter(filter_tab=tab):
-            es_form = ESFilterFormPart(panel.filter_fields.all(), prefix='filter_')
+    if request.GET:
+        dataset = request.GET.get('selected_dataset')
+        dataset_object = Dataset.objects.get(description=dataset)
+        tabs = []
+        for tab in FilterTab.objects.filter(dataset=dataset_object):
+            tmp_dict = {}
+            tmp_dict['name'] = tab.name
+            tmp_dict['panels'] = []
+            for panel in FilterPanel.objects.filter(filter_tab=tab):
+                es_form = ESFilterFormPart(panel.filter_fields.all(), prefix='filter_')
 
-            sub_panels = []
+                sub_panels = []
 
-            for sub_panel in panel.filtersubpanel_set.all():
-                if panel.are_sub_panels_mutually_exclusive:
-                    MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
-                else:
-                    MEgroup = None
-                tmp_sub_panel_dict = {}
-                tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.all(), MEgroup, prefix='filter_')
-                sub_panels.append(tmp_sub_panel_dict)
+                for sub_panel in panel.filtersubpanel_set.all():
+                    if panel.are_sub_panels_mutually_exclusive:
+                        MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
+                    else:
+                        MEgroup = None
+                    tmp_sub_panel_dict = {}
+                    tmp_sub_panel_dict['display_name'] = sub_panel.name
+                    tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
+                    tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.all(), MEgroup, prefix='filter_')
+                    sub_panels.append(tmp_sub_panel_dict)
 
-            tmp_dict['panels'].append({'display_name': panel.name,
-                                      'name': ''.join(panel.name.split()).lower(),
-                                      'form': es_form,
-                                      'sub_panels': sub_panels })
-        tabs.append(tmp_dict)
+                tmp_dict['panels'].append({'display_name': panel.name,
+                                          'name': ''.join(panel.name.split()).lower(),
+                                          'form': es_form,
+                                          'sub_panels': sub_panels })
+            tabs.append(tmp_dict)
 
-    context = {}
-    context['tabs'] = tabs
-    # print(context)
-    return render(request, "search/get_filter_snippet.html", context)
+        context = {}
+        context['tabs'] = tabs
+        # print(context)
+        return render(request, "search/get_filter_snippet.html", context)
 
 @lru_cache(maxsize=None)
 @gzip_page
 def get_attribute_form(request):
-    tabs = []
-    for tab in AttributeTab.objects.all():
-        tmp_dict = {}
-        tmp_dict['name'] = tab.name
-        tmp_dict['panels'] = []
-        for idx_panel, panel in enumerate(AttributePanel.objects.filter(attribute_tab=tab), start=1):
-            if panel.attribute_fields.all():
-                es_form = ESAttributeFormPart(panel.attribute_fields.all(), prefix='%d___attribute_group' %(idx_panel))
-            else:
-                es_form = None
-
-            sub_panels = []
-            for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.all(), start=1):
-                tmp_sub_panel_dict = {}
-                tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                if sub_panel.attribute_fields.all():
-                    tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.all(), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+    if request.GET:
+        dataset = request.GET.get('selected_dataset')
+        dataset_object = Dataset.objects.get(description=dataset)
+        tabs = []
+        for tab in AttributeTab.objects.filter(dataset=dataset_object):
+            tmp_dict = {}
+            tmp_dict['name'] = tab.name
+            tmp_dict['panels'] = []
+            for idx_panel, panel in enumerate(AttributePanel.objects.filter(attribute_tab=tab), start=1):
+                if panel.attribute_fields.all():
+                    es_form = ESAttributeFormPart(panel.attribute_fields.all(), prefix='%d___attribute_group' %(idx_panel))
                 else:
-                    tmp_sub_panel_dict['form'] = None
-                tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
+                    es_form = None
 
-                sub_panels.append(tmp_sub_panel_dict)
+                sub_panels = []
+                for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.all(), start=1):
+                    tmp_sub_panel_dict = {}
+                    tmp_sub_panel_dict['display_name'] = sub_panel.name
+                    tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
+                    if sub_panel.attribute_fields.all():
+                        tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.all(), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+                    else:
+                        tmp_sub_panel_dict['form'] = None
+                    tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
 
-            # print(panel.name, es_form)
-            tmp_dict['panels'].append({'display_name': panel.name,
-                                      'name': ''.join(panel.name.split()).lower(),
-                                      'form': es_form,
-                                      'attribute_group_id': '%d___attribute_group' %(idx_panel),
-                                      'sub_panels': sub_panels })
-        tabs.append(tmp_dict)
+                    sub_panels.append(tmp_sub_panel_dict)
 
-    context = {}
-    context['tabs'] = tabs
-    return render(request, "search/get_attribute_snippet.html", context)
+                # print(panel.name, es_form)
+                tmp_dict['panels'].append({'display_name': panel.name,
+                                          'name': ''.join(panel.name.split()).lower(),
+                                          'form': es_form,
+                                          'attribute_group_id': '%d___attribute_group' %(idx_panel),
+                                          'sub_panels': sub_panels })
+            tabs.append(tmp_dict)
+
+        context = {}
+        context['tabs'] = tabs
+        return render(request, "search/get_attribute_snippet.html", context)
 
 @lru_cache(maxsize=None)
 @gzip_page
@@ -271,8 +277,8 @@ def search(request):
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
-        es_filter_form = ESFilterForm(POST_data, prefix='filter_')
-        es_attribute_form = ESAttributeForm(POST_data, prefix='attribute_group')
+
+
         study_form = StudyForm(request.user, POST_data)
         study_form.is_valid()
         study_string = study_form.cleaned_data['study']
@@ -282,6 +288,11 @@ def search(request):
         dataset_string = dataset_form.cleaned_data['dataset']
 
         dataset_obj = Dataset.objects.get(description=dataset_string)
+
+
+        es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
+        es_attribute_form = ESAttributeForm(dataset_obj, POST_data, prefix='attribute_group')
+
 
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
             es_filter = ElasticSearchFilter()
@@ -302,7 +313,7 @@ def search(request):
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
-                    print(key,val)
+                    # print(key,val)
                     es_name, path = key.split('-')
                     if path and es_name != "qs":
                         source_fields.append(path)
@@ -348,7 +359,8 @@ def search(request):
 
                 used_keys.append((key.split('-')[0], data))
                 # print(key, data, es_filter_type)
-                field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type, path=path)
+                field_obj = FilterField.objects.get(dataset=dataset_obj,
+                                                    es_name=es_name, es_filter_type__name=es_filter_type, path=path)
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
                         for ele in data:
@@ -480,16 +492,10 @@ def search(request):
                                 elif key_es_filter_type in ["nested_filter_term",
                                                             "nested_filter_terms",]:
                                     comparison_type = 'val_in'
-                                # elif key_es_filter_type in ["nested_filter_terms"]:
-                                #     comparison_type = None
                                 else:
                                     comparison_type = 'val_in'
-                                # print(result)
                                 if comparison_type:
-                                # print(key_path, key_es_name, key_es_filter_type,val, comparison_type,result[key_path])
                                     filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                                # print(filtered_results)
-
 
                                 if filtered_results:
                                     result[key_path] = filtered_results
@@ -504,21 +510,6 @@ def search(request):
                         else:
                             combined_nested = list(itertools.product(combined_nested, result[path]))
                             combined_nested = merge_two_dicts_array(combined_nested)
-
-                        # if len(nested_attribute_fields) == 1:
-                        #     if path in result:
-                        #         combined_nested = result[path]
-                        #     else:
-                        #         combined_nested = None
-                        # else:
-                        #     if not combined:
-                        #         if path in result:
-                        #             combined_nested = result[path]
-                        #             combined = True
-                        #             continue
-                        #     else:
-                        #         combined_nested = list(itertools.product(combined_nested, result[path]))
-                        #         combined_nested = merge_two_dicts_array(combined_nested)
 
                     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
                     if combined_nested:
@@ -627,6 +618,8 @@ def yield_results(dataset_obj,
         result = ele['_source']
         final_results = []
         if nested_attribute_fields:
+            combined = False
+            combined_nested = None
             for idx, path in enumerate(nested_attribute_fields):
                 if dict_filter_fields:
                     for key, val in dict_filter_fields.items():
@@ -636,26 +629,69 @@ def yield_results(dataset_obj,
                                                   "filter_range_lt",
                                                   "nested_filter_range_gte",]:
                             comparison_type = key_es_filter_type.split('_')[-1]
+                        elif key_es_filter_type in ["nested_filter_term",
+                                                    "nested_filter_terms",]:
+                            comparison_type = 'val_in'
                         else:
-                            comparison_type = 'default'
+                            comparison_type = 'val_in'
+                        if comparison_type:
+                            filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
 
-                        filtered_result = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                        if filtered_result:
-                            result[key_path] = filtered_result
+                        if filtered_results:
+                            result[key_path] = filtered_results
 
-                if idx == 0:
+                if path not in result:
+                    continue
+
+                if not combined:
                     combined_nested = result[path]
+                    combined = True
                     continue
                 else:
                     combined_nested = list(itertools.product(combined_nested, result[path]))
                     combined_nested = merge_two_dicts_array(combined_nested)
 
             tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
-            tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+            if combined_nested:
+                tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+                for x,y in tmp_output:
+                    tmp = merge_two_dicts(x,y)
+                    tmp["es_id"] = result["es_id"]
+                    final_results.append(tmp)
+                    results_count += 1
+            else:
+                final_results.append(result)
 
-            for x,y in tmp_output:
-                tmp = merge_two_dicts(x,y)
-                final_results.append(tmp)
+        # if nested_attribute_fields:
+        #     for idx, path in enumerate(nested_attribute_fields):
+        #         if dict_filter_fields:
+        #             for key, val in dict_filter_fields.items():
+        #                 key_path, key_es_name, key_es_filter_type = key.split('___')
+        #                 if key_es_filter_type in ["filter_range_gte",
+        #                                           "filter_range_lte",
+        #                                           "filter_range_lt",
+        #                                           "nested_filter_range_gte",]:
+        #                     comparison_type = key_es_filter_type.split('_')[-1]
+        #                 else:
+        #                     comparison_type = 'default'
+
+        #                 filtered_result = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+        #                 if filtered_result:
+        #                     result[key_path] = filtered_result
+
+        #         if idx == 0:
+        #             combined_nested = result[path]
+        #             continue
+        #         else:
+        #             combined_nested = list(itertools.product(combined_nested, result[path]))
+        #             combined_nested = merge_two_dicts_array(combined_nested)
+
+        #     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
+        #     tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+
+        #     for x,y in tmp_output:
+        #         tmp = merge_two_dicts(x,y)
+        #         final_results.append(tmp)
         else:
             final_results = [result,]
 
@@ -678,33 +714,33 @@ class Echo(object):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 @gzip_page
-def download_results(request):
-    search_result_download_obj_id = request.POST['search_result_download_obj_id']
-    search_result_download_obj = SearchLog.objects.get(id=search_result_download_obj_id)
-    dataset_obj = search_result_download_obj.dataset
-    headers = search_result_download_obj.headers
+def download_result(request):
+    search_log_obj_id = request.POST['search_log_obj_id']
+    search_log_obj = SearchLog.objects.get(id=search_log_obj_id)
+    dataset_obj = search_log_obj.dataset
+    headers = search_log_obj.headers
     headers = [ele.object for ele in serializers.deserialize("json", headers)]
-    query = json.loads(search_result_download_obj.query)
+    query = json.loads(search_log_obj.query)
     query = json.loads(query)
     # print(type(query))
     # print(query)
-    if search_result_download_obj.nested_attribute_fields:
-        nested_attribute_fields = json.loads(search_result_download_obj.nested_attribute_fields)
+    if search_log_obj.nested_attribute_fields:
+        nested_attribute_fields = json.loads(search_log_obj.nested_attribute_fields)
     else:
         nested_attribute_fields = []
 
-    if search_result_download_obj.non_nested_attribute_fields:
-        non_nested_attribute_fields = json.loads(search_result_download_obj.non_nested_attribute_fields)
+    if search_log_obj.non_nested_attribute_fields:
+        non_nested_attribute_fields = json.loads(search_log_obj.non_nested_attribute_fields)
     else:
         non_nested_attribute_fields = []
 
-    if search_result_download_obj.dict_filter_fields:
-        dict_filter_fields = json.loads(search_result_download_obj.dict_filter_fields)
+    if search_log_obj.dict_filter_fields:
+        dict_filter_fields = json.loads(search_log_obj.dict_filter_fields)
     else:
         dict_filter_fields = []
 
-    if search_result_download_obj.used_keys:
-        used_keys = json.loads(search_result_download_obj.used_keys)
+    if search_log_obj.used_keys:
+        used_keys = json.loads(search_log_obj.used_keys)
     else:
         used_keys = []
 
