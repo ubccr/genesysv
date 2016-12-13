@@ -1180,9 +1180,14 @@ var igv = (function (igv) {
 
         this.bamPath = config.url;
         // Todo - deal with Picard convention.  WHY DOES THERE HAVE TO BE 2?
-        this.baiPath = config.indexURL || this.bamPath + ".bai"; // If there is an indexURL provided, use it!
+
+        this.baiPath = config.bai;
+        // this.baiPath = config.indexURL || this.bamPath + ".bai"; // If there is an indexURL provided, use it!
         this.headPath = config.headURL || this.bamPath;
 
+        console.log("this.bamPath", this.bamPath)
+        console.log("this.baiPath", this.baiPath)
+        console.log("this.headPath", this.headPath)
 
         this.samplingWindowSize = config.samplingWindowSize === undefined ? DEFAULT_SAMPLING_WINDOW_SIZE : config.samplingWindowSize;
         this.samplingDepth = config.samplingDepth === undefined ? DEFAULT_SAMPLING_DEPTH : config.samplingDepth;

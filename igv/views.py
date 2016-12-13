@@ -24,11 +24,13 @@ def igvview(request):
                 bam_files = []
                 for sample in (key for key,val in request.POST.items() if 'on' in val):
                     sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
-                    url = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big/','' )
-                    url = generate_url(url)
+                    path = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big','' )
+                    url = generate_url(path)
                     url = "http://199.109.192.189"+url
+                    bai = generate_url(path+'.bai')
+                    bai = "http://199.109.192.189"+bai
                     name = sample
-                    tmp = {'url': url, 'name': name}
+                    tmp = {'url': url, 'name': name, 'bai': bai}
                     bam_files.append(tmp)
                 context = {}
                 context['bam_files'] = bam_files
@@ -43,7 +45,8 @@ def igvview(request):
                 # url_string += '&region=%d:%d' %(Chr,Start)
                 # return redirect(url_string)
                 # # return redirect(url_string)
-            except:
+            except Exception as e:
+                print(e)
                 return HttpResponse('Missing BAM file for: %s' %(sample))
 
 

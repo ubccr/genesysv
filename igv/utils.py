@@ -4,12 +4,14 @@ def generate_url(full_path):
     protectedPath = "/bam_files/" # Same as AuthTokenPrefix
     ipLimitation = False # Same as AuthTokenLimitByIp
     hexTime = "{0:x}".format(int(time.time())) # Time in Hexadecimal
-
+    # fileName = "/SIM/WGS_case/hc_bam/SIMWGS09292016_p1344_merged_hc.bam" # The file to access
+    # full_path = fileName
+    print(full_path)
     if ipLimitation:
         token = hashlib.md5(''.join([secret, full_path, hexTime, os.environ["REMOTE_ADDR"]])).hexdigest()
     else:
         token = hashlib.md5(''.join([secret, full_path, hexTime]).encode('utf-8')).hexdigest()
 
-    url = ''.join([protectedPath, token, "/", hexTime, "/", full_path])
+    url = ''.join([protectedPath, token, "/", hexTime, full_path])
 
     return url

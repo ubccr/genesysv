@@ -26,9 +26,6 @@
     <!-- IGV CSS -->
     <link rel="stylesheet" type="text/css" href="https://igv.org/web/test/multilocus/igv-multilocus.css">
 
-    <!-- bam.css n - for demo only, NOT REQUIRED FOR IGV -->
-    <link rel="stylesheet" type="text/css" href="css/bam.css">
-
     <!-- jQuery JS -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script type="text/javascript"
@@ -81,7 +78,7 @@
         var tmp = {
                     url: bam_files[i].url,
                     name: bam_files[i].name,
-
+                    bai: bam_files[i].bai
         }
         input_tracks.push(tmp)
     }
