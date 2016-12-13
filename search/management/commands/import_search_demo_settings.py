@@ -503,7 +503,7 @@ class Command(BaseCommand):
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
                                      filter_tab__name='Simple',
-                                     name='Frequency Information')
+                                     name='Cohort Information')
 
         filter_panel = (
             ('AC', 'filter_range_gte'),
@@ -808,7 +808,7 @@ class Command(BaseCommand):
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
                                      attribute_tab__name='Simple',
-                                     name='Frequency Information')
+                                     name='Cohort Information')
 
         for es_name, path in attribute_panel:
             print(es_name, path)
