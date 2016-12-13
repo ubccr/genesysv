@@ -10,6 +10,6 @@ def generate_url(full_path):
     else:
         token = hashlib.md5(''.join([secret, full_path, hexTime]).encode('utf-8')).hexdigest()
 
-    url = ''.join([protectedPath, token, "/", hexTime, full_path])
+    url = ''.join([protectedPath, token, "/", hexTime, "/", full_path])
 
     return url

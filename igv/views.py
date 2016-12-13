@@ -26,7 +26,7 @@ def igvview(request):
                     sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
                     url = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big/','' )
                     url = generate_url(url)
-                    url = "http://199.109.192.189/bam_files/"+url
+                    url = "http://199.109.192.189"+url
                     name = sample
                     tmp = {'url': url, 'name': name}
                     bam_files.append(tmp)
