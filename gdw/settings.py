@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'visualization',
     'beacon',
     'msea',
+    'igv',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,4 @@ LOGOUT_REDIRECT_URL = '/'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 PYBAMVIEW_URI = 'http://128.205.41.50:9005/bamview?'
+

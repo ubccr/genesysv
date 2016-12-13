@@ -545,7 +545,8 @@ class Command(BaseCommand):
                                      name='Variant Related Information')
         for es_name, es_filter_type in filter_panel:
             print(es_name, es_filter_type)
-            filter_field_obj = FilterField.objects.get(es_name=es_name, es_filter_type__name=es_filter_type)
+            filter_field_obj = FilterField.objects.get(dataset=dataset_object,
+                                                       es_name=es_name, es_filter_type__name=es_filter_type)
             filter_panel_obj.filter_fields.add(filter_field_obj)
 
 
