@@ -1,4 +1,4 @@
-def generate_url(full_path)
+def generate_url(full_path):
     import os, time, hashlib
     secret = "$f^NSw8KKf#VzjF2F8*heyzkeu+Dg$qY" # Same as AuthTokenSecret
     protectedPath = "/bam_files/" # Same as AuthTokenPrefix
