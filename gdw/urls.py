@@ -42,4 +42,5 @@ urlpatterns = [
     url(r'^faq/$', TemplateView.as_view(template_name="faq.html"), name='faq'),
     url(r'^dataset-summary/$', TemplateView.as_view(template_name="dataset_summary.html"), name='dataset-summary'),
     url(r'^tutorial/$', TemplateView.as_view(template_name="tutorial.html"), name='tutorial'),
+    url(r'^tinymce/', include('tinymce.urls')),
 ]

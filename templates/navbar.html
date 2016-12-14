@@ -14,7 +14,6 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div id="main-nav-bar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li id="navbarId-Home"><a href="/">Home</a></li>
         <li id="navbarId-About"><a href="{% url 'about'%}">About</a></li>
 
         <li id="navbarId-Search-Main" class="dropdown">
@@ -34,9 +33,10 @@
             <li id="navbarId-beacon"><a href="{% url 'beacon'%}">GA4GH Beacon</a></li>
             <li id="navbarId-msea"><a href="/msea">MSEA Plot</a></li>
             <li id="navbarId-subject-report"><a href="{% url 'subject-report'%}">Subject Report</a></li>
+            <!--  <li id="navbarId-Viz-Home"><a href="{% url 'viz-home' %}">Visualization</a></li> -->
           </ul>
         </li>
-        <li id="navbarId-Viz-Home"><a href="{% url 'viz-home' %}">Visualization</a></li>
+
         <li id="navbarId-Help" class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <i class="fa fa-caret-down" aria-hidden="true"></i>
           <ul class="dropdown-menu">

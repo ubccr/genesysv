@@ -42,10 +42,12 @@ INSTALLED_APPS = [
     'search',
     'pybamview',
     'subject_report',
-    'visualization',
+    'tinymce',
+    # 'visualization',
     'beacon',
     'msea',
     'igv',
+    'news',
 ]
 
 MIDDLEWARE = [

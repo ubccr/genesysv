@@ -151,7 +151,7 @@ class Command(BaseCommand):
             #  'sim',
             #  'wgs_hg19_multianno'),
             ('sim_case_wes',
-             'SIM Case WES',
+             'SIM Case (WES)',
              'sim',
              'SIM_case_WES',
              '199.109.195.45',
