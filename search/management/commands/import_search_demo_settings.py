@@ -350,7 +350,6 @@ class Command(BaseCommand):
                         'phastConsElements46way',
                         'targetScanS',
                         'tfbsConsSites',
-                        'gwasCatalog'
                     ]:
             print(es_name)
             filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='filter_exists')
@@ -717,9 +716,7 @@ class Command(BaseCommand):
 
          ##
         filter_panel = (
-            ('gwasCatalog', 'filter_exists'),
             ('clinvar_20150629_CLNDBN', 'nested_filter_exists'),
-            ('gwasCatalog', 'filter_term'),
             ('clinvar_20150629_CLNDBN', 'nested_filter_term'),
             ('clinvar_20150629_CLINSIG', 'nested_filter_terms'),
             ('snp138NonFlagged', 'filter_exists'),
@@ -1017,7 +1014,6 @@ class Command(BaseCommand):
 
          ##
         attribute_panel = (
-            ('gwasCatalog', ''),
             ('clinvar_20150629_CLNDBN', 'clinvar_20150629'),
             ('clinvar_20150629_CLINSIG', 'clinvar_20150629'),
             ('snp138NonFlagged', ''),

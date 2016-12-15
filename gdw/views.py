@@ -9,3 +9,7 @@ def home(request):
     context = {}
     context['news'] = News.objects.order_by('-created')[:3]
     return render(request, 'home.html', context)
+
+
+def change_password_done(request):
+    return render(request, 'change_password_done.html', {})

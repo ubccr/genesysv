@@ -656,9 +656,7 @@ def yield_results(dataset_obj,
                 tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
                 for x,y in tmp_output:
                     tmp = merge_two_dicts(x,y)
-                    tmp["es_id"] = result["es_id"]
                     final_results.append(tmp)
-                    results_count += 1
             else:
                 final_results.append(result)
 

@@ -17,17 +17,25 @@ from django.conf.urls import url, include
 from django.contrib import admin
 import search.urls as search_urls
 import pybamview.urls as  pybamview_urls
-from .views import home
+from .views import home, change_password_done
 import subject_report.urls as subject_report_urls
 import visualization.urls as visualization_urls
 import beacon.urls as beacon_urls
 import msea.urls as msea_urls
 import igv.urls as igv_urls
 from django.views.generic.base import TemplateView
+from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 
 
 urlpatterns = [
+    url('^password_change/done/$', change_password_done),
     url('^', include('django.contrib.auth.urls')),
+    url(
+        '^change-password/$',
+        auth_views.password_change,
+        {'template_name': 'change_password.html'}
+    ),
     url(r'^admin/', admin.site.urls),
     url(r'^$', home, name='home'),
     url(r'^search/', include(search_urls)),
