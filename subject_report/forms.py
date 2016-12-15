@@ -81,11 +81,11 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
                 {"term" : {"SIFT_pred": "Deleterious"}},
                 {"term" : {"LRT_pred": "Deleterious"}},
                 {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
-                {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
             ]
         }
         },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all"],
+        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 1000
     }
     """
@@ -169,11 +169,11 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
                     {"term" : {"SIFT_pred": "Deleterious"}},
                     {"term" : {"LRT_pred": "Deleterious"}},
                     {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
-                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                    {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
                 ]
                 }
             },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all"],
+        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 25
     }
 
@@ -239,11 +239,11 @@ def get_relevant_gwascatalog(subject, database_name, indication_for_testing):
                     {"term" : {"SIFT_pred": "Deleterious"}},
                     {"term" : {"LRT_pred": "Deleterious"}},
                     {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
-                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                    {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
                 ]
                 }
             },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all"],
+        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 1000
     }
     """
@@ -303,11 +303,11 @@ def get_not_relevant_gwascatalog(subject, database_name, indication_for_testing)
                     {"term" : {"SIFT_pred": "Deleterious"}},
                     {"term" : {"LRT_pred": "Deleterious"}},
                     {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
-                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}}
+                    {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
                 ]
             }
         },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all"],
+        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "gwasCatalog", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 25
     }
     """

@@ -171,6 +171,20 @@
 \normalsize
 \section*{Methodology}
 \noindent \VAR{methodology}
+
+\bigskip
+\noindent
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+  \hline
+  \textbf{Variant} & \textbf{SIFT Prediction} & \textbf{LRT Prediction} & \textbf{Polyphen2 HDIV Prediction} & \textbf{Polyphen2 HVAR Prediction} \\ \hline
+  %% for (variant, sift, lrt, phdiv, phvar) in predictor_array
+  \VAR{variant} & \VAR{sift} & \VAR{lrt} & \VAR{phdiv} & \VAR{phvar} \\ \hline
+  %% endfor
+
+\end{tabular}
+
+
 \bigskip
 \noindent The following table shows the interpretation of the predictions:
 \newline
@@ -184,6 +198,7 @@
   Polyphen2 HDIV & D: probably damaging (hdiv $\geq 0.957$); P: possibly damaging ($0.453 \leq$ hdiv $\leq 0.957$); B: benign (hdiv $\leq 0.957$) \\ \hline
   Polyphen2 HVAR & D: probably damaging (hvar $\geq 0.909$); P: possibly damaging ($0.447 \leq$ hvar $\leq 0.909$); B: benign (hvar $\leq 0.446$) \\ \hline
 \end{tabular}
+
 \normalsize
 
 \bigskip

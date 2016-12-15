@@ -12,6 +12,44 @@ from django.views.static import serve
 from pprint import pprint
 from common.utils import filter_array_dicts
 
+
+def generate_predictor_results_array(array1, array2):
+
+    output = []
+    # output.append(['Variant', 'SIFT', 'LRT', 'Polyphen2 HDIV', 'Polyphen2 HVAR'])
+    for ele in array1:
+        Variant = ele['Variant']
+        SIFT_pred = ele.get('SIFT_pred', 'None').replace('_', '').title()
+        LRT_pred = ele.get('LRT_pred', 'None').replace('_', '').title()
+        Polyphen2_HDIV_pred =  ele.get('Polyphen2_HDIV_pred', 'None').replace('_', ' ').title()
+        Polyphen2_HVAR_pred = ele.get('Polyphen2_HVAR_pred', 'None').replace('_', ' ').title()
+
+        output.append([Variant, SIFT_pred, LRT_pred, Polyphen2_HDIV_pred, Polyphen2_HVAR_pred])
+
+    for ele in array2:
+
+        Variant = ele['Variant']
+        SIFT_pred = ele.get('SIFT_pred', 'None').replace('_', '').title()
+        LRT_pred = ele.get('LRT_pred', 'None').replace('_', '').title()
+        Polyphen2_HDIV_pred = ele.get('Polyphen2_HDIV_pred', 'None').replace('_', '').title()
+        Polyphen2_HVAR_pred = ele.get('Polyphen2_HVAR_pred', 'None').replace('_', '').title()
+
+        output.append([Variant, SIFT_pred, LRT_pred, Polyphen2_HDIV_pred, Polyphen2_HVAR_pred])
+
+    print(output)
+    return output
+
+
+def dict_remove_duplicate(array_dict1, array_dict2, key):
+    key_value = [ele[key] for ele in array_dict1]
+
+    output_array_dict = []
+    for ele in array_dict2:
+        if ele[key] not in key_value:
+            output_array_dict.append(ele)
+
+    return output_array_dict
+
 def put_findings_in_array(findings, keys):
     output = []
     for finding in findings:
@@ -79,6 +117,7 @@ def generate_latex_patient_report(result_summary,
                                   additional_notes,
                                   relevant_findings,
                                   incidental_findings,
+                                  predictor_array,
                                   output_name):
 
     latex_jinja_env = jinja2.Environment(
@@ -103,7 +142,8 @@ def generate_latex_patient_report(result_summary,
                                 methodology=methodology,
                                 additional_notes=additional_notes,
                                 relevant_findings=relevant_findings,
-                                incidental_findings=incidental_findings)
+                                incidental_findings=incidental_findings,
+                                predictor_array=predictor_array)
 
 
     rendered = rendered.replace('&nbsp;','')
@@ -142,6 +182,19 @@ class SubjectReportWizard(SessionWizardView):
             self.request.session['relevant_gwascatalog'] = relevant_gwascatalog
             self.request.session['not_relevant_gwascatalog'] = not_relevant_gwascatalog
             # self.request.session['incidental_findings'] = incidental_findings
+
+
+            not_relevant_clinvar = dict_remove_duplicate(relevant_clinvar, not_relevant_clinvar, 'es_id')
+            not_relevant_gwascatalog = dict_remove_duplicate(relevant_gwascatalog, not_relevant_gwascatalog, 'es_id')
+
+            if relevant_clinvar or not_relevant_clinvar or relevant_gwascatalog or not_relevant_gwascatalog:
+                hits = True
+            else:
+                hits = False
+
+            context['hits'] = hits
+            context['subject'] = subject
+            context['indication_for_testing'] = indication_for_testing
             context['relevant_clinvar'] = relevant_clinvar
             context['not_relevant_clinvar'] = not_relevant_clinvar
             context['relevant_gwascatalog'] = relevant_gwascatalog
@@ -182,6 +235,8 @@ class SubjectReportWizard(SessionWizardView):
                 not_relevant_gwascatalog = filter_array_dicts(not_relevant_gwascatalog, 'es_id', not_relevant_gwascatalog_id_keys, 'equal')
             else:
                 not_relevant_gwascatalog = None
+
+
 
             context['relevant_clinvar'] = relevant_clinvar
             context['not_relevant_clinvar'] = not_relevant_clinvar
@@ -239,6 +294,10 @@ class SubjectReportWizard(SessionWizardView):
         if not_relevant_gwascatalog:
             incidental_findings.extend(not_relevant_gwascatalog)
 
+
+
+        predictor_array = generate_predictor_results_array(relevant_findings, incidental_findings)
+
         relevant_findings = findings_dict_to_array(relevant_findings)
         incidental_findings = findings_dict_to_array(incidental_findings)
 
@@ -249,6 +308,7 @@ class SubjectReportWizard(SessionWizardView):
                                         additional_notes,
                                         relevant_findings,
                                         incidental_findings,
+                                        predictor_array,
                                         'report.tex')
 
         pdf_file = open('/home/mkzia/gdw/report.pdf', 'rb')

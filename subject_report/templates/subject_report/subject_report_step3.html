@@ -8,16 +8,27 @@
 {{ wizard.form.media }}
 {% endblock %}
 
+{% block title %}
+    Step 4 Subject Report
+{% endblock %}
+
 {% block content %}
 <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
 
 <form action="" method="post">{% csrf_token %}
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-        <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+        {% if hits %}
+            <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+        {% endif %}
     </ul>
 
-    {{ wizard.management_form|crispy }}
+
+    {% if not hits %}
+        No deleterious variants found for {{subject}}. Please go back to previous step.
+
+    {% else %}
+            {{ wizard.management_form|crispy }}
     {% if wizard.form.forms %}
         {{ wizard.form.management_form|crispy }}
         {% for form in wizard.form.forms %}
@@ -181,14 +192,19 @@
                          </table>
                     </div>
                  {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
-            {% endif %}
-        </div>
-    </div>
+    {% endif %}
+
+
 
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-        <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+        {% if hits %}
+            <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+        {% endif %}
     </ul>
 </form>
 <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
