@@ -27,6 +27,8 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
     )
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden
+
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -766,7 +768,16 @@ def download_result(request):
 
 
 def get_variant(request, dataset_id, variant_id):
+
+    user = request.user
     dataset = Dataset.objects.get(id=dataset_id)
+    groups = [ele.name for ele in dataset.allowed_groups.all()]
+    group_access = user.groups.filter(name__in=groups).exists()
+
+    if not group_access and not dataset.is_public:
+        return HttpResponseForbidden()
+
+
     es = elasticsearch.Elasticsearch(host=dataset.es_host)
     index_name = dataset.es_index_name
     type_name = dataset.es_type_name
