@@ -1,10 +1,13 @@
+beautifulsoup4==4.5.1
 bokeh==0.12.1
 decorator==4.0.10
 Django==1.10.4
 django-crispy-forms==1.6.1
 django-formtools==1.0
+django-htmlmin==0.10.0
 django-tinymce==2.4.0
 elasticsearch==5.0.1
+html5lib==0.999999999
 ipython==5.1.0
 ipython-genutils==0.1.0
 Jinja2==2.8
@@ -27,3 +30,4 @@ tornado==4.4.2
 traitlets==4.3.1
 urllib3==1.19.1
 wcwidth==0.1.7
+webencodings==0.5
