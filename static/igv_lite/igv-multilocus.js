@@ -15198,8 +15198,8 @@ var igv = (function (igv) {
                 case "GRCh37":
                 default:
                 {
-                    reference.fastaURL = "http://199.109.192.189/hg19.fasta";
-                    reference.cytobandURL = "http://199.109.192.189/cytoBand.txt";
+                    reference.fastaURL = "https://bam.ccr.buffalo.edu/hg19.fasta";
+                    reference.cytobandURL = "https://bam.ccr.buffalo.edu/cytoBand.txt";
                 }
             }
             return reference;
