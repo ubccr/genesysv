@@ -265,6 +265,7 @@
                 $('#step2-filter-select').html(data);
                 $("#collapse1-filter").addClass("in");
                 $(".to_step2").attr("disabled", false);
+                $("#filter-accordion > div:nth-child(1) > div.panel-heading").click()
                 $('#filters_loaded').val(true).trigger("change");
 
             }
@@ -286,6 +287,7 @@
                 $('#step3-attribute-select').html(data);
                 $("#collapse1-attribute").addClass("in");
                 $(".to_step2").attr("disabled", false);
+                $("#attribute-accordion > div:nth-child(1) > div.panel-heading").click()
                 $('#attributes_loaded').val(true).trigger("change");
             }
         }

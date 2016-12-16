@@ -18,19 +18,15 @@
                 {% else %}
                     <div id="{{tab.name|slugify}}" class="tab-pane fade">
                 {% endif %}
-                    <div class="panel-group" id="accordion">
+                    <div class="panel-group" id="attribute-accordion">
                         {% for panel in tab.panels %}
                             <div class="panel panel-primary">
-                              <div class="panel-heading">
-                                <h3 class="panel-title">
-                                  <a data-toggle="collapse" data-parent="#accordion" href="#attribute-{{panel.name|slugify}}">{{panel.display_name}}</a>
+                              <div style="cursor: pointer;" class="panel-heading" data-toggle="collapse" data-parent="#attribute-accordion" data-target="#attribute-{{panel.name|slugify}}">
+                                <h3 class="panel-title accordion-toggle">
+                                  {{panel.display_name|safe}}
                                 </h3>
                               </div>
-                              {% if forloop.counter == 1 %}
-                                <div id="attribute-{{panel.name|slugify}}" class="panel-collapse collapse in">
-                              {% else %}
                                 <div id="attribute-{{panel.name|slugify}}" class="panel-collapse collapse">
-                              {% endif %}
                             <div class="panel-body">
                                 {% if panel.form %}
                                     <div class="pull-right">

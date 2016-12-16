@@ -1,6 +1,7 @@
 \documentclass[10pt]{article}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{ltablex}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{adjustbox}
 \usepackage{titlesec}
@@ -16,7 +17,7 @@
 \usepackage{lipsum}
 \fancyhf{}% Clear header/footer
 \setlength{\headwidth}{\textwidth}
-\fancyhead[R]{\color{NavyBlue}\textbf{\sffamily \Large Buffalo Institute for Genomics}}
+\fancyhead[R]{\color{NavyBlue}\textbf{\sffamily \Large Buffalo Institute for Genomics and Data Analytics}}
 \fancyhead[L]{ % right
    \includegraphics[trim={5cm 7cm 5cm 5cm},clip,height=0.60in]{image001.jpg}
 }
@@ -52,7 +53,6 @@
 \end{tabularx}
 \end{table}
 \end{Form}
-\bigskip
 \hfill
 \begin{center}
 \Large\textbf{\textsf{\color{NavyBlue}Report}}
@@ -76,6 +76,7 @@
     \cmidrule[1pt](r{1pt}){5-5}
     \cmidrule[1pt](r{1pt}){6-6}
     \cmidrule[1pt](r{1pt}){7-7}
+    \endhead
     %% for (id, variant_id, allele_frequency, zygosity, genes, refseq_ids, variants, clinvar, gwas) in relevant_findings
     \multicolumn{2}{@{}l}{\VAR{variant_id}} &
     \VAR{allele_frequency} &
@@ -130,6 +131,7 @@
     \cmidrule[1pt](r{1pt}){5-5}
     \cmidrule[1pt](r{1pt}){6-6}
     \cmidrule[1pt](r{1pt}){7-7}
+    \endhead
     %% for (id, variant_id, allele_frequency, zygosity, genes, refseq_ids, variants, clinvar, gwas) in incidental_findings
     \multicolumn{2}{@{}l}{\VAR{variant_id}} &
     \VAR{allele_frequency} &
@@ -207,4 +209,5 @@
 \noindent \VAR{additional_notes}
 \bigskip
 \newline \noindent Report generated: \today
+
 \end{document}

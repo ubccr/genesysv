@@ -14,7 +14,7 @@ from common.utils import filter_array_dicts
 
 
 def generate_predictor_results_array(array1, array2):
-
+    print(array1,array2)
     output = []
     # output.append(['Variant', 'SIFT', 'LRT', 'Polyphen2 HDIV', 'Polyphen2 HVAR'])
     for ele in array1:
@@ -31,8 +31,8 @@ def generate_predictor_results_array(array1, array2):
         Variant = ele['Variant']
         SIFT_pred = ele.get('SIFT_pred', 'None').replace('_', '').title()
         LRT_pred = ele.get('LRT_pred', 'None').replace('_', '').title()
-        Polyphen2_HDIV_pred = ele.get('Polyphen2_HDIV_pred', 'None').replace('_', '').title()
-        Polyphen2_HVAR_pred = ele.get('Polyphen2_HVAR_pred', 'None').replace('_', '').title()
+        Polyphen2_HDIV_pred = ele.get('Polyphen2_HDIV_pred', 'None').replace('_', ' ').title()
+        Polyphen2_HVAR_pred = ele.get('Polyphen2_HVAR_pred', 'None').replace('_', ' ').title()
 
         output.append([Variant, SIFT_pred, LRT_pred, Polyphen2_HDIV_pred, Polyphen2_HVAR_pred])
 
@@ -131,13 +131,15 @@ def generate_latex_patient_report(result_summary,
         line_comment_prefix = '%#',
         trim_blocks = True,
         autoescape = False,
-        loader = jinja2.FileSystemLoader(os.path.abspath('.'))
+        loader = jinja2.FileSystemLoader(os.path.abspath('/'))
     )
 
 
 
     basedir = settings.BASE_DIR
-    template = latex_jinja_env.get_template(os.path.join('subject_report', 'subject_report.tex'))
+    path_to_tex = os.path.join(basedir, 'subject_report', 'subject_report.tex')
+    template = latex_jinja_env.get_template(path_to_tex)
+    # template = latex_jinja_env.get_template(os.path.join('subject_report', 'subject_report.tex'))
     rendered = template.render( result_summary=result_summary,
                                 methodology=methodology,
                                 additional_notes=additional_notes,
@@ -311,7 +313,10 @@ class SubjectReportWizard(SessionWizardView):
                                         predictor_array,
                                         'report.tex')
 
-        pdf_file = open('/home/mkzia/gdw/report.pdf', 'rb')
+        basedir = settings.BASE_DIR
+        output_path = os.path.join(basedir,'report.pdf')
+        pdf_file = open(output_path, 'rb')
+        # pdf_file = open('/home/mkzia/gdw/report.pdf', 'rb')
         response = HttpResponse(content=pdf_file)
         response['Content-Type'] = 'application/pdf'
         response['Content-Disposition'] = 'attachment; filename="report.pdf"'
