@@ -17,13 +17,12 @@
 
 
 <p>
-The Genomic Data Warehouse (GDW), built-on top of <a href="http://www.biomart.org/">BioMart</a>, provides a database for efficiently storing and retrieving sequencing and variant data. It features tools for accurately selecting disease associated variants and for guiding variant/candidate gene selection process and provide assessment on how likely the selected variants/genes are involved in various genetic diseases.
+The Genomic Data Warehouse (GDW), built-on top of <a href="https://www.elastic.co/">Elasticsearch</a>, provides a database for efficiently storing and retrieving sequencing and variant data. It features tools for accurately selecting disease associated variants and for guiding variant/candidate gene selection process and provide assessment on how likely the selected variants/genes are involved in various genetic diseases.
 </p>
 <p>
 Currently, the GDW hosts data from clinical sequencing projects initiated by the core facilities located at the Center of Excellence in Bioinformatics & Life Sciences. The database currently contains genomic variant data collected at the University at Buffalo and it's collaborators for the following studies
     <ul>
      <li>Statin Induced Myopathy</li>
-     <li>Multiple Sclerosis</li>
     </ul>
 </p>
 <p>
@@ -48,6 +47,13 @@ Data under this release (V2) are based on hg19/GRCh37 coordinates. A demo datase
     <h2>Release History</h2>
     <hr>
 </div>
+
+<h4>19 December 2016 - v2.0</h4>
+<ul>
+    <li>Switch to <a href="https://www.elastic.co/">Elasticsearch</a> for storing and searching data</li>
+    <li>Generate MSEA plots using <a href="http://bokeh.pydata.org/en/latest/">Bokeh</a> along with R</li>
+    <li>Add functionality to generate subject variant report</li>
+</ul>
 
 <h4>15 July 2016 - v1.5.1</h4>
 <ul>

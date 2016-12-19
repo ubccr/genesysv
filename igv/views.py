@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from search.models import Dataset
 import elasticsearch
 from search.utils import get_es_result
@@ -73,4 +73,4 @@ def igvview(request):
             # return HttpResponse(result)
 
     else:
-        return HttpResponse('What Happened!')
+        return HttpResponseNotFound()

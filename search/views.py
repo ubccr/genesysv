@@ -28,7 +28,7 @@ from django.views.generic import (
     )
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
-
+from django.conf import settings
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -584,6 +584,7 @@ def search(request):
 
             # print("dict_filter_fields",dict_filter_fields)
             # print(final_results)
+            context['debug'] = settings.DEBUG
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total

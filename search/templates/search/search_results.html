@@ -10,17 +10,18 @@
 
 
 {% block content %}
-<h4>Total Hits: {{total|intcomma}}</h4>
-<h4>Query String Generation Time: {{content_generate_time}}</h4>
-<h4>Database Took: {{took}} ms</h4>
-<h4>Post Processing Time: {{after_results_time}}</h4>
-<h4>Total Time: {{total_time}}</h4>
+{% if debug %}
+    <h4>Total Hits: {{total|intcomma}}</h4>
+    <h4>Query String Generation Time: {{content_generate_time}}</h4>
+    <h4>Database Took: {{took}} ms</h4>
+    <h4>Post Processing Time: {{after_results_time}}</h4>
+    <h4>Total Time: {{total_time}}</h4>
 
-{% for ele in used_keys %}
-    {{ele.0}}: <strong>{{ele.1}}</strong><br>
-{% endfor %}
-
-<br>
+    {% for ele in used_keys %}
+        {{ele.0}}: <strong>{{ele.1}}</strong><br>
+    {% endfor %}
+    <br>
+{% endif %}
 
 <div class="well">
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
