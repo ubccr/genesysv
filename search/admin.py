@@ -7,12 +7,16 @@ class FilterTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
 
 class FilterPanelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'filter_tab')
+    list_display = ('name', 'filter_tab',)
     filter_horizontal = ('filter_fields',)
+    list_filter = ('filter_tab__dataset',)
+    search_fields = ('name',)
 
 class FilterSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_panel')
     filter_horizontal = ('filter_fields',)
+    list_filter = ('filter_panel__filter_tab__dataset',)
+    search_fields = ('name',)
 
 class AttributeTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
@@ -20,19 +24,29 @@ class AttributeTabAdmin(admin.ModelAdmin):
 class AttributePanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_tab')
     filter_horizontal = ('attribute_fields',)
+    list_filter = ('attribute_tab__dataset',)
+    search_fields = ('name',)
 
 class AttributeSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_panel')
     filter_horizontal = ('attribute_fields',)
+    list_filter = ('attribute_panel__attribute_tab__dataset',)
+    search_fields = ('name',)
 
 class FilterFieldAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'dataset', 'tooltip', 'form_type', 'widget_type', 'es_name', 'es_filter_type', 'path')
+    list_filter = ('dataset',)
+    search_fields = ('display_name',)
 
 class FilterFieldChoiceAdmin(admin.ModelAdmin):
     list_display = ('filter_field', 'value',)
+    list_filter = ('filter_field__dataset',)
+    search_fields = ('filter_field__display_name', 'value')
 
 class AttributeFieldAdmin(admin.ModelAdmin):
     list_display = ('display_name',)
+    list_filter = ('dataset',)
+    search_fields = ('display_name',)
 
 class FormTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
