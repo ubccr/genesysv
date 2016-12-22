@@ -61,7 +61,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
     total = response['hits']['total']
     gene_results = response['hits']['hits'][0]['_source']
 
-    gene_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_gene.json' %(rs_id, vset))
+    gene_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_gene.json' %(rs_id, vset))
     with open(gene_json_output, 'w') as outfile:
         json.dump(gene_results, outfile, indent=4, sort_keys=True)
 
@@ -130,7 +130,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
 
     if domain_results:
         domain_data = format_domain_for_R(domain_results)
-        domain_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_domain.json' %(rs_id, vset))
+        domain_json_output =  os.path.join(settings.BASE_DIR, 'static/bokeh_outputs/%s_%s_domain.json' %(rs_id, vset))
         with open(domain_json_output, 'w') as outfile:
             json.dump(domain_data, outfile, indent=4, sort_keys=True)
 
@@ -253,8 +253,10 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
     # Largest MES starts at global minimum but does not end at global max
     if (mes_min_forwards > mes_max_backwards):
         dashed_lines = p.multi_line(
-        xs=[[mas_min*1.01,gene_length*1.01],[mas_max*1.01,gene_length*1.01]],
-        ys=[[min(y)*1.005,min(y)*1.005],[max(y)*1.005,max(y)*1.005]],
+        #xs=[[mas_min*1.01,gene_length*1.01],[mas_max*1.01,gene_length*1.01]],
+        #ys=[[min(y)*1.005,min(y)*1.005],[max(y)*1.005,max(y)*1.005]],
+        xs=[[mas_min*1.01,gene_length*1.01],[y.index(max(y[mas_min: ]))+mas_min*1.01,gene_length*1.01]],
+        ys=[[min(y)*1.005,min(y)*1.005],[max(y[mas_min: ]),max(y[mas_min: ])]],
         line_width=[1,1],
         line_color=['black','black'],
         line_dash='dashed',
@@ -266,14 +268,17 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
         line_width=1,
         x_start=gene_length*1.01,
         x_end=gene_length*1.01,
-        y_start=(min(y)+max(y[mas_min:]))/2,
-        y_end=max(y)))
+        #y_start=(min(y)+max(y[mas_min:]))/2,
+        #y_end=max(y)))
+        y_start=min(y),
+        y_end=max(y[mas_min: ])))
 
         mes_text = p.add_layout(Label(
         text='MES',
         #text_font_size='10',
         x=gene_length*1.01,
-        y=max(y)-y_range/2,
+        #y=max(y)-y_range/2,
+        y=(min(y)+max(y[mas_min: ]))/2,
         angle=90,
         angle_units='deg',
         render_mode='css'))
