@@ -17,7 +17,7 @@
 <form action="" method="post">{% csrf_token %}
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-        <li><button class="btn btn-success" name="wizard_goto_step" type="submit" value="Next"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Generate PDF </button></li>
+        <li><button class="btn btn-success submit" name="wizard_goto_step" type="submit" value="Next"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Generate PDF </button></li>
     </ul>
 
     {{ wizard.management_form|crispy }}
@@ -179,12 +179,22 @@
     {{ wizard.form|crispy }}
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-        <li><button class="btn btn-success" name="wizard_goto_step" type="submit" value="Next"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Generate PDF </button></li>
+        <li><button class="btn btn-success submit" name="wizard_goto_step" type="submit" value="Next"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Generate PDF </button></li>
     </ul>
 </form>
 <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
 <br>
 
+
+<script>
+    $(".submit").click(function() {
+        $('button[type=submit]').each(function(){
+            $(this).remove();
+            $("form")[0].submit();
+        });
+    });
+
+</script>
 
 {% endblock %}
 
