@@ -55,12 +55,10 @@ def filter_dicts(array, key, values):
 
 def filter_array_dicts(array, key, values, comparison_type):
     output = []
-    # print(values)
     for ele in array:
         tmp = ele.get(key)
         if not tmp:
             continue
-        # print(tmp)
         for val in values:
             if comparison_type == "lt":
                 if float(tmp) < float(val):
@@ -79,7 +77,7 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
             elif comparison_type == "equal":
-                if val in tmp.split():
+                if val == tmp:
                     output.append(ele)
 
             elif comparison_type == "val_in":
@@ -161,7 +159,6 @@ def get_filter_form(request):
 
         context = {}
         context['tabs'] = tabs
-        # print(context)
         return render(request, "search/get_filter_snippet.html", context)
 
 @lru_cache(maxsize=None)
@@ -194,7 +191,6 @@ def get_attribute_form(request):
 
                     sub_panels.append(tmp_sub_panel_dict)
 
-                # print(panel.name, es_form)
                 tmp_dict['panels'].append({'display_name': panel.name,
                                           'name': ''.join(panel.name.split()).lower(),
                                           'form': es_form,
@@ -300,9 +296,7 @@ def search(request):
             es_filter = ElasticSearchFilter()
 
             es_filter_form_data = es_filter_form.cleaned_data
-            # print(es_filter_form_data)
             es_attribute_form_data = es_attribute_form.cleaned_data
-            # print(es_attribute_form_data)
             source_fields = []
             non_nested_attribute_fields = []
             nested_attribute_fields = []
@@ -315,7 +309,6 @@ def search(request):
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
-                    # print(key,val)
                     es_name, path = key.split('-')
                     if path and es_name != "qs":
                         source_fields.append(path)
@@ -346,7 +339,6 @@ def search(request):
                     continue
 
                 filters_used[key] = data
-                # print(key, es_name, es_filter_type, path, data, type(data))
 
 
 
@@ -360,7 +352,6 @@ def search(request):
                     dict_filter_fields[post_filter_field] = []
 
                 used_keys.append((key.split('-')[0], data))
-                # print(key, data, es_filter_type)
                 field_obj = FilterField.objects.get(dataset=dataset_obj,
                                                     es_name=es_name, es_filter_type__name=es_filter_type, path=path)
                 if es_filter_type == 'filter_term':
@@ -427,11 +418,9 @@ def search(request):
 
             content =  es_filter.generate_query_string()
 
-            # pprint(content)
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            print(query)
-
+            pprint(query)
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
             if search_options.es_terminate:
                 uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
@@ -451,7 +440,6 @@ def search(request):
             headers = []
 
             for key, val in attribute_order.items():
-                # print(val)
                 order, es_name, path = val.split('-')
                 attribute = AttributeField.objects.get(dataset=dataset_obj, es_name=es_name, path=path)
                 headers.append((int(order), attribute))
@@ -466,42 +454,52 @@ def search(request):
             results = []
             for ele in tmp_results:
                 tmp_source = ele['_source']
-                # print(ele['_id'])
                 tmp_source['es_id'] = ele['_id']
                 results.append(tmp_source)
 
-            # print(results)
-            # print(dict_filter_fields)
+
+            ### Remove results that don't match input
+            tmp_results = []
+            if dict_filter_fields:
+                for idx, result in enumerate(results):
+                    add_results = True
+                    for key, val in dict_filter_fields.items():
+                        key_path, key_es_name, key_es_filter_type = key.split('___')
+                        if key_es_filter_type in ["filter_range_gte",
+                                                  "filter_range_lte",
+                                                  "filter_range_lt",
+                                                  "nested_filter_range_gte",]:
+                            comparison_type = key_es_filter_type.split('_')[-1]
+                        elif key_es_filter_type in ["nested_filter_term",
+                                                    "nested_filter_terms",]:
+                            comparison_type = 'equal'
+                        else:
+                            comparison_type = 'val_in'
+
+
+                        filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                        if filtered_results:
+                            result[key_path] = filtered_results
+                        else:
+                            add_results = False
+
+                    if add_results:
+                        tmp_results.append(result)
+
+
+            ### flatten results
+            if tmp_results:
+                results = tmp_results
+
             if nested_attribute_fields:
                 final_results = []
                 results_count = 0
                 for idx, result in enumerate(results):
                     if results_count>search_options.maximum_table_size:
                         break
-                    # print(results)
                     combined = False
                     combined_nested = None
                     for idx, path in enumerate(nested_attribute_fields):
-
-                        if dict_filter_fields:
-                            for key, val in dict_filter_fields.items():
-                                key_path, key_es_name, key_es_filter_type = key.split('___')
-                                if key_es_filter_type in ["filter_range_gte",
-                                                          "filter_range_lte",
-                                                          "filter_range_lt",
-                                                          "nested_filter_range_gte",]:
-                                    comparison_type = key_es_filter_type.split('_')[-1]
-                                elif key_es_filter_type in ["nested_filter_term",
-                                                            "nested_filter_terms",]:
-                                    comparison_type = 'val_in'
-                                else:
-                                    comparison_type = 'val_in'
-                                if comparison_type:
-                                    filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-
-                                if filtered_results:
-                                    result[key_path] = filtered_results
-
                         if path not in result:
                             continue
 
@@ -524,7 +522,6 @@ def search(request):
                     else:
                         final_results.append(result)
                         results_count += 1
-
             else:
                 final_results = results
 
@@ -582,8 +579,6 @@ def search(request):
                 context['save_search_form'] = None
 
 
-            # print("dict_filter_fields",dict_filter_fields)
-            # print(final_results)
             context['debug'] = settings.DEBUG
             context['used_keys'] = used_keys
             context['took'] = took
@@ -619,30 +614,36 @@ def yield_results(dataset_obj,
                             doc_type=dataset_obj.es_type_name):
 
         result = ele['_source']
+        ### Remove results that don't match input
+        yield_results = True
+        if dict_filter_fields:
+            for key, val in dict_filter_fields.items():
+                key_path, key_es_name, key_es_filter_type = key.split('___')
+                if key_es_filter_type in ["filter_range_gte",
+                                          "filter_range_lte",
+                                          "filter_range_lt",
+                                          "nested_filter_range_gte",]:
+                    comparison_type = key_es_filter_type.split('_')[-1]
+                elif key_es_filter_type in ["nested_filter_term",
+                                            "nested_filter_terms",]:
+                    comparison_type = 'equal'
+                else:
+                    comparison_type = 'val_in'
+
+                filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                if filtered_results:
+                    result[key_path] = filtered_results
+                else:
+                    yield_results = False
+
+            if not yield_results:
+                continue
+
         final_results = []
         if nested_attribute_fields:
             combined = False
             combined_nested = None
             for idx, path in enumerate(nested_attribute_fields):
-                if dict_filter_fields:
-                    for key, val in dict_filter_fields.items():
-                        key_path, key_es_name, key_es_filter_type = key.split('___')
-                        if key_es_filter_type in ["filter_range_gte",
-                                                  "filter_range_lte",
-                                                  "filter_range_lt",
-                                                  "nested_filter_range_gte",]:
-                            comparison_type = key_es_filter_type.split('_')[-1]
-                        elif key_es_filter_type in ["nested_filter_term",
-                                                    "nested_filter_terms",]:
-                            comparison_type = 'val_in'
-                        else:
-                            comparison_type = 'val_in'
-                        if comparison_type:
-                            filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-
-                        if filtered_results:
-                            result[key_path] = filtered_results
-
                 if path not in result:
                     continue
 
@@ -663,39 +664,8 @@ def yield_results(dataset_obj,
             else:
                 final_results.append(result)
 
-        # if nested_attribute_fields:
-        #     for idx, path in enumerate(nested_attribute_fields):
-        #         if dict_filter_fields:
-        #             for key, val in dict_filter_fields.items():
-        #                 key_path, key_es_name, key_es_filter_type = key.split('___')
-        #                 if key_es_filter_type in ["filter_range_gte",
-        #                                           "filter_range_lte",
-        #                                           "filter_range_lt",
-        #                                           "nested_filter_range_gte",]:
-        #                     comparison_type = key_es_filter_type.split('_')[-1]
-        #                 else:
-        #                     comparison_type = 'default'
-
-        #                 filtered_result = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-        #                 if filtered_result:
-        #                     result[key_path] = filtered_result
-
-        #         if idx == 0:
-        #             combined_nested = result[path]
-        #             continue
-        #         else:
-        #             combined_nested = list(itertools.product(combined_nested, result[path]))
-        #             combined_nested = merge_two_dicts_array(combined_nested)
-
-        #     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
-        #     tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
-
-        #     for x,y in tmp_output:
-        #         tmp = merge_two_dicts(x,y)
-        #         final_results.append(tmp)
         else:
             final_results = [result,]
-
 
 
         for idx, result in enumerate(final_results):
@@ -723,8 +693,6 @@ def download_result(request):
     headers = [ele.object for ele in serializers.deserialize("json", headers)]
     query = json.loads(search_log_obj.query)
     query = json.loads(query)
-    # print(type(query))
-    # print(query)
     if search_log_obj.nested_attribute_fields:
         nested_attribute_fields = json.loads(search_log_obj.nested_attribute_fields)
     else:
@@ -763,10 +731,6 @@ def download_result(request):
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response
 
-    # for ele in results:
-    #     print(ele)
-    # return HttpResponse(ele)
-
 
 def get_variant(request, dataset_id, variant_id):
 
@@ -785,7 +749,6 @@ def get_variant(request, dataset_id, variant_id):
     result = get_es_result(es, index_name, type_name, variant_id)
 
     context = {}
-    # print(result)
 
 
     conserved_elements = [
@@ -844,7 +807,7 @@ def save_search(request):
             attributes_selected = data.get('attributes_selected')
             description = data.get('description')
             SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used, attributes_selected=attributes_selected, description=description)
-            return redirect('search-home')
+            return redirect('saved-search-list')
         else:
             return HttpResponseServerError()
 

@@ -200,6 +200,10 @@ class ElasticSearchFilter():
 
 
                 for field_name, value in nested_filter_terms[path]:
+                    tmp = []
+                    for ele in value:
+                        tmp.extend(ele.split())
+                    value = tmp
                     path_fieldname = "%s.%s" %(path, field_name)
                     nested["nested"]["query"]["bool"]["filter"].append({"terms" : {path_fieldname: value}})
 
