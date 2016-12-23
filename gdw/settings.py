@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'msea',
     'igv',
     'news',
+    'sortedm2m',
 ]
 
 MIDDLEWARE = [

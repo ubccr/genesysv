@@ -8,13 +8,11 @@ class FilterTabAdmin(admin.ModelAdmin):
 
 class FilterPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_tab',)
-    filter_horizontal = ('filter_fields',)
     list_filter = ('filter_tab__dataset',)
     search_fields = ('name',)
 
 class FilterSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_panel')
-    filter_horizontal = ('filter_fields',)
     list_filter = ('filter_panel__filter_tab__dataset',)
     search_fields = ('name',)
 

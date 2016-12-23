@@ -1,5 +1,7 @@
 from django.db import models
 from common.models import TimeStampedModel
+from sortedm2m.fields import SortedManyToManyField
+
 from django.contrib.auth.models import User, Group
 import json
 
@@ -147,7 +149,7 @@ class FilterPanel(TimeStampedModel):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
-    filter_fields = models.ManyToManyField(FilterField, blank=True)
+    filter_fields = SortedManyToManyField(FilterField, blank=True)
 
     def __str__(self):
         return self.name
@@ -159,7 +161,7 @@ class FilterSubPanel(TimeStampedModel):
     )
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    filter_fields = models.ManyToManyField(FilterField, blank=True)
+    filter_fields = SortedManyToManyField(FilterField, blank=True)
 
     def __str__(self):
         return self.name
@@ -183,7 +185,7 @@ class AttributePanel(TimeStampedModel):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
-    attribute_fields = models.ManyToManyField(AttributeField, blank=True)
+    attribute_fields = SortedManyToManyField(AttributeField, blank=True)
 
     def __str__(self):
         return self.name
@@ -195,7 +197,7 @@ class AttributeSubPanel(TimeStampedModel):
     )
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    attribute_fields = models.ManyToManyField(AttributeField, blank=True)
+    attribute_fields = SortedManyToManyField(AttributeField, blank=True)
 
     def __str__(self):
         return self.name
