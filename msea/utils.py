@@ -252,10 +252,9 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
 
     # Largest MES starts at global minimum but does not end at global max
     if (mes_min_forwards > mes_max_backwards):
+        z = y[mas_min: ]
         dashed_lines = p.multi_line(
-        #xs=[[mas_min*1.01,gene_length*1.01],[mas_max*1.01,gene_length*1.01]],
-        #ys=[[min(y)*1.005,min(y)*1.005],[max(y)*1.005,max(y)*1.005]],
-        xs=[[mas_min*1.01,gene_length*1.01],[y.index(max(y[mas_min: ]))+mas_min*1.01,gene_length*1.01]],
+        xs=[[mas_min*1.01,gene_length*1.01],[(z.index(max(z))+mas_min)*1.01,gene_length*1.01]],
         ys=[[min(y)*1.005,min(y)*1.005],[max(y[mas_min: ]),max(y[mas_min: ])]],
         line_width=[1,1],
         line_color=['black','black'],
@@ -371,7 +370,12 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
         p.xaxis.axis_label = 'Amino Acid Sequence'
         p.xaxis.axis_label_text_font_style = "normal"
 
-    output_folder = os.path.join(settings.BASE_DIR, 'static/bokeh_outputs')
+
+    if settings.DEBUG:
+        output_folder = os.path.join(settings.BASE_DIR, 'static/bokeh_outputs')
+    else:
+        output_folder = os.path.join(settings.BASE_DIR, 'static_root/bokeh_outputs')
+
     output_name = os.path.join(output_folder,"%s_%s_%s_%s.html" %(gene, rs_id, msea_type_name, vset))
     print('*'*20, output_name)
     save(p, output_name)
