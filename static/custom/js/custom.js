@@ -166,7 +166,6 @@ $(document).on("change", ":input", (function(event){
             p_text = '<p style="border-bottom: thin solid;" id="' + p_id + '\">' + filter_text + ' <i id="'+ p_id + '_reset_sidebar' + '\" class="fa fa-times reset_button pull-right" aria-hidden="true"></i></p>'
             p_ele = $(document.getElementById(p_id));
             $(p_ele).remove();
-            console.log(field_jq.val())
             if (field_jq.val() != "") {
                 $("#filter___p").append(p_text);
                 reset_div = $(reset_div);
@@ -190,7 +189,6 @@ $(document).on("change", "input:file", (function(event){
         var reader = new FileReader();
         reader.readAsText(file, "UTF-8");
         reader.onload = function (evt) {
-            console.log(evt.target.result);
             fileDisplayArea.append(evt.target.result);
             fileDisplayArea.trigger('change');
         }

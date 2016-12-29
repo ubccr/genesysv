@@ -16,7 +16,6 @@ import json
 from .models import *
 from .forms import *
 from pprint import pprint
-import time
 from operator import itemgetter, attrgetter, methodcaller
 import itertools
 from django.core import serializers
@@ -217,7 +216,6 @@ def retrieve_saved_search(request, pk):
 
     saved_search_obj = get_object_or_404(SavedSearch, pk=pk)
 
-
     information = {}
     information['study'] = saved_search_obj.dataset.study.name
     information['dataset'] = saved_search_obj.dataset.description
@@ -276,7 +274,6 @@ def search(request):
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
 
-
         study_form = StudyForm(request.user, POST_data)
         study_form.is_valid()
         study_string = study_form.cleaned_data['study']
@@ -287,16 +284,14 @@ def search(request):
 
         dataset_obj = Dataset.objects.get(description=dataset_string)
 
-
         es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
         es_attribute_form = ESAttributeForm(dataset_obj, POST_data, prefix='attribute_group')
 
-
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
             es_filter = ElasticSearchFilter()
-
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
+
             source_fields = []
             non_nested_attribute_fields = []
             nested_attribute_fields = []
@@ -304,8 +299,6 @@ def search(request):
 
             ### I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
             ### not put on a separate line; Maybe better to add some attribute to the field in model instead.
-
-
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
@@ -319,9 +312,6 @@ def search(request):
                     else:
                         source_fields.append(es_name)
                         non_nested_attribute_fields.append(es_name)
-
-            terminate = True if request.POST.get('terminate') else False
-            terminate = True
 
             keys = es_filter_form_data.keys()
             used_keys = []

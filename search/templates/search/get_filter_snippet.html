@@ -93,7 +93,13 @@ $(document).ready(function(){
 });
 
 
-
+$("#id_filter_-Start-filter_range_gte-").change(function(){
+    value = $(this).val();
+    if (!($("#id_filter_-Start-filter_range_lte-").val())) {
+        $("#id_filter_-Start-filter_range_lte-").val(value);
+    }
+    // $("#id_filter_-Start-filter_range_lte-").change()
+});
 
 
 </script>

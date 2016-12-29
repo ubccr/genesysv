@@ -99,7 +99,7 @@ class FilterField(TimeStampedModel):
         unique_together = ('dataset', 'es_name', 'es_filter_type', 'path')
 
     def __str__(self):
-        return self.display_name
+        return "%s (%s)" %(self.display_name, self.dataset.name)
 
 class FilterFieldChoice(TimeStampedModel):
     filter_field = models.ForeignKey(
