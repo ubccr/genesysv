@@ -6,3 +6,4 @@ db.sqlite3
 migrations/
 static/bokeh_outputs
 msea/output_*
+static/
