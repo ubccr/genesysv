@@ -64,7 +64,8 @@ class DatasetAdmin(admin.ModelAdmin):
 
 
 class SearchLogAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'created', 'filters_used')
+    list_display = ('pk', 'user', 'created', 'dataset', 'filters_used')
+    list_filter = ('user', 'dataset',)
 
 
 admin.site.register(FormType, FormTypeAdmin)
