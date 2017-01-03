@@ -19,7 +19,7 @@
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
         {% if hits %}
-            <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+            <li><button class="btn btn-primary next-btn" name="wizard_goto_step" type="submit" value="Next" disabled>Next <i class="fa fa-long-arrow-right"></i></button></li>
         {% endif %}
     </ul>
 
@@ -203,7 +203,7 @@
     <ul class="list-inline">
         <li><button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
         {% if hits %}
-            <li><button class="btn btn-primary" name="wizard_goto_step" type="submit" value="Next">Next <i class="fa fa-long-arrow-right"></i></button></li>
+            <li><button class="btn btn-primary next-btn" name="wizard_goto_step" type="submit" value="Next" disabled>Next <i class="fa fa-long-arrow-right"></i></button></li>
         {% endif %}
     </ul>
 </form>
@@ -211,16 +211,17 @@
 <br>
 
 <script>
-    $(document).ready(function() {
-        // $('#not_relevant_clinvar').DataTable({
-        //     "iDisplayLength": 25
-        // });
-
-        // $('#incidental_findings').DataTable({
-        //     "iDisplayLength": 25
-        // });
-
+$(document).on("change", ":checkbox", (function(event){
+    $(".next-btn").each(function(){
+        $(this).removeAttr("disabled");
     });
+    if ($("input:checkbox:checked").length == 0) {
+        $(".next-btn").each(function(){
+            $(this).attr("disabled", true);
+        });
+    }
+
+    }));
 </script>
 
 {% endblock %}
