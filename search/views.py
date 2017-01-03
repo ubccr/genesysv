@@ -507,11 +507,14 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
-                            final_results.append(tmp)
-                            results_count += 1
+                            print(tmp)
+                            if tmp not in final_results:
+                                final_results.append(tmp)
+                                results_count += 1
                     else:
-                        final_results.append(result)
-                        results_count += 1
+                        if result not in final_results:
+                            final_results.append(result)
+                            results_count += 1
             else:
                 final_results = results
 
@@ -650,9 +653,11 @@ def yield_results(dataset_obj,
                 tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
                 for x,y in tmp_output:
                     tmp = merge_two_dicts(x,y)
-                    final_results.append(tmp)
+                    if tmp not in final_results:
+                        final_results.append(tmp)
             else:
-                final_results.append(result)
+                if result not in final_results:
+                    final_results.append(result)
 
         else:
             final_results = [result,]
