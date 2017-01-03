@@ -93,18 +93,6 @@
             <td>Ensembl gene/transcript</td>
             <td><strong>{{ result.Func_ensGene }}</strong></td>
         </tr>
-        {% if result.ExonicFunc_refGene %}
-        <tr>
-            <td>Exonic RefSeq gene/transcript</td>
-            <td><strong>{{ result.ExonicFunc_refGene }}</strong></td>
-        </tr>
-        {% endif %}
-        {% if result.ExonicFunc_ensGene %}
-        <tr>
-            <td>Exonic Ensembl gene/transcript</td>
-            <td><strong>{{ result.ExonicFunc_ensGene }}</strong></td>
-        </tr>
-        {% endif %}
     </tbody>
   </table>
   </div>
@@ -306,25 +294,25 @@
             {% endif %}
             {% if result.1000g2015aug_afr %}
                 <tr>
-                    <td>1000 Genomes Project (Aug. 2015) AFR</td>
+                    <td>1000 Genomes Project (Aug. 2015) African</td>
                     <td>{{result.1000g2015aug_afr}}</td>
                 </tr>
             {% endif %}
             {% if result.1000g2015aug_amr %}
                 <tr>
-                    <td>1000 Genomes Project (Aug. 2015) AMR</td>
+                    <td>1000 Genomes Project (Aug. 2015) Admixed American</td>
                     <td>{{result.1000g2015aug_amr}}</td>
                 </tr>
             {% endif %}
             {% if result.1000g2015aug_amr %}
                 <tr>
-                    <td>1000 Genomes Project (Aug. 2015) EUR</td>
+                    <td>1000 Genomes Project (Aug. 2015) European</td>
                     <td>{{result.1000g2015aug_amr}}</td>
                 </tr>
             {% endif %}
             {% if result.1000g2015aug_sas %}
                 <tr>
-                    <td>1000 Genomes Project (Aug. 2015) SAS</td>
+                    <td>1000 Genomes Project (Aug. 2015) South Asian</td>
                     <td>{{result.1000g2015aug_sas}}</td>
                 </tr>
             {% endif %}
@@ -336,49 +324,43 @@
             {% endif %}
             {% if result.ExAC_AFR %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) AFR</td>
+                    <td>The Exome Aggregation Consortium (ExAC) African</td>
                     <td>{{result.ExAC_AFR}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_AMR %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) AMR</td>
+                    <td>The Exome Aggregation Consortium (ExAC) Admixed American</td>
                     <td>{{result.ExAC_AMR}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_EAS %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) EAS</td>
+                    <td>The Exome Aggregation Consortium (ExAC) East Asian</td>
                     <td>{{result.ExAC_EAS}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_FIN %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) FIN</td>
+                    <td>The Exome Aggregation Consortium (ExAC) Finnish</td>
                     <td>{{result.ExAC_FIN}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_NFE %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) NFE</td>
+                    <td>The Exome Aggregation Consortium (ExAC) Non-finnish European</td>
                     <td>{{result.ExAC_NFE}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_OTH %}
                 <tr>
-                    <td>The Exome Aggregation Consortium (ExAC) OTH</td>
+                    <td>The Exome Aggregation Consortium (ExAC) Other</td>
                     <td>{{result.ExAC_OTH}}</td>
                 </tr>
             {% endif %}
             {% if result.ExAC_SAS %}
             <tr>
-                <td>The Exome Aggregation Consortium (ExAC) SAS</td>
-                <td>{{result.ExAC_SAS}}</td>
-            </tr>
-            {% endif %}
-            {% if result.ExAC_SAS %}
-            <tr>
-                <td>The Exome Aggregation Consortium (ExAC) SAS</td>
+                <td>The Exome Aggregation Consortium (ExAC) South Asian</td>
                 <td>{{result.ExAC_SAS}}</td>
             </tr>
             {% endif %}
