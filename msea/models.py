@@ -8,6 +8,10 @@ class MseaDataset(TimeStampedModel):
     is_public = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, blank=True)
 
+    def __str__(self):
+        return self.display_name
+
+
 class VariantSet(TimeStampedModel):
     full_name = models.CharField(max_length=128)
     short_name = models.CharField(max_length=32)
