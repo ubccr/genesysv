@@ -82,11 +82,11 @@ def bokeh_plot(request):
             gene, rs_id = gene_name.split()
             rs_id = rs_id[1:-1]
 
-            expand_option = gene_data['expand_option']
+            recurrent_variant_option = gene_data['recurrent_variant_option']
             variants_selected = variant_data['variant_choices']
             # variants_selected = ','.join(variants_selected)
 
-            msea_type_name = "%s_%s" %(dataset, expand_option)
+            msea_type_name = "%s_%s" %(dataset, recurrent_variant_option)
             plots = []
             for vset in variants_selected:
                 plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
@@ -112,11 +112,11 @@ def plots(request):
             variant_data = variant_form.cleaned_data
 
             gene_name = gene_data['search_term']
-            expand_option = gene_data['expand_option']
+            recurrent_variant_option = gene_data['recurrent_variant_option']
             variants_selected = variant_data['variant_choices']
             variants_selected = ','.join(variants_selected)
 
-            print(gene_name, expand_option, variants_selected)
+            print(gene_name, recurrent_variant_option, variants_selected)
             # return HttpResponse(variants_selected)
             # SIM_variants_step2_vartype_db_2016-05-18_noexpand_Data4plot.RData
             output_string = ""
@@ -129,7 +129,7 @@ def plots(request):
             rs_id = m.group(1)
             rdata_filename = "%s_%s_%s_%s_%s" %(project_name,
                                                     dataset_date,
-                                                    expand_option,
+                                                    recurrent_variant_option,
                                                     rs_id,
                                                     end_string)
 
@@ -140,7 +140,7 @@ def plots(request):
             files = []
             variants_to_generate = []
             for variant in variant_data['variant_choices']:
-                filename = gene + '-' + rs_id + '-' + expand_option + '-' + variant + '.svg'
+                filename = gene + '-' + rs_id + '-' + recurrent_variant_option + '-' + variant + '.svg'
                 full_path = os.path.join(output_folder, filename)
                 files.append(filename)
                 if not os.path.exists(os.path.join(output_folder,filename)):

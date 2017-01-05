@@ -18,14 +18,14 @@ class GeneForm(forms.Form):
         msea_dataset = msea_dataset.filter(Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
         DATASET_CHOICE = [(ele.dataset, ele.display_name) for ele in msea_dataset]
 
-        EXPAND_OPTIONS = (('expand', 'Expanded (recurrent variants are used independently for analysis)'),
-                       ('noexpand', 'Not Expanded (recurrent variants are collapsed into a single variant for analysis​)'),
+        RECURRENT_CHOICES = (('expand', 'Allow Recurrent Variants'),
+                       ('noexpand', 'Do not Allow Recurrent Variants'),
                        )
 
 
         self.fields['dataset'] = forms.ChoiceField(choices=DATASET_CHOICE)
         self.fields['search_term'] = forms.CharField(help_text='Enter gene name or reference sequence ID', required=True)
-        self.fields['expand_option'] = forms.ChoiceField(widget=forms.RadioSelect, choices=EXPAND_OPTIONS, required=True, initial='expand')
+        self.fields['recurrent_variant_option'] = forms.ChoiceField(widget=forms.RadioSelect, choices=RECURRENT_CHOICES, required=True, initial='expand')
 
 class VariantForm(forms.Form):
     def __init__(self, rs_id, dataset, *args, **kwargs):
