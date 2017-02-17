@@ -189,7 +189,8 @@
 <script>
     $(".submit").click(function() {
         $('button[type=submit]').each(function(){
-            $(this).remove();
+            $(this).hide();
+            console.log('test');
             $("form")[0].submit();
         });
     });

@@ -9,3 +9,6 @@ msea/output_*
 static/
 env/
 static_root/
+static/bokeh_outputs/
+msea/output*
+gdw/bin/

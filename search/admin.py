@@ -67,6 +67,9 @@ class SearchLogAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'created', 'dataset', 'filters_used')
     list_filter = ('user', 'dataset',)
 
+class SearchOptionsAdmin(admin.ModelAdmin):
+    list_display = ('dataset', 'es_terminate', 'es_terminate_size_per_shard', 'maximum_table_size')
+
 
 admin.site.register(FormType, FormTypeAdmin)
 admin.site.register(WidgetType, WidgetTypeAdmin)
@@ -83,4 +86,5 @@ admin.site.register(FilterField, FilterFieldAdmin)
 admin.site.register(FilterFieldChoice, FilterFieldChoiceAdmin)
 admin.site.register(AttributeField, AttributeFieldAdmin)
 admin.site.register(SearchLog, SearchLogAdmin)
+admin.site.register(SearchOptions, SearchOptionsAdmin)
 

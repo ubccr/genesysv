@@ -129,7 +129,7 @@ class AttributeField(TimeStampedModel):
         unique_together = ('dataset', 'es_name', 'display_name', 'path')
 
     def __str__(self):
-        return self.display_name
+        return "%s (%s)" %(self.display_name, self.dataset.name)
 
 class FilterTab(TimeStampedModel):
     dataset = models.ForeignKey(

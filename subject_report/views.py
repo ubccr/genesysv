@@ -14,7 +14,6 @@ from common.utils import filter_array_dicts
 
 
 def generate_predictor_results_array(array1, array2):
-    print(array1,array2)
     output = []
     # output.append(['Variant', 'SIFT', 'LRT', 'Polyphen2 HDIV', 'Polyphen2 HVAR'])
     for ele in array1:
@@ -36,7 +35,6 @@ def generate_predictor_results_array(array1, array2):
 
         output.append([Variant, SIFT_pred, LRT_pred, Polyphen2_HDIV_pred, Polyphen2_HVAR_pred])
 
-    print(output)
     return output
 
 
@@ -135,7 +133,7 @@ def generate_latex_patient_report(result_summary,
     )
 
 
-   
+
     basedir = settings.BASE_DIR
     image_path = os.path.join(basedir, 'subject_report', 'image001.jpg')
     path_to_tex = os.path.join(basedir, 'subject_report', 'subject_report.tex')
@@ -147,7 +145,7 @@ def generate_latex_patient_report(result_summary,
                                 relevant_findings=relevant_findings,
                                 incidental_findings=incidental_findings,
                                 predictor_array=predictor_array,
-			        image_path=image_path)
+                                image_path=image_path)
 
 
     rendered = rendered.replace('&nbsp;','')
@@ -155,8 +153,11 @@ def generate_latex_patient_report(result_summary,
     with open(os.path.join(basedir, output_name), "wt") as fh:
         fh.write(rendered)
 
-    file_out = open('/tmp/pdflatex_output.txt', 'w')
-    proc = subprocess.Popen(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', '-output-directory', basedir, os.path.join(basedir, output_name)], stdout=file_out, stderr=file_out)
+    proc = subprocess.Popen(['pdflatex',
+                            '-interaction=nonstopmode',
+                            '-halt-on-error',
+                            '-output-directory',
+                            basedir, os.path.join(basedir, output_name)])
     #proc = subprocess.Popen(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', output_name])
     proc.communicate()
 

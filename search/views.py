@@ -106,7 +106,7 @@ def merge_two_dicts(x, y):
 
 def subset_dict(input, keys):
 
-    return {key:input[key] for key in keys if input.get(key)}
+    return {key:input[key] for key in keys if input.get(key) != None}
 
 @lru_cache(maxsize=None)
 @gzip_page
@@ -410,8 +410,10 @@ def search(request):
 
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            pprint(query)
+            # pprint(query)
+
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
+
             if search_options.es_terminate:
                 uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
                                                                         dataset_obj.es_port,
@@ -446,7 +448,6 @@ def search(request):
                 tmp_source = ele['_source']
                 tmp_source['es_id'] = ele['_id']
                 results.append(tmp_source)
-
 
             ### Remove results that don't match input
             tmp_results = []
@@ -507,7 +508,6 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
-                            print(tmp)
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
