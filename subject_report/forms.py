@@ -31,7 +31,6 @@ methodology_default_value = """[Blood,Saliva,?] sample from
     Variants were annotated using annovar (March 2016 release). Clinical relevance
     were based on ClinVar and GWASCatalog annotations.
 
-    *Allele frequency is based on Exome Aggregation Consortium (ExAC) all available populations
 """
 methodology_default_value = " ".join((ele.strip() for ele in methodology_default_value.split('\n')))
 

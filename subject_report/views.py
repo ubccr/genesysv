@@ -135,8 +135,9 @@ def generate_latex_patient_report(result_summary,
     )
 
 
-
+   
     basedir = settings.BASE_DIR
+    image_path = os.path.join(basedir, 'subject_report', 'image001.jpg')
     path_to_tex = os.path.join(basedir, 'subject_report', 'subject_report.tex')
     template = latex_jinja_env.get_template(path_to_tex)
     # template = latex_jinja_env.get_template(os.path.join('subject_report', 'subject_report.tex'))
@@ -145,16 +146,18 @@ def generate_latex_patient_report(result_summary,
                                 additional_notes=additional_notes,
                                 relevant_findings=relevant_findings,
                                 incidental_findings=incidental_findings,
-                                predictor_array=predictor_array)
+                                predictor_array=predictor_array,
+			        image_path=image_path)
 
 
     rendered = rendered.replace('&nbsp;','')
 
-    with open(output_name, "wt") as fh:
+    with open(os.path.join(basedir, output_name), "wt") as fh:
         fh.write(rendered)
 
-
-    proc = subprocess.Popen(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', output_name])
+    file_out = open('/tmp/pdflatex_output.txt', 'w')
+    proc = subprocess.Popen(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', '-output-directory', basedir, os.path.join(basedir, output_name)], stdout=file_out, stderr=file_out)
+    #proc = subprocess.Popen(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', output_name])
     proc.communicate()
 
 

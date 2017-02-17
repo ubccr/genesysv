@@ -5,7 +5,6 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{adjustbox}
 \usepackage{titlesec}
-%\usepackage{helvet}
 \usepackage{tabularx}
 
 \usepackage[headsep=0.05in,headheight=4in,margin=0.8in]{geometry}
@@ -14,12 +13,11 @@
 
 \usepackage{graphicx}
 
-\usepackage{lipsum}
 \fancyhf{}% Clear header/footer
 \setlength{\headwidth}{\textwidth}
 \fancyhead[R]{\color{NavyBlue}\textbf{\sffamily \Large Buffalo Institute for Genomics and Data Analytics}}
 \fancyhead[L]{ % right
-   \includegraphics[trim={5cm 7cm 5cm 5cm},clip,height=0.60in]{image001.jpg}
+   \includegraphics[trim={5cm 7cm 5cm 5cm},clip,height=0.60in]{\VAR{image_path}}
 }
 \renewcommand{\footrulewidth}{1pt}% default is 0pt
 \fancyfoot[L]{Page \thepage }
@@ -34,34 +32,23 @@
 \begin{document}
 \begin{Form}
 \begin{table}[h]
-\begin{tabularx}{\linewidth}{@{}lll}
-\textbf{\textsf{\color{NavyBlue}Patient}} &
-\textbf{\textsf{\color{NavyBlue}Specimen}} &
-\textbf{\textsf{\color{NavyBlue}Provider}} \\
-\TextField[charsize=8pt,width=3.63cm,color=black,bordercolor=1 1 1]{Name:} &
-\TextField[charsize=8pt,width=2.44cm,color=black,bordercolor=1 1 1]{Date/Time Collected:} &
-\TextField[charsize=8pt,width=2.67cm,color=black,bordercolor=1 1 1]{Requesting Physician:} \\
-\TextField[charsize=8pt,width=2.50cm,color=black,bordercolor=1 1 1]{Date of Birth:} &
-\TextField[charsize=8pt,width=2.50cm,color=black,bordercolor=1 1 1]{Date/Time Received:} &
-\TextField[charsize=8pt,width=3.0cm,color=black,bordercolor=1 1 1]{Requesting Facility:} \Tstrut \\
-\TextField[charsize=8pt,width=3.45cm,color=black,bordercolor=1 1 1]{Gender:} &
-\TextField[charsize=8pt,width=2.45cm,color=black,bordercolor=1 1 1]{Date/Time Reported:} &
-\hfill \Tstrut \\
-\TextField[charsize=8pt,width=3.77cm,color=black,bordercolor=1 1 1]{Race:} &
-\TextField[charsize=8pt,width=3.71cm,color=black,bordercolor=1 1 1]{Accession \#:} &
-\hfill \Tstrut \\
-\end{tabularx}
+\noindent\begin{tabular}{@{}ll}
+\TextField[charsize=8pt,width=3.88cm,color=black,bordercolor=1 1 1]{Sample ID \#:} &
+\TextField[charsize=8pt,width=3.20cm,color=black,bordercolor=1 1 1]{Date/Time Collected:} \\
+\TextField[charsize=8pt,width=3.05cm,color=black,bordercolor=1 1 1]{Requesting Facility:} &
+\TextField[charsize=8pt,width=3.28cm,color=black,bordercolor=1 1 1]{Date/Time Received:} \\
+\TextField[charsize=8pt,width=3.82cm,color=black,bordercolor=1 1 1]{Requesting PI:} &
+Data Release Date: \\
+\end{tabular}
 \end{table}
 \end{Form}
-\hfill
 \begin{center}
 \Large\textbf{\textsf{\color{NavyBlue}Report}}
 \end{center}
 \section*{Result Summary}
 \noindent \VAR{result_summary}
-\section*{Variants Relevant to Indication for Testing}
 %% if relevant_findings
-\bigskip
+\section*{Variants Relevant to Indication for Testing}
 \footnotesize
 \noindent\begin{tabularx}{\textwidth}{@{}p{0.2in}@{}p{1.2in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}}
     \multicolumn{2}{@{}l}{\textbf{Variant ID }} &
@@ -117,7 +104,7 @@
 %% endif
 %% if incidental_findings
 \section*{Other Variants of Medical Significance (Incidental Findings)}
-\bigskip
+\footnotesize
 \noindent\begin{tabularx}{\textwidth}{@{}p{0.2in}@{}p{1.2in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}@{}p{1.06in}}
     \multicolumn{2}{@{}l}{\textbf{Variant ID}} &
     \textbf{Allele Frequency*} &
@@ -171,24 +158,26 @@
 \end{tabularx}
 %% endif
 \normalsize
+
 \section*{Methodology}
 \noindent \VAR{methodology}
 
 \bigskip
 \noindent
 \footnotesize
-\begin{tabular}{|l|l|l|l|l|}
+\def\arraystretch{1.5}
+\noindent\begin{tabular}{@{}|p{1.65in}|l|l|l|l|}
   \hline
   \textbf{Variant} & \textbf{SIFT Prediction} & \textbf{LRT Prediction} & \textbf{Polyphen2 HDIV Prediction} & \textbf{Polyphen2 HVAR Prediction} \\ \hline
   %% for (variant, sift, lrt, phdiv, phvar) in predictor_array
   \VAR{variant} & \VAR{sift} & \VAR{lrt} & \VAR{phdiv} & \VAR{phvar} \\ \hline
   %% endfor
-
 \end{tabular}
-
 
 \bigskip
 \noindent The following table shows the interpretation of the predictions:
+\newline
+\bigskip
 \newline
 \footnotesize
 \def\arraystretch{1.5}
@@ -200,9 +189,10 @@
   Polyphen2 HDIV & D: probably damaging (hdiv $\geq 0.957$); P: possibly damaging ($0.453 \leq$ hdiv $\leq 0.957$); B: benign (hdiv $\leq 0.957$) \\ \hline
   Polyphen2 HVAR & D: probably damaging (hvar $\geq 0.909$); P: possibly damaging ($0.447 \leq$ hvar $\leq 0.909$); B: benign (hvar $\leq 0.446$) \\ \hline
 \end{tabular}
-
+\bigskip
+\newline
+\noindent*Allele frequency is based on Exome Aggregation Consortium (ExAC) all available populations
 \normalsize
-
 \bigskip
 
 \section*{Additional Notes}

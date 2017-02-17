@@ -7,3 +7,5 @@ migrations/
 static/bokeh_outputs
 msea/output_*
 static/
+env/
+static_root/
