@@ -1,0 +1,1 @@
+#es_name	display_name	pathindex	Index	NoneisActive	Is Active	Nonebalance	Balance ($)	Noneage	Age	NoneeyeColor	Eye Color	Nonefirst	First Name	Nonelast	Last Name	Nonetag	Tag	Nonefriend_id	Friend ID	friendfriend_name	Friend Name	friendfavoriteFruit	Favorite Fruit	None

@@ -410,7 +410,7 @@ def search(request):
 
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            # pprint(query)
+            pprint(query)
 
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
 
