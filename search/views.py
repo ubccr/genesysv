@@ -55,8 +55,8 @@ def filter_dicts(array, key, values):
 def filter_array_dicts(array, key, values, comparison_type):
     output = []
     for ele in array:
-        tmp = ele.get(key)
-        if not tmp:
+        tmp = ele.get(key, 'missing')
+        if tmp == 'missing':
             continue
         for val in values:
             if comparison_type == "lt":
@@ -75,8 +75,8 @@ def filter_array_dicts(array, key, values, comparison_type):
                 if float(tmp) >= float(val):
                     output.append(ele)
 
-            elif comparison_type == "equal":
-                if val == tmp:
+            elif comparison_type == "number_equal":
+                if float(val) == float(tmp):
                     output.append(ele)
 
             elif comparison_type == "keyword":
@@ -84,7 +84,6 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
             elif comparison_type == "text":
-                print(tmp, val)
                 if val in tmp:
                     output.append(ele)
                     break
@@ -394,7 +393,9 @@ def search(request):
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
                     if field_obj.es_data_type == 'text':
                         data_lowercase = [ele.lower() for ele in data]
-                    es_filter.add_nested_filter_terms(es_name, data_lowercase, field_obj.path)
+                        es_filter.add_nested_filter_terms(es_name, data_lowercase, field_obj.path)
+                    else:
+                        es_filter.add_nested_filter_terms(es_name, data, field_obj.path)
                     for ele in data:
                         dict_filter_fields[post_filter_field].append(ele.strip())
 
@@ -489,10 +490,12 @@ def search(request):
                             comparison_type = key_es_filter_type.split('_')[-1]
                         elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
-                            comparison_type = field_obj.es_data_type
+                                if field_obj.es_data_type in ['keyword', 'text']:
+                                    comparison_type = field_obj.es_data_type
+                                elif field_obj.es_data_type in ['integer', 'float']:
+                                    comparison_type = 'number_equal'
                         else:
                             comparison_type = 'val_in'
-
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                         if filtered_results:
@@ -647,7 +650,11 @@ def yield_results(dataset_obj,
                     comparison_type = key_es_filter_type.split('_')[-1]
                 elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
+                    if field_obj.es_data_type in ['keyword', 'text']:
                         comparison_type = field_obj.es_data_type
+                    elif field_obj.es_data_type in ['integer', 'float']:
+                        comparison_type = 'number_equal'
+
                 else:
                     comparison_type = 'val_in'
 

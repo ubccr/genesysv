@@ -160,11 +160,12 @@
                         "display_name": "Friend ID",
                         "in_line_tooltip": "",
                         "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
+                        "form_type": "MultipleChoiceField",
+                        "widget_type": "SelectMultiple",
                         "es_name": "friend_id",
-                        "es_filter_type": "nested_filter_term",
-                        "path": "friend"
+                        "es_filter_type": "nested_filter_terms",
+                        "path": "friend",
+                        "values": "get_from_es()"
                       },
                       {
                         "display_name": "Friend Name",
