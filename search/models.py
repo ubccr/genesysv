@@ -89,11 +89,12 @@ class FilterField(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     es_name = models.CharField(max_length=255)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    es_data_type = models.CharField(max_length=255)
     es_filter_type = models.ForeignKey(
         'ESFilterType',
         on_delete=models.CASCADE,
     )
-    path = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'es_filter_type', 'path')
@@ -126,7 +127,7 @@ class AttributeField(TimeStampedModel):
     path = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
-        unique_together = ('dataset', 'es_name', 'display_name', 'path')
+        unique_together = ('dataset', 'es_name', 'path')
 
     def __str__(self):
         return "%s (%s)" %(self.display_name, self.dataset.name)

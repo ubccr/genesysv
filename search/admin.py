@@ -21,13 +21,11 @@ class AttributeTabAdmin(admin.ModelAdmin):
 
 class AttributePanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_tab')
-    filter_horizontal = ('attribute_fields',)
     list_filter = ('attribute_tab__dataset',)
     search_fields = ('name',)
 
 class AttributeSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_panel')
-    filter_horizontal = ('attribute_fields',)
     list_filter = ('attribute_panel__attribute_tab__dataset',)
     search_fields = ('name',)
 
@@ -40,6 +38,7 @@ class FilterFieldChoiceAdmin(admin.ModelAdmin):
     list_display = ('filter_field', 'value',)
     list_filter = ('filter_field__dataset',)
     search_fields = ('filter_field__display_name', 'value')
+    raw_id_fields = ('filter_field',)
 
 class AttributeFieldAdmin(admin.ModelAdmin):
     list_display = ('display_name',)

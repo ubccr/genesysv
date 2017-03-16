@@ -170,10 +170,10 @@ class Command(BaseCommand):
             #  'sim',
             #  'wgs_hg19_multianno'),
             ('sim_case_control',
-             'SIM Case (WGS) and Control (WES)',
+             'SIM Case (WGS) and Control (WES), GRCh37/hg19',
              'sim',
              'SIM_case_control',
-             '199.109.195.45',
+             '199.109.195.58',
              '9200'),
         )
 
@@ -208,6 +208,7 @@ class Command(BaseCommand):
 
         dataset_object = Dataset.objects.get(name='sim_case_control')
 
+        # Load case/control read depth and variant count and store in database
         with open('./search/management/commands/data/case_control_rd_v_count.txt','r') as fp:
             for line in fp:
                 if line.strip():
@@ -406,8 +407,7 @@ class Command(BaseCommand):
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
 
 
-        for es_name in ['clinvar_20150629_CLNDBN'
-                    ]:
+        for es_name in ['clinvar_20150629_CLNDBN',]:
             filter_field = FilterField.objects.get(dataset=dataset_object, es_name=es_name, es_filter_type__name='nested_filter_exists')
             for choice in EXIST_CHOICES:
                 FilterFieldChoice.objects.get_or_create(filter_field=filter_field, value=choice)
@@ -438,7 +438,7 @@ class Command(BaseCommand):
 
         filter_panel_obj = FilterPanel.objects.get(filter_tab__dataset=dataset_object,
                                      filter_tab__name='Simple',
-                                     name='Cohort Information')
+                                     name='Case/Control')
 
         FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
                                      name='Case')
@@ -484,7 +484,7 @@ class Command(BaseCommand):
         attribute_tab_obj, _ = AttributeTab.objects.get_or_create(dataset=dataset_object, name='Simple')
 
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Variant Related Information')
-        AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Cohort Information')
+        AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Case/Control')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Functional Consequence')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Gene/Transcript')
         AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj, name='Pathogenic Prediction')
@@ -499,7 +499,7 @@ class Command(BaseCommand):
 
         attribute_panel_obj = AttributePanel.objects.get(attribute_tab__dataset=dataset_object,
                                                          attribute_tab__name='Simple',
-                                                         name='Cohort Information')
+                                                         name='Case/Control')
 
         AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
                                                 name='Case')
@@ -823,8 +823,8 @@ class Command(BaseCommand):
         filter_panel = (
             ('gwasCatalog', 'filter_exists'),
             ('clinvar_20150629_CLNDBN', 'nested_filter_exists'),
-            ('gwasCatalog', 'filter_term'),
-            ('clinvar_20150629_CLNDBN', 'nested_filter_term'),
+            #('gwasCatalog', 'filter_term'),
+            #('clinvar_20150629_CLNDBN', 'nested_filter_term'),
             ('clinvar_20150629_CLINSIG', 'nested_filter_terms'),
             ('snp138NonFlagged', 'filter_exists'),
         )

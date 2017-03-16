@@ -708,14 +708,14 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('ExAC_ALL', 'filter_range_lt'),
-            ('ExAC_AFR', 'filter_range_lt'),
-            ('ExAC_AMR', 'filter_range_lt'),
-            ('ExAC_EAS', 'filter_range_lt'),
-            ('ExAC_FIN', 'filter_range_lt'),
-            ('ExAC_NFE', 'filter_range_lt'),
-            ('ExAC_OTH', 'filter_range_lt'),
-            ('ExAC_SAS', 'filter_range_lt'),
+            ('ExAC_ALL', 'filter_range_lte'),
+            ('ExAC_AFR', 'filter_range_lte'),
+            ('ExAC_AMR', 'filter_range_lte'),
+            ('ExAC_EAS', 'filter_range_lte'),
+            ('ExAC_FIN', 'filter_range_lte'),
+            ('ExAC_NFE', 'filter_range_lte'),
+            ('ExAC_OTH', 'filter_range_lte'),
+            ('ExAC_SAS', 'filter_range_lte'),
         )
 
 
@@ -736,11 +736,11 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('1000g2015aug_all', 'filter_range_lt'),
-            ('1000g2015aug_afr', 'filter_range_lt'),
-            ('1000g2015aug_amr', 'filter_range_lt'),
-            ('1000g2015aug_eur', 'filter_range_lt'),
-            ('1000g2015aug_sas', 'filter_range_lt'),
+            ('1000g2015aug_all', 'filter_range_lte'),
+            ('1000g2015aug_afr', 'filter_range_lte'),
+            ('1000g2015aug_amr', 'filter_range_lte'),
+            ('1000g2015aug_eur', 'filter_range_lte'),
+            ('1000g2015aug_sas', 'filter_range_lte'),
         )
 
         filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
@@ -757,9 +757,9 @@ class Command(BaseCommand):
 
         ##
         filter_panel = (
-            ('esp6500siv2_all', 'filter_range_lt'),
-            ('esp6500siv2_aa', 'filter_range_lt'),
-            ('esp6500siv2_ea', 'filter_range_lt'),
+            ('esp6500siv2_all', 'filter_range_lte'),
+            ('esp6500siv2_aa', 'filter_range_lte'),
+            ('esp6500siv2_ea', 'filter_range_lte'),
         )
 
         filter_sub_panel_obj = FilterSubPanel.objects.get(filter_panel=filter_panel_obj,
