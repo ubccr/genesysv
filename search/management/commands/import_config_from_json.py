@@ -76,7 +76,7 @@ def fetch_data_type_from_es(dataset_es_index_name,
         try:
             return mapping[dataset_es_index_name]['mappings'][dataset_es_type_name]['properties'][field_path]['properties'][field_es_name]['type']
         except KeyError as e:
-            raise(e)
+            raise KeyError(e)
     else:
         try:
             return mapping[dataset_es_index_name]['mappings'][dataset_es_type_name]['properties'][field_es_name]['type']
@@ -86,7 +86,7 @@ def fetch_data_type_from_es(dataset_es_index_name,
 
 
 
-def validate_and_import_data(data, import_data=False):
+def validate_and_import_data(data):
     # Pull study name
     try:
         study_name = data["study"]["name"]
@@ -653,4 +653,4 @@ class Command(BaseCommand):
             raise IOError('JSON file: %s is not a valid JSON file.\n%s' %(json_file_path, e))
 
 
-        validate_and_import_data(data, import_data=False)
+        validate_and_import_data(data)
