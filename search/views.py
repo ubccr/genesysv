@@ -79,6 +79,16 @@ def filter_array_dicts(array, key, values, comparison_type):
                 if val == tmp:
                     output.append(ele)
 
+            elif comparison_type == "keyword":
+                if val == tmp:
+                    output.append(ele)
+
+            elif comparison_type == "text":
+                print(tmp, val)
+                if val in tmp:
+                    output.append(ele)
+                    break
+
             elif comparison_type == "val_in":
                 for ele_tmp in tmp.split('_'):
                     if val.lower() in ele_tmp.lower():
@@ -359,19 +369,32 @@ def search(request):
 
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
                     for ele in data.splitlines():
-                        es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
+                        if field_obj.es_data_type == 'text':
+                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
                         dict_filter_fields[post_filter_field].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
-                        es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
+                        if field_obj.es_data_type == 'text':
+                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
                         dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, str):
-                    es_filter.add_nested_filter_terms(es_name, data.splitlines(), field_obj.path)
+                    data_split = data.splitlines()
+                    if field_obj.es_data_type == 'text':
+                        data_split = [ele.lower() for ele in data_split]
+                    es_filter.add_nested_filter_terms(es_name, data_split, field_obj.path)
                     for ele in data.splitlines():
                         dict_filter_fields[post_filter_field].append(ele.strip())
+
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
-                    es_filter.add_nested_filter_terms(es_name, data, field_obj.path)
+                    if field_obj.es_data_type == 'text':
+                        data_lowercase = [ele.lower() for ele in data]
+                    es_filter.add_nested_filter_terms(es_name, data_lowercase, field_obj.path)
                     for ele in data:
                         dict_filter_fields[post_filter_field].append(ele.strip())
 
@@ -456,6 +479,9 @@ def search(request):
                     add_results = True
                     for key, val in dict_filter_fields.items():
                         key_path, key_es_name, key_es_filter_type = key.split('___')
+                        field_obj = FilterField.objects.get(dataset=dataset_obj,
+                                    es_name=key_es_name, es_filter_type__name=key_es_filter_type, path=key_path)
+
                         if key_es_filter_type in ["filter_range_gte",
                                                   "filter_range_lte",
                                                   "filter_range_lt",
@@ -463,7 +489,7 @@ def search(request):
                             comparison_type = key_es_filter_type.split('_')[-1]
                         elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
-                            comparison_type = 'equal'
+                            comparison_type = field_obj.es_data_type
                         else:
                             comparison_type = 'val_in'
 
@@ -612,14 +638,16 @@ def yield_results(dataset_obj,
         if dict_filter_fields:
             for key, val in dict_filter_fields.items():
                 key_path, key_es_name, key_es_filter_type = key.split('___')
+                field_obj = FilterField.objects.get(dataset=dataset_obj,
+                                    es_name=key_es_name, es_filter_type__name=key_es_filter_type, path=key_path)
                 if key_es_filter_type in ["filter_range_gte",
                                           "filter_range_lte",
                                           "filter_range_lt",
                                           "nested_filter_range_gte",]:
                     comparison_type = key_es_filter_type.split('_')[-1]
                 elif key_es_filter_type in ["nested_filter_term",
-                                            "nested_filter_terms",]:
-                    comparison_type = 'equal'
+                                                    "nested_filter_terms",]:
+                        comparison_type = field_obj.es_data_type
                 else:
                     comparison_type = 'val_in'
 

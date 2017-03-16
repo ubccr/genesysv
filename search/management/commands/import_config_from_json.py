@@ -220,13 +220,7 @@ def validate_and_import_data(data, import_data=False):
             filter_panel_obj, _ = FilterPanel.objects.get_or_create(filter_tab=filter_tab_obj,
                                                              name=panel_name)
 
-            try:
-                fields = panel["fields"]
-            except KeyError as e:
-                raise(e)
-
-            if len(fields) < 1:
-                raise ValueError('Expected at least one filter field, but "fields" is empty!')
+            fields = panel.get("fields",[])
 
 
             for idx, field in enumerate(fields, 1):
@@ -351,6 +345,148 @@ def validate_and_import_data(data, import_data=False):
 
 
 
+            for subpanel in panel.get('subpanels', []):
+
+                # Pull panel name
+                try:
+                    sub_panel_name = subpanel["name"]
+                except KeyError as e:
+                    raise(e)
+
+                filter_sub_panel_obj, _ = FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
+                                                                 name=sub_panel_name)
+
+                try:
+                    sub_panel_fields = subpanel["fields"]
+                except KeyError as e:
+                    sraise(e)
+
+                if len(sub_panel_fields) < 1:
+                    raise ValueError('Expected at least one filter field, but "fields" is empty!')
+
+
+                for idx, field in enumerate(sub_panel_fields, 1):
+                    # required fields
+                    try:
+                        field_display_name = field["display_name"]
+                    except KeyError as e:
+                        raise(e)
+
+                    try:
+                        field_form_type = field["form_type"]
+                    except KeyError as e:
+                        raise(e)
+
+                    try:
+                        field_widget_type = field["widget_type"]
+                    except KeyError as e:
+                        raise(e)
+
+                    try:
+                        field_es_name = field["es_name"]
+                    except KeyError as e:
+                        raise(e)
+
+                    try:
+                        field_es_filter_type = field["es_filter_type"]
+                    except KeyError as e:
+                        raise(e)
+
+                    try:
+                        field_path = field["path"]
+                    except KeyError as e:
+                        raise(e)
+
+                    ############### optional fields
+
+                    # Pull in_line_tooltip
+                    field_in_line_tooltip = field.get('in_line_tooltip', '')
+
+                    # Pull tooltip
+                    field_tooltip = field.get('tooltip', '')
+
+                    # Pull values
+                    field_values = field.get('values', '')
+
+                    match_status = False
+                    if isinstance(field_values, str):
+                        match = re.search(r'python_eval(.+)', field_values)
+                        if field_values == 'get_from_es()':
+                            field_values = get_from_es(dataset_es_index_name,
+                                                dataset_es_type_name,
+                                                dataset_es_host,
+                                                dataset_es_port,
+                                                field_es_name,
+                                                field_path)
+                        elif match:
+                            match_status = True
+                            tmp_str = match.groups()[0]
+                            try:
+                                field_values = eval(tmp_str)
+                            except NameError as e:
+                                print('Failed to evaluate %s' %(tmp_str))
+                                raise(e)
+
+
+
+                    #fetch data_type
+                    field_es_data_type = fetch_data_type_from_es(dataset_es_index_name,
+                                            dataset_es_type_name,
+                                            dataset_es_host,
+                                            dataset_es_port,
+                                            field_es_name,
+                                            field_path)
+
+
+                    print("\n%s --- Filter Field" %(idx))
+                    print("Filter Tab Name: %s" %(tab_name))
+                    print("Filter Panel Name: %s" %(panel_name))
+                    print("Filter Display Name: %s" %(field_display_name))
+                    print("Filter in Line Tooltip: %s" %(field_in_line_tooltip))
+                    print("Filter Tooltip: %s" %(field_tooltip))
+                    print("Filter Form Type: %s" %(field_form_type))
+                    print("Filter Widget Type: %s" %(field_widget_type))
+                    print("Filter ES Name: %s" %(field_es_name))
+                    print("Filter Path: %s" %(field_path))
+                    print("Filter ES Filter Type: %s" %(field_es_filter_type))
+                    print("Filter ES Data Type: %s" %(field_es_data_type))
+                    print("Filter Values: %s" %(field_values))
+                    # print(dict(dataset=dataset_obj,
+                    #            display_name=field_display_name,
+                    #            in_line_tooltip=field_in_line_tooltip,
+                    #            tooltip=field_tooltip,
+                    #            form_type__name=field_form_type,
+                    #            widget_type__name=field_widget_type,
+                    #            es_name=field_es_name,
+                    #            path=field_path,
+                    #            es_filter_type__name=field_es_filter_type
+                    #            )
+
+                    form_type_obj = FormType.objects.get(name=field_form_type)
+                    widget_type_obj = WidgetType.objects.get(name=field_widget_type)
+                    es_filter_type_obj = ESFilterType.objects.get(name=field_es_filter_type)
+
+                    filter_field_obj, created = FilterField.objects.get_or_create(dataset=dataset_obj,
+                                                               display_name=field_display_name,
+                                                               in_line_tooltip=field_in_line_tooltip,
+                                                               tooltip=field_tooltip,
+                                                               form_type=form_type_obj,
+                                                               widget_type=widget_type_obj,
+                                                               es_name=field_es_name,
+                                                               path=field_path,
+                                                               es_data_type=field_es_data_type,
+                                                               es_filter_type=es_filter_type_obj)
+
+
+                    if not filter_sub_panel_obj.filter_fields.filter(id=filter_field_obj.id):
+                        filter_sub_panel_obj.filter_fields.add(filter_field_obj)
+
+                    if field_values:
+                        for choice in field_values:
+                            FilterFieldChoice.objects.get_or_create(filter_field=filter_field_obj, value=choice)
+
+
+
     # Pull filter tabs
     try:
         attribute_tabs = attributes["tabs"]
@@ -388,14 +524,7 @@ def validate_and_import_data(data, import_data=False):
             except KeyError as e:
                 raise(e)
 
-            try:
-                fields = panel["fields"]
-            except KeyError as e:
-                raise(e)
-
-            if len(fields) < 1:
-                raise ValueError('Expected at least one filter field, but "fields" is empty!')
-
+            fields = panel.get("fields", [])
 
             attribute_panel_obj, _ = AttributePanel.objects.get_or_create(attribute_tab=attribute_tab_obj,
                                                              name=panel_name)
@@ -442,6 +571,66 @@ def validate_and_import_data(data, import_data=False):
                 if not attribute_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
                     attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
+        for subpanel in panel.get('subpanels', []):
+
+            # Pull panel name
+            try:
+                sub_panel_name = subpanel["name"]
+            except KeyError as e:
+                raise(e)
+
+            attribute_sub_panel_obj, _ = AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
+                                                         name=sub_panel_name)
+
+            try:
+                sub_panel_fields = subpanel["fields"]
+            except KeyError as e:
+                raise(e)
+
+            if len(sub_panel_fields) < 1:
+                raise ValueError('Expected at least one filter field, but "fields" is empty!')
+
+            for idx, field in enumerate(sub_panel_fields, 1):
+                # required fields
+                try:
+                    field_display_name = field["display_name"]
+                except KeyError as e:
+                    raise(e)
+
+                try:
+                    field_es_name = field["es_name"]
+                except KeyError as e:
+                    raise(e)
+
+                try:
+                    field_path = field["path"]
+                except KeyError as e:
+                    raise(e)
+
+                ############### optional fields
+
+                # Pull in_line_tooltip
+                field_in_line_tooltip = field.get('in_line_tooltip', '')
+
+                # Pull tooltip
+                field_tooltip = field.get('tooltip', '')
+
+
+                print("\n%s --- Attribute Field" %(idx))
+                print("Attribute Tab Name: %s" %(tab_name))
+                print("Attribute Panel Name: %s" %(panel_name))
+                print("Attribute Display Name: %s" %(field_display_name))
+                print("Attribute ES Name: %s" %(field_es_name))
+
+
+                attribute_field_obj, created = AttributeField.objects.get_or_create(dataset=dataset_obj,
+                                                           display_name=field_display_name,
+                                                           es_name=field_es_name,
+                                                           path=field_path)
+
+
+                if not attribute_sub_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
+                    attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 class Command(BaseCommand):
 
