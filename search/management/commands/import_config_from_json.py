@@ -649,7 +649,7 @@ class Command(BaseCommand):
         # Validate JSON file data
         try:
             data = json.loads(file_data)
-        except ValueError as e:
+        except IOError as e:
             raise IOError('JSON file: %s is not a valid JSON file.\n%s' %(json_file_path, e))
 
 

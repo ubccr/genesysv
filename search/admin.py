@@ -30,9 +30,9 @@ class AttributeSubPanelAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class FilterFieldAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'dataset', 'tooltip', 'form_type', 'widget_type', 'es_name', 'es_filter_type', 'path')
+    list_display = ('display_name', 'dataset', 'in_line_tooltip', 'tooltip', 'form_type', 'widget_type', 'es_name', 'path', 'es_data_type', 'es_filter_type', )
     list_filter = ('dataset',)
-    search_fields = ('display_name',)
+    search_fields = ('display_name', 'dataset',)
 
 class FilterFieldChoiceAdmin(admin.ModelAdmin):
     list_display = ('filter_field', 'value',)
@@ -41,9 +41,9 @@ class FilterFieldChoiceAdmin(admin.ModelAdmin):
     raw_id_fields = ('filter_field',)
 
 class AttributeFieldAdmin(admin.ModelAdmin):
-    list_display = ('display_name',)
+    list_display = ('display_name', 'dataset', 'es_name', 'path',)
     list_filter = ('dataset',)
-    search_fields = ('display_name',)
+    search_fields = ('display_name', 'dataset',)
 
 class FormTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
