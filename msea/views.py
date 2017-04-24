@@ -31,7 +31,7 @@ def download_svg(request):
         # # Define command and arguments
         # # Rscript make.msea.plot.json-v12-2016.R $PWD/NM_138420_ansi_gene.json /tmp/ ansi $PWD/NM_138420_ansi_domain.json
         command = 'Rscript'
-        path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.json-v12-2016.R')
+        path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.elasticsearch_V2017_04.R')
 
         # # Variable number of args in a list
         output_json_path = os.path.join(settings.BASE_DIR, 'msea/output_json')

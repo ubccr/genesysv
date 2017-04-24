@@ -16,7 +16,8 @@ class Command(BaseCommand):
                          ('dns', 'Deleterious non-Silent SNVs'),
                          ('prom', 'Variants in Promoter Region'),
                          ('miss', 'Missense'),
-                         ('lof', 'Loss of Function'),
+                         ('eigenset', 'Eigen score >= 0.65'),
+                         ('revelset', 'REVEL score >= 0.50'),
                     )
 
         for short_name, full_name in VARIANT_FILE_TYPE_CHOICES:
@@ -24,9 +25,8 @@ class Command(BaseCommand):
 
 
         DATASETS = (
-                ("sim_wgs", "SIM Sensitive Whole Genome Sequence", "20160616_SIM_WGS-20160927-expand_lookahead.txt"),
-                ("sim_sen", "SIM Sensitive Whole Exome Sequence", "20160620_SIM_SEN-20160927-expand_lookahead.txt"),
-                ("sim_res", "SIM Resistant Whole Exome Sequence", "20160713_SIM_RES-20160927-expand_lookahead.txt"),
+                ("sim_wgs", "SIM Sensitive Whole Genome Sequence", "20170222_SIM_WGS-20170416-expand_lookahead.txt"),
+                ("sim_res", "SIM Resistant Whole Exome Sequence", "20170307_SIM_Control-20170416-expand_lookahead.txt"),
         )
 
         for dataset, display_name, filename in DATASETS:

@@ -32,7 +32,7 @@ def get_from_es(dataset_es_index_name,
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body)
-        return [ele['key'] for ele in results["aggregations"]["values"]["buckets"]]
+        return sorted([ele['key'] for ele in results["aggregations"]["values"]["buckets"]])
 
 
     elif field_path:
@@ -59,7 +59,7 @@ def get_from_es(dataset_es_index_name,
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body)
-        return [ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"]]
+        return sorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"]])
 
 
 def fetch_data_type_from_es(dataset_es_index_name,

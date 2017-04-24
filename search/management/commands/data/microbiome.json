@@ -1,0 +1,418 @@
+                    {
+  "study": {
+    "name": "Microbiome",
+    "description": "Microbiome",
+    "dataset": {
+      "name": "microbiome",
+      "description": "Microbiome Data",
+      "es_index_name": "microbiome",
+      "es_type_name": "data",
+      "es_host": "199.109.193.196",
+      "es_port": "9200",
+      "is_public": true,
+      "filters": {
+        "tabs": [
+          {
+            "name": "Basic",
+            "panels": [
+              {
+                "name": "Search by Labels",
+                "fields": [
+                  {
+                    "display_name": "BANK_BUDS",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "BANK_BUDS",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "BMlabid",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "BMlabid",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "sampletype",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "sampletype",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "cdcdef4pd_b",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "cdcdef4pd_b",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  }
+                ]
+              },
+              {
+                "name": "Search by Rate, Count, or Value",
+                "fields": [
+                  {
+                    "display_name": "Hit_count",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Hit_count",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Hit_count",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Hit_count",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Hit_rate",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Hit_rate",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Hit_rate",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Hit_rate",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Joined_count",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Joined_count",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Joined_count",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Joined_count",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Merge_rate",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Merge_rate",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Merge_rate",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Merge_rate",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_count",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Pass_count",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_count",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Pass_count",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_rate",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Pass_rate",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_rate",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Pass_rate",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Raw_count",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Raw_count",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Raw_count",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "Raw_count",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "value",
+                    "in_line_tooltip": "(<=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "value",
+                    "es_filter_type": "filter_range_lte",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "value",
+                    "in_line_tooltip": "(>=)",
+                    "tooltip": "",
+                    "form_type": "CharField",
+                    "widget_type": "TextInput",
+                    "es_name": "value",
+                    "es_filter_type": "filter_range_gte",
+                    "path": ""
+                  }
+                ]
+              },
+              {
+                "name": "Search by Taxonomy",
+                "fields": [
+                  {
+                    "display_name": "kingdom",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "kingdom",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "phylum",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "phylum",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "class",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "class",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "order",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "order",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "genus",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "genus",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
+                  {
+                    "display_name": "species",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "MultipleChoiceField",
+                    "widget_type": "SelectMultiple",
+                    "es_name": "species",
+                    "es_filter_type": "filter_terms",
+                    "path": "",
+                    "values": "get_from_es()"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "attributes": {
+        "tabs": [
+          {
+            "name": "Basic",
+            "panels": [
+              {
+                "name": "Search by Label",
+                "fields": [
+                  {
+                    "display_name": "BANK_BUDS",
+                    "es_name": "BANK_BUDS",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "BMlabid",
+                    "es_name": "BMlabid",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "sampletype",
+                    "es_name": "sampletype",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "cdcdef4pd_b",
+                    "es_name": "cdcdef4pd_b",
+                    "path": ""
+                  }
+                ]
+              },
+              {
+                "name": "Search by Rate, Count, or Value",
+                "fields": [
+                  {
+                    "display_name": "Hit_count",
+                    "es_name": "Hit_count",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Hit_rate",
+                    "es_name": "Hit_rate",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Joined_count",
+                    "es_name": "Joined_count",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Merge_rate",
+                    "es_name": "Merge_rate",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_count",
+                    "es_name": "Pass_count",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Pass_rate",
+                    "es_name": "Pass_rate",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "Raw_count",
+                    "es_name": "Raw_count",
+                    "path": ""
+                  }
+                ]
+              },
+              {
+                "name": "Search by Taxonomy",
+                "fields": [
+                  {
+                    "display_name": "kingdom",
+                    "es_name": "kingdom",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "phylum",
+                    "es_name": "phylum",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "class",
+                    "es_name": "class",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "order",
+                    "es_name": "order",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "genus",
+                    "es_name": "genus",
+                    "path": ""
+                  },
+                  {
+                    "display_name": "species",
+                    "es_name": "species",
+                    "path": ""
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
