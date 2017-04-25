@@ -7,7 +7,7 @@
       "description": "Microbiome Data",
       "es_index_name": "microbiome",
       "es_type_name": "data",
-      "es_host": "199.109.193.196",
+      "es_host": "199.109.195.58",
       "es_port": "9200",
       "is_public": true,
       "filters": {
@@ -22,8 +22,8 @@
                     "display_name": "BANK_BUDS",
                     "in_line_tooltip": "",
                     "tooltip": "",
-                    "form_type": "MultipleChoiceField",
-                    "widget_type": "SelectMultiple",
+                    "form_type": "CharField",
+                    "widget_type": "UploadField",
                     "es_name": "BANK_BUDS",
                     "es_filter_type": "filter_terms",
                     "path": "",
@@ -33,8 +33,8 @@
                     "display_name": "BMlabid",
                     "in_line_tooltip": "",
                     "tooltip": "",
-                    "form_type": "MultipleChoiceField",
-                    "widget_type": "SelectMultiple",
+                    "form_type": "CharField",
+                    "widget_type": "UploadField",
                     "es_name": "BMlabid",
                     "es_filter_type": "filter_terms",
                     "path": "",
@@ -232,6 +232,17 @@
               {
                 "name": "Search by Taxonomy",
                 "fields": [
+                  {
+                    "display_name": "taxonomy",
+                    "in_line_tooltip": "",
+                    "tooltip": "",
+                    "form_type": "ChoiceField",
+                    "widget_type": "Select",
+                    "es_name": "taxonomy",
+                    "es_filter_type": "filter_term",
+                    "path": "",
+                    "values": "get_from_es()"
+                  },
                   {
                     "display_name": "kingdom",
                     "in_line_tooltip": "",
@@ -371,12 +382,22 @@
                     "display_name": "Raw_count",
                     "es_name": "Raw_count",
                     "path": ""
+                  },
+                  {
+                    "display_name": "value",
+                    "es_name": "value",
+                    "path": ""
                   }
                 ]
               },
               {
                 "name": "Search by Taxonomy",
                 "fields": [
+                  {
+                    "display_name": "taxonomy",
+                    "es_name": "taxonomy",
+                    "path": ""
+                  },
                   {
                     "display_name": "kingdom",
                     "es_name": "kingdom",
