@@ -76,7 +76,7 @@ class FilterField(TimeStampedModel):
         'Dataset',
         on_delete=models.CASCADE,
     )
-    display_name = models.CharField(max_length=255)
+    display_text = models.CharField(max_length=255)
     in_line_tooltip = models.CharField(max_length=255, null=True, blank=True)
     tooltip = models.CharField(max_length=255, null=True, blank=True)
     default_value = models.CharField(max_length=255, null=True, blank=True)
@@ -95,12 +95,13 @@ class FilterField(TimeStampedModel):
         'ESFilterType',
         on_delete=models.CASCADE,
     )
+    is_visible = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'es_filter_type', 'path')
 
     def __str__(self):
-        return "Field Name: %s %s -- Dataset: (%s)" %(self.display_name, self.in_line_tooltip, self.dataset.name)
+        return "Field Name: %s %s -- Dataset: (%s)" %(self.display_text, self.in_line_tooltip, self.dataset.name)
 
 class FilterFieldChoice(TimeStampedModel):
     filter_field = models.ForeignKey(
@@ -116,41 +117,28 @@ class FilterFieldChoice(TimeStampedModel):
         return self.value
 
 
-
 class AttributeField(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',
         on_delete=models.CASCADE,
     )
-    display_name = models.CharField(max_length=255)
+    display_text = models.CharField(max_length=255)
     es_name = models.CharField(max_length=255)
     path = models.CharField(max_length=255, null=True, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'path')
 
     def __str__(self):
-        return "%s (%s)" %(self.display_name, self.dataset.name)
+        return "%s (%s)" %(self.display_text, self.dataset.name)
 
-class FilterTab(TimeStampedModel):
-    dataset = models.ForeignKey(
-        'Dataset',
-        on_delete=models.CASCADE,
-    )
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
 
 class FilterPanel(TimeStampedModel):
-    filter_tab = models.ForeignKey(
-        'FilterTab',
-        on_delete=models.CASCADE,
-    )
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     filter_fields = SortedManyToManyField(FilterField, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -161,32 +149,30 @@ class FilterSubPanel(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
     filter_fields = SortedManyToManyField(FilterField, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
 
-
-class AttributeTab(TimeStampedModel):
+class FilterTab(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
+    filter_panels = SortedManyToManyField(FilterPanel, blank=True)
 
     def __str__(self):
         return self.name
 
+
+
 class AttributePanel(TimeStampedModel):
-    attribute_tab = models.ForeignKey(
-        'AttributeTab',
-        on_delete=models.CASCADE,
-    )
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -197,12 +183,22 @@ class AttributeSubPanel(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
 
+class AttributeTab(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=255)
+    attribute_panels = SortedManyToManyField(AttributePanel, blank=True)
+
+    def __str__(self):
+        return self.name
 
 class SearchLog(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -252,7 +248,7 @@ class SavedSearch(TimeStampedModel):
                 filter_field_obj = FilterField.objects.get(dataset=self.dataset,
                                                            es_name=es_name,
                                                            es_filter_type__name=es_filter_type)
-                output.append((key, filter_field_obj.display_name, val))
+                output.append((key, filter_field_obj.display_text, val))
             return output
         else:
             return None

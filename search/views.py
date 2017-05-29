@@ -28,6 +28,10 @@ from django.views.generic import (
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
 from django.conf import settings
+import itertools
+import hashlib
+from collections import deque
+
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -143,12 +147,12 @@ def get_filter_form(request):
             tmp_dict = {}
             tmp_dict['name'] = tab.name
             tmp_dict['panels'] = []
-            for panel in FilterPanel.objects.filter(filter_tab=tab):
-                es_form = ESFilterFormPart(panel.filter_fields.all(), prefix='filter_')
+            for panel in tab.filter_panels.filter(is_visible=True):
+                es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True), prefix='filter_')
 
                 sub_panels = []
 
-                for sub_panel in panel.filtersubpanel_set.all():
+                for sub_panel in panel.filtersubpanel_set.filter(is_visible=True):
                     if panel.are_sub_panels_mutually_exclusive:
                         MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
                     else:
@@ -180,19 +184,19 @@ def get_attribute_form(request):
             tmp_dict = {}
             tmp_dict['name'] = tab.name
             tmp_dict['panels'] = []
-            for idx_panel, panel in enumerate(AttributePanel.objects.filter(attribute_tab=tab), start=1):
-                if panel.attribute_fields.all():
-                    es_form = ESAttributeFormPart(panel.attribute_fields.all(), prefix='%d___attribute_group' %(idx_panel))
+            for idx_panel, panel in enumerate(tab.attribute_panels.filter(is_visible=True), start=1):
+                if panel.attribute_fields.filter(is_visible=True):
+                    es_form = ESAttributeFormPart(panel.attribute_fields.filter(is_visible=True), prefix='%d___attribute_group' %(idx_panel))
                 else:
                     es_form = None
 
                 sub_panels = []
-                for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.all(), start=1):
+                for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.filter(is_visible=True), start=1):
                     tmp_sub_panel_dict = {}
                     tmp_sub_panel_dict['display_name'] = sub_panel.name
                     tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                    if sub_panel.attribute_fields.all():
-                        tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.all(), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+                    if sub_panel.attribute_fields.filter(is_visible=True):
+                        tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.filter(is_visible=True), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
                     else:
                         tmp_sub_panel_dict['form'] = None
                     tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
@@ -311,7 +315,8 @@ def search(request):
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
-                    es_name, path = key.split('-')
+                    attribute_field_obj = AttributeField.objects.get(id=key)
+                    es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
                     if path and es_name != "qs":
                         source_fields.append(path)
                         nested_attribute_fields.append(path)
@@ -330,29 +335,36 @@ def search(request):
             dict_filter_fields = {}
 
             filters_used = {}
-            for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
+
+            for key, filter_field_obj in [ (key, FilterField.objects.get(id=key)) for key in keys]:
+
+            # for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
                 data = es_filter_form_data[key]
 
                 if not data:
                     continue
-
                 filters_used[key] = data
 
+                filter_field_pk = filter_field_obj.id
+                es_name = filter_field_obj.es_name
+                path = filter_field_obj.path
+                es_filter_type = filter_field_obj.es_filter_type.name
 
 
+                ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
                 if path and path not in source_fields:
                     source_fields.append(path)
                 elif not path and es_name not in source_fields:
                     source_fields.append(es_name)
 
-                if path.strip():
-                    post_filter_field = "%s___%s___%s" %(path, es_name, es_filter_type)
-                    dict_filter_fields[post_filter_field] = []
+                ### Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
+                ### are returned for a recored even if only one field match the search criteria
+                if path:
+                    dict_filter_fields[filter_field_pk] = []
 
-                used_keys.append((key.split('-')[0], data))
-                field_obj = FilterField.objects.get(dataset=dataset_obj,
-                                                    es_name=es_name, es_filter_type__name=es_filter_type, path=path)
+                used_keys.append((es_name, data))
+
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
                         for ele in data:
@@ -368,36 +380,36 @@ def search(request):
 
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
                     for ele in data.splitlines():
-                        if field_obj.es_data_type == 'text':
-                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), field_obj.path)
+                        if filter_field_obj.es_data_type == 'text':
+                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                            es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
-                        if field_obj.es_data_type == 'text':
-                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), field_obj.path)
+                        if filter_field_obj.es_data_type == 'text':
+                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_term(es_name, ele.strip(), field_obj.path)
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                            es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, str):
                     data_split = data.splitlines()
-                    if field_obj.es_data_type == 'text':
+                    if filter_field_obj.es_data_type == 'text':
                         data_split = [ele.lower() for ele in data_split]
-                    es_filter.add_nested_filter_terms(es_name, data_split, field_obj.path)
+                    es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
                     for ele in data.splitlines():
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
-                    if field_obj.es_data_type == 'text':
+                    if filter_field_obj.es_data_type == 'text':
                         data_lowercase = [ele.lower() for ele in data]
-                        es_filter.add_nested_filter_terms(es_name, data_lowercase, field_obj.path)
+                        es_filter.add_nested_filter_terms(es_name, data_lowercase, filter_field_obj.path)
                     else:
-                        es_filter.add_nested_filter_terms(es_name, data, field_obj.path)
+                        es_filter.add_nested_filter_terms(es_name, data, filter_field_obj.path)
                     for ele in data:
-                        dict_filter_fields[post_filter_field].append(ele.strip())
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'filter_range_gte':
                     es_filter.add_filter_range_gte(es_name, data)
@@ -410,7 +422,7 @@ def search(request):
 
                 elif es_filter_type == 'nested_filter_range_gte':
                     es_filter.add_nested_filter_range_gte(es_name, data, path)
-                    dict_filter_fields[post_filter_field].append(int(data.strip()))
+                    dict_filter_fields[filter_field_pk].append(int(data.strip()))
 
                 elif es_filter_type == 'filter_exists':
                     if data == 'only':
@@ -423,6 +435,7 @@ def search(request):
 
                 elif es_filter_type == 'nested_filter_exists':
                     es_filter.add_nested_filter_exists(es_name, data, path)
+
 
 
             for field in source_fields:
@@ -456,9 +469,13 @@ def search(request):
             headers = []
 
             for key, val in attribute_order.items():
-                order, es_name, path = val.split('-')
-                attribute = AttributeField.objects.get(dataset=dataset_obj, es_name=es_name, path=path)
-                headers.append((int(order), attribute))
+                order, pk = val.split('-')
+
+                attribute_field_obj = AttributeField.objects.get(id=pk)
+                es_name = attribute_field_obj.es_name
+                path = attribute_field_obj.path
+                headers.append((int(order), attribute_field_obj))
+
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers  = zip(*headers)
@@ -479,9 +496,10 @@ def search(request):
                 for idx, result in enumerate(results):
                     add_results = True
                     for key, val in dict_filter_fields.items():
-                        key_path, key_es_name, key_es_filter_type = key.split('___')
-                        field_obj = FilterField.objects.get(dataset=dataset_obj,
-                                    es_name=key_es_name, es_filter_type__name=key_es_filter_type, path=key_path)
+                        filter_field_obj = FilterField.objects.get(id=key)
+                        key_path = filter_field_obj.path
+                        key_es_name = filter_field_obj.es_name
+                        key_es_filter_type = filter_field_obj.es_filter_type.name
 
                         if key_es_filter_type in ["filter_range_gte",
                                                   "filter_range_lte",
@@ -490,9 +508,9 @@ def search(request):
                             comparison_type = key_es_filter_type.split('_')[-1]
                         elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
-                                if field_obj.es_data_type in ['keyword', 'text']:
-                                    comparison_type = field_obj.es_data_type
-                                elif field_obj.es_data_type in ['integer', 'float']:
+                                if filter_field_obj.es_data_type in ['keyword', 'text']:
+                                    comparison_type = filter_field_obj.es_data_type
+                                elif filter_field_obj.es_data_type in ['integer', 'float']:
                                     comparison_type = 'number_equal'
                         else:
                             comparison_type = 'val_in'
@@ -506,10 +524,15 @@ def search(request):
                     if add_results:
                         tmp_results.append(result)
 
-
-            ### flatten results
+            ### remove duplicates
             if tmp_results:
-                results = tmp_results
+                results = []
+                hash_list = deque()
+                for tmp_result in tmp_results:
+                    list_hash = hashlib.sha256(str(tmp_result).encode('utf-8','ignore')).hexdigest()
+                    if list_hash not in hash_list:
+                        hash_list.append(list_hash)
+                        results.append(tmp_result)
 
             if nested_attribute_fields:
                 final_results = []
@@ -640,9 +663,11 @@ def yield_results(dataset_obj,
         yield_results = True
         if dict_filter_fields:
             for key, val in dict_filter_fields.items():
-                key_path, key_es_name, key_es_filter_type = key.split('___')
-                field_obj = FilterField.objects.get(dataset=dataset_obj,
-                                    es_name=key_es_name, es_filter_type__name=key_es_filter_type, path=key_path)
+                filter_field_obj = FilterField.objects.get(id=key)
+                key_path = filter_field_obj.path
+                key_es_name = filter_field_obj.es_name
+                key_es_filter_type = filter_field_obj.es_filter_type.name
+
                 if key_es_filter_type in ["filter_range_gte",
                                           "filter_range_lte",
                                           "filter_range_lt",
@@ -650,9 +675,9 @@ def yield_results(dataset_obj,
                     comparison_type = key_es_filter_type.split('_')[-1]
                 elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
-                    if field_obj.es_data_type in ['keyword', 'text']:
-                        comparison_type = field_obj.es_data_type
-                    elif field_obj.es_data_type in ['integer', 'float']:
+                    if filter_field_obj.es_data_type in ['keyword', 'text']:
+                        comparison_type = filter_field_obj.es_data_type
+                    elif filter_field_obj.es_data_type in ['integer', 'float']:
                         comparison_type = 'number_equal'
 
                 else:

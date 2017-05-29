@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import FilterField, FilterFieldChoice, Dataset, Study, FilterSubPanel
+from .models import FilterField, FilterFieldChoice, Dataset, Study, FilterSubPanel, AttributeField
 from django.db.models import Q
 from crispy_forms.helper import FormHelper
 from datetime import date
@@ -51,10 +51,11 @@ class ESFilterFormPart(forms.Form):
             else:
                 tooltip = ''
 
-            label = '%s %s %s' %(field.display_name, field.in_line_tooltip, tooltip)
+            label = '%s %s %s' %(field.display_text, field.in_line_tooltip if field.in_line_tooltip else '' , tooltip)
 
 
-            field_name = '%s-%s-%s' %(field.es_name, field.es_filter_type, field.path)
+            field_name = '%d' %(field.id)
+
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(label=label, required=False)
                 if MEgroup:
@@ -97,10 +98,10 @@ class ESFilterForm(forms.Form):
                 tooltip = ' <i data-toggle="popover" data-trigger="hover" data-content="%s" class="fa fa-info-circle" aria-hidden="true"></i>' %(field.tooltip)
             else:
                 tooltip = ''
-            label = '%s %s %s' %(field.display_name, field.in_line_tooltip, tooltip)
+            label = '%s %s %s' %(field.display_text, field.in_line_tooltip, tooltip)
 
 
-            field_name = '%s-%s-%s' %(field.es_name, field.es_filter_type, field.path)
+            field_name = '%d' %(field.id)
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(label=label, required=False)
                 self.fields[field_name].widget.attrs.update({'Khawar': 'off'})
@@ -124,8 +125,8 @@ class ESAttributeFormPart(forms.Form):
 
 
         for field in fields:
-            label = field.display_name
-            field_name = '%s-%s' %(field.es_name, field.path)
+            label = field.display_text
+            field_name = '%d' %(field.id)
             self.fields[field_name] = forms.BooleanField(label=label, required=False)
 
 
@@ -134,9 +135,9 @@ class ESAttributeForm(forms.Form):
         super(ESAttributeForm, self).__init__(*args, **kwargs)
 
 
-        for field in FilterField.objects.filter(dataset=dataset):
-            label = field.display_name
-            field_name = '%s-%s' %(field.es_name, field.path)
+        for field in AttributeField.objects.filter(dataset=dataset):
+            label = field.display_text
+            field_name = '%d' %(field.id)
             self.fields[field_name] = forms.BooleanField(label=label, required=False)
 
 

@@ -156,6 +156,7 @@ def validate_and_import_data(data):
         raise(e)
 
 
+
     print("*"*80+"\n")
     print('Study Name: %s' %(study_name))
     print('Study Description: %s' %(study_description))
@@ -571,66 +572,69 @@ def validate_and_import_data(data):
                 if not attribute_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
                     attribute_panel_obj.attribute_fields.add(attribute_field_obj)
 
-        for subpanel in panel.get('subpanels', []):
+            for subpanel in panel.get('subpanels', []):
 
-            # Pull panel name
-            try:
-                sub_panel_name = subpanel["name"]
-            except KeyError as e:
-                raise(e)
-
-            attribute_sub_panel_obj, _ = AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
-                                                         name=sub_panel_name)
-
-            try:
-                sub_panel_fields = subpanel["fields"]
-            except KeyError as e:
-                raise(e)
-
-            if len(sub_panel_fields) < 1:
-                raise ValueError('Expected at least one filter field, but "fields" is empty!')
-
-            for idx, field in enumerate(sub_panel_fields, 1):
-                # required fields
+                # Pull panel name
                 try:
-                    field_display_name = field["display_name"]
+                    sub_panel_name = subpanel["name"]
                 except KeyError as e:
                     raise(e)
 
+                attribute_sub_panel_obj, _ = AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
+                                                             name=sub_panel_name)
+
                 try:
-                    field_es_name = field["es_name"]
+                    sub_panel_fields = subpanel["fields"]
                 except KeyError as e:
                     raise(e)
 
-                try:
-                    field_path = field["path"]
-                except KeyError as e:
-                    raise(e)
+                if len(sub_panel_fields) < 1:
+                    raise ValueError('Expected at least one filter field, but "fields" is empty!')
 
-                ############### optional fields
+                for idx, field in enumerate(sub_panel_fields, 1):
+                    # required fields
+                    try:
+                        field_display_name = field["display_name"]
+                    except KeyError as e:
+                        raise(e)
 
-                # Pull in_line_tooltip
-                field_in_line_tooltip = field.get('in_line_tooltip', '')
+                    try:
+                        field_es_name = field["es_name"]
+                    except KeyError as e:
+                        raise(e)
 
-                # Pull tooltip
-                field_tooltip = field.get('tooltip', '')
+                    try:
+                        field_path = field["path"]
+                    except KeyError as e:
+                        raise(e)
+
+                    ############### optional fields
+
+                    # Pull in_line_tooltip
+                    field_in_line_tooltip = field.get('in_line_tooltip', '')
+
+                    # Pull tooltip
+                    field_tooltip = field.get('tooltip', '')
 
 
-                print("\n%s --- Attribute Field" %(idx))
-                print("Attribute Tab Name: %s" %(tab_name))
-                print("Attribute Panel Name: %s" %(panel_name))
-                print("Attribute Display Name: %s" %(field_display_name))
-                print("Attribute ES Name: %s" %(field_es_name))
+                    print("\n%s --- Attribute Field" %(idx))
+                    print("Attribute Tab Name: %s" %(tab_name))
+                    print("Attribute Panel Name: %s" %(panel_name))
+                    print("Attribute Display Name: %s" %(field_display_name))
+                    print("Attribute ES Name: %s" %(field_es_name))
 
 
-                attribute_field_obj, created = AttributeField.objects.get_or_create(dataset=dataset_obj,
-                                                           display_name=field_display_name,
-                                                           es_name=field_es_name,
-                                                           path=field_path)
+                    attribute_field_obj, created = AttributeField.objects.get_or_create(dataset=dataset_obj,
+                                                               display_name=field_display_name,
+                                                               es_name=field_es_name,
+                                                               path=field_path)
 
 
-                if not attribute_sub_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
-                    attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
+                    if not attribute_sub_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
+                        attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
+
+
+
 
 class Command(BaseCommand):
 

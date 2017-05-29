@@ -4,6 +4,11 @@ from django.template import Context, Template, loader
 import json
 register = template.Library()
 
+@register.filter(name='splitpipe')
+def splitpipe(value):
+    return value.split('|')
+
+
 @register.filter('json_loads')
 def json_loads(input_string):
     if input_string:
@@ -45,10 +50,13 @@ def format_gatkqs_array(input_array):
     usage example {{ your_array|format_gatkqs_array }}
     """
     if input_array:
-        tmp = []
-        for ele in input_array:
-            tmp.append('%s: %s' %(ele['cohort'].title(), ele['qs']))
-        return '; '.join(tmp)
+        if isinstance(input_array, float):
+            return input_array
+        else:
+            tmp = []
+            for ele in input_array:
+                tmp.append('%s: %s' %(ele['QUAL_cohort'].title(), ele['QUAL_score']))
+            return '; '.join(tmp)
 
 
 
@@ -66,9 +74,13 @@ def get_gbrowser_link(variant):
     usage example {{ your_dict|get_value_from_dict:your_key }}
     """
     if variant:
-        chromosome = int(variant.split('-')[0])
+        chromosome = variant.split('-')[0]
         start = int(variant.split('-')[1])
-        position ="chr%d:%d-%d" %(chromosome, start-25, start+25)
+        if 'chr' in chromosome.lower():
+            position ="%s:%d-%d" %(chromosome, start-25, start+25)
+        else:
+            position ="chr%d:%d-%d" %(int(chromosome), start-25, start+25)
+
         link = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=%s" %(position)
         return link
 

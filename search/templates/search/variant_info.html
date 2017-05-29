@@ -28,23 +28,23 @@
         </tr>
         <tr>
             <td>Chromosome</td>
-            <td><strong>{{ result.Chr }}</strong></td>
+            <td><strong>{{ result.chromosome }}</strong></td>
         </tr>
         <tr>
             <td>Start</td>
-            <td><strong>{{ result.Start }}</strong></td>
+            <td><strong>{{ result.position }}</strong></td>
         </tr>
         <tr>
             <td>Reference Allele</td>
-            <td><strong>{{ result.Ref }}</strong></td>
+            <td><strong>{{ result.reference }}</strong></td>
         </tr>
         <tr>
             <td>Alternate Allele</td>
-            <td><strong>{{ result.Alt }}</strong></td>
+            <td><strong>{{ result.alternate }}</strong></td>
         </tr>
         <tr>
             <td>Mutation Type</td>
-            <td><strong>{{ result|get_value_from_dict:"Type" }}</strong></td>
+            <td><strong>{{ result|get_value_from_dict:"VariantType" }}</strong></td>
         </tr>
         <tr>
             <td>Cytoband</td>
@@ -52,7 +52,7 @@
         </tr>
         <tr>
             <td>GATK Quality Score</td>
-            <td><strong>{{ result.gatkQS|format_gatkqs_array }}</strong></td>
+            <td><strong>{{ result.QUAL_score|format_gatkqs_array }}</strong></td>
         </tr>
 
         {% if result.avsnp142 %}
@@ -256,11 +256,11 @@
     <tbody>
     {% for ele in result.sample %}
       <tr>
-        <td>{{ele.sample_ID}}</td>
-        <td>{{ele.sample_DP}}</td>
-        <td>{{ele.sample_GT}}</td>
-        <td>{{ele.sample_GQ}}</td>
-        <td>{{ele.sample_cohort}}</td>
+        <td>{{ele.sample_id}}</td>
+        <td>{{ele.DP}}</td>
+        <td>{{ele.GT}}</td>
+        <td>{{ele.GQ}}</td>
+        <td>{{ele.label}}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -660,7 +660,7 @@
 </div>
 {% endif %}
 
-{% if result.clinvar_20150629 or result.gwasCatalog %}
+{% if result.CLINSIG or result.gwasCatalog %}
 <div class="col-md-12">
     <div class="panel-group">
         <div class="panel panel-primary">
@@ -672,7 +672,7 @@
             <div id="clinical_annotations" class="panel-collapse collapse">
                 <div class="panel-body">
 
-                    {% if result.clinvar_20150629 %}
+                    {% if result.CLINSIG %}
                     <div class="panel panel-info">
                         <div class="panel-heading">ClinVar</div>
                         <div class="panel-body">
@@ -689,17 +689,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for ele in result.clinvar_20150629 %}
                                         <tr>
-                                            <td>{{ele.clinvar_20150629_CLNDBN}}</td>
-                                            <td>{{ele.clinvar_20150629_CLINSIG}}</td>
-                                            <td>{{ele.clinvar_20150629_CLNREVSTAT}}</td>
-                                            <td>{{ele.clinvar_20150629_CLNDSDB}}</td>
-                                            <td>{{ele.clinvar_20150629_CLNDSDBID}}</td>
-                                            <td>{{ele.clinvar_20150629_CLNACC}}</td>
+                                            <td>{{result.CLNDBN}}</td>
+                                            <td>{{result.CLINSIG}}</td>
+                                            <td>{{result.CLNREVSTAT}}</td>
+                                            <td>{{result.CLNDSDB}}</td>
+                                            <td>{{result.CLNDSDBID}}</td>
+                                            <td>{{result.CLNACC}}</td>
 
                                         </tr>
-                                    {% endfor %}
                                 </tbody>
                                 </table>
                             </div>
