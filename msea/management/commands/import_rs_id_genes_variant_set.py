@@ -14,6 +14,7 @@ class Command(BaseCommand):
                          ('ans', 'All non-Silent SNVs' ),
                          ('dnsi', 'Deleterious non-Silent SNVs and Indels'),
                          ('dns', 'Deleterious non-Silent SNVs'),
+                         ('lof', 'Loss of Function'),
                          ('prom', 'Variants in Promoter Region'),
                          ('miss', 'Missense'),
                          ('eigenset', 'Eigen score >= 0.65'),
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                     gene_name = line_split[0].strip()
                     rs_id = line_split[1].strip()
                     variants = line_split[2:]
-                    if (idx % 1000) == 0:
+                    if 1:#(idx % 1000) == 0:
                         print(idx, line_split)
                     gene_object, _ = Gene.objects.get_or_create(gene_name=gene_name)
 
