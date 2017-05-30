@@ -4066,5 +4066,499 @@
     ],
     "panel": "microRNA/snoRNA",
     "tab": "Basic"
+  },
+  "sample_AD": {
+    "filters": [
+      {
+        "display_text": "sample_AD",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Allelic depths for the ref and alt alleles in the order listed.",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_AD",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Allelic depths for the ref and alt alleles in the order listed.",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_AF": {
+    "filters": [
+      {
+        "display_text": "sample_AF",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Allele frequency based on Flow Evaluator observation counts",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_AF",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Allele frequency based on Flow Evaluator observation counts",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_AO": {
+    "filters": [
+      {
+        "display_text": "sample_AO",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Alternate allele observation count",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_AO",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Alternate allele observation count",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_DP": {
+    "filters": [
+      {
+        "display_text": "sample_DP",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Read Depth",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_DP",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Read Depth",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FAO": {
+    "filters": [
+      {
+        "display_text": "sample_FAO",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator Alternate allele observation count",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FAO",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator Alternate allele observation count",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FDP": {
+    "filters": [
+      {
+        "display_text": "sample_FDP",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator Read Depth",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FDP",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator Read Depth",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FRO": {
+    "filters": [
+      {
+        "display_text": "sample_FRO",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator Reference allele observation count",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FRO",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator Reference allele observation count",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FSAF": {
+    "filters": [
+      {
+        "display_text": "sample_FSAF",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FSAF",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FSAR": {
+    "filters": [
+      {
+        "display_text": "sample_FSAR",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FSAR",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FSRF": {
+    "filters": [
+      {
+        "display_text": "sample_FSRF",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator reference observations on the forward strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FSRF",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator reference observations on the forward strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_FSRR": {
+    "filters": [
+      {
+        "display_text": "sample_FSRR",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Flow Evaluator reference observations on the reverse strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_FSRR",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Flow Evaluator reference observations on the reverse strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_GQ": {
+    "filters": [
+      {
+        "display_text": "sample_GQ",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Genotype Quality",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_GQ",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Genotype Quality",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_GT": {
+    "filters": [
+      {
+        "display_text": "sample_GT",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Genotype",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_ID": {
+    "filters": [
+      {
+        "display_text": "sample_ID",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "ID",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_MIN_DP": {
+    "filters": [
+      {
+        "display_text": "sample_MIN_DP",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Minimum DP observed within the GVCF block",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_MIN_DP",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Minimum DP observed within the GVCF block",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_PGT": {
+    "filters": [
+      {
+        "display_text": "sample_PGT",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "tooltip": "Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_PID": {
+    "filters": [
+      {
+        "display_text": "sample_PID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "tooltip": "Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_PL": {
+    "filters": [
+      {
+        "display_text": "sample_PL",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_PL",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_RO": {
+    "filters": [
+      {
+        "display_text": "sample_RO",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Reference allele observation count",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_RO",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Reference allele observation count",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_SAF": {
+    "filters": [
+      {
+        "display_text": "sample_SAF",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Alternate allele observations on the forward strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_SAF",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Alternate allele observations on the forward strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_SAR": {
+    "filters": [
+      {
+        "display_text": "sample_SAR",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Alternate allele observations on the reverse strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_SAR",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Alternate allele observations on the reverse strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_SB": {
+    "filters": [
+      {
+        "display_text": "sample_SB",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias.",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_SB",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias.",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_SRF": {
+    "filters": [
+      {
+        "display_text": "sample_SRF",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Number of reference observations on the forward strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_SRF",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Number of reference observations on the forward strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_SRR": {
+    "filters": [
+      {
+        "display_text": "sample_SRR",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Number of reference observations on the reverse strand",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "sample_SRR",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "tooltip": "Number of reference observations on the reverse strand",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
   }
 }
