@@ -797,7 +797,6 @@ Note that you only need one field for age and balance.
 
    Figure shows an example of what the admin site should look like after adding all the attribute fields.
 
-
 .. tabularcolumns:: |J|J|J|
 
 ================ ==================== ==================

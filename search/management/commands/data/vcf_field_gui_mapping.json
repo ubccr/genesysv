@@ -69,6 +69,48 @@
     "sub_panel": "1000 Genomes Project (Aug. 2015)",
     "tab": "Basic"
   },
+  "AC_case": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Count Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Maximum Allele Count Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Case",
+    "tab": "Basic"
+  },
+  "AC_control": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Count Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Maximum Allele Count Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Control",
+    "tab": "Basic"
+  },
   "AC": {
     "filters": [
       {
@@ -87,7 +129,6 @@
       }
     ],
     "panel": "Allele Statistics Filters",
-    "sub_panel": "Label",
     "tab": "Basic"
   },
   "AF": {
@@ -108,7 +149,48 @@
       }
     ],
     "panel": "Allele Statistics Filters",
-    "sub_panel": "Label",
+    "tab": "Basic"
+  },
+  "AF_case": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Frequency Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Minimum Allele Frequency Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Case",
+    "tab": "Basic"
+  },
+  "AF_control": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Frequency Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Minimum Allele Frequency Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Control",
     "tab": "Basic"
   },
   "ALT": {
@@ -121,6 +203,48 @@
       }
     ],
     "panel": "Variant Related Information",
+    "tab": "Basic"
+  },
+  "AN_case": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Number Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Minimum Allele Number Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Case",
+    "tab": "Basic"
+  },
+  "AN_control": {
+    "filters": [
+      {
+        "display_text": "Minimum Allele Number Case",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Minimum Allele Number Case",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Statistics Filters",
+    "sub_panel": "Control",
     "tab": "Basic"
   },
   "AN": {
@@ -141,7 +265,6 @@
       }
     ],
     "panel": "Allele Statistics Filters",
-    "sub_panel": "Label",
     "tab": "Basic"
   },
   "AO": {
@@ -536,7 +659,8 @@
         "display_text": "Clinical Significance",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
-        "widget_type": "SelectMultiple"
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()"
       }
     ],
     "panel": "Disease Association",
@@ -3411,7 +3535,7 @@
   "avsnp147": {
     "filters": [
       {
-        "display_text": "avsnp147ID",
+        "display_text": "avsnp147",
         "es_filter_type": "filter_terms",
         "form_type": "CharField",
         "widget_type": "UploadField"

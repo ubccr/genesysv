@@ -11,6 +11,7 @@ import statistics
 import time
 import elasticsearch
 from elasticsearch import helpers
+import re
 
 
 
@@ -53,6 +54,9 @@ def CHROM_parser(input_string):
 
 def gwasCatalog_parser(input_string):
     return input_string.replace('|', ' ')
+
+def CLINSIG_parser(input_string):
+    return re.split(',|\|',input_string)
 
 def GTEx_V6_tissue_parser(input_string):
     return input_string.replace('|', ' ')

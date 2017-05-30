@@ -389,9 +389,10 @@
       "is_parsed": false
     },
     "CLINSIG": {
-      "es_field_datatype": "text",
+      "es_field_datatype": "keyword",
       "es_field_name": "CLINSIG",
-      "is_parsed": true
+      "is_parsed": true,
+      "parse_function": "CLINSIG_parser"
     },
     "CLNACC": {
       "es_field_datatype": "keyword",

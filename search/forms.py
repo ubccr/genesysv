@@ -10,6 +10,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from .models import SavedSearch
 
+
+EXIST_CHOICES = [('', '----'), ("only","only"), ("excluded", "excluded")]
+
 class StudyForm(forms.Form):
     # You have to comment out study choices before migrating
      def __init__(self, user, *args, **kwargs):
@@ -68,9 +71,12 @@ class ESFilterFormPart(forms.Form):
                     self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
-                CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
-                CHOICES.insert(0,('', '----'))
-                self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
+                if field.es_filter_type.name == 'filter_exists':
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
+                else:
+                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                    CHOICES.insert(0,('', '----'))
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
                 if MEgroup:
                     self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
@@ -111,9 +117,12 @@ class ESFilterForm(forms.Form):
                 self.fields[field_name] = forms.MultipleChoiceField(label=label, required=False, choices=CHOICES)
 
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
-                CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
-                CHOICES.insert(0,('', '----'))
-                self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
+                if field.es_filter_type.name == 'filter_exists':
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
+                else:
+                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                    CHOICES.insert(0,('', '----'))
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
 
             elif field.form_type.name == "CharField" and field.widget_type.name == "UploadField":
                 self.fields[field_name] = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'class':'upload-field'}), label=label, required=False)

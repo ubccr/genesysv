@@ -97,7 +97,7 @@ curl -XPUT '199.109.192.65:9200/empire/_mapping/empire?pretty' -H 'Content-Type:
       "type": "keyword"
     },
     "CLINSIG": {
-      "type": "text"
+      "type": "keyword"
     },
     "CLNACC": {
       "type": "keyword"
