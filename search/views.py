@@ -31,6 +31,7 @@ from django.conf import settings
 import itertools
 import hashlib
 from collections import deque
+from pybamview.models import SampleBamInfo
 
 
 def compare_array_dictionaries(array_dict1, array_dict2):
@@ -624,6 +625,8 @@ def search(request):
                 context['save_search_form'] = None
 
 
+
+
             context['debug'] = settings.DEBUG
             context['used_keys'] = used_keys
             context['took'] = took
@@ -837,6 +840,10 @@ def get_variant(request, dataset_id, variant_id):
     coding_region_available = True if any(True for ele in coding_regions if result.get(ele)) else False
     splice_junctions_available = True if any(True for ele in splice_junctions if result.get(ele)) else False
 
+
+    baminfo_exists = SampleBamInfo.objects.filter(dataset__id=dataset_id).exists()
+
+    context["baminfo_exists"] = baminfo_exists
     context["result"] = result
     context["conserved_elements_available"] = conserved_elements_available
     context["coding_region_available"] = coding_region_available

@@ -28,19 +28,19 @@
         </tr>
         <tr>
             <td>Chromosome</td>
-            <td><strong>{{ result.chromosome }}</strong></td>
+            <td><strong>{{ result.CHROM }}</strong></td>
         </tr>
         <tr>
             <td>Start</td>
-            <td><strong>{{ result.position }}</strong></td>
+            <td><strong>{{ result.POS }}</strong></td>
         </tr>
         <tr>
             <td>Reference Allele</td>
-            <td><strong>{{ result.reference }}</strong></td>
+            <td><strong>{{ result.REF }}</strong></td>
         </tr>
         <tr>
             <td>Alternate Allele</td>
-            <td><strong>{{ result.alternate }}</strong></td>
+            <td><strong>{{ result.ALT }}</strong></td>
         </tr>
         <tr>
             <td>Mutation Type</td>
@@ -51,10 +51,23 @@
             <td><strong>{{ result|get_value_from_dict:"cytoBand" }}</strong></td>
         </tr>
         <tr>
-            <td>GATK Quality Score</td>
-            <td><strong>{{ result.QUAL_score|format_gatkqs_array }}</strong></td>
-        </tr>
-
+            {% if result.FILTER_status %}
+                <td>GATK Filter Status</td>
+                <td><strong>{{ result.FILTER_status}}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.QUAL_score %}
+            <tr>
+                <td>GATK Quality Score</td>
+                <td><strong>{{ result.QUAL_score}}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.ID %}
+            <tr>
+                <td>ID</td>
+                <td>{{result.ID}}</td>
+            </tr>
+        {% endif %}
         {% if result.avsnp142 %}
             <tr>
                 <td>avsnp142</td>
@@ -250,17 +263,21 @@
         <th>Read Depth</th>
         <th>Genotype</th>
         <th>Genotype Quality</th>
-        <th>Cohort Label</th>
+        {% if result.sample.0.sample_label %}
+            <th>Cohort Label</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
     {% for ele in result.sample %}
       <tr>
-        <td>{{ele.sample_id}}</td>
-        <td>{{ele.DP}}</td>
-        <td>{{ele.GT}}</td>
-        <td>{{ele.GQ}}</td>
-        <td>{{ele.label}}</td>
+        <td>{{ele.sample_ID}}</td>
+        <td>{{ele.sample_DP}}</td>
+        <td>{{ele.sample_GT}}</td>
+        <td>{{ele.sample_GQ}}</td>
+        {% if ele.sample_labe %}
+            <td>{{ele.sample_label}}</td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
@@ -391,6 +408,8 @@
 </div>
 
 
+{% if baminfo_exists %}
+
 <div class="col-md-12">
 <div class="panel panel-primary">
 <div class="panel-heading">
@@ -427,6 +446,7 @@
 <div class="clearfix">
 </div>
 
+{% endif %}
 
 {% if coding_region_available or splice_junctions_available %}
 <div class="col-md-6">

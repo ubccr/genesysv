@@ -44,6 +44,23 @@ def ensembl_link(input_string):
         return output
 
 
+@register.filter('format_gatkfilter_array')
+def format_gatkfilter_array(input_array):
+    """
+    usage example {{ your_array|format_gatkfilter_array }}
+    """
+    if input_array:
+        if isinstance(input_array, str):
+            return input_array
+        else:
+            tmp = []
+            for ele in input_array:
+                tmp.append('%s: %s' %(ele['FILTER_cohort'].title(), ele['FILTER_status']))
+            return '; '.join(tmp)
+
+
+
+
 @register.filter('format_gatkqs_array')
 def format_gatkqs_array(input_array):
     """
