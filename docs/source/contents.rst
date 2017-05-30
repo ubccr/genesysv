@@ -1,0 +1,11 @@
+=============================
+GDW documentation contents
+=============================
+
+.. toctree::
+    :hidden:
+
+    index
+
+.. toctree::
+    :maxdepth: 3

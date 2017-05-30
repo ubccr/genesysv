@@ -12,3 +12,5 @@ static_root/
 static/bokeh_outputs/
 msea/output*
 gdw/bin/
+build/
+*.zip
