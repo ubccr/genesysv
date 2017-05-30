@@ -168,9 +168,6 @@ class Command(BaseCommand):
 
         idx = 1
         for var_name, var_info in mapping.items():
-            if var_info.get('type') == 'nested':
-                print('*'*20, 'ERROR', var_name)
-                continue
             if not vcf_gui_mapping.get(var_name):
                 print('*'*20, 'ERROR', var_name)
                 continue

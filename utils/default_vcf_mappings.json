@@ -1,0 +1,1495 @@
+{
+  "CUSTOM_FIELDS": {
+    "Variant": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Variant",
+      "is_parsed": true
+    },
+    "VariantType": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "VariantType",
+      "is_parsed": true
+    }
+  },
+  "FIXED_FIELDS": {
+    "ALT": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ALT"
+    },
+    "CHROM": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CHROM",
+      "parse_function": "CHROM_parser"
+    },
+    "FILTER": {
+      "label": {
+        "es_nested_path": "FILTER",
+        "nested_fields": {
+          "FILTER_cohort": {
+            "es_field_datatype": "keyword",
+            "es_field_name": "FILTER_cohort"
+          },
+          "FILTER_status": {
+            "es_field_datatype": "keyword",
+            "es_field_name": "FILTER_status"
+          }
+        }
+      },
+      "no_label": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "FILTER_status"
+      }
+    },
+    "ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ID"
+    },
+    "POS": {
+      "es_field_datatype": "integer",
+      "es_field_name": "POS"
+    },
+    "QUAL": {
+      "label": {
+        "es_nested_path": "QUAL",
+        "nested_fields": {
+          "QUAL_cohort": {
+            "es_field_datatype": "keyword",
+            "es_field_name": "QUAL_cohort"
+          },
+          "QUAL_score": {
+            "es_field_datatype": "float",
+            "es_field_name": "QUAL_score"
+          }
+        }
+      },
+      "no_label": {
+        "es_field_datatype": "float",
+        "es_field_name": "QUAL_score"
+      }
+    },
+    "REF": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "REF"
+    }
+  },
+  "INFO_FIELDS": {
+    "ALLELE_END": {
+      "is_parsed": false
+    },
+    "ANNOVAR_DATE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ANNOVAR_DATE",
+      "is_parsed": true
+    },
+    "END": {
+      "is_parsed": false
+    },
+    "1000g2015aug_afr": {
+      "es_field_datatype": "float",
+      "es_field_name": "1000g2015aug_afr",
+      "null_value": 0
+    },
+    "1000g2015aug_all": {
+      "es_field_datatype": "float",
+      "es_field_name": "1000g2015aug_all",
+      "null_value": 0
+    },
+    "1000g2015aug_amr": {
+      "es_field_datatype": "float",
+      "es_field_name": "1000g2015aug_amr",
+      "null_value": 0
+    },
+    "1000g2015aug_eur": {
+      "es_field_datatype": "float",
+      "es_field_name": "1000g2015aug_eur",
+      "null_value": 0
+    },
+    "1000g2015aug_sas": {
+      "es_field_datatype": "float",
+      "es_field_name": "1000g2015aug_sas",
+      "null_value": 0
+    },
+    "AAChange.ensGene": {
+      "es_nested_path": "ensGene",
+      "parse_function": "AAChange_ensGene_parser",
+      "nested_fields": {
+        "ensGene_gene_id": {
+          "es_field_name": "ensGene_gene_id",
+          "es_field_datatype": "text",
+          "es_field_text_analyzer": "whitespace"
+        },
+        "ensGene_transcript_id": {
+          "es_field_name": "ensGene_transcript_id",
+          "es_field_datatype": "keyword"
+        },
+        "ensGene_location": {
+          "es_field_name": "ensGene_location",
+          "es_field_datatype": "keyword"
+        },
+        "ensGene_cDNA_change": {
+          "es_field_name": "ensGene_cDNA_change",
+          "es_field_datatype": "keyword"
+        },
+        "ensGene_aa_change": {
+          "es_field_name": "ensGene_aa_change",
+          "es_field_datatype": "keyword"
+        },
+        "ensGene_distance_to_gene": {
+          "es_field_name": "ensGene_distance_to_gene",
+          "es_field_datatype": "keyword"
+        }
+      }
+    },
+    "AAChange.refGene": {
+      "es_nested_path": "refGene",
+      "parse_function": "AAChange_refGene_parser",
+      "nested_fields": {
+        "refGene_symbol": {
+          "es_field_name": "refGene_symbol",
+          "es_field_datatype": "text",
+          "es_field_text_analyzer": "whitespace"
+        },
+        "refGene_refgene_id": {
+          "es_field_name": "refGene_refgene_id",
+          "es_field_datatype": "keyword"
+        },
+        "refGene_location": {
+          "es_field_name": "refGene_location",
+          "es_field_datatype": "keyword"
+        },
+        "refGene_cDNA_change": {
+          "es_field_name": "refGene_cDNA_change",
+          "es_field_datatype": "keyword"
+        },
+        "refGene_aa_change": {
+          "es_field_name": "refGene_aa_change",
+          "es_field_datatype": "keyword"
+        },
+        "refGene_distance_to_gene": {
+          "es_field_name": "refGene_distance_to_gene",
+          "es_field_datatype": "keyword"
+        }
+      }
+    },
+    "AA_pos": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "AA_pos"
+    },
+    "AA_sub": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "AA_sub"
+    },
+    "AC": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AC",
+      "is_label_field": true
+    },
+    "AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "AF",
+      "is_label_field": true
+    },
+    "AN": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AN",
+      "is_label_field": true
+    },
+    "Associated_disease": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Associated_disease"
+    },
+    "BA1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BA1"
+    },
+    "BP1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP1"
+    },
+    "BP2": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP2"
+    },
+    "BP3": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP3"
+    },
+    "BP4": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP4"
+    },
+    "BP5": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP5"
+    },
+    "BP6": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP6"
+    },
+    "BP7": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BP7"
+    },
+    "BS1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BS1"
+    },
+    "BS2": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BS2"
+    },
+    "BS3": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BS3"
+    },
+    "BS4": {
+      "es_field_datatype": "integer",
+      "es_field_name": "BS4"
+    },
+    "BaseQRankSum": {
+      "es_field_datatype": "float",
+      "es_field_name": "BaseQRankSum"
+    },
+    "CADD": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CADD"
+    },
+    "CADD13_PHRED": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CADD13_PHRED"
+    },
+    "CADD13_RawScore": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD13_RawScore"
+    },
+    "CADD_Phred": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_Phred"
+    },
+    "CADD_Phred_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_Phred_score"
+    },
+    "CADD_phred": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_phred"
+    },
+    "CADD_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CADD_prediction"
+    },
+    "CADD_raw": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_raw"
+    },
+    "CADD_raw_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_raw_rankscore"
+    },
+    "CADD_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_score"
+    },
+    "CCC": {
+      "es_field_datatype": "integer",
+      "es_field_name": "CCC"
+    },
+    "CLINSIG": {
+      "es_field_datatype": "text",
+      "es_field_name": "CLINSIG"
+    },
+    "CLNACC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CLNACC"
+    },
+    "CLNDBN": {
+      "es_field_datatype": "text",
+      "es_field_name": "CLNDBN"
+    },
+    "CLNDSDB": {
+      "es_field_datatype": "text",
+      "es_field_name": "CLNDSDB"
+    },
+    "CLNDSDBID": {
+      "es_field_datatype": "text",
+      "es_field_name": "CLNDSDBID"
+    },
+    "COSMIC_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "COSMIC_ID"
+    },
+    "COVEC_WMV": {
+      "es_field_datatype": "float",
+      "es_field_name": "COVEC_WMV"
+    },
+    "COVEC_WMV_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "COVEC_WMV_prediction"
+    },
+    "Carol_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Carol_prediction"
+    },
+    "Carol_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Carol_score"
+    },
+    "Class_predicted": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Class_predicted"
+    },
+    "ClippingRankSum": {
+      "es_field_datatype": "float",
+      "es_field_name": "ClippingRankSum"
+    },
+    "Codon_sub": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Codon_sub"
+    },
+    "Condel_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Condel_pred"
+    },
+    "Condel_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Condel_score"
+    },
+    "DANN_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "DANN_rankscore"
+    },
+    "DANN_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "DANN_score"
+    },
+    "DB": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "DB",
+      "is_exists_only": true
+    },
+    "DP": {
+      "es_field_datatype": "integer",
+      "es_field_name": "DP"
+    },
+    "DS": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "DS",
+      "is_exists_only": true
+    },
+    "EFIN_HumDiv_Prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "EFIN_HumDiv_Prediction"
+    },
+    "EFIN_HumDiv_Score": {
+      "es_field_datatype": "float",
+      "es_field_name": "EFIN_HumDiv_Score"
+    },
+    "EFIN_Swiss_Prot_Prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "EFIN_Swiss_Prot_Prediction"
+    },
+    "EFIN_Swiss_Prot_Score": {
+      "es_field_datatype": "float",
+      "es_field_name": "EFIN_Swiss_Prot_Score"
+    },
+    "Eigen": {
+      "es_field_datatype": "float",
+      "es_field_name": "Eigen"
+    },
+    "Eigen-PC-raw": {
+      "es_field_datatype": "float",
+      "es_field_name": "Eigen-PC-raw"
+    },
+    "Eigen-raw": {
+      "es_field_datatype": "float",
+      "es_field_name": "Eigen-raw"
+    },
+    "Eigen_coding_or_noncoding": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Eigen_coding_or_noncoding",
+      "value_mapping": {
+        "c": "Coding",
+        "n": "Noncoding"
+      }
+    },
+    "Ensembl_Gene_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Ensembl_Gene_ID"
+    },
+    "Ensembl_Protein_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Ensembl_Protein_ID"
+    },
+    "ExAC_AFR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_AFR",
+      "null_value": 0
+    },
+    "ExAC_ALL": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_ALL",
+      "null_value": 0
+    },
+    "ExAC_AMR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_AMR",
+      "null_value": 0
+    },
+    "ExAC_EAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_EAS",
+      "null_value": 0
+    },
+    "ExAC_FIN": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_FIN",
+      "null_value": 0
+    },
+    "ExAC_NFE": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_NFE",
+      "null_value": 0
+    },
+    "ExAC_OTH": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_OTH",
+      "null_value": 0
+    },
+    "ExAC_SAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_SAS",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_AFR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_AFR",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_ALL": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_ALL",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_AMR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_AMR",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_EAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_EAS",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_FIN": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_FIN",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_NFE": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_NFE",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_OTH": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_OTH",
+      "null_value": 0
+    },
+    "ExAC_nonpsych_SAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nonpsych_SAS",
+      "null_value": 0
+    },
+    "ExAC_nontcga_AFR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_AFR",
+      "null_value": 0
+    },
+    "ExAC_nontcga_ALL": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_ALL",
+      "null_value": 0
+    },
+    "ExAC_nontcga_AMR": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_AMR",
+      "null_value": 0
+    },
+    "ExAC_nontcga_EAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_EAS",
+      "null_value": 0
+    },
+    "ExAC_nontcga_FIN": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_FIN",
+      "null_value": 0
+    },
+    "ExAC_nontcga_NFE": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_NFE",
+      "null_value": 0
+    },
+    "ExAC_nontcga_OTH": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_OTH",
+      "null_value": 0
+    },
+    "ExAC_nontcga_SAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_nontcga_SAS",
+      "null_value": 0
+    },
+    "Examined_samples": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Examined_samples"
+    },
+    "ExonicFunc.ensGene": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ExonicFunc_ensGene",
+      "overwrites": "Func.ensGene"
+    },
+    "ExonicFunc.refGene": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ExonicFunc_refGene",
+      "overwrites": "Func.refGene"
+    },
+    "FATHMM_converted_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "FATHMM_converted_rankscore"
+    },
+    "FATHMM_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "FATHMM_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "FATHMM_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "FATHMM_score"
+    },
+    "FS": {
+      "es_field_datatype": "float",
+      "es_field_name": "FS"
+    },
+    "FatHmm_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "FatHmm_prediction",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "FatHmm_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "FatHmm_score"
+    },
+    "Func.ensGene": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Func_ensGene"
+    },
+    "Func.refGene": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Func_refGene"
+    },
+    "GERP++_RS": {
+      "es_field_datatype": "float",
+      "es_field_name": "GERPplusplus_RS"
+    },
+    "GERP++_RS_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "GERPplusplus_RS_rankscore"
+    },
+    "GQ_MEAN": {
+      "es_field_datatype": "float",
+      "es_field_name": "GQ_MEAN"
+    },
+    "GQ_STDDEV": {
+      "es_field_datatype": "float",
+      "es_field_name": "GQ_STDDEV"
+    },
+    "GTEx_V6_gene": {
+      "es_field_datatype": "text",
+      "es_field_name": "GTEx_V6_gene",
+      "es_field_text_analyzer": "whitespace",
+      "parse_function": "GTEx_V6_gene_parser"
+    },
+    "GTEx_V6_tissue": {
+      "es_field_datatype": "text",
+      "es_field_name": "GTEx_V6_tissue",
+      "parse_function": "GTEx_V6_tissue_parser"
+    },
+    "Gene.ensGene": {
+      "shares_nested_path": "AAChange.ensGene",
+      "parse_function": "Gene_ensGene_parser",
+      "comment": "It is possible that Gene.ensGene is present and GeneDetail.ensGene is not."
+    },
+    "Gene.refGene": {
+      "shares_nested_path": "AAChange.refGene",
+      "parse_function": "Gene_refGene_parser",
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
+    },
+    "GeneDetail.ensGene": {
+      "parse_with": "Gene.ensGene",
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
+    },
+    "GeneDetail.refGene": {
+      "parse_with": "Gene.refGene",
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
+    },
+    "Gene_pos": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Gene_pos"
+    },
+    "Gene_symbol": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Gene_symbol"
+    },
+    "GenoCanyon_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "GenoCanyon_score"
+    },
+    "GenoCanyon_score_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "GenoCanyon_score_rankscore"
+    },
+    "HWP": {
+      "es_field_datatype": "float",
+      "es_field_name": "HWP"
+    },
+    "HaplotypeScore": {
+      "es_field_datatype": "float",
+      "es_field_name": "HaplotypeScore"
+    },
+    "InbreedingCoeff": {
+      "es_field_datatype": "float",
+      "es_field_name": "InbreedingCoeff"
+    },
+    "InterVar(automated)": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "InterVar(automated)"
+    },
+    "Interpro_domain": {
+      "es_field_datatype": "text",
+      "es_field_name": "Interpro_domain",
+      "es_field_text_analyzer": "simple"
+    },
+    "LRT_converted_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "LRT_converted_rankscore"
+    },
+    "LRT_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "LRT_pred",
+      "value_mapping": {
+        "N": "Neutral",
+        "D": "Deleterious",
+        "U": "Unknown"
+      }
+    },
+    "LRT_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "LRT_score"
+    },
+    "M-CAP_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "M-CAP_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "M-CAP_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "M-CAP_rankscore"
+    },
+    "M-CAP_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "M-CAP_score"
+    },
+    "MCAP": {
+      "es_field_datatype": "float",
+      "es_field_name": "MCAP"
+    },
+    "MLEAC": {
+      "es_field_datatype": "integer",
+      "es_field_name": "MLEAC"
+    },
+    "MLEAF": {
+      "es_field_datatype": "float",
+      "es_field_name": "MLEAF"
+    },
+    "MQ": {
+      "es_field_datatype": "float",
+      "es_field_name": "MQ"
+    },
+    "MQ0": {
+      "es_field_datatype": "float",
+      "es_field_name": "MQ0"
+    },
+    "MQRankSum": {
+      "es_field_datatype": "float",
+      "es_field_name": "MQRankSum"
+    },
+    "Mean_MI_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Mean_MI_score"
+    },
+    "MetaLR_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MetaLR_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "MetaLR_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "MetaLR_rankscore"
+    },
+    "MetaLR_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "MetaLR_score"
+    },
+    "MetaSVM_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MetaSVM_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "MetaSVM_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "MetaSVM_rankscore"
+    },
+    "MetaSVM_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "MetaSVM_score"
+    },
+    "MutAss_pred_transf": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MutAss_pred_transf"
+    },
+    "MutAss_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MutAss_prediction"
+    },
+    "MutAss_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutAss_score"
+    },
+    "MutAss_score_transf": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutAss_score_transf"
+    },
+    "MutationAssessor_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MutationAssessor_pred",
+      "value_mapping": {
+        "H": "High",
+        "M": "Medium",
+        "L": "Low",
+        "N": "Neutral"
+      }
+    },
+    "MutationAssessor_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutationAssessor_score"
+    },
+    "MutationAssessor_score_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutationAssessor_score_rankscore"
+    },
+    "MutationTaster_converted_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutationTaster_converted_rankscore"
+    },
+    "MutationTaster_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MutationTaster_pred",
+      "value_mapping": {
+        "A": "disease_causing_automatic",
+        "D": "disease_causing",
+        "N": "polymorphism",
+        "P": "polymorphism_automatic"
+      }
+    },
+    "MutationTaster_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "MutationTaster_score"
+    },
+    "Mutation_frequency": {
+      "es_field_datatype": "float",
+      "es_field_name": "Mutation_frequency"
+    },
+    "NCBI_Gene_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "NCBI_Gene_ID"
+    },
+    "NCBI_Protein_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "NCBI_Protein_ID"
+    },
+    "NCC": {
+      "es_field_datatype": "integer",
+      "es_field_name": "NCC"
+    },
+    "NEGATIVE_TRAIN_SITE": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "NEGATIVE_TRAIN_SITE",
+      "is_exists_only": true
+    },
+    "OXPHOS_Complex": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OXPHOS_Complex"
+    },
+    "PM1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM1"
+    },
+    "PM2": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM2"
+    },
+    "PM3": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM3"
+    },
+    "PM4": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM4"
+    },
+    "PM5": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM5"
+    },
+    "PM6": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PM6"
+    },
+    "POSITIVE_TRAIN_SITE": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "POSITIVE_TRAIN_SITE",
+      "is_exists_only": true
+    },
+    "PP1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PP1"
+    },
+    "PP2": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PP2"
+    },
+    "PP3": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PP3"
+    },
+    "PP4": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PP4"
+    },
+    "PP5": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PP5"
+    },
+    "PROVEAN_converted_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "PROVEAN_converted_rankscore"
+    },
+    "PROVEAN_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PROVEAN_pred",
+      "value_mapping": {
+        "N": "Neutral",
+        "D": "Deleterious"
+      }
+    },
+    "PROVEAN_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PROVEAN_prediction",
+      "value_mapping": {
+        "N": "Neutral",
+        "D": "Deleterious"
+      }
+    },
+    "PROVEAN_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "PROVEAN_score"
+    },
+    "PS1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PS1"
+    },
+    "PS2": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PS2"
+    },
+    "PS3": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PS3"
+    },
+    "PS4": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PS4"
+    },
+    "PVS1": {
+      "es_field_datatype": "integer",
+      "es_field_name": "PVS1"
+    },
+    "Perc_coevo_Sites": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Perc_coevo_Sites"
+    },
+    "PhastCons_100V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhastCons_100V"
+    },
+    "PhastCons_46V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhastCons_46V"
+    },
+    "PhyloP_100V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhyloP_100V"
+    },
+    "PhyloP_46V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhyloP_46V"
+    },
+    "PolyPhen2_pred_transf": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PolyPhen2_pred_transf"
+    },
+    "PolyPhen2_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PolyPhen2_prediction"
+    },
+    "PolyPhen2_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "PolyPhen2_score"
+    },
+    "PolyPhen2_score_transf": {
+      "es_field_datatype": "float",
+      "es_field_name": "PolyPhen2_score_transf"
+    },
+    "Polyphen2_HDIV_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Polyphen2_HDIV_pred",
+      "value_mapping": {
+        "D": "probably_damaging",
+        "P": "possibly_damaging",
+        "B": "benign"
+      }
+    },
+    "Polyphen2_HDIV_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HDIV_rankscore"
+    },
+    "Polyphen2_HDIV_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HDIV_score"
+    },
+    "Polyphen2_HVAR_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Polyphen2_HVAR_pred",
+      "value_mapping": {
+        "D": "probably_damaging",
+        "P": "possibly_damaging",
+        "B": "benign"
+      }
+    },
+    "Polyphen2_HVAR_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HVAR_rankscore"
+    },
+    "Polyphen2_HVAR_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HVAR_score"
+    },
+    "Presence_in_TD": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Presence_in_TD"
+    },
+    "Prob_N": {
+      "es_field_datatype": "float",
+      "es_field_name": "Prob_N"
+    },
+    "Prob_P": {
+      "es_field_datatype": "float",
+      "es_field_name": "Prob_P"
+    },
+    "QD": {
+      "es_field_datatype": "float",
+      "es_field_name": "QD"
+    },
+    "REVEL": {
+      "es_field_datatype": "float",
+      "es_field_name": "REVEL"
+    },
+    "ReadPosRankSum": {
+      "es_field_datatype": "float",
+      "es_field_name": "ReadPosRankSum"
+    },
+    "SIFT_converted_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "SIFT_converted_rankscore"
+    },
+    "SIFT_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "SIFT_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious"
+      }
+    },
+    "SIFT_pred_transf": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "SIFT_pred_transf"
+    },
+    "SIFT_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "SIFT_prediction"
+    },
+    "SIFT_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "SIFT_score"
+    },
+    "SIFT_score_transf": {
+      "es_field_datatype": "float",
+      "es_field_name": "SIFT_score_transf"
+    },
+    "SOR": {
+      "es_field_datatype": "float",
+      "es_field_name": "SOR"
+    },
+    "SiPhy_29way_logOdds": {
+      "es_field_datatype": "float",
+      "es_field_name": "SiPhy_29way_logOdds"
+    },
+    "SiPhy_29way_logOdds_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "SiPhy_29way_logOdds_rankscore"
+    },
+    "SiteVar": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "SiteVar"
+    },
+    "Status": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Status"
+    },
+    "Tumor_site": {
+      "es_field_datatype": "text",
+      "es_field_name": "Tumor_site"
+    },
+    "US": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "US"
+    },
+    "Uniprot_ID": {
+      "es_field_datatype": "keywords",
+      "es_field_name": "Uniprot_ID"
+    },
+    "Uniprot_Name": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Uniprot_Name"
+    },
+    "VEST3_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "VEST3_rankscore"
+    },
+    "VEST3_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "VEST3_score"
+    },
+    "VQSLOD": {
+      "es_field_datatype": "float",
+      "es_field_name": "VQSLOD"
+    },
+    "avsnp147": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "avsnp147"
+    },
+    "culprit": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "culprit"
+    },
+    "cytoBand": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "cytoBand"
+    },
+    "dbSNP_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbSNP_ID"
+    },
+    "dbscSNV_ADA_SCORE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbscSNV_ADA_SCORE"
+    },
+    "dbscSNV_RF_SCORE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbscSNV_RF_SCORE"
+    },
+    "esp6500siv2_aa": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_aa"
+    },
+    "esp6500siv2_all": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_all"
+    },
+    "esp6500siv2_ea": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_ea"
+    },
+    "fathmm-MKL_coding_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "fathmm-MKL_coding_pred",
+      "value_mapping": {
+        "T": "Tolerated",
+        "D": "Deleterious",
+        "N": "Neutral"
+      }
+    },
+    "fathmm-MKL_coding_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "fathmm-MKL_coding_rankscore"
+    },
+    "fathmm-MKL_coding_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "fathmm-MKL_coding_score"
+    },
+    "gwasCatalog": {
+      "es_field_datatype": "text",
+      "es_field_name": "gwasCatalog",
+      "es_field_text_analyzer": "simple",
+      "parse_function": "gwasCatalog_parser"
+    },
+    "integrated_confidence_value": {
+      "es_field_datatype": "integer",
+      "es_field_name": "integrated_confidence_value"
+    },
+    "integrated_fitCons_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "integrated_fitCons_score"
+    },
+    "integrated_fitCons_score_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "integrated_fitCons_score_rankscore"
+    },
+    "phastCons100way_vertebrate": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons100way_vertebrate"
+    },
+    "phastCons100way_vertebrate_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons100way_vertebrate_rankscore"
+    },
+    "phastCons20way_mammalian": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons20way_mammalian"
+    },
+    "phastCons20way_mammalian_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons20way_mammalian_rankscore"
+    },
+    "phyloP100way_vertebrate": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP100way_vertebrate"
+    },
+    "phyloP100way_vertebrate_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP100way_vertebrate_rankscore"
+    },
+    "phyloP20way_mammalian": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP20way_mammalian"
+    },
+    "phyloP20way_mammalian_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP20way_mammalian_rankscore"
+    },
+    "snp138NonFlagged": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "snp138NonFlagged"
+    },
+    "targetScanS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "targetScanS"
+    },
+    "tfbsConsSites": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "tfbsConsSites"
+    },
+    "wgRna": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "wgRna",
+      "parse_function": "gwasCatalog_parser"
+    },
+    "NS" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "NS"
+    },
+    "AO" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "AO"
+    },
+    "FAO" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FAO"
+    },
+    "FDP" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FDP"
+    },
+    "FR" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "FR"
+    },
+    "FRO" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FRO"
+    },
+    "FSAF" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSAF"
+    },
+    "FSAR" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSAR"
+    },
+    "FSRF" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSRF"
+    },
+    "FSRR" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSRR"
+    },
+    "FWDB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "FWDB"
+    },
+    "FXX" : {
+      "es_field_datatype": "float",
+      "es_field_name": "FXX"
+    },
+    "HRUN" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "HRUN"
+    },
+    "HS" : {
+      "es_field_datatype": "boolean",
+      "es_field_name": "HS"
+    },
+    "LEN" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "LEN"
+    },
+    "MLLD" : {
+      "es_field_datatype": "float",
+      "es_field_name": "MLLD"
+    },
+    "OALT" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OALT"
+    },
+    "OID" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OID"
+    },
+    "OMAPALT" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OMAPALT"
+    },
+    "OPOS" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OPOS"
+    },
+    "OREF" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OREF"
+    },
+    "RBI" : {
+      "es_field_datatype": "float",
+      "es_field_name": "RBI"
+    },
+    "REFB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "REFB"
+    },
+    "REVB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "REVB"
+    },
+    "RO" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "RO"
+    },
+    "SAF" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "SAF"
+    },
+    "SAR" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "SAR"
+    },
+    "SRF" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "SRF"
+    },
+    "SRR" : {
+      "es_field_datatype": "integer",
+      "es_field_name": "SRR"
+    },
+    "SSEN" : {
+      "es_field_datatype": "float",
+      "es_field_name": "SSEN"
+    },
+    "SSEP" : {
+      "es_field_datatype": "float",
+      "es_field_name": "SSEP"
+    },
+    "SSSB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "SSSB"
+    },
+    "STB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "STB"
+    },
+    "STBP" : {
+      "es_field_datatype": "float",
+      "es_field_name": "STBP"
+    },
+    "TYPE" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "TYPE"
+    },
+    "VARB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "VARB"
+    },
+    "cosmic70" : {
+      "es_field_datatype": "keyword",
+      "es_field_name": "cosmic70"
+    },
+    "PB" : {
+      "es_field_datatype": "float",
+      "es_field_name": "PB"
+    },
+    "PBP" : {
+      "es_field_datatype": "float",
+      "es_field_name": "PBP"
+    }
+  },
+  "FORMAT_FIELDS": {
+    "es_nested_path": "sample",
+    "parse_function": "sample_information_parser",
+    "nested_fields": {
+      "sample_ID": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_ID"
+      },
+      "sample_label": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_label"
+      },
+      "AD": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_AD"
+      },
+      "DP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_DP"
+      },
+      "GQ": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_GQ"
+      },
+      "GT": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_GT"
+      },
+      "MIN_DP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_MIN_DP"
+      },
+      "PGT": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_PGT"
+      },
+      "PID": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_PID"
+      },
+      "PL": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_PL"
+      },
+      "SB": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SB"
+      },
+      "RO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_RO"
+      },
+      "AO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_AO"
+      },
+      "SRF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SRF"
+      },
+      "SRR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SRR"
+      },
+      "SAF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SAF"
+      },
+      "SAR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SAR"
+      },
+      "FDP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FDP"
+      },
+      "FRO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FRO"
+      },
+      "FAO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FAO"
+      },
+      "AF": {
+        "es_field_datatype": "float",
+        "es_field_name": "sample_AF"
+      },
+      "FSRF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSRF"
+      },
+      "FSRR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSRR"
+      },
+      "FSAF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSAF"
+      },
+      "FSAR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSAR"
+      }
+    }
+  }
+}
