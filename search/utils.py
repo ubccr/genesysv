@@ -17,6 +17,7 @@ class ElasticSearchFilter():
         self.filter_range_lt = []
         self.filter_range_lte = []
         self.nested_filter_range_gte = {}
+        self.nested_filter_range_lte = {}
 
         self.filter_exists = []
         self.must_not_exists = []
@@ -102,6 +103,16 @@ class ElasticSearchFilter():
         self.nested_filter_range_gte[path].append((field_name, value))
 
     def get_nested_filter_range_gte(self):
+        if list(self.nested_filter_range_gte):
+            return self.nested_filter_range_gte
+
+
+    def add_nested_filter_range_lte(self, field_name, value, path):
+        if path not in self.nested_filter_range_lte:
+            self.nested_filter_range_lte[path] = []
+        self.nested_filter_range_lte[path].append((field_name, value))
+
+    def get_nested_filter_range_lte(self):
         if list(self.nested_filter_range_gte):
             return self.nested_filter_range_gte
 

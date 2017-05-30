@@ -425,6 +425,11 @@ def search(request):
                     es_filter.add_nested_filter_range_gte(es_name, data, path)
                     dict_filter_fields[filter_field_pk].append(int(data.strip()))
 
+                elif es_filter_type == 'nested_filter_range_lte':
+                    es_filter.add_nested_filter_range_lte(es_name, data, path)
+                    dict_filter_fields[filter_field_pk].append(int(data.strip()))
+
+
                 elif es_filter_type == 'filter_exists':
                     if data == 'only':
                         es_filter.add_filter_exists(es_name, data)
@@ -505,7 +510,8 @@ def search(request):
                         if key_es_filter_type in ["filter_range_gte",
                                                   "filter_range_lte",
                                                   "filter_range_lt",
-                                                  "nested_filter_range_gte",]:
+                                                  "nested_filter_range_gte",
+                                                  "nested_filter_range_lte"]:
                             comparison_type = key_es_filter_type.split('_')[-1]
                         elif key_es_filter_type in ["nested_filter_term",
                                                     "nested_filter_terms",]:
