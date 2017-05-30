@@ -127,10 +127,14 @@
                 <td>Allele Count Case</td>
                 <td><strong>{{ result.AC_case }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AN_case %}
             <tr>
                 <td>Allele Number Case</td>
                 <td><strong>{{ result.AN_case }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AF_case %}
             <tr>
                 <td>Allele Frequency Case</td>
                 <td><strong>{{ result.AF_case }}</strong></td>
@@ -141,10 +145,14 @@
                 <td>Allele Count Control</td>
                 <td><strong>{{ result.AC_control }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AN_control %}
             <tr>
                 <td>Allele Number Control</td>
                 <td><strong>{{ result.AN_control }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AF_control %}
             <tr>
                 <td>Allele Frequency Control</td>
                 <td><strong>{{ result.AF_control }}</strong></td>
@@ -155,10 +163,14 @@
                 <td>Allele Count</td>
                 <td><strong>{{ result.AC }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AN %}
             <tr>
                 <td>Allele Number</td>
                 <td><strong>{{ result.AN }}</strong></td>
             </tr>
+        {% endif %}
+        {% if result.AF %}
             <tr>
                 <td>Allele Frequency</td>
                 <td><strong>{{ result.AF }}</strong></td>

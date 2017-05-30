@@ -103,12 +103,15 @@ curl -XPUT '199.109.192.65:9200/empire/_mapping/empire?pretty' -H 'Content-Type:
       "type": "keyword"
     },
     "CLNDBN": {
+      "analyzer": "simple",
       "type": "text"
     },
     "CLNDSDB": {
+      "analyzer": "simple",
       "type": "text"
     },
     "CLNDSDBID": {
+      "analyzer": "simple",
       "type": "text"
     },
     "DANN_rankscore": {

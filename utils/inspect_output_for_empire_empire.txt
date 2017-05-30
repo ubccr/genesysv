@@ -401,16 +401,19 @@
     "CLNDBN": {
       "es_field_datatype": "text",
       "es_field_name": "CLNDBN",
+      "es_field_text_analyzer": "simple",
       "is_parsed": true
     },
     "CLNDSDB": {
       "es_field_datatype": "text",
       "es_field_name": "CLNDSDB",
+      "es_field_text_analyzer": "simple",
       "is_parsed": true
     },
     "CLNDSDBID": {
       "es_field_datatype": "text",
       "es_field_name": "CLNDSDBID",
+      "es_field_text_analyzer": "simple",
       "is_parsed": true
     },
     "COSMIC_ID": {
