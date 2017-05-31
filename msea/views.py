@@ -8,6 +8,8 @@ import hashlib
 import datetime
 import os
 import re
+import requests
+import json
 
 from .utils import generate_variant_bplot
 from django.views.decorators.gzip import gzip_page
@@ -194,3 +196,86 @@ def get_variant_form(request):
                'rs_id': rs_id}
     # return HttpResponse(attribute_forms)
     return render(request, "msea/get_variant_snippet.html", context)
+
+
+def get_top100_nes(index, doc_type, size=100):
+    query_string = """
+    {
+        "_source": ["nes", "pvalue", "refgene_id", "vset", "gene_name"],
+        "sort" : [
+            { "nes" : {"order" : "desc"}}
+        ],
+        "size": %s
+    }
+    """
+
+    url = "http://199.109.195.45:9200/%s/%s/_search?pretty" %(index, doc_type)
+
+    response = requests.get(url, data = query_string %(size))
+    tmp = json.loads(response.text)
+    tmp = tmp['hits']['hits']
+    results = []
+    for ele in tmp:
+        tmp_source = ele['_source']
+        results.append(tmp_source)
+
+    return results
+
+def msea_pvalue(request):
+    index = 'msea'
+    doc_type = 'sim_sen_noexpand'
+    type_name = 'noexpand'
+    results = get_top100_nes(index, doc_type, size=100)
+    context = {}
+    context['results'] = results
+    context['index'] = index
+    context['doc_type'] = doc_type
+    context['type_name'] = type_name
+    return render(request, 'msea/msea_pvalue.html', context)
+
+
+
+@gzip_page
+def get_plot(request):
+    params = request.GET
+    msea_type_name = params.get('type_name')
+    gene = params.get('gene')
+    rs_id = params.get('rs_id')
+    vset = params.get('vset')
+
+    plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+    plot_path = os.path.basename(plot_path)
+    context = {}
+    context['plot_path'] = plot_path
+
+    return render(request, 'msea/msea_get_plot.html', context)
+    # if request.GET:
+    #     gene_form = GeneForm(request.user, request.POST)
+    #     rs_id = request.POST['rs_id']
+    #     dataset = request.POST['dataset']
+    #     variant_form = VariantForm(rs_id, dataset, request.POST)
+    #     if gene_form.is_valid() and variant_form.is_valid():
+    #         gene_data = gene_form.cleaned_data
+    #         variant_data = variant_form.cleaned_data
+
+    #         dataset = gene_data['dataset']
+    #         gene_name = gene_data['search_term']
+    #         gene, rs_id = gene_name.split()
+    #         rs_id = rs_id[1:-1]
+
+    #         recurrent_variant_option = gene_data['recurrent_variant_option']
+    #         variants_selected = variant_data['variant_choices']
+    #         # variants_selected = ','.join(variants_selected)
+
+    #         msea_type_name = "%s_%s" %(dataset, recurrent_variant_option)
+    #         plots = []
+    #         for vset in variants_selected:
+    #             plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+    #             plots.append((gene, rs_id, vset, os.path.basename(plot_path)))
+    #         # print(plots)
+    #         context = {}
+    #         context['plots'] = plots
+    #         context['dataset'] = dataset
+
+            # return render(request, 'msea/msea_bokeh_plot.html', context)
+
