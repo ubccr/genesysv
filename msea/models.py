@@ -5,8 +5,16 @@ from common.models import TimeStampedModel
 class MseaDataset(TimeStampedModel):
     dataset = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
+    es_index_name = models.CharField(max_length=255)
+    es_type_name = models.CharField(max_length=255)
+    es_host = models.CharField(max_length=255)
+    es_port = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, blank=True)
+
+
+    class Meta:
+        unique_together = ('dataset', 'display_name')
 
     def __str__(self):
         return self.display_name
@@ -15,6 +23,7 @@ class MseaDataset(TimeStampedModel):
 class VariantSet(TimeStampedModel):
     full_name = models.CharField(max_length=128)
     short_name = models.CharField(max_length=32)
+
 
     def __str__(self):
         return self.full_name

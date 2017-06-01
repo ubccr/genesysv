@@ -12,6 +12,11 @@ class VariantSetAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'short_name')
 
 
+class GeneAdmin(admin.ModelAdmin):
+    list_display = ('gene_name',)
+
+
 admin.site.register(MseaDataset, MseaDatasetAdmin)
 admin.site.register(ReferenceSequence, ReferenceSequenceAdmin)
 admin.site.register(VariantSet, VariantSetAdmin)
+admin.site.register(Gene, GeneAdmin)

@@ -27,10 +27,10 @@ def format_domain_for_R(results):
     return formatted_results
 
 import elasticsearch
-def generate_variant_bplot(msea_type_name, gene, rs_id, vset):
+def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
     import json
 
-    es = elasticsearch.Elasticsearch(host="199.109.195.45")
+    es = elasticsearch.Elasticsearch(host=es_host, port=es_port)
     if vset == "prom":
         domain_rs_id = gene
         domain_es_index_name = "tfbs"
