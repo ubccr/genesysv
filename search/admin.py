@@ -96,7 +96,7 @@ class FilterFieldChoiceAdmin(admin.ModelAdmin):
 class AttributeFieldAdmin(admin.ModelAdmin):
     list_display = ('display_text', 'dataset', 'es_name', 'path',)
     list_filter = ('dataset',)
-    search_fields = ('display_text', 'dataset',)
+    search_fields = ('display_text',)
 
 class FormTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
