@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from .models import *
 
@@ -6,25 +7,80 @@ from .models import *
 class FilterTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
 
+
+class FilterPanelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FilterPanelForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            print(kwargs.get('instance'))
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
+                                                                               dataset=kwargs['instance'].dataset)
+
+    class Meta:
+        model = FilterPanel
+        exclude = ('dataset',)
+
 class FilterPanelAdmin(admin.ModelAdmin):
+    form = FilterPanelForm
     list_display = ('name',)
     search_fields = ('name',)
+
+class FilterSubPanelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FilterSubPanelForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            print(kwargs.get('instance'))
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
+                                                                               dataset=kwargs['instance'].dataset)
+
+    class Meta:
+        model = FilterSubPanel
+        exclude = ('dataset',)
+
 
 class FilterSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_panel')
     search_fields = ('name',)
+    form = FilterSubPanelForm
 
 class AttributeTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
     list_filter = ('attribute_panels',)
 
+
+class AttributePanelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AttributePanelForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
+                                                                                     dataset=kwargs['instance'].dataset)
+
+    class Meta:
+        model = AttributePanel
+        exclude = ('dataset',)
+
+
 class AttributePanelAdmin(admin.ModelAdmin):
+    form = AttributePanelForm
     list_display = ('name',)
     search_fields = ('name',)
+
+class AttributeSubPanelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AttributeSubPanelForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
+                                                                                     dataset=kwargs['instance'].dataset)
+
+    class Meta:
+        model = AttributeSubPanel
+        exclude = ('dataset',)
+
 
 class AttributeSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_panel')
     search_fields = ('name',)
+    form = AttributeSubPanelForm
 
 class FilterFieldAdmin(admin.ModelAdmin):
     list_display = ('display_text', 'dataset', 'in_line_tooltip', 'tooltip', 'form_type', 'widget_type', 'es_name', 'path', 'es_data_type', 'es_filter_type', )

@@ -95,13 +95,14 @@ class FilterField(TimeStampedModel):
         'ESFilterType',
         on_delete=models.CASCADE,
     )
+    place_in_panel = models.CharField(max_length=255)
     is_visible = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'es_filter_type', 'path')
 
     def __str__(self):
-        return "Field Name: %s %s -- Dataset: (%s)" %(self.display_text, self.in_line_tooltip, self.dataset.name)
+        return "%s %s" %(self.display_text, self.in_line_tooltip)
 
 class FilterFieldChoice(TimeStampedModel):
     filter_field = models.ForeignKey(
@@ -125,16 +126,21 @@ class AttributeField(TimeStampedModel):
     display_text = models.CharField(max_length=255)
     es_name = models.CharField(max_length=255)
     path = models.CharField(max_length=255, null=True, blank=True)
+    place_in_panel = models.CharField(max_length=255)
     is_visible = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'path')
 
     def __str__(self):
-        return "%s (%s)" %(self.display_text, self.dataset.name)
+        return "%s" %(self.display_text)
 
 
 class FilterPanel(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=255)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     filter_fields = SortedManyToManyField(FilterField, blank=True)
@@ -144,6 +150,10 @@ class FilterPanel(TimeStampedModel):
         return self.name
 
 class FilterSubPanel(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
     filter_panel = models.ForeignKey(
         'FilterPanel',
         on_delete=models.CASCADE,
@@ -169,6 +179,10 @@ class FilterTab(TimeStampedModel):
 
 
 class AttributePanel(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(max_length=255)
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)
@@ -178,6 +192,10 @@ class AttributePanel(TimeStampedModel):
         return self.name
 
 class AttributeSubPanel(TimeStampedModel):
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
     attribute_panel = models.ForeignKey(
         'AttributePanel',
         on_delete=models.CASCADE,

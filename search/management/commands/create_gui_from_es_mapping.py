@@ -63,6 +63,9 @@ def get_from_es(dataset_es_index_name,
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"]])
 
 
+
+
+
 def fetch_data_type_from_es(dataset_es_index_name,
                             dataset_es_type_name,
                             dataset_es_host,
@@ -85,6 +88,12 @@ def fetch_data_type_from_es(dataset_es_index_name,
             raise(e)
 
 
+
+def get_order_of_import(ele, vcf_gui_mapping_order):
+    if ele in vcf_gui_mapping_order:
+        return vcf_gui_mapping_order.index(ele)
+    else:
+        return len(vcf_gui_mapping_order)+1
 
 
 class Command(BaseCommand):
@@ -166,8 +175,13 @@ class Command(BaseCommand):
 
 
 
+
+        import_order = sorted(list(mapping), key=lambda ele: get_order_of_import(ele, list(vcf_gui_mapping)))
+
         idx = 1
-        for var_name, var_info in mapping.items():
+        # for var_name, var_info in mapping.items():
+        for var_name in import_order:
+            var_info = mapping.get(var_name)
             if not vcf_gui_mapping.get(var_name):
                 print('*'*20, 'ERROR', var_name)
                 continue
@@ -194,20 +208,20 @@ class Command(BaseCommand):
                 field_values = filter_field.get('values')
 
 
-                # print("\n%s --- Filter Field" %(idx))
-                # print("Filter Tab Name: %s" %(tab_name))
-                # print("Filter Panel Name: %s" %(panel_name))
-                # print("Filter Subpanel Name: %s" %(sub_panel_name))
-                # print("Filter Display Name: %s" %(field_display_text))
-                # print("Filter in Line Tooltip: %s" %(field_in_line_tooltip))
-                # print("Filter Tooltip: %s" %(field_tooltip))
-                # print("Filter Form Type: %s" %(field_form_type))
-                # print("Filter Widget Type: %s" %(field_widget_type))
-                # print("Filter ES Name: %s" %(field_es_name))
-                # print("Filter Path: %s" %(field_path))
-                # print("Filter ES Filter Type: %s" %(field_es_filter_type))
-                # print("Filter ES Data Type: %s" %(field_es_data_type))
-                # print("Filter Values: %s" %(field_values))
+                print("\n%s --- Filter Field" %(idx))
+                print("Filter Tab Name: %s" %(tab_name))
+                print("Filter Panel Name: %s" %(panel_name))
+                print("Filter Subpanel Name: %s" %(sub_panel_name))
+                print("Filter Display Name: %s" %(field_display_text))
+                print("Filter in Line Tooltip: %s" %(field_in_line_tooltip))
+                print("Filter Tooltip: %s" %(field_tooltip))
+                print("Filter Form Type: %s" %(field_form_type))
+                print("Filter Widget Type: %s" %(field_widget_type))
+                print("Filter ES Name: %s" %(field_es_name))
+                print("Filter Path: %s" %(field_path))
+                print("Filter ES Filter Type: %s" %(field_es_filter_type))
+                print("Filter ES Data Type: %s" %(field_es_data_type))
+                print("Filter Values: %s" %(field_values))
 
 
                 match_status = False
@@ -237,7 +251,7 @@ class Command(BaseCommand):
 
 
                 filter_tab_obj, _ = FilterTab.objects.get_or_create(dataset=dataset_obj, name=tab_name)
-                filter_panel_obj, _ = FilterPanel.objects.get_or_create(name=panel_name)
+                filter_panel_obj, _ = FilterPanel.objects.get_or_create(name=panel_name, dataset=dataset_obj)
 
 
                 if not filter_tab_obj.filter_panels.filter(id=filter_panel_obj.id):
@@ -254,54 +268,52 @@ class Command(BaseCommand):
                                                                es_name=field_es_name,
                                                                path=field_path,
                                                                es_data_type=field_es_data_type,
-                                                               es_filter_type=es_filter_type_obj)
+                                                               es_filter_type=es_filter_type_obj,
+                                                               place_in_panel=filter_panel_obj.name)
 
 
                 if field_values:
                     for choice in field_values:
                         FilterFieldChoice.objects.get_or_create(filter_field=filter_field_obj, value=choice)
 
-
-
                 attribute_tab_obj, _ = AttributeTab.objects.get_or_create(dataset=dataset_obj, name=tab_name)
-                attribute_panel_obj, _ = AttributePanel.objects.get_or_create(name=panel_name)
+                attribute_panel_obj, _ = AttributePanel.objects.get_or_create(name=panel_name, dataset=dataset_obj)
 
                 if not attribute_tab_obj.attribute_panels.filter(id=attribute_panel_obj.id):
                         attribute_tab_obj.attribute_panels.add(attribute_panel_obj)
 
                 try:
-                    attribute_field_obj, created = AttributeField.objects.get_or_create(dataset=dataset_obj,
+                    attribute_field_obj, _ = AttributeField.objects.get_or_create(dataset=dataset_obj,
                                                            display_text=field_display_text,
                                                            es_name=field_es_name,
-                                                           path=field_path)
+                                                           path=field_path,
+                                                           place_in_panel=attribute_panel_obj.name)
                 except:
                     pass
 
                 if sub_panel_name:
                     filter_sub_panel_obj, _ = FilterSubPanel.objects.get_or_create(filter_panel=filter_panel_obj,
-                                                                 name=sub_panel_name)
+                                                                 name=sub_panel_name, dataset=dataset_obj)
+
 
                     attribute_sub_panel_obj, _ = AttributeSubPanel.objects.get_or_create(attribute_panel=attribute_panel_obj,
-                                                             name=sub_panel_name)
+                                                             name=sub_panel_name, dataset=dataset_obj)
+
 
                     if not filter_sub_panel_obj.filter_fields.filter(id=filter_field_obj.id):
+                        filter_field_obj.place_in_panel = filter_sub_panel_obj.name
+                        filter_field_obj.save()
                         filter_sub_panel_obj.filter_fields.add(filter_field_obj)
 
-
-
-                    attribute_field_obj, created = AttributeField.objects.get_or_create(dataset=dataset_obj,
-                                                               display_text=field_display_text,
-                                                               es_name=field_es_name,
-                                                               path=field_path)
-
                     if not attribute_sub_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
+                        attribute_field_obj.place_in_panel = attribute_sub_panel_obj.name
+                        attribute_field_obj.save()
                         attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
                 else:
 
                     if not filter_panel_obj.filter_fields.filter(id=filter_field_obj.id):
                         filter_panel_obj.filter_fields.add(filter_field_obj)
-
 
 
                     if not attribute_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
