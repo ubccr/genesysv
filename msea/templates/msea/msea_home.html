@@ -29,7 +29,7 @@
       <h1>MSEA Plotting Tool</h1>
     </div>
 
-    <form id="msea-form" role="form"  method="POST" action="{% url 'bokeh-plot' %}" autocomplete="off">
+    <form id="msea-form" role="form"  method="POST" action="{% url 'msea-plot' %}" autocomplete="off">
         {% csrf_token %}
         {{form|crispy}}
 
@@ -71,7 +71,7 @@
     return cookieValue;
 }
 
-function get_variant_form(selected_rs_id, dataset){
+function get_variant_form(selected_rs_id, study){
 $.ajax(
     {
 
@@ -80,7 +80,7 @@ $.ajax(
         url : "{% url 'get-variant-form' %}",
         data: {
                 selected_rs_id: selected_rs_id,
-                dataset: dataset,
+                study: study,
         },
         success:function(data) {
             $('#select-variant').html(data);
@@ -99,14 +99,14 @@ $(document).ready(function() {
         minLength: 2,
         delay: 1,
         source: function (query, process) {
-            return $.get('/msea/search-gene-rs-id/?q=' + query + '&dataset=' + $( "#id_dataset" ).val(), function (data) {
+            return $.get('/msea/search-gene-rs-id/?q=' + query + '&study=' + $( "#id_study" ).val(), function (data) {
                 return process(data.data);
             });
         },
         updater: function (selected_rs_id) {
             $('#select-variant').html();
-            var dataset = $( "#id_dataset" ).val()
-            get_variant_form(selected_rs_id, dataset);
+            var study = $( "#id_study" ).val()
+            get_variant_form(selected_rs_id, study);
             $("#msea-submit-button").removeClass("disabled")
             return selected_rs_id
         }

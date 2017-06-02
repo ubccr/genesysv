@@ -377,7 +377,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
         output_folder = os.path.join(settings.BASE_DIR, 'static_root/bokeh_outputs')
 
     output_name = os.path.join(output_folder,"%s_%s_%s_%s.html" %(gene, rs_id, msea_type_name, vset))
-    print('*'*20, output_name)
+    # print('*'*20, output_name)
     save(p, output_name)
 
     return output_name

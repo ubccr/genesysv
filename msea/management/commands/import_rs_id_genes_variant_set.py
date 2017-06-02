@@ -20,28 +20,24 @@ VARIANT_FILE_TYPE_CHOICES = (('ass', 'All Silent SNVs'),
                          ('revelset', 'REVEL score >= 0.50'),
                     )
 
-def estimate_no_lines(filename, no_lines_for_estimating):
-    no_lines = 0
-    size_list = deque()
 
-    with open(filename, 'r') as fp:
-        for line in fp:
-            if line.startswith('#'):
-                continue
+STUDIES = (
+    ("sim",
+     "Statin Induced Myopathy (SIM)",
+     "sim",
+     "199.109.192.255",
+     "9200",
+     "20170222_SIM_WGS-20170424-expand_lookahead.txt",
+     25274
+    ),
+)
 
-            if no_lines_for_estimating < no_lines:
-                break
-
-            size_list.append(sys.getsizeof(line))
-
-            no_lines += 1
-
-    filesize = os.path.getsize(filename)
-
-    no_lines = int(filesize/statistics.median(size_list))
-
-    return no_lines
-
+SIM_DATASETS = (
+    ('sim', 'sim_wgs', 'SIM-Sensitive Whole Genome Sequencing variants'),
+    ('sim', 'sim_con', 'SIM-Resistant Whole Exome Sequencing variants'),
+    ('sim', 'sim_wgs_minus_con', 'SIM-Sensitive minus SIM-Resistant variants'),
+    ('sim', 'sim_con_minus_wgs', 'SIM-Resistant minus SIM-Sensitive variants'),
+)
 
 
 
@@ -53,40 +49,16 @@ class Command(BaseCommand):
         for short_name, full_name in VARIANT_FILE_TYPE_CHOICES:
             VariantSet.objects.get_or_create(short_name=short_name, full_name=full_name)
 
-
-        DATASETS = (
-                ("sim_wgs",
-                 "SIM Sensitive Whole Genome Sequence",
-                 "msea",
-                 "msea",
-                 "199.109.195.45",
-                 "9200",
-                 "20170222_SIM_WGS-20170416-expand_lookahead.txt"),
-
-
-                ("sim_res",
-                 "SIM Resistant Whole Exome Sequence",
-                 "msea",
-                 "msea",
-                 "199.109.195.45",
-                 "9200",
-                 "20170307_SIM_Control-20170416-expand_lookahead.txt"),
-        )
-
-
-
-        for dataset, display_name, es_index_name, es_type_name, es_host, es_port, filename in DATASETS:
-            msea_datset_obj, _ = MseaDataset.objects.get_or_create(dataset=dataset,
-                                                              display_name=display_name,
-                                                              es_index_name=es_index_name,
-                                                              es_type_name=es_type_name,
-                                                              es_host=es_host,
-                                                              es_port=es_port,
-                                                              is_public=True)
+        for short_name, display_name, es_index_name, es_host, es_port, filename, no_lines in STUDIES:
+            study_obj, _ = Study.objects.get_or_create(short_name=short_name,
+                                                  display_name=display_name,
+                                                  es_index_name=es_index_name,
+                                                  es_host=es_host,
+                                                  es_port=es_port,
+                                                  is_public=True)
 
 
             filename_path = './msea/management/commands/data/%s' %(filename)
-            no_lines = estimate_no_lines(filename_path, 200000)
             with transaction.atomic():
                 with open(filename_path, 'r') as fp:
                     for line in tqdm(fp, total=no_lines):
@@ -104,7 +76,7 @@ class Command(BaseCommand):
                         gene_object, _ = Gene.objects.get_or_create(gene_name=gene_name)
 
 
-                        rs_object, _ = ReferenceSequence.objects.get_or_create(msea_dataset=msea_datset_obj,
+                        rs_object, _ = ReferenceSequence.objects.get_or_create(study=study_obj,
                                                                                rs_id=rs_id,
                                                                                gene=gene_object)
                         for variant in variants:
@@ -114,3 +86,9 @@ class Command(BaseCommand):
                         rs_object.save()
 
 
+        study_obj = Study.objects.get(short_name='sim')
+
+        for study_short_name, short_name, display_name in SIM_DATASETS:
+            Dataset.objects.get_or_create(study=study_obj,
+                                          short_name=short_name,
+                                          display_name=display_name)
