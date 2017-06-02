@@ -3,7 +3,6 @@ from .views import *
 
 urlpatterns = (
     url(r'^$', msea_home, name='msea-home'),
-    url(r'^plots/$', plots, name='plots'),
     url(r'^msea-pvalue/$', msea_pvalue, name='msea-pvalue'),
     url(r'^get-plot/$', get_plot, name='get-plot'),
     url(r'^bokeh-plot/$', bokeh_plot, name='bokeh-plot'),

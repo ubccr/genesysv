@@ -11,6 +11,7 @@ import re
 import requests
 import json
 
+from .models import *
 from .utils import generate_variant_bplot
 from django.views.decorators.gzip import gzip_page
 from .forms import GeneForm, VariantForm
@@ -80,6 +81,7 @@ def bokeh_plot(request):
             variant_data = variant_form.cleaned_data
 
             dataset = gene_data['dataset']
+            dataset_obj = MseaDataset.objects.get(dataset=dataset)
             gene_name = gene_data['search_term']
             gene, rs_id = gene_name.split()
             rs_id = rs_id[1:-1]
@@ -87,11 +89,10 @@ def bokeh_plot(request):
             recurrent_variant_option = gene_data['recurrent_variant_option']
             variants_selected = variant_data['variant_choices']
             # variants_selected = ','.join(variants_selected)
-
             msea_type_name = "%s_%s" %(dataset, recurrent_variant_option)
             plots = []
             for vset in variants_selected:
-                plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+                plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset, dataset_obj.es_host, dataset_obj.es_port)
                 plots.append((gene, rs_id, vset, os.path.basename(plot_path)))
             # print(plots)
             context = {}
@@ -100,66 +101,6 @@ def bokeh_plot(request):
 
             return render(request, 'msea/msea_bokeh_plot.html', context)
 
-@gzip_page
-def plots(request):
-    project_name = "SIM_variants_step2_vartype_db"
-    dataset_date = "2016-05-25"
-    end_string = "Data4plot.RData"
-    if request.POST:
-        gene_form = GeneForm(request.POST)
-        rs_id = request.POST['rs_id']
-        variant_form = VariantForm(rs_id, request.POST)
-        if gene_form.is_valid() and variant_form.is_valid():
-            gene_data = gene_form.cleaned_data
-            variant_data = variant_form.cleaned_data
-
-            gene_name = gene_data['search_term']
-            recurrent_variant_option = gene_data['recurrent_variant_option']
-            variants_selected = variant_data['variant_choices']
-            variants_selected = ','.join(variants_selected)
-
-            print(gene_name, recurrent_variant_option, variants_selected)
-            # return HttpResponse(variants_selected)
-            # SIM_variants_step2_vartype_db_2016-05-18_noexpand_Data4plot.RData
-            output_string = ""
-
-
-            m = re.search('^[^\(]+', rs_id)
-
-            gene = m.group(0).strip()
-            m = re.search('\((.+)\)', rs_id)
-            rs_id = m.group(1)
-            rdata_filename = "%s_%s_%s_%s_%s" %(project_name,
-                                                    dataset_date,
-                                                    recurrent_variant_option,
-                                                    rs_id,
-                                                    end_string)
-
-
-
-            output_folder = os.path.join(settings.BASE_DIR, 'static_root/rplots')
-
-            files = []
-            variants_to_generate = []
-            for variant in variant_data['variant_choices']:
-                filename = gene + '-' + rs_id + '-' + recurrent_variant_option + '-' + variant + '.svg'
-                full_path = os.path.join(output_folder, filename)
-                files.append(filename)
-                if not os.path.exists(os.path.join(output_folder,filename)):
-                    print('New Plot: ', full_path)
-                    variants_to_generate.append(variant)
-
-
-            variants_to_generate = ','.join(variants_to_generate)
-            if variants_to_generate:
-                generate_r_plot(rdata_filename, output_folder, variants_to_generate)
-
-            context = {}
-            context['files'] = files
-
-
-
-            return render(request, 'msea/msea_plot.html', context)
 
 @gzip_page
 def search_gene_rs_id(request):

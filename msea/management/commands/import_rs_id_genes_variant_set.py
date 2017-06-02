@@ -87,29 +87,30 @@ class Command(BaseCommand):
 
             filename_path = './msea/management/commands/data/%s' %(filename)
             no_lines = estimate_no_lines(filename_path, 200000)
-            with open(filename_path, 'r') as fp:
-                for line in tqdm(fp, total=no_lines):
-                #for idx, line in enumerate(fp):
-                    if line.startswith('#') or not line.strip():
-                        continue
+            with transaction.atomic():
+                with open(filename_path, 'r') as fp:
+                    for line in tqdm(fp, total=no_lines):
+                    #for idx, line in enumerate(fp):
+                        if line.startswith('#') or not line.strip():
+                            continue
 
-                    # print(line)
-                    line_split = line.strip().split()
-                    gene_name = line_split[0].strip()
-                    rs_id = line_split[1].strip()
-                    variants = line_split[2:]
-                    # if (idx % 1000) == 0:
-                    #     print(idx, line_split)
-                    gene_object, _ = Gene.objects.get_or_create(gene_name=gene_name)
+                        # print(line)
+                        line_split = line.strip().split()
+                        gene_name = line_split[0].strip()
+                        rs_id = line_split[1].strip()
+                        variants = line_split[2:]
+                        # if (idx % 1000) == 0:
+                        #     print(idx, line_split)
+                        gene_object, _ = Gene.objects.get_or_create(gene_name=gene_name)
 
 
-                    rs_object, _ = ReferenceSequence.objects.get_or_create(msea_dataset=msea_datset_obj,
-                                                                           rs_id=rs_id,
-                                                                           gene=gene_object)
-                    for variant in variants:
-                        var_obj = VariantSet.objects.get(short_name=variant.strip())
-                        rs_object.variants.add(var_obj)
+                        rs_object, _ = ReferenceSequence.objects.get_or_create(msea_dataset=msea_datset_obj,
+                                                                               rs_id=rs_id,
+                                                                               gene=gene_object)
+                        for variant in variants:
+                            var_obj = VariantSet.objects.get(short_name=variant.strip())
+                            rs_object.variants.add(var_obj)
 
-                    rs_object.save()
+                        rs_object.save()
 
 
