@@ -2,7 +2,8 @@
   "Variant": {
     "filters": [
       {
-        "display_text": "Variant",
+        "display_text": "Variant ID",
+        "in_line_tooltip": "(e.g. chr1-115252204-C-T)",
         "es_filter_type": "filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
@@ -47,7 +48,7 @@
   "REF": {
     "filters": [
       {
-        "display_text": "Reference base(s)",
+        "display_text": "Reference allele",
         "es_filter_type": "filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
@@ -59,7 +60,7 @@
   "ALT": {
     "filters": [
       {
-        "display_text": "Alternate base(s)",
+        "display_text": "Alternate allele",
         "es_filter_type": "filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
@@ -97,10 +98,11 @@
   "FILTER_status": {
     "filters": [
       {
-        "display_text": "GATK Filter status",
+        "display_text": "Filter status",
         "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
+        "form_type": "ChoiceField",
+        "widget_type": "Select",
+        "values": "get_from_es()"
       }
     ],
     "panel": "Variant Related Information",
@@ -109,17 +111,10 @@
   "QUAL_score": {
     "filters": [
       {
-        "display_text": "GATK Quality Score",
+        "display_text": "Quality Score",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GATK Quality Score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "widget_type": "TextInput"
       }
     ],
@@ -147,13 +142,13 @@
   "avsnp147": {
     "filters": [
       {
-        "display_text": "avsnp147",
+        "display_text": "dbSNP (v147) ID",
         "es_filter_type": "filter_terms",
         "form_type": "CharField",
         "widget_type": "UploadField"
       },
       {
-        "display_text": "Limit Variants to avsnp147",
+        "display_text": "Limit Variants to dbSNP (v147)",
         "es_filter_type": "filter_exists",
         "form_type": "ChoiceField",
         "widget_type": "Select"
@@ -354,7 +349,6 @@
         "display_text": "Consequence to RefSeq gene/transcript",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
-        "tooltip": "Consequence to RefSeq gene/transcript",
         "values": "get_from_es()",
         "widget_type": "SelectMultiple"
       }
@@ -368,7 +362,6 @@
         "display_text": "Consequence to Ensembl gene/transcript",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
-        "tooltip": "Consequence to Ensembl gene/transcript",
         "values": "get_from_es()",
         "widget_type": "SelectMultiple"
       }
@@ -435,7 +428,7 @@
   "refGene_location": {
     "filters": [
       {
-        "display_text": "RefGene Location",
+        "display_text": "Exon ID",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
         "values": "get_from_es()",
@@ -480,7 +473,7 @@
   "refGene_distance_to_gene": {
     "filters": [
       {
-        "display_text": "RefGene Distance to Gene",
+        "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
@@ -523,7 +516,7 @@
   "ensGene_location": {
     "filters": [
       {
-        "display_text": "Ensembl Gene Location",
+        "display_text": "Exon ID",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
         "values": "get_from_es()",
@@ -568,7 +561,7 @@
   "ensGene_distance_to_gene": {
     "filters": [
       {
-        "display_text": "Ensembl Distance to Gene",
+        "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput",
@@ -600,7 +593,7 @@
         "display_text": "FATHMM_pred",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
-        "tooltip": "Functional analysis through hidden markov model HMM.",
+        "tooltip": "Functional analysis through Hidden Markov Model (HMM)",
         "values": "get_from_es()",
         "widget_type": "Select"
       }
@@ -629,7 +622,7 @@
         "display_text": "LRT_pred",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
-        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evovles under negative selection.",
+        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection.",
         "values": "get_from_es()",
         "widget_type": "Select"
       }
@@ -689,7 +682,7 @@
         "display_text": "MutationAssessor_pred",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
-        "tooltip": "Entropy of multiple sequence alignment.H/M means functional and L/N means non-functional.",
+        "tooltip": "Entropy of multiple sequence alignment. H/M means functional and L/N means non-functional.",
         "values": "get_from_es()",
         "widget_type": "SelectMultiple"
       }
@@ -714,13 +707,12 @@
     "tab": "Basic"
   },
   "Polyphen2_HDIV_pred": {
-    "display_text": "Polyphen2 HDIV pred",
     "filters": [
       {
         "display_text": "Polyphen2_HDIV_pred",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
-        "tooltip": "Polymorphism phenotyping v2. Probablistic Classifier Training sets: HumDiv.",
+        "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv.",
         "values": "get_from_es()",
         "widget_type": "Select"
       }
@@ -732,7 +724,7 @@
   "Polyphen2_HVAR_pred": {
     "filters": [
       {
-        "display_text": "Polyphen2_HDIV_pred",
+        "display_text": "Polyphen2_HVAR_pred",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
         "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar.",
@@ -751,7 +743,7 @@
         "display_text": "PROVEAN_pred",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
-        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologus sequences.",
+        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences.",
         "values": "get_from_es()",
         "widget_type": "Select"
       }
@@ -765,6 +757,7 @@
       {
         "display_text": "SIFT pred",
         "es_filter_type": "filter_term",
+        "tooltip": "SIFT (Sorting Intolerant From Tolerant) predicts whether an amino acid substitution affects protein function",
         "form_type": "ChoiceField",
         "values": "get_from_es()",
         "widget_type": "Select"
@@ -783,14 +776,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -804,14 +789,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD13_PHRED",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -829,14 +806,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD13_RawScore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -850,14 +819,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD_Phred",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -875,14 +836,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD_phred",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -896,14 +849,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD_raw",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -921,14 +866,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "CADD_raw_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -942,14 +879,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "DANN_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -966,14 +895,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "DANN_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1003,7 +924,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Eigen-PC-raw",
         "widget_type": "TextInput"
       }
     ],
@@ -1035,14 +955,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GERP++_RS",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1058,14 +970,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GERP++_RS_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1079,7 +983,7 @@
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
-        "tooltip": "Functional analysis through hidden markov model HMM. Lower values are more deleterious.",
+        "tooltip": "Functional analysis through Hidden Markov Model (HMM). Lower values are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1094,7 +998,7 @@
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
-        "tooltip": "Functional analysis through hidden markov model HMM. Lower values are more deleterious.",
+        "tooltip": "Functional analysis through Hidden Markov Model (HMM). Lower values are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1110,13 +1014,6 @@
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GenoCanyon_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1131,13 +1028,6 @@
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GenoCanyon_score_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1148,18 +1038,10 @@
     "filters": [
       {
         "display_text": "LRT_converted_rankscore",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evovles under negative selection. Lower scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "LRT_converted_rankscore",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
-        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evovles under negative selection. Lower scores are more deleterious.",
+        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1171,18 +1053,10 @@
     "filters": [
       {
         "display_text": "LRT Score",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evovles under negative selection. Lower scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "LRT Score",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
-        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evovles under negative selection. Lower scores are more deleterious.",
+        "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1198,13 +1072,6 @@
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "M-CAP_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1219,13 +1086,6 @@
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "M-CAP score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1237,13 +1097,6 @@
       {
         "display_text": "MCAP",
         "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MCAP",
-        "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
@@ -1262,14 +1115,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Logistic regression. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MetaLR_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Logistic regression. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1283,14 +1128,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Logistic regression. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MetaLR_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Logistic regression. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1309,14 +1146,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Support vector machine. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MetaSVM_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Support vector machine. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1330,14 +1159,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Support vector machine. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MetaSVM_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Support vector machine. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1355,14 +1176,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MutationAssessor_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1376,14 +1189,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MutationAssessor_score_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1401,14 +1206,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Bayes Classifier",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MutationTaster_converted_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Bayes Classifier",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1424,14 +1221,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Bayes Classifier",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MutationTaster_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Bayes Classifier",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1445,15 +1234,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologus sequences. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "PROVEAN_converted_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologus sequences. Higher values are more deleterious.",
+        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1468,15 +1249,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologus sequences. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "PROVEAN_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologus sequences. Higher values are more deleterious.",
+        "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1491,15 +1264,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Polymorphism phenotyping v2. Probablistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "Polyphen2_HDIV_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Polymorphism phenotyping v2. Probablistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
+        "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
         "widget_type": "TextInput"
       }
     ],
@@ -1514,15 +1279,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Polymorphism phenotyping v2. Probablistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "Polyphen2_HDIV_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Polymorphism phenotyping v2. Probablistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
+        "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452).",
         "widget_type": "TextInput"
       }
     ],
@@ -1537,14 +1294,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452).",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "Polyphen2_HVAR_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452).",
         "widget_type": "TextInput"
       }
@@ -1562,14 +1311,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452).",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "Polyphen2_HVAR_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452).",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1585,14 +1326,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "REVEL (rare exome variant ensemble learner): An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "REVEL",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "REVEL (rare exome variant ensemble learner): An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1602,14 +1335,6 @@
   "SIFT_converted_rankscore": {
     "display_text": "SIFT converted rankscore",
     "filters": [
-      {
-        "display_text": "SIFT_score",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)",
-        "widget_type": "TextInput"
-      },
       {
         "display_text": "SIFT_score",
         "es_filter_type": "filter_range_lte",
@@ -1625,14 +1350,6 @@
   },
   "SIFT_score": {
     "filters": [
-      {
-        "display_text": "SIFT_score",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)",
-        "widget_type": "TextInput"
-      },
       {
         "display_text": "SIFT_score",
         "es_filter_type": "filter_range_lte",
@@ -1653,15 +1370,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Probablistic framework, HMM Use 29 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SiPhy_29way_logOdds",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Probablistic framework, HMM Use 29 species. Higher scores are more deleterious.",
+        "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1676,15 +1385,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Probablistic framework, HMM Use 29 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SiPhy_29way_logOdds_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Probablistic framework, HMM Use 29 species. Higher scores are more deleterious.",
+        "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1699,14 +1400,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "VEST3_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1724,14 +1417,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "VEST3_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1747,14 +1432,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "fathmm-MKL_coding_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1768,14 +1445,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM. Score >= 0.5: Deleterious; Score < 0.5: Tolerated",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "fathmm-MKL_coding_score",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM. Score >= 0.5: Deleterious; Score < 0.5: Tolerated",
         "widget_type": "TextInput"
       }
@@ -1808,14 +1477,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "integrated_confidence_value",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1829,14 +1490,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "integrated_fitCons_score_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1854,14 +1507,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phastCons100way_vertebrate",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1875,14 +1520,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phastCons100way_vertebrate_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -1900,14 +1537,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phastCons20way_mammalian",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1923,14 +1552,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phastCons20way_mammalian_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -1944,15 +1565,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phyloP100way_vertebrate",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
+        "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1967,15 +1580,7 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phyloP100way_vertebrate_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
+        "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
     ],
@@ -1990,14 +1595,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phyloP20way_mammalian",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
       }
@@ -2015,14 +1612,6 @@
         "in_line_tooltip": "(>=)",
         "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious.",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "phyloP20way_mammalian_rankscore",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious.",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -2037,13 +1626,6 @@
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
-      },
-      {
-        "display_text": "dbscSNV_ADA_SCORE",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "widget_type": "TextInput"
       }
     ],
     "panel": "Pathogenic Predictor Score",
@@ -2057,13 +1639,6 @@
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "dbscSNV_RF_SCORE",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
         "widget_type": "TextInput"
       }
     ],
