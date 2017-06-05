@@ -782,36 +782,6 @@
     "sub_panel": "All Genomic Region",
     "tab": "Basic"
   },
-  "CADD13_PHRED": {
-    "filters": [
-      {
-        "display_text": "CADD13_PHRED",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "All Genomic Region",
-    "tab": "Basic"
-  },
-  "CADD13_RawScore": {
-    "filters": [
-      {
-        "display_text": "CADD13_RawScore",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "All Genomic Region",
-    "tab": "Basic"
-  },
   "CADD_Phred": {
     "filters": [
       {
@@ -920,7 +890,7 @@
   "Eigen-PC-raw": {
     "filters": [
       {
-        "display_text": "Eigen",
+        "display_text": "Eigen-PC-raw",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -1082,20 +1052,6 @@
     "filters": [
       {
         "display_text": "M-CAP score",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
-  "MCAP": {
-    "filters": [
-      {
-        "display_text": "MCAP",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -1336,7 +1292,7 @@
     "display_text": "SIFT converted rankscore",
     "filters": [
       {
-        "display_text": "SIFT_score",
+        "display_text": "SIFT_converted_rankscore",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
