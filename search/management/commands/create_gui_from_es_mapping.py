@@ -7,6 +7,7 @@ import json
 from pprint import pprint
 import re
 from natsort import natsorted
+from collections import OrderedDict
 
 def get_from_es(dataset_es_index_name,
                 dataset_es_type_name,
@@ -145,7 +146,7 @@ class Command(BaseCommand):
 
 
 
-        vcf_gui_mapping = json.load(open('search/management/commands/data/vcf_field_gui_mapping.json', 'r'))
+        vcf_gui_mapping = json.load(open('search/management/commands/data/vcf_field_gui_mapping.json', 'r'), object_pairs_hook=OrderedDict)
 
 
         print("*"*80+"\n")
