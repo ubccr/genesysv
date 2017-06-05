@@ -126,7 +126,7 @@ class Command(BaseCommand):
 
         mapping = elasticsearch.client.IndicesClient.get_mapping(es, index=index_name, doc_type=type_name)
         # mapping = mapping[options.get('study]')['mappings'][options.get('dataset]['properties']
-        mapping = mapping[study]['mappings'][dataset]['properties']
+        mapping = mapping[index_name]['mappings'][type_name]['properties']
 
 
 
