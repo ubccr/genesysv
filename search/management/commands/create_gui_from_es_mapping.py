@@ -189,23 +189,23 @@ class Command(BaseCommand):
 
             gui_info = vcf_gui_mapping.get(var_name)
 
-            tab_name = gui_info.get('tab')
-            panel_name = gui_info.get('panel')
-            sub_panel_name = gui_info.get('sub_panel')
+            tab_name = gui_info.get('tab').strip()
+            panel_name = gui_info.get('panel').strip()
+            sub_panel_name = gui_info.get('sub_panel','').strip()
             filters = gui_info.get('filters')
 
 
             for filter_field in filters:
 
-                field_display_text = filter_field.get('display_text')
-                field_tooltip = filter_field.get('tooltip', '')
-                field_in_line_tooltip = filter_field.get('in_line_tooltip', '')
-                field_form_type = filter_field.get('form_type')
-                field_widget_type = filter_field.get('widget_type')
-                field_es_name = var_name
-                field_es_filter_type = filter_field.get('es_filter_type')
-                field_es_data_type = var_info.get('type')
-                field_path = filter_field.get('path', '')
+                field_display_text = filter_field.get('display_text').strip()
+                field_tooltip = filter_field.get('tooltip', '').strip()
+                field_in_line_tooltip = filter_field.get('in_line_tooltip', '').strip()
+                field_form_type = filter_field.get('form_type').strip()
+                field_widget_type = filter_field.get('widget_type').strip()
+                field_es_name = var_name.strip()
+                field_es_filter_type = filter_field.get('es_filter_type').strip()
+                field_es_data_type = var_info.get('type').strip()
+                field_path = filter_field.get('path', '').strip()
                 field_values = filter_field.get('values')
 
 

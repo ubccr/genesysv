@@ -27,6 +27,9 @@ class Study(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True)
 
+    class Meta:
+        unique_together = ('name', 'description',)
+
     def __str__(self):
         return self.name
 
@@ -43,6 +46,9 @@ class Dataset(TimeStampedModel):
     es_port = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'description',)
 
     def __str__(self):
         return self.name
@@ -77,9 +83,9 @@ class FilterField(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     display_text = models.CharField(max_length=255)
-    in_line_tooltip = models.CharField(max_length=255, null=True, blank=True)
-    tooltip = models.CharField(max_length=255, null=True, blank=True)
-    default_value = models.CharField(max_length=255, null=True, blank=True)
+    in_line_tooltip = models.CharField(max_length=255, blank=True)
+    tooltip = models.CharField(max_length=255, blank=True)
+    default_value = models.CharField(max_length=255, blank=True)
     form_type = models.ForeignKey(
         'FormType',
         on_delete=models.CASCADE,
@@ -89,7 +95,7 @@ class FilterField(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     es_name = models.CharField(max_length=255)
-    path = models.CharField(max_length=255, null=True, blank=True)
+    path = models.CharField(max_length=255, default=None)
     es_data_type = models.CharField(max_length=255)
     es_filter_type = models.ForeignKey(
         'ESFilterType',
@@ -99,7 +105,7 @@ class FilterField(TimeStampedModel):
     is_visible = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('dataset', 'es_name', 'es_filter_type', 'path')
+        unique_together = ('dataset', 'es_name', 'es_filter_type', 'form_type', 'widget_type')
 
     def __str__(self):
         return "%s %s" %(self.display_text, self.in_line_tooltip)
