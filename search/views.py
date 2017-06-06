@@ -137,21 +137,20 @@ def get_dataset_form(request):
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
 @gzip_page
 def get_filter_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
         dataset_object = Dataset.objects.get(description=dataset)
-        tabs = []
+        tabs = deque()
         for tab in FilterTab.objects.filter(dataset=dataset_object):
             tmp_dict = {}
             tmp_dict['name'] = tab.name
-            tmp_dict['panels'] = []
+            tmp_dict['panels'] = deque()
             for panel in tab.filter_panels.filter(is_visible=True):
-                es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True), prefix='filter_')
-
-                sub_panels = []
+                es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), prefix='filter_')
+                sub_panels = deque()
 
                 for sub_panel in panel.filtersubpanel_set.filter(is_visible=True):
                     if panel.are_sub_panels_mutually_exclusive:
@@ -161,7 +160,7 @@ def get_filter_form(request):
                     tmp_sub_panel_dict = {}
                     tmp_sub_panel_dict['display_name'] = sub_panel.name
                     tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                    tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.all(), MEgroup, prefix='filter_')
+                    tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), MEgroup, prefix='filter_')
                     sub_panels.append(tmp_sub_panel_dict)
 
                 tmp_dict['panels'].append({'display_name': panel.name,
@@ -180,18 +179,18 @@ def get_attribute_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
         dataset_object = Dataset.objects.get(description=dataset)
-        tabs = []
+        tabs = deque()
         for tab in AttributeTab.objects.filter(dataset=dataset_object):
             tmp_dict = {}
             tmp_dict['name'] = tab.name
-            tmp_dict['panels'] = []
+            tmp_dict['panels'] = deque()
             for idx_panel, panel in enumerate(tab.attribute_panels.filter(is_visible=True), start=1):
                 if panel.attribute_fields.filter(is_visible=True):
                     es_form = ESAttributeFormPart(panel.attribute_fields.filter(is_visible=True), prefix='%d___attribute_group' %(idx_panel))
                 else:
                     es_form = None
 
-                sub_panels = []
+                sub_panels = deque()
                 for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.filter(is_visible=True), start=1):
                     tmp_sub_panel_dict = {}
                     tmp_sub_panel_dict['display_name'] = sub_panel.name
