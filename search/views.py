@@ -122,14 +122,14 @@ def subset_dict(input, keys):
 
     return {key:input[key] for key in keys if input.get(key) != None}
 
-@lru_cache(maxsize=None)
+
 @gzip_page
 def get_study_form(request):
     form = StudyForm(request.user)
     context = {'form':form}
     return render(request, "search/get_study_snippet.html", context)
 
-@lru_cache(maxsize=None)
+
 @gzip_page
 def get_dataset_form(request):
     selected_study = request.GET['selected_study']
@@ -137,7 +137,7 @@ def get_dataset_form(request):
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
-# @lru_cache(maxsize=None)
+#
 @gzip_page
 def get_filter_form(request):
     if request.GET:
@@ -173,7 +173,7 @@ def get_filter_form(request):
         context['tabs'] = tabs
         return render(request, "search/get_filter_snippet.html", context)
 
-@lru_cache(maxsize=None)
+
 @gzip_page
 def get_attribute_form(request):
     if request.GET:
@@ -214,7 +214,7 @@ def get_attribute_form(request):
         context['tabs'] = tabs
         return render(request, "search/get_attribute_snippet.html", context)
 
-@lru_cache(maxsize=None)
+
 @gzip_page
 def search_home(request):
     context = {}
@@ -223,7 +223,7 @@ def search_home(request):
     return render(request, 'search/search.html', context)
 
 
-@lru_cache(maxsize=None)
+
 @gzip_page
 def retrieve_saved_search(request, pk):
 
