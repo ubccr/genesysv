@@ -13,15 +13,16 @@
 
 {% block content %}
     <div class="page-header text-center">
-          <h1>MSEA Plots</h1>
-      </div>
+          <h1>Mutation Set Enrichment Analysis (MSEA) Plots</h1>
+    </div>
 
-    {% for gene, rs_id, vset, file, dataset in plots %}
+    {% for gene, rs_id, variant_selected, dataset_short_name, dataset_display_name, study_id, file in plots %}
          <h3 class="text-center">{{dataset}}</h3>
+        <a target="_blank" href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}" class="btn btn-success" role="button">Download as TIFF</a>
         <div class="embed-responsive embed-responsive-16by9">
-
             <iframe class="embed-responsive-item" src="/static/r_outputs/svg/{{file}}"></iframe>
         </div>
+
     {% endfor %}
 
 

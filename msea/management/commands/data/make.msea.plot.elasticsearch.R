@@ -16,7 +16,7 @@ generate_mas_plot <- function(gene, rs_id, vset, dataset, es_host, es_port, outp
     # run an elasticsearch query
     connect(es_host = es_host, es_port = es_port)
     INDEX_NAME <- 'msea'
-    output_file <- paste0(output_folder, gene, '_', rs_id, '_', dataset, '_', vset, '.svg')
+    output_file <- paste0(output_folder, gene, '_', rs_id, '_', dataset, '_', vset, '.', output_type)
 
     if (vset=='prom') {
         domain_rs_id = gene

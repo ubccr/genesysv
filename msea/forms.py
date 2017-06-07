@@ -49,5 +49,4 @@ class VariantForm(forms.Form):
                 VARIANT_CHOICES[pos_dns], VARIANT_CHOICES[pos_dnsi] = VARIANT_CHOICES[pos_dnsi], VARIANT_CHOICES[pos_dns]
 
 
-        self.fields['variant_choices'] = forms.ChoiceField(choices=VARIANT_CHOICES, initial=[sn for sn, fl in VARIANT_CHOICES])
-        # self.fields['variant_choices'].widget.attrs['size']=len(VARIANT_CHOICES)
+        self.fields['variant_choice'] = forms.ChoiceField(choices=VARIANT_CHOICES, initial=[sn for sn, fl in VARIANT_CHOICES])

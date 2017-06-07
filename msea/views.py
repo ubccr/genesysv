@@ -18,29 +18,26 @@ from django.views.decorators.gzip import gzip_page
 from .forms import GeneForm, VariantForm
 from .models import Gene, ReferenceSequence
 from django.conf import settings
-# Create your views here.
-
-# args <- commandArgs(trailingOnly = T)
-# gene <- args[1]
-# rs_id <- args[2]
-# vset <- args[3]
-# msea_type_name <- args[4]
-# es_host <- args[5]
-# es_port <- args[6]
-# output_folder <- args[7]
-# output_type <- args[8]
+from PIL import Image
 
 
 @gzip_page
-def download_svg(request):
+def msea_home(request):
+    form = GeneForm(request.user)
+    context = {'form':form}
+    return render(request, 'msea/msea_home.html', context)
+
+
+@gzip_page
+def download_tiff(request):
     if request.GET:
-        print(request.GET)
         try:
-            dataset = request.GET.get('dataset')
+            dataset_short_name = request.GET.get('dataset_short_name')
             gene = request.GET.get('gene')
             rs_id = request.GET.get('rs_id')
-            vset = request.GET.get('vset')
-            expand = request.GET.get('expand')
+            variant_selected = request.GET.get('variant_selected')
+            study_id = request.GET.get('study_id')
+
         except:
             return HttpResponse('Missing parameter')
         # # Define command and arguments
@@ -50,13 +47,14 @@ def download_svg(request):
 
         # # Variable number of args in a list
 
-        dataset_obj = MseaDataset.objects.get(dataset=dataset)
-        output_folder = os.path.join(settings.BASE_DIR, 'msea/output_svg/')
-        output_filename = "%s-%s-%s.svg" %(gene, rs_id, vset)
+        study_obj = Study.objects.get(id=study_id)
+        recurrent_variant_option = 'noexpand'
+        output_folder = os.path.join(settings.BASE_DIR, 'msea/output_tiff/')
+        output_filename = "%s_%s_%s_%s_%s.tiff" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
         output_path = os.path.join(output_folder, output_filename)
 
 
-        args = [gene , rs_id, vset, expand, dataset_obj.es_host, dataset_obj.es_port]
+        args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'tiff']
 
         # # Build subprocess command
         cmd = [command, path2script] + args
@@ -66,17 +64,14 @@ def download_svg(request):
 
         subprocess.check_call(cmd)
 
-        svg_data = open(output_path,'r')
-        response = HttpResponse(svg_data, content_type="image/svg+xml")
-        response["Content-Disposition"]= "attachment; filename=%s" %(output_filename)
-        return response
-        # return HttpResponse('test')
 
-@gzip_page
-def msea_home(request):
-    form = GeneForm(request.user)
-    context = {'form':form}
-    return render(request, 'msea/msea_home.html', context)
+        image_data = open(output_path, "rb").read()
+        return HttpResponse(image_data, content_type="image/tiff")
+        response['Content-Disposition'] = 'attachment; filename=%s' % output_filename
+        image.save(response, image_format)
+        return response
+
+
 
 @gzip_page
 def msea_plot(request):
@@ -97,7 +92,8 @@ def msea_plot(request):
 
             recurrent_variant_option = gene_data['recurrent_variant_option']
 
-            variants_selected = variant_data['variant_choices']
+            variant_selected = variant_data['variant_choice']
+            print('*'*20, variant_selected)
 
 
             command = 'Rscript'
@@ -106,12 +102,12 @@ def msea_plot(request):
             # # Variable number of args in a list
 
             output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
-            wildcardstring = '%s_%s_*_%s_%s.svg' %(gene, rs_id, recurrent_variant_option, variants_selected)
+            wildcardstring = '%s_%s_*_%s_%s.svg' %(gene, rs_id, recurrent_variant_option, variant_selected)
 
 
 
             for dataset in Dataset.objects.filter(study=study_obj):
-                args = [gene , rs_id, variants_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'SVG']
+                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'svg']
 
             # # Build subprocess command
                 cmd = [command, path2script] + args
@@ -123,15 +119,16 @@ def msea_plot(request):
                 subprocess.check_call(cmd)
 
             svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
-            wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variants_selected)
+            wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variant_selected)
             plots = []
             for file in svg_files:
+                print(file)
                 filename = os.path.basename(file)
                 tmp = re.search(wildcardstring, filename).groups()[0]
                 dataset_obj = Dataset.objects.get(study=study_obj, short_name=tmp)
 
-                plots.append((gene, rs_id, variants_selected, filename, dataset_obj.display_name))
-            # print(plots)
+                plots.append((gene, rs_id, variant_selected, dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
+            print(plots)
             context = {}
             context['plots'] = plots
 
