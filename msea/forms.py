@@ -6,6 +6,21 @@ from crispy_forms.helper import FormHelper
 from .models import ReferenceSequence, Study
 import re
 
+
+class StudyForm(forms.Form):
+    def __init__(self, user, *args, **kwargs):
+        super(StudyForm, self).__init__(*args, **kwargs)
+        try:
+            user_group_ids = [group.id for group in user.groups.all()]
+        except:
+            user_group_ids = []
+        studies = Study.objects.all()
+        studies = studies.filter(Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
+        STUDY_CHOICES = [(ele.short_name, ele.display_name) for ele in studies]
+        STUDY_CHOICES.insert(0,('', '----'),)
+
+        self.fields['study'] = forms.ChoiceField(choices=STUDY_CHOICES)
+
 class GeneForm(forms.Form):
 
     def __init__(self, user, *args, **kwargs):

@@ -11,11 +11,11 @@ library(elastic)
 library(jsonlite)
 library(svglite)
 
-generate_mas_plot <- function(gene, rs_id, vset, dataset, es_host, es_port, output_folder, output_type) {
+generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_port, output_folder, output_type) {
 
     # run an elasticsearch query
     connect(es_host = es_host, es_port = es_port)
-    INDEX_NAME <- 'msea'
+    INDEX_NAME <- es_index
     output_file <- paste0(output_folder, gene, '_', rs_id, '_', dataset, '_', vset, '.', output_type)
 
     if (vset=='prom') {
@@ -246,10 +246,11 @@ gene <- args[1]
 rs_id <- args[2]
 vset <- args[3]
 dataset <- args[4]
-es_host <- args[5]
-es_port <- args[6]
-output_folder <- args[7]
-output_type <- args[8]
+es_index_name <- args[5]
+es_host <- args[6]
+es_port <- args[7]
+output_folder <- args[8]
+output_type <- args[9]
 
 #if (expand) {
 #    datasets = c('sim_wgs_expand','sim_con_expand','sim_wgs_minus_con_expand','sim_con_minus_wgs_expand')
@@ -257,4 +258,4 @@ output_type <- args[8]
 #    datasets = c('sim_wgs_noexpand','sim_con_noexpand','sim_wgs_minus_con_noexpand','sim_con_minus_wgs_noexpand')
 #}
 
-generate_mas_plot(gene, rs_id, vset, dataset, es_host, es_port, output_folder, output_type)
+generate_mas_plot(gene, rs_id, vset, dataset, es_index_name, es_host, es_port, output_folder, output_type)

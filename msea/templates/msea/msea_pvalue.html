@@ -10,68 +10,82 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-header text-center">
-        <h1>MSEA P-Value</h1>
-    </div>
-            <div class="table-responsive">
-                <table id="result-table" class="table display compact" cellspacing="0">
-                    <thead>
-                      <tr>
-                          <th>refgene_id</th>
-                          <th>nes</th>
-                          <th>pavalue</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {% for ele in results%}
-                            <tr>
-                                <td><a href="/msea/get-plot?rs_id={{ele.refgene_id}}&vset={{ele.vset}}&gene={{ele.gene_name}}&type_name={{doc_type}}">{{ ele.refgene_id}}</a></td>
-                                <td>{{ ele.nes}}</td>
-                                <td>{{ ele.pvalue}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <h3> Blah</h3>
-            <div class="table-responsive">
-                <table id="result-table2" class="table display compact" cellspacing="0">
-                    <thead>
-                      <tr>
-                          <th>refgene_id</th>
-                          <th>nes</th>
-                          <th>pavalue</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {% for ele in results%}
-                            <tr>
-                                <td><a href="/msea/get-plot?rs_id={{ele.refgene_id}}&vset={{ele.vset}}&gene={{ele.gene_name}}&type_name={{doc_type}}">{{ ele.refgene_id}}</a></td>
-                                <td>{{ ele.nes}}</td>
-                                <td>{{ ele.pvalue}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+       <script>
 
+            $("#main-nav-bar > ul > li.active").removeClass("active")
+            $("#navbarId-Tool").addClass("active")
+            $("#navbarId-msea-pvalue").addClass("active")
+    </script>
+
+
+
+
+
+    <div class="page-header">
+        <h1>Mutation Set Enrichment Analysis (MSEA) P-Value</h1>
+    </div>
+
+    <div>
+        {{study_form|crispy}}
+
+    </div>
+
+    <div id="results">
+
+
+    </div>
 
 
 <script>
- $(document).ready(function() {
-        // $('#result-table').destroy();
-        $('#result-table').DataTable({
-            "iDisplayLength": 25,
-            "bSortClasses": false
-        });
 
-        $('#result-table2').DataTable({
-            "iDisplayLength": 25,
-            "bSortClasses": false
-        });
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
+    function get_sorted_pvalues(selected_study){
+        $.ajax(
+            {
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                type: "GET",
+                url : "{% url 'msea-get-sorted-pvalues' %}",
+                data: {
+                        selected_study: selected_study,
+                },
+                success:function(data) {
+                    // console.log(data)
+                    $('#results').html(data);
+
+                }
+            }
+
+        );
+      };
+
+    $( "#id_study" ).on("change", function(event) {
+        var selected_study = $(this).find('option:selected').val();
+        if (selected_study != '---') {
+            get_sorted_pvalues(selected_study)
+            // $('#results').html(selected_study);
+        } else {
+            console.log(selected_study)
+            $('#results').html();
+        }
     });
+
 </script>
+
 
 {% endblock %}
 

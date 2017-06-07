@@ -15,10 +15,10 @@ import glob
 from .models import *
 from .utils import generate_variant_bplot
 from django.views.decorators.gzip import gzip_page
-from .forms import GeneForm, VariantForm
+from .forms import GeneForm, VariantForm, StudyForm
 from .models import Gene, ReferenceSequence
 from django.conf import settings
-from PIL import Image
+
 
 
 @gzip_page
@@ -36,6 +36,7 @@ def download_tiff(request):
             gene = request.GET.get('gene')
             rs_id = request.GET.get('rs_id')
             variant_selected = request.GET.get('variant_selected')
+            recurrent_variant_option = request.GET.get('recurrent_variant_option')
             study_id = request.GET.get('study_id')
 
         except:
@@ -48,13 +49,12 @@ def download_tiff(request):
         # # Variable number of args in a list
 
         study_obj = Study.objects.get(id=study_id)
-        recurrent_variant_option = 'noexpand'
         output_folder = os.path.join(settings.BASE_DIR, 'msea/output_tiff/')
         output_filename = "%s_%s_%s_%s_%s.tiff" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
         output_path = os.path.join(output_folder, output_filename)
 
 
-        args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'tiff']
+        args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'tiff']
 
         # # Build subprocess command
         cmd = [command, path2script] + args
@@ -67,11 +67,6 @@ def download_tiff(request):
 
         image_data = open(output_path, "rb").read()
         return HttpResponse(image_data, content_type="image/tiff")
-        response['Content-Disposition'] = 'attachment; filename=%s' % output_filename
-        image.save(response, image_format)
-        return response
-
-
 
 @gzip_page
 def msea_plot(request):
@@ -107,7 +102,7 @@ def msea_plot(request):
 
 
             for dataset in Dataset.objects.filter(study=study_obj):
-                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'svg']
+                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
 
             # # Build subprocess command
                 cmd = [command, path2script] + args
@@ -127,7 +122,7 @@ def msea_plot(request):
                 tmp = re.search(wildcardstring, filename).groups()[0]
                 dataset_obj = Dataset.objects.get(study=study_obj, short_name=tmp)
 
-                plots.append((gene, rs_id, variant_selected, dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
+                plots.append((gene, rs_id, variant_selected, recurrent_variant_option, dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
             print(plots)
             context = {}
             context['plots'] = plots
@@ -173,7 +168,7 @@ def get_variant_form(request):
     return render(request, "msea/get_variant_snippet.html", context)
 
 
-def get_top100_nes(index, doc_type, size=100):
+def get_top100_nes(index, doc_type, es_host, es_port, size=100):
     query_string = """
     {
         "_source": ["nes", "pvalue", "refgene_id", "vset", "gene_name"],
@@ -184,8 +179,7 @@ def get_top100_nes(index, doc_type, size=100):
     }
     """
 
-    url = "http://199.109.195.45:9200/%s/%s/_search?pretty" %(index, doc_type)
-
+    url = "http://%s:%s/%s/%s/_search?pretty" %(es_host, es_port, index, doc_type)
     response = requests.get(url, data = query_string %(size))
     tmp = json.loads(response.text)
     tmp = tmp['hits']['hits']
@@ -197,31 +191,66 @@ def get_top100_nes(index, doc_type, size=100):
     return results
 
 def msea_pvalue(request):
-    index = 'msea'
-    doc_type = 'sim_sen_noexpand'
-    type_name = 'noexpand'
-    results = get_top100_nes(index, doc_type, size=100)
+
+    study_form = StudyForm(request.user)
+
+    context = {}
+    context['study_form'] = study_form
+
+    return render(request, 'msea/msea_pvalue.html', context)
+
+def msea_get_sorted_pvalues(request):
+
+    study_short_name = request.GET.get('selected_study')
+    study_obj = Study.objects.get(short_name=study_short_name)
+
+    index = study_obj.es_index_name
+    results = {}
+    for dataset in Dataset.objects.filter(study=study_obj):
+        doc_type = "%s_noexpand" %(dataset.short_name)
+        result = get_top100_nes(study_obj.es_index_name, doc_type, study_obj.es_host, study_obj.es_port, size=100)
+        results[dataset.short_name] = result
+
     context = {}
     context['results'] = results
-    context['index'] = index
-    context['doc_type'] = doc_type
-    context['type_name'] = type_name
-    return render(request, 'msea/msea_pvalue.html', context)
+    context['study_id'] = study_obj.id
+    return render(request, 'msea/msea_get_pvalues.html', context)
 
 
 
 @gzip_page
 def get_plot(request):
-    params = request.GET
-    msea_type_name = params.get('type_name')
-    gene = params.get('gene')
-    rs_id = params.get('rs_id')
-    vset = params.get('vset')
+    dataset_short_name = request.GET.get('dataset_short_name')
+    gene = request.GET.get('gene')
+    rs_id = request.GET.get('rs_id')
+    variant_selected = request.GET.get('variant_selected')
 
-    plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
-    plot_path = os.path.basename(plot_path)
+    study_id = request.GET.get('study_id')
+
+    recurrent_variant_option = 'noexpand'
+    command = 'Rscript'
+    path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.elasticsearch.R')
+
+    # # Variable number of args in a list
+
+    study_obj = Study.objects.get(id=study_id)
+    output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+    output_filename = "%s_%s_%s_%s_%s.svg" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
+    output_path = os.path.join(output_folder, output_filename)
+
+
+    args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
+
+    # # Build subprocess command
+    cmd = [command, path2script] + args
+    # print(cmd)
+    print(' '.join(cmd))
+    # # check_output will run the command and store to result
+
+    subprocess.check_call(cmd)
+
     context = {}
-    context['plot_path'] = plot_path
+    context['plot_path'] = output_filename
 
     return render(request, 'msea/msea_get_plot.html', context)
 
