@@ -24,7 +24,7 @@ VARIANT_FILE_TYPE_CHOICES = (('ass', 'All Silent SNVs'),
 STUDIES = (
     ("sim",
      "Statin Induced Myopathy (SIM)",
-     "sim",
+     "msea_sim",
      "199.109.192.255",
      "9200",
      "20170222_SIM_WGS-20170424-expand_lookahead.txt",
