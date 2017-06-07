@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+
+{% block title %}
+    MSEA P-Value
+{% endblock %}
+
+{% block content %}
+    <div class="page-header text-center">
+        <h1>MSEA P-Value</h1>
+    </div>
+            <div class="table-responsive">
+                <table id="result-table" class="table display compact" cellspacing="0">
+                    <thead>
+                      <tr>
+                          <th>refgene_id</th>
+                          <th>nes</th>
+                          <th>pavalue</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for ele in results%}
+                            <tr>
+                                <td><a href="/msea/get-plot?rs_id={{ele.refgene_id}}&vset={{ele.vset}}&gene={{ele.gene_name}}&type_name={{doc_type}}">{{ ele.refgene_id}}</a></td>
+                                <td>{{ ele.nes}}</td>
+                                <td>{{ ele.pvalue}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <h3> Blah</h3>
+            <div class="table-responsive">
+                <table id="result-table2" class="table display compact" cellspacing="0">
+                    <thead>
+                      <tr>
+                          <th>refgene_id</th>
+                          <th>nes</th>
+                          <th>pavalue</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for ele in results%}
+                            <tr>
+                                <td><a href="/msea/get-plot?rs_id={{ele.refgene_id}}&vset={{ele.vset}}&gene={{ele.gene_name}}&type_name={{doc_type}}">{{ ele.refgene_id}}</a></td>
+                                <td>{{ ele.nes}}</td>
+                                <td>{{ ele.pvalue}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+
+<script>
+ $(document).ready(function() {
+        // $('#result-table').destroy();
+        $('#result-table').DataTable({
+            "iDisplayLength": 25,
+            "bSortClasses": false
+        });
+
+        $('#result-table2').DataTable({
+            "iDisplayLength": 25,
+            "bSortClasses": false
+        });
+
+    });
+</script>
+
+{% endblock %}
+
+

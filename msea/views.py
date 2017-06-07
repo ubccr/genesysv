@@ -8,43 +8,53 @@ import hashlib
 import datetime
 import os
 import re
+import requests
+import json
+import glob
 
+from .models import *
 from .utils import generate_variant_bplot
 from django.views.decorators.gzip import gzip_page
 from .forms import GeneForm, VariantForm
 from .models import Gene, ReferenceSequence
 from django.conf import settings
-# Create your views here.
+from PIL import Image
 
 
 @gzip_page
-def download_svg(request):
+def msea_home(request):
+    form = GeneForm(request.user)
+    context = {'form':form}
+    return render(request, 'msea/msea_home.html', context)
+
+
+@gzip_page
+def download_tiff(request):
     if request.GET:
-        print(request.GET)
         try:
-            dataset = request.GET.get('dataset')
+            dataset_short_name = request.GET.get('dataset_short_name')
             gene = request.GET.get('gene')
             rs_id = request.GET.get('rs_id')
-            vset = request.GET.get('vset')
+            variant_selected = request.GET.get('variant_selected')
+            study_id = request.GET.get('study_id')
+
         except:
             return HttpResponse('Missing parameter')
         # # Define command and arguments
         # # Rscript make.msea.plot.json-v12-2016.R $PWD/NM_138420_ansi_gene.json /tmp/ ansi $PWD/NM_138420_ansi_domain.json
         command = 'Rscript'
-        path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.elasticsearch_V2017_04.R')
+        path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.elasticsearch.R')
 
         # # Variable number of args in a list
-        output_json_path = os.path.join(settings.BASE_DIR, 'msea/output_json')
 
-
-        gene_filename = os.path.join(output_json_path, "%s_%s_gene.json" %(rs_id, vset))
-        domain_filename = os.path.join(output_json_path, "%s_%s_domain.json" %(rs_id, vset))
-
-        output_folder = os.path.join(settings.BASE_DIR, 'msea/output_svg/')
-        output_filename = "%s-%s-%s.svg" %(gene, rs_id, vset)
+        study_obj = Study.objects.get(id=study_id)
+        recurrent_variant_option = 'noexpand'
+        output_folder = os.path.join(settings.BASE_DIR, 'msea/output_tiff/')
+        output_filename = "%s_%s_%s_%s_%s.tiff" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
         output_path = os.path.join(output_folder, output_filename)
 
-        args = [gene_filename , output_folder, vset, domain_filename]
+
+        args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'tiff']
 
         # # Build subprocess command
         cmd = [command, path2script] + args
@@ -54,119 +64,86 @@ def download_svg(request):
 
         subprocess.check_call(cmd)
 
-        svg_data = open(output_path,'r')
-        response = HttpResponse(svg_data, content_type="image/svg+xml")
-        response["Content-Disposition"]= "attachment; filename=%s" %(output_filename)
+
+        image_data = open(output_path, "rb").read()
+        return HttpResponse(image_data, content_type="image/tiff")
+        response['Content-Disposition'] = 'attachment; filename=%s' % output_filename
+        image.save(response, image_format)
         return response
-        # return HttpResponse('test')
+
+
 
 @gzip_page
-def msea_home(request):
-    form = GeneForm(request.user)
-    context = {'form':form}
-    return render(request, 'msea/msea_home.html', context)
-
-@gzip_page
-def bokeh_plot(request):
+def msea_plot(request):
     if request.POST:
         gene_form = GeneForm(request.user, request.POST)
         rs_id = request.POST['rs_id']
-        dataset = request.POST['dataset']
-        variant_form = VariantForm(rs_id, dataset, request.POST)
+        study = request.POST['study']
+        variant_form = VariantForm(rs_id, study, request.POST)
         if gene_form.is_valid() and variant_form.is_valid():
             gene_data = gene_form.cleaned_data
             variant_data = variant_form.cleaned_data
 
-            dataset = gene_data['dataset']
+            study_short_name = gene_data['study']
+            study_obj = Study.objects.get(short_name=study_short_name)
             gene_name = gene_data['search_term']
             gene, rs_id = gene_name.split()
             rs_id = rs_id[1:-1]
 
             recurrent_variant_option = gene_data['recurrent_variant_option']
-            variants_selected = variant_data['variant_choices']
-            # variants_selected = ','.join(variants_selected)
 
-            msea_type_name = "%s_%s" %(dataset, recurrent_variant_option)
+            variant_selected = variant_data['variant_choice']
+            print('*'*20, variant_selected)
+
+
+            command = 'Rscript'
+            path2script = os.path.join(settings.BASE_DIR, 'msea/management/commands/data/make.msea.plot.elasticsearch.R')
+
+            # # Variable number of args in a list
+
+            output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+            wildcardstring = '%s_%s_*_%s_%s.svg' %(gene, rs_id, recurrent_variant_option, variant_selected)
+
+
+
+            for dataset in Dataset.objects.filter(study=study_obj):
+                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_host, study_obj.es_port, output_folder, 'svg']
+
+            # # Build subprocess command
+                cmd = [command, path2script] + args
+                # print(cmd)
+                print(' '.join(cmd))
+                # # check_output will run the command and store to result
+
+                ### Run Rscript
+                subprocess.check_call(cmd)
+
+            svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
+            wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variant_selected)
             plots = []
-            for vset in variants_selected:
-                plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
-                plots.append((gene, rs_id, vset, os.path.basename(plot_path)))
-            # print(plots)
+            for file in svg_files:
+                print(file)
+                filename = os.path.basename(file)
+                tmp = re.search(wildcardstring, filename).groups()[0]
+                dataset_obj = Dataset.objects.get(study=study_obj, short_name=tmp)
+
+                plots.append((gene, rs_id, variant_selected, dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
+            print(plots)
             context = {}
             context['plots'] = plots
-            context['dataset'] = dataset
-
-            return render(request, 'msea/msea_bokeh_plot.html', context)
-
-@gzip_page
-def plots(request):
-    project_name = "SIM_variants_step2_vartype_db"
-    dataset_date = "2016-05-25"
-    end_string = "Data4plot.RData"
-    if request.POST:
-        gene_form = GeneForm(request.POST)
-        rs_id = request.POST['rs_id']
-        variant_form = VariantForm(rs_id, request.POST)
-        if gene_form.is_valid() and variant_form.is_valid():
-            gene_data = gene_form.cleaned_data
-            variant_data = variant_form.cleaned_data
-
-            gene_name = gene_data['search_term']
-            recurrent_variant_option = gene_data['recurrent_variant_option']
-            variants_selected = variant_data['variant_choices']
-            variants_selected = ','.join(variants_selected)
-
-            print(gene_name, recurrent_variant_option, variants_selected)
-            # return HttpResponse(variants_selected)
-            # SIM_variants_step2_vartype_db_2016-05-18_noexpand_Data4plot.RData
-            output_string = ""
-
-
-            m = re.search('^[^\(]+', rs_id)
-
-            gene = m.group(0).strip()
-            m = re.search('\((.+)\)', rs_id)
-            rs_id = m.group(1)
-            rdata_filename = "%s_%s_%s_%s_%s" %(project_name,
-                                                    dataset_date,
-                                                    recurrent_variant_option,
-                                                    rs_id,
-                                                    end_string)
-
-
-
-            output_folder = os.path.join(settings.BASE_DIR, 'static_root/rplots')
-
-            files = []
-            variants_to_generate = []
-            for variant in variant_data['variant_choices']:
-                filename = gene + '-' + rs_id + '-' + recurrent_variant_option + '-' + variant + '.svg'
-                full_path = os.path.join(output_folder, filename)
-                files.append(filename)
-                if not os.path.exists(os.path.join(output_folder,filename)):
-                    print('New Plot: ', full_path)
-                    variants_to_generate.append(variant)
-
-
-            variants_to_generate = ','.join(variants_to_generate)
-            if variants_to_generate:
-                generate_r_plot(rdata_filename, output_folder, variants_to_generate)
-
-            context = {}
-            context['files'] = files
-
 
 
             return render(request, 'msea/msea_plot.html', context)
 
+
 @gzip_page
 def search_gene_rs_id(request):
     q = request.GET.get('q', None)
-    dataset = request.GET.get('dataset', None)
-    if q and dataset:
+    study = request.GET.get('study', None)
+    if q and study:
         if len(q) > 0:
             genes = Gene.objects.filter(gene_name__icontains=q)
-            reference_sequences = ReferenceSequence.objects.filter(msea_dataset__dataset=dataset).filter(Q(rs_id__icontains=q) | Q(gene__gene_name__icontains=q))
+            reference_sequences = ReferenceSequence.objects.filter(study__short_name=study).filter(Q(rs_id__icontains=q) | Q(gene__gene_name__icontains=q))
             results = ['%s (%s)' %(ele.gene.gene_name, ele.rs_id) for ele in reference_sequences]
 
             json_response = {"data": results}
@@ -188,9 +165,63 @@ def search_gene_rs_id(request):
 @gzip_page
 def get_variant_form(request):
     rs_id = request.GET['selected_rs_id']
-    dataset = request.GET['dataset']
-    variant_form = VariantForm(rs_id, dataset)
+    study = request.GET['study']
+    variant_form = VariantForm(rs_id, study)
     context = {'variant_form':variant_form,
                'rs_id': rs_id}
     # return HttpResponse(attribute_forms)
     return render(request, "msea/get_variant_snippet.html", context)
+
+
+def get_top100_nes(index, doc_type, size=100):
+    query_string = """
+    {
+        "_source": ["nes", "pvalue", "refgene_id", "vset", "gene_name"],
+        "sort" : [
+            { "nes" : {"order" : "desc"}}
+        ],
+        "size": %s
+    }
+    """
+
+    url = "http://199.109.195.45:9200/%s/%s/_search?pretty" %(index, doc_type)
+
+    response = requests.get(url, data = query_string %(size))
+    tmp = json.loads(response.text)
+    tmp = tmp['hits']['hits']
+    results = []
+    for ele in tmp:
+        tmp_source = ele['_source']
+        results.append(tmp_source)
+
+    return results
+
+def msea_pvalue(request):
+    index = 'msea'
+    doc_type = 'sim_sen_noexpand'
+    type_name = 'noexpand'
+    results = get_top100_nes(index, doc_type, size=100)
+    context = {}
+    context['results'] = results
+    context['index'] = index
+    context['doc_type'] = doc_type
+    context['type_name'] = type_name
+    return render(request, 'msea/msea_pvalue.html', context)
+
+
+
+@gzip_page
+def get_plot(request):
+    params = request.GET
+    msea_type_name = params.get('type_name')
+    gene = params.get('gene')
+    rs_id = params.get('rs_id')
+    vset = params.get('vset')
+
+    plot_path = generate_variant_bplot(msea_type_name, gene, rs_id, vset)
+    plot_path = os.path.basename(plot_path)
+    context = {}
+    context['plot_path'] = plot_path
+
+    return render(request, 'msea/msea_get_plot.html', context)
+

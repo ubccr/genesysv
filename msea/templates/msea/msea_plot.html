@@ -13,37 +13,24 @@
 
 {% block content %}
     <div class="page-header text-center">
-          <h1>MSEA Plots</h1>
-      </div>
-
-    <div id="div-loading">
-        <button class="btn btn-warning center-block"><i class="fa fa-refresh fa-spin fa-fw"></i> Loading Images...</button>'
+          <h1>Mutation Set Enrichment Analysis (MSEA) Plots</h1>
     </div>
 
-    <div class="row">
-    {% for file in files %}
-    <div class="col-md-6">
-    <div class="panel panel-default">
-          <div class="panel-body">
-              <img class="img-responsive" src="/static_root/rplots/{{file}}">
-          </div>
-    </div>
-    </div>
+    {% for gene, rs_id, variant_selected, dataset_short_name, dataset_display_name, study_id, file in plots %}
+         <h3 class="text-center">{{dataset}}</h3>
+        <a target="_blank" href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}" class="btn btn-success" role="button">Download as TIFF</a>
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="/static/r_outputs/svg/{{file}}"></iframe>
+        </div>
 
     {% endfor %}
-    </div>
+
 
 <script>
-$(window).load(function(){
-    $("#div-loading").hide()
-});
 
-
-$(document).ready(function() {
-    console.log('page2');
-    sessionStorage.setItem("msea_results_visited", "True");
-});
-
+    $(document).ready(function() {
+        sessionStorage.setItem("msea_results_visited", "True");
+    });
 
 </script>
 
