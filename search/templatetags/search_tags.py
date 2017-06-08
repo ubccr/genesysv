@@ -23,10 +23,27 @@ def gene_link(input_string):
         output = ''
         for ele in input_string.split():
             if ele.lower() != 'none':
-                output += '<a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s">%s</a> ' %(ele,ele)
+                output += '<a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s"><i class="fa fa-external-link" aria-hidden="true"></i></a>' %(ele)
             else:
                 output += 'NONE '
         return output
+
+@register.filter('gene_mania')
+def gene_mania(input_string):
+    """
+    usage example {{ your_array|format_gatkqs_array }}
+    """
+
+    #http://genemania.org/link?o=9606&g=AGRN
+    if input_string:
+        output = ''
+        for ele in input_string.split():
+            if ele.lower() != 'none':
+                output += '<a target="_blank" href="http://genemania.org/link?o=9606&g=%s"><i class="fa fa-external-link" aria-hidden="true"></i></a>' %(ele.replace(',','|'))
+            else:
+                output += 'NONE '
+        return output
+
 
 
 @register.filter('ensembl_link')
@@ -101,6 +118,23 @@ def get_gbrowser_link(variant):
         link = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=%s" %(position)
         return link
 
+@register.filter('get_decipher_link')
+def get_decipher_link(variant):
+    if variant:
+        chromosome = variant.split('-')[0]
+        position = int(variant.split('-')[1])
+
+        if 'chr' in chromosome.lower():
+            chromosome = int(chromosome.replace('chr',''))
+        else:
+            chromosome = int(chromosome)
+
+        part1 ="%d:%d-%d" %(chromosome, position-25, position+25)
+        part2 ="%d:%d-%d" %(chromosome, position, position)
+
+        link = "https://decipher.sanger.ac.uk/browser#q/%s/location/%s" %(part1, part2)
+        return link
+
 
 
 
@@ -112,6 +146,8 @@ def get_value_from_dict_search(dict_data, element):
 
     if element:
         data = dict_data.get(element.es_name)
+        if not data:
+            return None
         es_id = dict_data.get("es_id")
         # print(dict_data.get("es_id"))
         if element.es_name == 'Variant':
@@ -125,43 +161,4 @@ def get_value_from_dict_search(dict_data, element):
             return '; '.join(tmp)
         else:
             return data
-
-@register.filter('table_ref_gene')
-def table_ref_gene(dict_data, key):
-    """
-    usage example {{ your_dict|get_value_from_dict:your_key }}
-    """
-    if key:
-        data = dict_data.get(key)
-        html_string = """
-        <table class="table table-condensed">
-            <thead>
-              <tr>
-                <th>Firstname</th>
-                <th>Lastname</th>
-                <th>Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>John</td>
-                <td>Doe</td>
-                <td>john@example.com</td>
-              </tr>
-              <tr>
-                <td>Mary</td>
-                <td>Moe</td>
-                <td>mary@example.com</td>
-              </tr>
-              <tr>
-                <td>July</td>
-                <td>Dooley</td>
-                <td>july@example.com</td>
-              </tr>
-            </tbody>
-        </table>
-    """
-
-        template = Template(html_string)
-        return template.render({})
 

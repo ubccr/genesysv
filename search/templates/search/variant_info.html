@@ -24,7 +24,10 @@
     <tbody>
         <tr>
             <td>Variant</td>
-            <td><strong>{{ result.Variant }} <a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a></strong></td>
+            <td><strong>{{ result.Variant }}</strong>
+                <br><a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a>
+                <br><a target="_blank" href="{{ result.Variant|get_decipher_link }}"> (Open in Decipher)</a>
+            </td>
         </tr>
         <tr>
             <td>Chromosome</td>
@@ -207,7 +210,11 @@
     <tbody>
     {% for ele in result.refGene %}
       <tr>
-        <td>{{ele.refGene_symbol|gene_link|safe}}</a></td>
+        <td>
+            {{ele.refGene_symbol}}
+            {{ele.refGene_symbol|gene_mania|safe}}
+            {{ele.refGene_symbol|gene_link|safe}}
+        </td>
         <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/nuccore/{{ele.refGene_refgene_id}}">{{ele.refGene_refgene_id}}</a></td>
         <td>{{ele.refGene_cDNA_change}}</td>
         <td>{{ele.refGene_aa_change}}</td>
@@ -287,7 +294,7 @@
         <td>{{ele.sample_DP}}</td>
         <td>{{ele.sample_GT}}</td>
         <td>{{ele.sample_GQ}}</td>
-        {% if ele.sample_labe %}
+        {% if ele.sample_label %}
             <td>{{ele.sample_label}}</td>
         {% endif %}
       </tr>
@@ -484,84 +491,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% if result.fathmm_MKL_coding_pred %}
-                                        <tr>
-                                            <td>FATHMM MKL Prediction</td>
-                                            <td>{{result.fathmm_MKL_coding_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.FATHMM_pred %}
-                                        <tr>
-                                            <td>FATHMM Prediction</td>
-                                            <td>{{result.FATHMM_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.LRT_pred %}
-                                        <tr>
-                                            <td>LRT Prediction</td>
-                                            <td>{{result.LRT_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.LR_pred %}
-                                        <tr>
-                                            <td>LR Prediction</td>
-                                            <td>{{result.LR_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.MetaLR_pred %}
-                                        <tr>
-                                            <td>Metal LR Prediction</td>
-                                            <td>{{result.MetaLR_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.MetaSVM_pred %}
-                                        <tr>
-                                            <td>MetaSVM Prediction</td>
-                                            <td>{{result.MetaSVM_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.MutationAssessor_pred %}
-                                        <tr>
-                                            <td>Mutation Assessor Prediction</td>
-                                            <td>{{result.MutationAssessor_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.MutationTaster_pred %}
-                                        <tr>
-                                            <td>Mutation Taster Prediction</td>
-                                            <td>{{result.MutationTaster_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.PROVEAN_pred %}
-                                        <tr>
-                                            <td>PROVEAN Prediction</td>
-                                            <td>{{result.PROVEAN_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.Polyphen2_HDIV_pred %}
-                                        <tr>
-                                            <td>Polyphen2 HDIV Prediction</td>
-                                            <td>{{result.Polyphen2_HDIV_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.Polyphen2_HVAR_pred %}
-                                        <tr>
-                                            <td>Polyphen2 HVAR Prediction</td>
-                                            <td>{{result.Polyphen2_HVAR_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.RadialSVM_pred %}
-                                        <tr>
-                                            <td>Radial SVM Prediction</td>
-                                            <td>{{result.RadialSVM_pred}}</td>
-                                        </tr>
-                                    {% endif %}
-                                    {% if result.SIFT_pred %}
-                                        <tr>
-                                            <td>SIFT Prediction</td>
-                                            <td>{{result.SIFT_pred}}</td>
-                                        </tr>
-                                    {% endif %}
+                                    {% for ele in coding_regions %}
+                                        {% if result|get_value_from_dict:ele %}
+                                            <tr>
+                                                <td>{{ele}}</td>
+                                                <td>{{result|get_value_from_dict:ele}}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
                                 </tbody>
                                 </table>
                             </div>

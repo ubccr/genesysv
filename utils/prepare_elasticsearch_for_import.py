@@ -87,7 +87,6 @@ def main():
     required.add_argument("--port", type=int, help="Elasticsearch port", required=True)
     required.add_argument("--index", help="Elasticsearch index name", required=True)
     required.add_argument("--type", help="Elasticsearch doc type name", required=True)
-    required.add_argument("--labels", help="Cohort labels, e.g., \"control, case\"", required=True)
     required.add_argument("--info", help="VCF Information", required=True)
     args = parser.parse_args()
 

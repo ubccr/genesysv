@@ -25,6 +25,9 @@
     {% if user.is_authenticated %}
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
     {% endif %}
+    {% if gene_mania_link %}
+        <a class="btn btn-primary " role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
+    {% endif %}
     <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
     <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
         {% csrf_token %}
@@ -49,7 +52,11 @@
             {% for row in results %}
                 <tr>
                     {% for element in headers %}
-                        <td>{{ row|get_value_from_dict_search:element|safe }}</td>
+                        <td>{{ row|get_value_from_dict_search:element|safe }}
+                        {% if element == "refGene_symbol" %}
+                            {{element}}
+                        {% endif %}
+                        </td>
                     {% endfor %}
                 </tr>
             {% endfor %}

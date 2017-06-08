@@ -540,10 +540,17 @@ def search(request):
                         hash_list.append(list_hash)
                         results.append(tmp_result)
 
+            ## gene_names
+            all_genes = []
             if nested_attribute_fields:
                 final_results = []
                 results_count = 0
                 for idx, result in enumerate(results):
+                    if result.get('refGene'):
+                        for ele in result.get('refGene'):
+                            if ele.get('refGene_symbol'):
+                                genes = ele.get('refGene_symbol').split(',')
+                                all_genes.extend(genes)
                     if results_count>search_options.maximum_table_size:
                         break
                     combined = False
@@ -573,8 +580,12 @@ def search(request):
                         if result not in final_results:
                             final_results.append(result)
                             results_count += 1
+
+
             else:
                 final_results = results
+
+
 
 
             header_json = serializers.serialize("json", headers)
@@ -630,7 +641,11 @@ def search(request):
                 context['save_search_form'] = None
 
 
-
+            if all_genes:
+                print(all_genes)
+                all_genes  = sorted(list(set(all_genes)))
+                gene_mania_link =  "http://genemania.org/link?o=9606&g=%s" % ('|'.join(all_genes))
+                context['gene_mania_link'] = gene_mania_link
 
             context['debug'] = settings.DEBUG
             context['used_keys'] = used_keys
@@ -825,20 +840,8 @@ def get_variant(request, dataset_id, variant_id):
 
     conserved_elements_available = True if any(True for ele in conserved_elements if result.get(ele)) else False
 
-    coding_regions = [
-        "fathmm_MKL_coding_pred",
-        "FATHMM_pred",
-        "LRT_pred",
-        "LR_pred",
-        "MetaLR_pred",
-        "MetaSVM_pred",
-        "MutationAssessor_pred",
-        "MutationTaster_pred",
-        "PROVEAN_pred",
-        "Polyphen2_HDIV_pred",
-        "Polyphen2_HVAR_pred",
-        "RadialSVM_pred",
-        "SIFT_pred"]
+    fsp = FilterSubPanel.objects.get(dataset=dataset, filter_panel__name='Pathogenic Prediction', name='Coding Region')
+    coding_regions = [ele.display_text for ele in fsp.filter_fields.all()]
 
     splice_junctions = ["dbscSNV_ADA_SCORE", "dbscSNV_RF_SCORE"]
 
@@ -853,6 +856,7 @@ def get_variant(request, dataset_id, variant_id):
     context["conserved_elements_available"] = conserved_elements_available
     context["coding_region_available"] = coding_region_available
     context["splice_junctions_available"] = splice_junctions_available
+    context["coding_regions"] = coding_regions
     context["variant_id"] = variant_id
     context["dataset_id"] = dataset.id
     context["index_name"] = index_name

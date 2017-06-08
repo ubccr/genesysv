@@ -234,16 +234,16 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
     fixed_fields = vcf_mapping.get('FIXED_FIELDS')
     info_fields = vcf_mapping.get('INFO_FIELDS')
 
-    int_format_fields = [key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'integer']
-    float_format_fields = [key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'float']
+    int_format_fields = set([key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'integer'])
+    float_format_fields = set([key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'float'])
 
     null_fields = [(key, info_fields[key].get('null_value')) for key in info_fields.keys() if 'null_value' in info_fields[key]]
     overwrite_fields = [(key, info_fields[key].get('overwrites')) for key in info_fields.keys() if 'overwrites' in info_fields[key]]
-    exist_only_fields = [key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]]
+    exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
 
     no_variants = 0
-    # no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    no_lines = 100000
+    no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
+    # no_lines = 100000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     with open(vcf_filename, 'r') as fp:
@@ -315,6 +315,7 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                 sample_values = data.get(sample)
                 sample_values = sample_values.split(':')
 
+
                 sample_content['sample_ID'] = sample
 
                 for idx, key_format_field in enumerate(format_fields_for_current_line):
@@ -335,7 +336,7 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                             if key_value != '.':
                                 sample_content[key_format_field_sample] = float(key_value)
                     else:
-                        if key_value != '.':
+                        if key_value != '.' or key_value != './.':
                             sample_content[key_format_field_sample] = key_value
 
 
@@ -534,9 +535,9 @@ def main():
                                                 vcf_filename,
                                                 vcf_mapping,
                                                 vcf_label),
-                                        chunk_size=10000,
+                                        chunk_size=5000,
                                         max_chunk_bytes=5.12e+8,
-                                        request_timeout=60,
+                                        request_timeout=120,
                                         stats_only=True)
 
     vcf_import_end_time = datetime.now()
