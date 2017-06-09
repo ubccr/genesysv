@@ -14,6 +14,7 @@ from elasticsearch import helpers
 import re
 
 
+GLOBAL_NO_VARIANTS_PROCESSED = 0
 
 class VCFException(Exception):
     """Raise for my specific kind of exception"""
@@ -75,7 +76,7 @@ def Gene_refGene_parser(relevant_info_fields):
 
     if relevant_info_fields.get('GeneDetail.refGene'):
 
-        GeneDetail_refGene = relevant_info_fields.get('GeneDetail.refGene')
+        GeneDetail_refGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.refGene'))
 
         if re.match(pattern, GeneDetail_refGene):
             tmp_content = {}
@@ -118,7 +119,7 @@ def Gene_ensGene_parser(relevant_info_fields):
 
     if relevant_info_fields.get('GeneDetail.ensGene'):
 
-        GeneDetail_ensGene = relevant_info_fields.get('GeneDetail.ensGene')
+        GeneDetail_ensGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.ensGene'))
 
 
         if re.match(pattern, GeneDetail_ensGene):
@@ -230,6 +231,7 @@ def convert_escaped_chars(input_string):
 
 #@profile
 def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bulk=True):
+    global GLOBAL_NO_VARIANTS_PROCESSED
     format_fields = vcf_mapping.get('FORMAT_FIELDS').get('nested_fields')
     fixed_fields = vcf_mapping.get('FIXED_FIELDS')
     info_fields = vcf_mapping.get('INFO_FIELDS')
@@ -240,10 +242,11 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
     null_fields = [(key, info_fields[key].get('null_value')) for key in info_fields.keys() if 'null_value' in info_fields[key]]
     overwrite_fields = [(key, info_fields[key].get('overwrites')) for key in info_fields.keys() if 'overwrites' in info_fields[key]]
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
+    parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
     no_variants = 0
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 100000
+    # no_lines = 20000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     with open(vcf_filename, 'r') as fp:
@@ -298,23 +301,19 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                 content['ID'] = data['ID']
 
 
-
-
-
-
-            # keyword_format_fields = [key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') not in ('integer', 'float')]
-
-
             ### Samples
             sample_array = []
             FORMAT = data['FORMAT']
             format_fields_for_current_line = FORMAT.split(':')
+            gt_location = format_fields_for_current_line.index('GT')
             for sample in samples:
                 # pass
                 sample_content = {}
                 sample_values = data.get(sample)
                 sample_values = sample_values.split(':')
 
+                if sample_values[gt_location] == './.':
+                    continue
 
                 sample_content['sample_ID'] = sample
 
@@ -325,7 +324,7 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                         if ',' in key_value:
                             sample_content[key_format_field_sample] = [int(s_val) for s_val in key_value.split(',')]
                         else:
-                            if key_value != '.':
+                            if key_value not in ['.']:
                                 sample_content[key_format_field_sample] = int(key_value)
 
 
@@ -333,10 +332,10 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                         if ',' in key_value:
                             sample_content[key_format_field_sample] = [float(s_val) for s_val in key_value.split(',')]
                         else:
-                            if key_value != '.':
+                            if key_value not in ['.']:
                                 sample_content[key_format_field_sample] = float(key_value)
                     else:
-                        if key_value != '.' or key_value != './.':
+                        if key_value not in ['.']:
                             sample_content[key_format_field_sample] = key_value
 
 
@@ -346,6 +345,7 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                 sample_array.append(sample_content)
 
             if sample_array:
+                # pprint(sample_array)
                 content['sample'] = sample_array
 
 
@@ -391,7 +391,7 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                     content[es_field_name] = val
                     continue
 
-                val = info_dict[info_key]
+                val = info_dict.get(info_key)
                 if val == 'nan':
                     continue
 
@@ -415,29 +415,37 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                         val = value_mapping.get(val, val)
 
                     if info_fields[info_key].get('parse_function'):
-                        if info_fields[info_key].get('shares_nested_path'):
-                            shares_nested_path = info_fields[info_key].get('shares_nested_path')
-                            es_field_name = info_fields[shares_nested_path].get('es_nested_path')
-                            parse_function = eval(info_fields[info_key].get('parse_function'))
-                            val = {info_key: val}
-                            val = parse_function(val)
-                            if es_field_name in content:
-                                content[es_field_name].extend(val)
-                                continue
-                            else:
-                                content[es_field_name] = val
-                                continue
-                        else:
-                            parse_function = eval(info_fields[info_key].get('parse_function'))
-                            val = parse_function(val)
-                            content[es_field_name] = val
-                            continue
+                        parse_function = eval(info_fields[info_key].get('parse_function'))
+                        val = parse_function(val)
+                        content[es_field_name] = val
+                        continue
                     else:
                         content[es_field_name] = val
 
 
 
                 ### deal with nested fields
+                if info_fields[info_key].get('shares_nested_path'):
+                    # print(info_key)
+                    shares_nested_path = info_fields[info_key].get('shares_nested_path')
+                    es_field_name = info_fields[shares_nested_path].get('es_nested_path')
+                    parse_function = eval(info_fields[info_key].get('parse_function'))
+                    # print(es_field_name, val, parse_function)
+                    val = {info_key: val}
+
+                    if parse_with_fields.get(info_key):
+                        parse_with_field_name = parse_with_fields.get(info_key)
+                        val.update({parse_with_field_name: info_dict.get(parse_with_field_name)})
+                    val = parse_function(val)
+                    # print(es_field_name, val)
+                    if es_field_name in content:
+                        content[es_field_name].extend(val)
+                        continue
+                    else:
+                        content[es_field_name] = val
+                        continue
+
+
                 if info_fields[info_key].get('es_nested_path'):
                     parse_function = eval(info_fields[info_key].get('parse_function'))
                     es_field_name = info_fields[info_key].get('es_nested_path')
@@ -448,8 +456,6 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                     else:
                         content[es_field_name] = val
                         continue
-                    # if len(val) > 1:
-                    #     pprint(content)
 
 
             for overwrite_key, orig_key in overwrite_fields:
@@ -476,10 +482,13 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                 yield action
             else:
                 yield content
-    print("Number of variants processed:", no_variants)
+
+
+    GLOBAL_NO_VARIANTS_PROCESSED = no_variants
+    print("\nNumber of variants processed:", GLOBAL_NO_VARIANTS_PROCESSED)
 
 def main():
-
+    global GLOBAL_NO_VARIANTS_PROCESSED
     start_time = datetime.now()
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required named arguments')
@@ -526,36 +535,51 @@ def main():
     #                     vcf_mapping,
     #                     vcf_label,
     #                     is_bulk=False):
-    #     es.index(index=index_name, doc_type=type_name, body=data)
+    #     data
+    #     # es.index(index=index_name, doc_type=type_name, body=data)
 
 
 
-    no_variants_processed, errors = helpers.bulk(es, set_data(index_name,
+    # no_variants_processed, errors = helpers.bulk(es, set_data(index_name,
+    #                                             type_name,
+    #                                             vcf_filename,
+    #                                             vcf_mapping,
+    #                                             vcf_label),
+    #                                     chunk_size=1000,
+    #                                     # max_chunk_bytes=5.12e+8,
+    #                                     request_timeout=120,
+    #                                     stats_only=True)
+
+
+    for success, info in helpers.parallel_bulk(es, set_data(index_name,
                                                 type_name,
                                                 vcf_filename,
                                                 vcf_mapping,
                                                 vcf_label),
-                                        chunk_size=5000,
-                                        max_chunk_bytes=5.12e+8,
-                                        request_timeout=120,
-                                        stats_only=True)
+                                            thread_count=4,
+                                        chunk_size=500,
+                                        # max_chunk_bytes=5.12e+8,
+                                        request_timeout=120
+                                        # stats_only=True
+                                        ):
+        if not success: print('Doc failed', info)
 
     vcf_import_end_time = datetime.now()
     # update refresh interval
     es.indices.put_settings(index=index_name, body={"refresh_interval": "1s"})
 
-    print('Indexing %d variants in Elasticsearch' %(no_variants_processed))
-    current_count = es.count(index_name, doc_type=type_name)['count']
+    print('Indexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
+    previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
 
-    with tqdm(total=no_variants_processed) as pbar:
-        while current_count <= no_variants_processed:
-            current_count = es.count(index_name, doc_type=type_name)['count']
-            pbar.update(current_count)
-            if current_count == no_variants_processed:
-                pbar.close()
-                break
-            else:
-                time.sleep(1)
+    pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
+    while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
+        current_count = int(es.count(index_name, doc_type=type_name)['count'])
+        difference = current_count-previous_count
+        previous_count = current_count
+        pbar.update(difference)
+        time.sleep(1)
+    pbar.close()
+
 
 
     end_time = datetime.now()
