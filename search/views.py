@@ -365,6 +365,8 @@ def search(request):
 
                 used_keys.append((es_name, data))
 
+                print(data, type(data), es_filter_type)
+
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
                         for ele in data:
@@ -381,33 +383,51 @@ def search(request):
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
                     for ele in data.splitlines():
                         if filter_field_obj.es_data_type == 'text':
-                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                            else:
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
                         if filter_field_obj.es_data_type == 'text':
-                            es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                            else:
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, str):
                     data_split = data.splitlines()
                     if filter_field_obj.es_data_type == 'text':
-                        data_split = [ele.lower() for ele in data_split]
-                    es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
-                    for ele in data.splitlines():
+                        if filter_field_obj.es_text_analyzer != 'whitespace':
+                            data_split_lower = [ele.lower() for ele in data_split]
+                            es_filter.add_nested_filter_terms(es_name, data_split_lower, filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
+                    else:
+                        es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
+
+                    for ele in data_split:
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
                     if filter_field_obj.es_data_type == 'text':
-                        data_lowercase = [ele.lower() for ele in data]
-                        es_filter.add_nested_filter_terms(es_name, data_lowercase, filter_field_obj.path)
+                        if filter_field_obj.es_text_analyzer != 'whitespace':
+                            data_lowercase = [ele.lower() for ele in data]
+                            es_filter.add_nested_filter_terms(es_name, data_lowercase, filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_terms(es_name, data, filter_field_obj.path)
                     else:
                         es_filter.add_nested_filter_terms(es_name, data, filter_field_obj.path)
+
                     for ele in data:
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
@@ -506,6 +526,9 @@ def search(request):
                         key_es_name = filter_field_obj.es_name
                         key_es_filter_type = filter_field_obj.es_filter_type.name
 
+                        if not result.get(key_path):
+                            continue
+
                         if key_es_filter_type in ["filter_range_gte",
                                                   "filter_range_lte",
                                                   "filter_range_lt",
@@ -520,7 +543,7 @@ def search(request):
                                     comparison_type = 'number_equal'
                         else:
                             comparison_type = 'val_in'
-
+                        # print(key_path, key_es_name, val, comparison_type)
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                         if filtered_results:
                             result[key_path] = filtered_results
@@ -642,7 +665,6 @@ def search(request):
 
 
             if all_genes:
-                print(all_genes)
                 all_genes  = sorted(list(set(all_genes)))
                 gene_mania_link =  "http://genemania.org/link?o=9606&g=%s" % ('|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link

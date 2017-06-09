@@ -97,6 +97,7 @@ class FilterField(TimeStampedModel):
     es_name = models.CharField(max_length=255)
     path = models.CharField(max_length=255, blank=True)
     es_data_type = models.CharField(max_length=255)
+    es_text_analyzer = models.CharField(max_length=255, blank=True)
     es_filter_type = models.ForeignKey(
         'ESFilterType',
         on_delete=models.CASCADE,

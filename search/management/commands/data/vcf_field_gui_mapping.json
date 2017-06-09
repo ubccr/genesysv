@@ -476,7 +476,8 @@
         "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-        "widget_type": "TextInput"
+        "widget_type": "TextInput",
+        "path": "refGene"
       }
     ],
     "panel": "Gene/Transcript",
@@ -2449,6 +2450,20 @@
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
         "tooltip": "Genotype",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "path": "sample"
+      }
+    ],
+    "panel": "Patient/Sample Related Information",
+    "tab": "Basic"
+  },
+  "sample_label": {
+    "filters": [
+      {
+        "display_text": "sample_label",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
         "widget_type": "SelectMultiple",
         "values": "get_from_es()",
         "path": "sample"

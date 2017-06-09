@@ -205,9 +205,9 @@ class Command(BaseCommand):
                 field_es_name = var_name.strip()
                 field_es_filter_type = filter_field.get('es_filter_type').strip()
                 field_es_data_type = var_info.get('type').strip()
+                field_es_text_analyzer = var_info.get('analyzer', '').strip()
                 field_path = filter_field.get('path', '').strip()
                 field_values = filter_field.get('values')
-
 
                 print("\n%s --- Filter Field" %(idx))
                 print("Filter Tab Name: %s" %(tab_name))
@@ -222,6 +222,7 @@ class Command(BaseCommand):
                 print("Filter Path: %s" %(field_path))
                 print("Filter ES Filter Type: %s" %(field_es_filter_type))
                 print("Filter ES Data Type: %s" %(field_es_data_type))
+                print("Filter ES Text Analyzer: %s" %(field_es_text_analyzer))
                 print("Filter Values: %s" %(field_values))
 
 
@@ -269,6 +270,7 @@ class Command(BaseCommand):
                                                                es_name=field_es_name,
                                                                path=field_path,
                                                                es_data_type=field_es_data_type,
+                                                               es_text_analyzer=field_es_text_analyzer,
                                                                es_filter_type=es_filter_type_obj,
                                                                place_in_panel=filter_panel_obj.name)
 
