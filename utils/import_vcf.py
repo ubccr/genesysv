@@ -12,7 +12,7 @@ import time
 import elasticsearch
 from elasticsearch import helpers
 import re
-
+from collections import Counter
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
 
@@ -25,7 +25,19 @@ class VCFException(Exception):
         # allow users initialize misc. arguments as any other builtin Error
         super(VCFException, self).__init__(message, *args)
 
+def prune_array(key, input_array):
+    key_count = Counter([ele[key] for ele in input_array])
 
+    output_array = []
+    for ele in input_array:
+        tmp_key = ele[key]
+        if key_count[tmp_key] == 1:
+            output_array.append(ele)
+        elif key_count[tmp_key] > 1:
+            if len(ele) > 1:
+                output_array.append(ele)
+
+    return output_array
 
 def estimate_no_variants_in_file(filename, no_lines_for_estimating):
     no_lines = 0
@@ -458,18 +470,19 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                         continue
 
 
+
+
             for overwrite_key, orig_key in overwrite_fields:
                 es_overwrite_key = info_fields[overwrite_key].get('es_field_name')
                 es_orig_key = info_fields[orig_key].get('es_field_name')
                 if es_overwrite_key in content:
                     content[es_orig_key] = content[es_overwrite_key]
 
-            no_variants += 1
 
-            if False:
-            # if no_variants % 10000 == 0:
-                print(no_variants, datetime.now())
-                # time_now = datetime.now()
+            content['refGene'] = prune_array('refGene_symbol', content['refGene'])
+            content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
+
+            no_variants += 1
 
             if is_bulk:
                 action = {
