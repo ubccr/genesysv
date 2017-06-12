@@ -15,6 +15,8 @@ import re
 from collections import Counter
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
+GLOBAL_NO_VARIANTS_CREATED = 0
+GLOBAL_NO_VARIANTS_UPDATED = 0
 
 class VCFException(Exception):
     """Raise for my specific kind of exception"""
@@ -60,6 +62,37 @@ def estimate_no_variants_in_file(filename, no_lines_for_estimating):
     no_variants = int(filesize/statistics.median(size_list))
 
     return no_variants
+
+def get_es_id_result(es, index_name, type_name, CHROM, POS, REF, ALT):
+    query_body = """
+        {
+            "size": 10,
+            "query" : {
+                "bool" : {
+                    "must" : [
+                        { "term": { "CHROM": "%s" }},
+                        { "term": { "POS": "%s" }},
+                        {  "term": { "REF": "%s" }},
+                        {  "term": { "ALT": "%s" }}
+                    ]
+                }
+
+            }
+        }
+    """
+
+    body = query_body %(CHROM, POS, REF, ALT)
+    results = es.search(index=index_name, doc_type=type_name, body=body)
+    total = results['hits']['total']
+
+    if total == 1:
+        es_id = results['hits']['hits'][0]['_id']
+        result = results['hits']['hits'][0]['_source']
+        return (es_id, 'Success', result)
+    elif total > 1:
+        return ('Multiple', 'Multiple Records Found', None)
+    elif total == 0:
+        return (None, 'No Record Found', None)
 
 
 def CHROM_parser(input_string):
@@ -242,8 +275,17 @@ def convert_escaped_chars(input_string):
 
 
 #@profile
-def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bulk=True):
+def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **kwargs):
+
+    is_bulk = kwargs.get('is_bulk')
+    initial_import = kwargs.get('initial_import')
+
+
     global GLOBAL_NO_VARIANTS_PROCESSED
+    global GLOBAL_NO_VARIANTS_CREATED
+    global GLOBAL_NO_VARIANTS_UPDATED
+
+
     format_fields = vcf_mapping.get('FORMAT_FIELDS').get('nested_fields')
     fixed_fields = vcf_mapping.get('FIXED_FIELDS')
     info_fields = vcf_mapping.get('INFO_FIELDS')
@@ -256,16 +298,15 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
     parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
-    no_variants = 0
-    no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 20000
+    # no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
+    no_lines = 10000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     with open(vcf_filename, 'r') as fp:
         for line in tqdm(fp, total=no_lines):
         # for no_line, line in enumerate(fp, 1):
 
-            if no_variants > no_lines:
+            if GLOBAL_NO_VARIANTS_PROCESSED > no_lines:
                 break;
 
 
@@ -377,11 +418,13 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
                 info_fields[AC_label] = info_dict.pop('AC')
                 info_fields[AF_label] = info_dict.pop('AF')
                 info_fields[AN_label] = info_dict.pop('AN')
-                content['FILTER'] = {'FILTER_cohort': vcf_label, 'FILTER_status': data['FILTER']}
-                content['QUAL'] = {'QUAL_cohort': vcf_label, 'QUAL_score': float(data['QUAL'])}
+                content['FILTER'] = [{'FILTER_cohort': vcf_label, 'FILTER_status': data['FILTER']}]
+                content['QUAL'] = [{'QUAL_cohort': vcf_label, 'QUAL_score': float(data['QUAL'])}]
             else:
-                content['FILTER_status'] = data['FILTER']
-                content['QUAL_score'] = float(data['QUAL'])
+                content['FILTER'] = [{'FILTER_status': data['FILTER']}]
+                content['QUAL'] = [{'QUAL_score': float(data['QUAL'])}]
+                # content['FILTER_status'] = data['FILTER']
+                # content['QUAL_score'] = float(data['QUAL'])
 
 
             for key, val in null_fields:
@@ -482,23 +525,101 @@ def set_data(index_name, type_name, vcf_filename, vcf_mapping, vcf_label, is_bul
             content['refGene'] = prune_array('refGene_symbol', content['refGene'])
             content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
 
-            no_variants += 1
 
-            if is_bulk:
+            if initial_import:
+                es_id = None
+            else:
+                es_id, es_msg, es_result = get_es_id_result(es, index_name, type_name, content['CHROM'], content['POS'], content['REF'], content['ALT'])
+
+
+            if es_id == None:
+
                 action = {
                     "_op_type": 'index',
                     "_index": index_name,
                     "_type": type_name,
                     "_source": content
                 }
-                # print(action)
+
+                GLOBAL_NO_VARIANTS_CREATED += 1
+
+            elif es_id:
+                data = es_result
+                ### START verify data
+
+                keys_to_skip = ['sample', 'AC_', 'AF_', 'AN_', 'FILTER', 'QUAL']
+                for key in list(content):
+                    if keys_to_skip:
+                        for ele in keys_to_skip:
+                            if key.startswith(ele):
+                                continue
+                    elif key in ['refGene', 'ensGene']:
+                        if not compare_array_dictionaries(content[key], data[key]):
+                            msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
+                                                                                                          key,
+                                                                                                          data[key],
+                                                                                                          content[key])
+                            raise VCFException(msg)
+
+                    elif key in data:
+                        if data[key] != content[key]:
+                            msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
+                                                                                                          key,
+                                                                                                          data[key],
+                                                                                                          content[key])
+                            raise VCFException(msg)
+                ### END verify data
+
+
+                ### Update original data
+                ### UPDATE: FILTER, QUAL, sample
+                ### ADD: AC_, AF_, AN_
+                for ele in content['FILTER']:
+                    if ele not in data['FILTER']:
+                        data['FILTER'].append(ele)
+
+                for ele in content['QUAL']:
+                    if ele not in data['QUAL']:
+                        data['QUAL'].append(ele)
+
+                for ele in content['sample']:
+                    if ele not in data['sample']:
+                        data['sample'].append(ele)
+
+                for key in list(content):
+                    if key not in data:
+                        data[key] = content[key]
+
+
+                content = data
+                action = {
+                    "_op_type": 'update',
+                    "_index": index_name,
+                    "_type": type_name,
+                    "_id": es_id,
+                    "doc": content
+                }
+
+
+                # pprint(action)
+                # print(content['Variant'])
+                GLOBAL_NO_VARIANTS_UPDATED += 1
+
+            elif es_id == 'Multiple' and es_msg == 'Multiple Records Found':
+                msg = "Multiple Records Found for: CHROM: %s -- POS: %s -- REF: %s -- ALT: %s" %(content['CHROM'],
+                                                                                                 content['POS'],
+                                                                                                 content['REF'],
+                                                                                                 content['ALT'])
+                raise VCFException(msg)
+            else:
+                raise VCFException('This should never happen')
+
+            GLOBAL_NO_VARIANTS_PROCESSED += 1
+
+            if is_bulk:
                 yield action
             else:
                 yield content
-
-
-    GLOBAL_NO_VARIANTS_PROCESSED = no_variants
-    print("\nNumber of variants processed:", GLOBAL_NO_VARIANTS_PROCESSED)
 
 def main():
     global GLOBAL_NO_VARIANTS_PROCESSED
@@ -510,6 +631,7 @@ def main():
     required.add_argument("--index", help="Elasticsearch index name", required=True)
     required.add_argument("--type", help="Elasticsearch doc type name", required=True)
     required.add_argument("--label", help="Cohort labels, e.g., \"control, case\" or \"None\"", required=True)
+    required.add_argument("--initial", help="Initial Import, e.g., \"True\" or \"False\"", required=True)
     required.add_argument("--vcf", help="VCF file to import", required=True)
     required.add_argument("--mapping", help="VCF mapping", required=True)
     args = parser.parse_args()
@@ -533,7 +655,11 @@ def main():
     vcf_label = args.label
     vcf_filename = args.vcf
     vcf_mapping = json.load(open(args.mapping, 'r'))
-
+    initial_import = args.initial
+    if initial_import == 'True':
+        initial_import = True
+    elif initial_import == 'False':
+        initial_import = False
 
     es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port)
     index_name = args.index
@@ -542,13 +668,15 @@ def main():
     es.indices.put_settings(index=index_name, body={"refresh_interval": "-1"})
 
 
-    # for data in set_data(index_name,
+    # for data in set_data(es, index_name,
     #                     type_name,
     #                     vcf_filename,
     #                     vcf_mapping,
     #                     vcf_label,
-    #                     is_bulk=False):
-    #     data
+    #                     is_bulk=True,
+    #                     initial_import=initial_import):
+    #     pass
+    #     # pprint(data)
     #     # es.index(index=index_name, doc_type=type_name, body=data)
 
 
@@ -564,11 +692,13 @@ def main():
     #                                     stats_only=True)
 
 
-    for success, info in helpers.parallel_bulk(es, set_data(index_name,
+    for success, info in helpers.parallel_bulk(es, set_data(es, index_name,
                                                 type_name,
                                                 vcf_filename,
                                                 vcf_mapping,
-                                                vcf_label),
+                                                vcf_label,
+                                                is_bulk=True,
+                                                initial_import=initial_import),
                                             thread_count=4,
                                         chunk_size=500,
                                         # max_chunk_bytes=5.12e+8,
@@ -581,26 +711,35 @@ def main():
     # update refresh interval
     es.indices.put_settings(index=index_name, body={"refresh_interval": "1s"})
 
-    print('Indexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
-    previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
+    if initial_import:
+        print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
+        previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
 
-    pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
-    while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
-        current_count = int(es.count(index_name, doc_type=type_name)['count'])
-        difference = current_count-previous_count
-        previous_count = current_count
-        pbar.update(difference)
-        time.sleep(1)
-    pbar.close()
+        pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
+        while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
+            current_count = int(es.count(index_name, doc_type=type_name)['count'])
+            difference = current_count-previous_count
+            previous_count = current_count
+            pbar.update(difference)
+            time.sleep(1)
+        pbar.close()
 
 
 
     end_time = datetime.now()
-    print('VCF import started at %s' %(start_time))
+    sys.stdout.flush()
+    print('\nVCF import started at %s' %(start_time))
     print('VCF import ended at %s' %(vcf_import_end_time))
     print('VCF importing took %s' %(vcf_import_end_time-start_time))
-    print('Elasticsearch indexing took %s' %(end_time-vcf_import_end_time))
+    if initial_import:
+        print('Elasticsearch indexing took %s' %(end_time-vcf_import_end_time))
     print('Importing and indexing VCF took %s' %(end_time-start_time))
+    print("Number of variants processed:", GLOBAL_NO_VARIANTS_PROCESSED)
+    print("Number of variants created:", GLOBAL_NO_VARIANTS_CREATED)
+    print("Number of variants updated:", GLOBAL_NO_VARIANTS_UPDATED)
+
+
+
 
 if __name__ == "__main__":
     main()
