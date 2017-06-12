@@ -59,6 +59,7 @@ def filter_dicts(array, key, values):
 
 def filter_array_dicts(array, key, values, comparison_type):
     output = []
+
     for ele in array:
         tmp = ele.get(key, 'missing')
         if tmp == 'missing':
@@ -113,6 +114,7 @@ def merge_two_dicts_array(input):
 
 def merge_two_dicts(x, y):
     '''Given two dicts, merge them into a new dict as a shallow copy.'''
+    print(x,y)
     z = x.copy()
     z.update(y)
     return z
@@ -317,12 +319,10 @@ def search(request):
                 if val:
                     attribute_field_obj = AttributeField.objects.get(id=key)
                     es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
-                    if path and es_name != "qs":
+                    if path:
                         source_fields.append(path)
-                        nested_attribute_fields.append(path)
-                    elif es_name == "qs":
-                        source_fields.append(path)
-                        non_nested_attribute_fields.append("gatkQS")
+                        if path not in nested_attribute_fields:
+                            nested_attribute_fields.append(path)
                     else:
                         source_fields.append(es_name)
                         non_nested_attribute_fields.append(es_name)
@@ -330,7 +330,8 @@ def search(request):
             keys = es_filter_form_data.keys()
             used_keys = []
 
-
+            print(non_nested_attribute_fields)
+            print(nested_attribute_fields)
             nested_attribute_fields = list(set(nested_attribute_fields))
             dict_filter_fields = {}
 
@@ -365,7 +366,6 @@ def search(request):
 
                 used_keys.append((es_name, data))
 
-                print(data, type(data), es_filter_type)
 
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
@@ -544,6 +544,12 @@ def search(request):
                         else:
                             comparison_type = 'val_in'
                         # print(key_path, key_es_name, val, comparison_type)
+
+                        # if isinstance(result[key_path], dict):
+                        #     results_to_filter = [result[key_path]]
+                        # else:
+                        #     results_to_filter = result[key_path]
+
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                         if filtered_results:
                             result[key_path] = filtered_results
@@ -572,7 +578,7 @@ def search(request):
                     if result.get('refGene'):
                         for ele in result.get('refGene'):
                             if ele.get('refGene_symbol'):
-                                genes = ele.get('refGene_symbol').split(',')
+                                genes = ele.get('refGene_symbol').split()
                                 all_genes.extend(genes)
                     if results_count>search_options.maximum_table_size:
                         break
