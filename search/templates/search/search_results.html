@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
     {% endif %}
     {% if gene_mania_link %}
-        <a class="btn btn-primary " role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
+        <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
     {% endif %}
     <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
     <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
