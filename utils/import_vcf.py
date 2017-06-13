@@ -298,8 +298,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
     parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
-    # no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    no_lines = 10000
+    no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
+    # no_lines = 10000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     with open(vcf_filename, 'r') as fp:
@@ -681,31 +681,33 @@ def main():
 
 
 
-    # no_variants_processed, errors = helpers.bulk(es, set_data(index_name,
-    #                                             type_name,
-    #                                             vcf_filename,
-    #                                             vcf_mapping,
-    #                                             vcf_label),
-    #                                     chunk_size=1000,
-    #                                     # max_chunk_bytes=5.12e+8,
-    #                                     request_timeout=120,
-    #                                     stats_only=True)
-
-
-    for success, info in helpers.parallel_bulk(es, set_data(es, index_name,
+    no_variants_processed, errors = helpers.bulk(es, set_data(es, index_name,
                                                 type_name,
                                                 vcf_filename,
                                                 vcf_mapping,
                                                 vcf_label,
                                                 is_bulk=True,
                                                 initial_import=initial_import),
-                                            thread_count=4,
-                                        chunk_size=500,
-                                        # max_chunk_bytes=5.12e+8,
-                                        request_timeout=120
-                                        # stats_only=True
-                                        ):
-        if not success: print('Doc failed', info)
+                                        # chunk_size=50,
+                                        # # max_chunk_bytes=5.12e+8,
+                                        request_timeout=240,
+                                        stats_only=True)
+
+
+    # for success, info in helpers.parallel_bulk(es, set_data(es, index_name,
+    #                                             type_name,
+    #                                             vcf_filename,
+    #                                             vcf_mapping,
+    #                                             vcf_label,
+    #                                             is_bulk=True,
+    #                                             initial_import=initial_import),
+    #                                         thread_count=4,
+    #                                     chunk_size=500,
+    #                                     # max_chunk_bytes=5.12e+8,
+    #                                     request_timeout=120
+    #                                     # stats_only=True
+    #                                     ):
+    #     if not success: print('Doc failed', info)
 
     vcf_import_end_time = datetime.now()
     # update refresh interval
