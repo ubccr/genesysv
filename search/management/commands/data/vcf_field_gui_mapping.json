@@ -231,14 +231,14 @@
   "AC_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Count Case",
+        "display_text": "Minimum Allele Count Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Maximum Allele Count Case",
+        "display_text": "Maximum Allele Count Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -293,14 +293,14 @@
   "AF_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Minimum Allele Frequency Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Minimum Allele Frequency Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -355,14 +355,14 @@
   "AN_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Minimum Allele Number Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Minimum Allele Number Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",

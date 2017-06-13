@@ -22,7 +22,6 @@
       "parse_function": "CHROM_parser"
     },
     "FILTER": {
-      "label": {
         "es_nested_path": "FILTER",
         "nested_fields": {
           "FILTER_cohort": {
@@ -34,11 +33,6 @@
             "es_field_name": "FILTER_status"
           }
         }
-      },
-      "no_label": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "FILTER_status"
-      }
     },
     "ID": {
       "es_field_datatype": "keyword",
@@ -49,7 +43,6 @@
       "es_field_name": "POS"
     },
     "QUAL": {
-      "label": {
         "es_nested_path": "QUAL",
         "nested_fields": {
           "QUAL_cohort": {
@@ -61,11 +54,6 @@
             "es_field_name": "QUAL_score"
           }
         }
-      },
-      "no_label": {
-        "es_field_datatype": "float",
-        "es_field_name": "QUAL_score"
-      }
     },
     "REF": {
       "es_field_datatype": "keyword",
