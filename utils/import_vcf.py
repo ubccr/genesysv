@@ -53,7 +53,7 @@ def estimate_no_variants_in_file(filename, no_lines_for_estimating):
             if no_lines_for_estimating < no_lines:
                 break
 
-            size_list.append(sys.getsizeof(line))
+            size_list.appendleft(sys.getsizeof(line))
 
             no_lines += 1
 
@@ -298,40 +298,48 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
     parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
+    fields_to_skip = set(['ALLELE_END', 'ANNOVAR_DATE', 'END'])
+    fields_to_skip_when_comparing_es_data = set(['sample', 'AC_', 'AF_', 'AN_', 'FILTER', 'QUAL'])
+
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 10000
+    # no_lines = 5000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
+    header_found = False
     with open(vcf_filename, 'r') as fp:
         for line in tqdm(fp, total=no_lines):
         # for no_line, line in enumerate(fp, 1):
+            line = line.strip()
 
-            if GLOBAL_NO_VARIANTS_PROCESSED > no_lines:
-                break;
-
+            # if GLOBAL_NO_VARIANTS_PROCESSED > no_lines:
+            #     break
 
             if line.startswith('##'):
                 continue
 
-            if line.startswith('#CHROM'):
-                line = line[1:]
-                header = line.strip().split('\t')
-                sample_start = header.index('FORMAT') + 1
-                samples = header[sample_start:]
-                continue
+            if not header_found:
+                if line.startswith('#CHROM'):
+                    line = line[1:]
+                    header = line.split('\t')
+                    sample_start = header.index('FORMAT') + 1
+                    samples = header[sample_start:]
+                    header_found = True
+                    continue
 
-            data = dict(zip(header, line.strip().split('\t')))
+
+            data = dict(zip(header, line.split('\t')))
             info = data['INFO'].split(';')
+
+
 
             info_dict = {}
             for ele in info:
-                if ele in ['ALLELE_END', 'ANNOVAR_DATE', 'END']:
+                if ele in fields_to_skip:
                     continue
                 if '=' in ele:
                     key, val = (ele.split('=')[0], ''.join(ele.split('=')[1:]))
                     if val != '.':
                         info_dict[key] = convert_escaped_chars(val)
-                        continue
                 else:
                     info_dict[ele] = True
 
@@ -355,7 +363,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
 
             ### Samples
-            sample_array = []
+            sample_array = deque()
             FORMAT = data['FORMAT']
             format_fields_for_current_line = FORMAT.split(':')
             gt_location = format_fields_for_current_line.index('GT')
@@ -371,7 +379,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                 sample_content['sample_ID'] = sample
 
                 for idx, key_format_field in enumerate(format_fields_for_current_line):
-                    key_format_field_sample = 'sample_%s' %(key_format_field)
+                    key_format_field_sample = f'sample_{key_format_field}'
                     key_value = sample_values[idx]
                     if key_format_field in int_format_fields:
                         if ',' in key_value:
@@ -395,11 +403,11 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
                 if not vcf_label == 'None':
                     sample_content['sample_label'] = vcf_label
-                sample_array.append(sample_content)
+                sample_array.appendleft(sample_content)
 
             if sample_array:
                 # pprint(sample_array)
-                content['sample'] = sample_array
+                content['sample'] = list(sample_array)
 
 
             if ALT == '.':
@@ -430,20 +438,17 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
             for key, val in null_fields:
                 content[key] = val
 
-
             for info_key in info_fields.keys():
 
-                if not info_dict.get(info_key, False):
+                if not info_dict.get(info_key):
                     continue
 
 
                 es_field_name = info_fields[info_key].get('es_field_name', '')
                 es_field_datatype = info_fields[info_key].get('es_field_datatype', '')
 
-                if info_key in exist_only_fields:
-                    es_field_datatype == 'boolean'
-                    val = True
-                    content[es_field_name] = val
+                if info_key in exist_only_fields and es_field_datatype == 'boolean':
+                    content[es_field_name] = True
                     continue
 
                 val = info_dict.get(info_key)
@@ -476,6 +481,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         continue
                     else:
                         content[es_field_name] = val
+                        continue
 
 
 
@@ -526,100 +532,118 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
             content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
 
 
+
             if initial_import:
-                es_id = None
-            else:
-                es_id, es_msg, es_result = get_es_id_result(es, index_name, type_name, content['CHROM'], content['POS'], content['REF'], content['ALT'])
-
-
-            if es_id == None:
-
-                action = {
-                    "_op_type": 'index',
-                    "_index": index_name,
-                    "_type": type_name,
-                    "_source": content
-                }
-
                 GLOBAL_NO_VARIANTS_CREATED += 1
+                GLOBAL_NO_VARIANTS_PROCESSED += 1
+                if is_bulk:
+                    action = {
+                        "_op_type": 'index',
+                        "_index": index_name,
+                        "_type": type_name,
+                        "_source": content
+                    }
 
-            elif es_id:
-                data = es_result
-                ### START verify data
-
-                keys_to_skip = ['sample', 'AC_', 'AF_', 'AN_', 'FILTER', 'QUAL']
-                for key in list(content):
-                    if keys_to_skip:
-                        for ele in keys_to_skip:
-                            if key.startswith(ele):
-                                continue
-                    elif key in ['refGene', 'ensGene']:
-                        if not compare_array_dictionaries(content[key], data[key]):
-                            msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
-                                                                                                          key,
-                                                                                                          data[key],
-                                                                                                          content[key])
-                            raise VCFException(msg)
-
-                    elif key in data:
-                        if data[key] != content[key]:
-                            msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
-                                                                                                          key,
-                                                                                                          data[key],
-                                                                                                          content[key])
-                            raise VCFException(msg)
-                ### END verify data
-
-
-                ### Update original data
-                ### UPDATE: FILTER, QUAL, sample
-                ### ADD: AC_, AF_, AN_
-                for ele in content['FILTER']:
-                    if ele not in data['FILTER']:
-                        data['FILTER'].append(ele)
-
-                for ele in content['QUAL']:
-                    if ele not in data['QUAL']:
-                        data['QUAL'].append(ele)
-
-                for ele in content['sample']:
-                    if ele not in data['sample']:
-                        data['sample'].append(ele)
-
-                for key in list(content):
-                    if key not in data:
-                        data[key] = content[key]
-
-
-                content = data
-                action = {
-                    "_op_type": 'update',
-                    "_index": index_name,
-                    "_type": type_name,
-                    "_id": es_id,
-                    "doc": content
-                }
-
-
-                # pprint(action)
-                # print(content['Variant'])
-                GLOBAL_NO_VARIANTS_UPDATED += 1
-
-            elif es_id == 'Multiple' and es_msg == 'Multiple Records Found':
-                msg = "Multiple Records Found for: CHROM: %s -- POS: %s -- REF: %s -- ALT: %s" %(content['CHROM'],
-                                                                                                 content['POS'],
-                                                                                                 content['REF'],
-                                                                                                 content['ALT'])
-                raise VCFException(msg)
+                    yield action
+                else:
+                    yield content
             else:
-                raise VCFException('This should never happen')
 
-            GLOBAL_NO_VARIANTS_PROCESSED += 1
+                es_id, es_msg, data = get_es_id_result(es, index_name, type_name, content['CHROM'], content['POS'], content['REF'], content['ALT'])
 
-            if is_bulk:
-                yield action
-            else:
-                yield content
+
+                if es_id == None:
+                    GLOBAL_NO_VARIANTS_CREATED += 1
+                    GLOBAL_NO_VARIANTS_PROCESSED += 1
+                    if is_bulk:
+                        action = {
+                            "_op_type": 'index',
+                            "_index": index_name,
+                            "_type": type_name,
+                            "_source": content
+                        }
+
+                        yield action
+                    else:
+                        yield content
+                elif es_id:
+
+                    ### START verify data
+
+                    for key in list(content):
+                        if fields_to_skip_when_comparing_es_data:
+                            for ele in keys_to_skip:
+                                if key.startswith(ele):
+                                    continue
+
+
+                        if key in ['refGene', 'ensGene']:
+                            if not compare_array_dictionaries(content[key], data[key]):
+                                msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
+                                                                                                              key,
+                                                                                                              data[key],
+                                                                                                              content[key])
+                                raise VCFException(msg)
+
+                        elif key in data:
+                            if data[key] != content[key]:
+                                msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
+                                                                                                              key,
+                                                                                                              data[key],
+                                                                                                              content[key])
+                                raise VCFException(msg)
+                    ### END verify data
+
+
+                    ### Update original data
+                    ### UPDATE: FILTER, QUAL, sample
+                    ### ADD: AC_, AF_, AN_
+                    for ele in content['FILTER']:
+                        if ele not in data['FILTER']:
+                            data['FILTER'].append(ele)
+
+                    for ele in content['QUAL']:
+                        if ele not in data['QUAL']:
+                            data['QUAL'].append(ele)
+
+                    for ele in content['sample']:
+                        if ele not in data['sample']:
+                            data['sample'].append(ele)
+
+                    for key in list(content):
+                        if key not in data:
+                            data[key] = content[key]
+
+                    content = data
+
+                    GLOBAL_NO_VARIANTS_UPDATED += 1
+                    GLOBAL_NO_VARIANTS_PROCESSED += 1
+                    if is_bulk:
+                        action = {
+                            "_op_type": 'update',
+                            "_index": index_name,
+                            "_type": type_name,
+                            "_id": es_id,
+                            "doc": content
+                        }
+
+                        yield action
+                    else:
+                        yield content
+
+                    # pprint(action)
+                    # print(content['Variant'])
+                    GLOBAL_NO_VARIANTS_UPDATED += 1
+
+                elif es_msg == 'Multiple Records Found':
+                    msg = "Multiple Records Found for: CHROM: %s -- POS: %s -- REF: %s -- ALT: %s" %(content['CHROM'],
+                                                                                                     content['POS'],
+                                                                                                     content['REF'],
+                                                                                                     content['ALT'])
+                    raise VCFException(msg)
+                else:
+                    raise VCFException('This should never happen')
+
 
 def main():
     global GLOBAL_NO_VARIANTS_PROCESSED
@@ -668,30 +692,30 @@ def main():
     es.indices.put_settings(index=index_name, body={"refresh_interval": "-1"})
 
 
-    # for data in set_data(es, index_name,
-    #                     type_name,
-    #                     vcf_filename,
-    #                     vcf_mapping,
-    #                     vcf_label,
-    #                     is_bulk=True,
-    #                     initial_import=initial_import):
-    #     pass
-    #     # pprint(data)
-    #     # es.index(index=index_name, doc_type=type_name, body=data)
+    for data in set_data(es, index_name,
+                        type_name,
+                        vcf_filename,
+                        vcf_mapping,
+                        vcf_label,
+                        is_bulk=True,
+                        initial_import=initial_import):
+        pass
+        # pprint(data)
+        # es.index(index=index_name, doc_type=type_name, body=data)
 
 
 
-    no_variants_processed, errors = helpers.bulk(es, set_data(es, index_name,
-                                                type_name,
-                                                vcf_filename,
-                                                vcf_mapping,
-                                                vcf_label,
-                                                is_bulk=True,
-                                                initial_import=initial_import),
-                                        # chunk_size=50,
-                                        # # max_chunk_bytes=5.12e+8,
-                                        request_timeout=240,
-                                        stats_only=True)
+    # no_variants_processed, errors = helpers.bulk(es, set_data(es, index_name,
+    #                                             type_name,
+    #                                             vcf_filename,
+    #                                             vcf_mapping,
+    #                                             vcf_label,
+    #                                             is_bulk=True,
+    #                                             initial_import=initial_import),
+    #                                     chunk_size=10000,
+    #                                     # max_chunk_bytes=5.12e+8,
+    #                                     request_timeout=600,
+    #                                     stats_only=True)
 
 
     # for success, info in helpers.parallel_bulk(es, set_data(es, index_name,
