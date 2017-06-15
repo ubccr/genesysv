@@ -5,6 +5,7 @@ from pprint import pprint
 import json
 import sys
 import copy
+import os
 
 ### Global STATIC Variables
 HEADER = '\033[95m'
@@ -33,7 +34,6 @@ def main():
     """
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required named arguments')
-    required.add_argument("--n", help="Number of VCF lines to inspect", required=True)
     required.add_argument("--index", help="Elasticsearch index name", required=True)
     required.add_argument("--type", help="Elasticsearch doc type name", required=True)
     required.add_argument("--vcf", help="VCF file to import", required=True)
@@ -41,7 +41,7 @@ def main():
     args = parser.parse_args()
 
 
-    no_lines = int(args.n)
+    no_lines = 200000
     vcf_filename = args.vcf
 
     default_vcf_mapping = json.load(open('default_vcf_mappings.json', 'r'))
@@ -273,12 +273,16 @@ def main():
         vcf_fields['FORMAT_FIELDS']['nested_fields'].pop('sample_label')
 
 
-    with open('inspect_output_for_%s_%s.txt' %(args.index, args.type), 'w') as outfile:
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.join(dir_path, 'es_scripts')
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+    with open(os.path.join(dir_path, 'inspect_output_for_%s_%s.txt' %(args.index, args.type)), 'w') as outfile:
         json.dump(vcf_fields, outfile, sort_keys = True, indent = 2,
                ensure_ascii = True)
 
-
-    # pprint(vcf_fields)
 
 
 if __name__ == '__main__':

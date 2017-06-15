@@ -550,7 +550,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         }
                         yield action
                     else:
-                        yield content
+                        yield '{"index" : {}}'
+                        yield json.dumps(content)
                 else:
 
                     es_id, es_msg, data = get_es_id_result(es, index_name, type_name, content['CHROM'], content['POS'], content['REF'], content['ALT'])
@@ -708,15 +709,32 @@ def main():
 
 
 
-
+    file_count = 1
     for line_count, data in enumerate(set_data(es, index_name,
                         type_name,
                         vcf_filename,
                         vcf_mapping,
                         vcf_label,
-                        is_bulk=True,
+                        is_bulk=False,
                         initial_import=initial_import)):
 
+        if line_count == 0:
+            filename = f'output_{file_count}.json'
+            output_file = open(filename, 'w')
+
+        elif line_count % 20000 == 0:
+            output_file.close()
+            post_data.delay(args.hostname, args.port, index_name, type_name, filename)
+            #
+            file_count += 1
+            filename = f'output_{file_count}.json'
+            output_file = open(filename, 'w')
+
+
+        output_file.write(f'{data}\n')
+    #finally:
+    output_file.close()
+    post_data.delay(args.hostname, args.port, index_name, type_name, filename)
         # pprint(data)
         # es.index(index=index_name, doc_type=type_name, body=data)
 

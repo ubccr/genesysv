@@ -59,8 +59,11 @@ def generate_es_mapping(hostname,
         "refresh_interval" : "-1"
     }
 
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    create_filename = os.path.join(dir_path,  'es_scripts', 'create_index_%s_and_put_mapping_%s.sh' %(index, type_name))
+    delete_filename = os.path.join(dir_path,  'es_scripts', 'delete_index_%s.sh' %(index))
 
-    with open('create_index_%s_and_put_mapping_%s.sh' %(index, type_name), 'w') as fp:
+    with open(create_filename, 'w') as fp:
         #curl -XPUT 'localhost:9200/twitter?pretty' -H 'Content-Type: application/json' -d'
         fp.write("curl -XPUT \'%s:%s/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" %(hostname, port, index))
         json.dump(index_settings, fp, sort_keys = True, indent = 2,
@@ -70,12 +73,11 @@ def generate_es_mapping(hostname,
         json.dump(mapping, fp, sort_keys = True, indent = 2,
                ensure_ascii = False)
         fp.write("\'")
-        fp.close()
 
-    with open('delete_index_%s.sh' %(index), 'w') as fp:
+    with open(delete_filename, 'w') as fp:
         #curl -XPUT 'localhost:9200/twitter?pretty' -H 'Content-Type: application/json' -d'
         fp.write("curl -XDELETE \'%s:%s/%s?pretty\'" %(hostname, port, index))
-        fp.close()
+
 
     return mapping
 
