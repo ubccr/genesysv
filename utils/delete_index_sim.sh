@@ -1,1 +1,0 @@
-curl -XDELETE '199.109.192.82:9200/sim?pretty'

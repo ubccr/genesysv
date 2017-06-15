@@ -1,1 +1,0 @@
-curl -XDELETE '199.109.192.65:9200/empire?pretty'
