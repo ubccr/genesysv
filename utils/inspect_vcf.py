@@ -220,17 +220,20 @@ def main():
     for field in info_field_with_data:
         if default_vcf_mapping['INFO_FIELDS'].get(field):
             info = default_vcf_mapping['INFO_FIELDS'][field]
-            if info.get('is_label_field') and args.labels != "None":
+            if info.get('is_non_nested_label_field') and args.labels != "None":
                 es_field_datatype = default_vcf_mapping['INFO_FIELDS'][field]['es_field_datatype']
                 for label in args.labels.split(','):
-                    field_name_with_label = "%s_%s" %(field, label.strip())
+                    field_name_with_label = "%s___label___%s" %(field, label.strip())
                     es_field_name = field_name_with_label
                     tmp_dict = { 'es_field_name': es_field_name,
                                  'es_field_datatype': es_field_datatype,
                                  'is_parsed': True
                             }
-
                     vcf_fields['INFO_FIELDS'][field_name_with_label] = tmp_dict
+            elif info.get('is_nested_label_field'):
+                    pprint(default_vcf_mapping['INFO_FIELDS'][field])
+                    vcf_fields['INFO_FIELDS'][field] = default_vcf_mapping['INFO_FIELDS'][field]
+                    vcf_fields['INFO_FIELDS'][field].update({'is_parsed': True})
             else:
                 vcf_fields['INFO_FIELDS'][field] = default_vcf_mapping['INFO_FIELDS'][field]
                 vcf_fields['INFO_FIELDS'][field].update({'is_parsed': True})

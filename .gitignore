@@ -15,4 +15,5 @@ gdw/bin/
 build/
 *.zip
 src/
-utils/es_script
+utils/es_scripts/
+

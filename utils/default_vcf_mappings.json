@@ -22,17 +22,17 @@
       "parse_function": "CHROM_parser"
     },
     "FILTER": {
-        "es_nested_path": "FILTER",
-        "nested_fields": {
-          "FILTER_cohort": {
-            "es_field_datatype": "keyword",
-            "es_field_name": "FILTER_cohort"
-          },
-          "FILTER_status": {
-            "es_field_datatype": "keyword",
-            "es_field_name": "FILTER_status"
-          }
+      "es_nested_path": "FILTER",
+      "nested_fields": {
+        "FILTER_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "FILTER_label"
+        },
+        "FILTER_status": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "FILTER_status"
         }
+      }
     },
     "ID": {
       "es_field_datatype": "keyword",
@@ -43,17 +43,17 @@
       "es_field_name": "POS"
     },
     "QUAL": {
-        "es_nested_path": "QUAL",
-        "nested_fields": {
-          "QUAL_cohort": {
-            "es_field_datatype": "keyword",
-            "es_field_name": "QUAL_cohort"
-          },
-          "QUAL_score": {
-            "es_field_datatype": "float",
-            "es_field_name": "QUAL_score"
-          }
+      "es_nested_path": "QUAL",
+      "nested_fields": {
+        "QUAL_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "QUAL_label"
+        },
+        "QUAL_score": {
+          "es_field_datatype": "float",
+          "es_field_name": "QUAL_score"
         }
+      }
     },
     "REF": {
       "es_field_datatype": "keyword",
@@ -170,17 +170,17 @@
     "AC": {
       "es_field_datatype": "integer",
       "es_field_name": "AC",
-      "is_label_field": true
+      "is_non_nested_label_field": true
     },
     "AF": {
       "es_field_datatype": "float",
       "es_field_name": "AF",
-      "is_label_field": true
+      "is_non_nested_label_field": true
     },
     "AN": {
       "es_field_datatype": "integer",
       "es_field_name": "AN",
-      "is_label_field": true
+      "is_non_nested_label_field": true
     },
     "Associated_disease": {
       "es_field_datatype": "keyword",
@@ -235,8 +235,18 @@
       "es_field_name": "BS4"
     },
     "BaseQRankSum": {
-      "es_field_datatype": "float",
-      "es_field_name": "BaseQRankSum"
+      "is_nested_label_field": true,
+      "es_nested_path": "BaseQRankSum",
+      "nested_fields": {
+        "BaseQRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "BaseQRankSum_label"
+        },
+        "BaseQRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "BaseQRankSum_value"
+        }
+      }
     },
     "CADD": {
       "es_field_datatype": "keyword",
@@ -331,8 +341,18 @@
       "es_field_name": "Class_predicted"
     },
     "ClippingRankSum": {
-      "es_field_datatype": "float",
-      "es_field_name": "ClippingRankSum"
+      "is_nested_label_field": true,
+      "es_nested_path": "ClippingRankSum",
+      "nested_fields": {
+        "ClippingRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ClippingRankSum_label"
+        },
+        "ClippingRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "ClippingRankSum_value"
+        }
+      }
     },
     "Codon_sub": {
       "es_field_datatype": "keyword",
@@ -360,8 +380,18 @@
       "is_exists_only": true
     },
     "DP": {
-      "es_field_datatype": "integer",
-      "es_field_name": "DP"
+      "is_nested_label_field": true,
+      "es_nested_path": "DP",
+      "nested_fields": {
+        "DP_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "DP_label"
+        },
+        "DP_value": {
+          "es_field_datatype": "integer",
+          "es_field_name": "DP_value"
+        }
+      }
     },
     "DS": {
       "es_field_datatype": "boolean",
@@ -563,8 +593,18 @@
       "es_field_name": "FATHMM_score"
     },
     "FS": {
-      "es_field_datatype": "float",
-      "es_field_name": "FS"
+      "is_nested_label_field": true,
+      "es_nested_path": "FS",
+      "nested_fields": {
+        "FS_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "FS_label"
+        },
+        "FS_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "FS_value"
+        }
+      }
     },
     "FatHmm_prediction": {
       "es_field_datatype": "keyword",
@@ -656,8 +696,18 @@
       "es_field_name": "HaplotypeScore"
     },
     "InbreedingCoeff": {
-      "es_field_datatype": "float",
-      "es_field_name": "InbreedingCoeff"
+      "is_nested_label_field": true,
+      "es_nested_path": "InbreedingCoeff",
+      "nested_fields": {
+        "InbreedingCoeff_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "InbreedingCoeff_label"
+        },
+        "InbreedingCoeff_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "InbreedingCoeff_value"
+        }
+      }
     },
     "InterVar(automated)": {
       "es_field_datatype": "keyword",
@@ -706,24 +756,74 @@
       "es_field_name": "MCAP"
     },
     "MLEAC": {
-      "es_field_datatype": "integer",
-      "es_field_name": "MLEAC"
+      "is_nested_label_field": true,
+      "es_nested_path": "MLEAC",
+      "nested_fields": {
+        "MLEAC_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MLEAC_label"
+        },
+        "MLEAC_value": {
+          "es_field_datatype": "integer",
+          "es_field_name": "MLEAC_value"
+        }
+      }
     },
     "MLEAF": {
-      "es_field_datatype": "float",
-      "es_field_name": "MLEAF"
+      "is_nested_label_field": true,
+      "es_nested_path": "MLEAF",
+      "nested_fields": {
+        "MLEAF_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MLEAF_label"
+        },
+        "MLEAF_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MLEAF_value"
+        }
+      }
     },
     "MQ": {
-      "es_field_datatype": "float",
-      "es_field_name": "MQ"
+      "is_nested_label_field": true,
+      "es_nested_path": "MQ",
+      "nested_fields": {
+        "MQ_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQ_label"
+        },
+        "MQ_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQ_value"
+        }
+      }
     },
     "MQ0": {
-      "es_field_datatype": "float",
-      "es_field_name": "MQ0"
+      "is_nested_label_field": true,
+      "es_nested_path": "MQ0",
+      "nested_fields": {
+        "MQ0_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQ0_label"
+        },
+        "MQ0_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQ0_value"
+        }
+      }
     },
     "MQRankSum": {
-      "es_field_datatype": "float",
-      "es_field_name": "MQRankSum"
+      "is_nested_label_field": true,
+      "es_nested_path": "MQRankSum",
+      "nested_fields": {
+        "MQRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQRankSum_label"
+        },
+        "MQRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQRankSum_value"
+        }
+      }
     },
     "Mean_MI_score": {
       "es_field_datatype": "float",
@@ -1014,16 +1114,36 @@
       "es_field_name": "Prob_P"
     },
     "QD": {
-      "es_field_datatype": "float",
-      "es_field_name": "QD"
+      "is_nested_label_field": true,
+      "es_nested_path": "QD",
+      "nested_fields": {
+        "QD_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "QD_label"
+        },
+        "QD_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "QD_value"
+        }
+      }
     },
     "REVEL": {
       "es_field_datatype": "float",
       "es_field_name": "REVEL"
     },
     "ReadPosRankSum": {
-      "es_field_datatype": "float",
-      "es_field_name": "ReadPosRankSum"
+      "is_nested_label_field": true,
+      "es_nested_path": "ReadPosRankSum",
+      "nested_fields": {
+        "ReadPosRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ReadPosRankSum_label"
+        },
+        "ReadPosRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "ReadPosRankSum_value"
+        }
+      }
     },
     "SIFT_converted_rankscore": {
       "es_field_datatype": "float",
@@ -1054,8 +1174,18 @@
       "es_field_name": "SIFT_score_transf"
     },
     "SOR": {
-      "es_field_datatype": "float",
-      "es_field_name": "SOR"
+      "is_nested_label_field": true,
+      "es_nested_path": "SOR",
+      "nested_fields": {
+        "SOR_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "SOR_label"
+        },
+        "SOR_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "SOR_value"
+        }
+      }
     },
     "SiPhy_29way_logOdds": {
       "es_field_datatype": "float",
@@ -1098,16 +1228,36 @@
       "es_field_name": "VEST3_score"
     },
     "VQSLOD": {
-      "es_field_datatype": "float",
-      "es_field_name": "VQSLOD"
+      "is_nested_label_field": true,
+      "es_nested_path": "VQSLOD",
+      "nested_fields": {
+        "VQSLOD_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "VQSLOD_label"
+        },
+        "VQSLOD_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "VQSLOD_value"
+        }
+      }
     },
     "avsnp147": {
       "es_field_datatype": "keyword",
       "es_field_name": "avsnp147"
     },
     "culprit": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "culprit"
+      "is_nested_label_field": true,
+      "es_nested_path": "culprit",
+      "nested_fields": {
+        "culprit_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "culprit_label"
+        },
+        "culprit_value": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "culprit_value"
+        }
+      }
     },
     "cytoBand": {
       "es_field_datatype": "keyword",
@@ -1221,159 +1371,159 @@
       "es_field_name": "wgRna",
       "parse_function": "gwasCatalog_parser"
     },
-    "NS" : {
+    "NS": {
       "es_field_datatype": "integer",
       "es_field_name": "NS"
     },
-    "AO" : {
+    "AO": {
       "es_field_datatype": "integer",
       "es_field_name": "AO"
     },
-    "FAO" : {
+    "FAO": {
       "es_field_datatype": "integer",
       "es_field_name": "FAO"
     },
-    "FDP" : {
+    "FDP": {
       "es_field_datatype": "integer",
       "es_field_name": "FDP"
     },
-    "FR" : {
+    "FR": {
       "es_field_datatype": "keyword",
       "es_field_name": "FR"
     },
-    "FRO" : {
+    "FRO": {
       "es_field_datatype": "integer",
       "es_field_name": "FRO"
     },
-    "FSAF" : {
+    "FSAF": {
       "es_field_datatype": "integer",
       "es_field_name": "FSAF"
     },
-    "FSAR" : {
+    "FSAR": {
       "es_field_datatype": "integer",
       "es_field_name": "FSAR"
     },
-    "FSRF" : {
+    "FSRF": {
       "es_field_datatype": "integer",
       "es_field_name": "FSRF"
     },
-    "FSRR" : {
+    "FSRR": {
       "es_field_datatype": "integer",
       "es_field_name": "FSRR"
     },
-    "FWDB" : {
+    "FWDB": {
       "es_field_datatype": "float",
       "es_field_name": "FWDB"
     },
-    "FXX" : {
+    "FXX": {
       "es_field_datatype": "float",
       "es_field_name": "FXX"
     },
-    "HRUN" : {
+    "HRUN": {
       "es_field_datatype": "integer",
       "es_field_name": "HRUN"
     },
-    "HS" : {
+    "HS": {
       "es_field_datatype": "boolean",
       "es_field_name": "HS"
     },
-    "LEN" : {
+    "LEN": {
       "es_field_datatype": "integer",
       "es_field_name": "LEN"
     },
-    "MLLD" : {
+    "MLLD": {
       "es_field_datatype": "float",
       "es_field_name": "MLLD"
     },
-    "OALT" : {
+    "OALT": {
       "es_field_datatype": "keyword",
       "es_field_name": "OALT"
     },
-    "OID" : {
+    "OID": {
       "es_field_datatype": "keyword",
       "es_field_name": "OID"
     },
-    "OMAPALT" : {
+    "OMAPALT": {
       "es_field_datatype": "keyword",
       "es_field_name": "OMAPALT"
     },
-    "OPOS" : {
+    "OPOS": {
       "es_field_datatype": "keyword",
       "es_field_name": "OPOS"
     },
-    "OREF" : {
+    "OREF": {
       "es_field_datatype": "keyword",
       "es_field_name": "OREF"
     },
-    "RBI" : {
+    "RBI": {
       "es_field_datatype": "float",
       "es_field_name": "RBI"
     },
-    "REFB" : {
+    "REFB": {
       "es_field_datatype": "float",
       "es_field_name": "REFB"
     },
-    "REVB" : {
+    "REVB": {
       "es_field_datatype": "float",
       "es_field_name": "REVB"
     },
-    "RO" : {
+    "RO": {
       "es_field_datatype": "integer",
       "es_field_name": "RO"
     },
-    "SAF" : {
+    "SAF": {
       "es_field_datatype": "integer",
       "es_field_name": "SAF"
     },
-    "SAR" : {
+    "SAR": {
       "es_field_datatype": "integer",
       "es_field_name": "SAR"
     },
-    "SRF" : {
+    "SRF": {
       "es_field_datatype": "integer",
       "es_field_name": "SRF"
     },
-    "SRR" : {
+    "SRR": {
       "es_field_datatype": "integer",
       "es_field_name": "SRR"
     },
-    "SSEN" : {
+    "SSEN": {
       "es_field_datatype": "float",
       "es_field_name": "SSEN"
     },
-    "SSEP" : {
+    "SSEP": {
       "es_field_datatype": "float",
       "es_field_name": "SSEP"
     },
-    "SSSB" : {
+    "SSSB": {
       "es_field_datatype": "float",
       "es_field_name": "SSSB"
     },
-    "STB" : {
+    "STB": {
       "es_field_datatype": "float",
       "es_field_name": "STB"
     },
-    "STBP" : {
+    "STBP": {
       "es_field_datatype": "float",
       "es_field_name": "STBP"
     },
-    "TYPE" : {
+    "TYPE": {
       "es_field_datatype": "keyword",
       "es_field_name": "TYPE"
     },
-    "VARB" : {
+    "VARB": {
       "es_field_datatype": "float",
       "es_field_name": "VARB"
     },
-    "cosmic70" : {
+    "cosmic70": {
       "es_field_datatype": "keyword",
       "es_field_name": "cosmic70"
     },
-    "PB" : {
+    "PB": {
       "es_field_datatype": "float",
       "es_field_name": "PB"
     },
-    "PBP" : {
+    "PBP": {
       "es_field_datatype": "float",
       "es_field_name": "PBP"
     }
