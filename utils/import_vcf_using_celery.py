@@ -16,7 +16,8 @@ from collections import Counter
 import asyncio
 import functools
 import requests
-from import_celery.tasks import post_data
+from es_celery.tasks import post_data, update_refresh_interval
+import hashlib
 
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
@@ -31,6 +32,14 @@ class VCFException(Exception):
         # perhaps the value that caused the error?:
         # allow users initialize misc. arguments as any other builtin Error
         super(VCFException, self).__init__(message, *args)
+
+
+def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
+    es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
+    es_id = es_id.encode('utf-8')
+    es_id = hashlib.sha224(es_id).hexdigest()
+
+    return es_id
 
 def prune_array(key, input_array):
     key_count = Counter([ele[key] for ele in input_array])
@@ -67,38 +76,6 @@ def estimate_no_variants_in_file(filename, no_lines_for_estimating):
     no_variants = int(filesize/statistics.median(size_list))
 
     return no_variants
-
-def get_es_id_result(es, index_name, type_name, CHROM, POS, REF, ALT):
-    query_body = """
-        {
-            "size": 10,
-            "query" : {
-                "bool" : {
-                    "must" : [
-                        { "term": { "CHROM": "%s" }},
-                        { "term": { "POS": "%s" }},
-                        {  "term": { "REF": "%s" }},
-                        {  "term": { "ALT": "%s" }}
-                    ]
-                }
-
-            }
-        }
-    """
-
-    body = query_body %(CHROM, POS, REF, ALT)
-    results = es.search(index=index_name, doc_type=type_name, body=body)
-    total = results['hits']['total']
-
-    if total == 1:
-        es_id = results['hits']['hits'][0]['_id']
-        result = results['hits']['hits'][0]['_source']
-        return (es_id, 'Success', result)
-    elif total > 1:
-        return ('Multiple', 'Multiple Records Found', None)
-    elif total == 0:
-        return (None, 'No Record Found', None)
-
 
 def CHROM_parser(input_string):
     return input_string.lower().replace('chr','').strip()
@@ -282,8 +259,7 @@ def convert_escaped_chars(input_string):
 #@profile
 def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **kwargs):
 
-    is_bulk = kwargs.get('is_bulk')
-    initial_import = kwargs.get('initial_import')
+    update = kwargs.get('update')
 
 
     global GLOBAL_NO_VARIANTS_PROCESSED
@@ -304,13 +280,32 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
     fields_to_skip = set(['ALLELE_END', 'ANNOVAR_DATE', 'END'])
-    fields_to_skip_when_comparing_es_data = set(['sample', 'AC_', 'AF_', 'AN_', 'FILTER', 'QUAL'])
+    run_dependent_fixed_fields = ['FILTER', 'QUAL']
+    run_dependent_info_fields=[
+                                'BaseQRankSum',
+                                'ClippingRankSum',
+                                'DP',
+                                'FS',
+                                'InbreedingCoeff',
+                                'MLEAC',
+                                'MLEAF',
+                                'MQ',
+                                'MQ0',
+                                'MQRankSum',
+                                'QD',
+                                'ReadPosRankSum',
+                                'SOR',
+                                'VQSLOD',
+                                'culprit']
+
+    run_dependent_fields = run_dependent_fixed_fields + run_dependent_info_fields + ['sample']
 
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 100000
+    #no_lines = 5000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     header_found = False
+    exception_vcf_line_io_mode = 'w'
     with open(vcf_filename, 'r') as fp:
         for line in tqdm(fp, total=no_lines):
         # for no_line, line in enumerate(fp, 1):
@@ -367,6 +362,14 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     content['ID'] = data['ID']
 
 
+                es_id = get_es_id(CHROM, POS, REF, ALT, index_name, type_name)
+
+                fields_to_update = None
+                if update:
+                    es_id_exists = es.exists(index=index_name, doc_type=type_name, id=es_id)
+                    if es_id_exists:
+                        fields_to_update = es.get(index=index_name, doc_type=type_name, id=es_id, _source_include=run_dependent_fields)['_source']
+
                 ### Samples
                 sample_array = deque()
                 FORMAT = data['FORMAT']
@@ -410,6 +413,61 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         sample_content['sample_label'] = vcf_label
                     sample_array.appendleft(sample_content)
 
+                if fields_to_update:
+                    GLOBAL_NO_VARIANTS_UPDATED += 1
+                    GLOBAL_NO_VARIANTS_PROCESSED += 1
+
+                    fields_to_update['sample'].extend(sample_array)
+
+                    if vcf_label != 'None':
+                        AC_label = 'AC_%s' %(vcf_label)
+                        AF_label = 'AF_%s' %(vcf_label)
+                        AN_label = 'AN_%s' %(vcf_label)
+                        fields_to_update[AC_label] = info_dict.get('AC')
+                        fields_to_update[AF_label] = info_dict.get('AF')
+                        fields_to_update[AN_label] = info_dict.get('AN')
+                        fields_to_update['FILTER'].extend([{'FILTER_label': vcf_label, 'FILTER_status': data['FILTER']}])
+                        fields_to_update['QUAL'].extend([{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}])
+                        for field in run_dependent_info_fields:
+                            if not info_dict.get(field):
+                                continue
+                            label_field_name = "%s_label" %(field)
+                            value_field_name = "%s_value" %(field)
+                            es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
+                            if not fields_to_update.get(field):
+                                fields_to_update[field] = []
+                            if es_field_datatype == 'integer':
+                                fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: int(info_dict[field])}])
+                            elif es_field_datatype == 'float':
+                                fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: float(info_dict[field])}])
+                            else:
+                                fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: info_dict[field]}])
+
+                    else:
+                        fields_to_update['FILTER'].extend([{'FILTER_status': data['FILTER']}])
+                        fields_to_update['QUAL'].extend([{'QUAL_score': float(data['QUAL'])}])
+                        for field in run_dependent_info_fields:
+                            if not info_dict.get(field):
+                                continue
+                            value_field_name = "%s_value" %(field)
+                            es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
+                            if not fields_to_update.get(field):
+                                fields_to_update[field] = []
+                            if es_field_datatype == 'integer':
+                                fields_to_update[field].extend([{value_field_name: int(info_dict[field])}])
+                            elif es_field_datatype == 'float':
+                                fields_to_update[field].extend([{value_field_name: float(info_dict[field])}])
+                            else:
+                                fields_to_update[field].extend([{value_field_name: info_dict[field]}])
+
+                    #{ "update" : {"_id" : "1", "_type" : "type1", "_index" : "test"} }
+                    #{ "doc" : {"field2" : "value2"} }
+                    yield json.dumps({ "update" : {"_id" : es_id} })
+                    # yield '{"update" : {"_id" : "%s", "_type" : "%s", "_index" : "%s"}}' %(es_id, type_name, index_name)
+                    yield json.dumps({"doc": fields_to_update})
+
+                    continue
+
                 if sample_array:
                     # pprint(sample_array)
                     content['sample'] = list(sample_array)
@@ -428,22 +486,46 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     AC_label = 'AC_%s' %(vcf_label)
                     AF_label = 'AF_%s' %(vcf_label)
                     AN_label = 'AN_%s' %(vcf_label)
-                    info_fields[AC_label] = info_dict.pop('AC')
-                    info_fields[AF_label] = info_dict.pop('AF')
-                    info_fields[AN_label] = info_dict.pop('AN')
-                    content['FILTER'] = [{'FILTER_cohort': vcf_label, 'FILTER_status': data['FILTER']}]
-                    content['QUAL'] = [{'QUAL_cohort': vcf_label, 'QUAL_score': float(data['QUAL'])}]
+                    info_dict[AC_label] = info_dict.pop('AC')
+                    info_dict[AF_label] = info_dict.pop('AF')
+                    info_dict[AN_label] = info_dict.pop('AN')
+                    content['FILTER'] = [{'FILTER_label': vcf_label, 'FILTER_status': data['FILTER']}]
+                    content['QUAL'] = [{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}]
+                    for field in run_dependent_info_fields:
+                        if not info_dict.get(field):
+                            continue
+                        label_field_name = "%s_label" %(field)
+                        value_field_name = "%s_value" %(field)
+                        es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
+                        if es_field_datatype == 'integer':
+                            content[field] = [{label_field_name: vcf_label, value_field_name: int(info_dict[field])}]
+                        elif es_field_datatype == 'float':
+                            content[field] = [{label_field_name: vcf_label, value_field_name: float(info_dict[field])}]
+                        else:
+                            content[field] = [{label_field_name: vcf_label, value_field_name: info_dict[field]}]
                 else:
                     content['FILTER'] = [{'FILTER_status': data['FILTER']}]
                     content['QUAL'] = [{'QUAL_score': float(data['QUAL'])}]
-                    # content['FILTER_status'] = data['FILTER']
-                    # content['QUAL_score'] = float(data['QUAL'])
-
+                    for field in run_dependent_info_fields:
+                        if not info_dict.get(field):
+                            continue
+                        value_field_name = "%s_value" %(field)
+                        es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
+                        if es_field_datatype == 'integer':
+                            content[field] = [{label_field_name: vcf_label, value_field_name: int(info_dict[field])}]
+                        elif es_field_datatype == 'float':
+                            content[field] = [{label_field_name: vcf_label, value_field_name: float(info_dict[field])}]
+                        else:
+                            content[field] = [{label_field_name: vcf_label, value_field_name: info_dict[field]}]
+                        content[field].extend([{value_field_name: info_dict[field]}])
 
                 for key, val in null_fields:
                     content[key] = val
 
                 for info_key in info_fields.keys():
+
+                    if info_fields[info_key].get('is_nested_label_field'):
+                        continue
 
                     if not info_dict.get(info_key):
                         continue
@@ -536,123 +618,19 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                 content['refGene'] = prune_array('refGene_symbol', content['refGene'])
                 content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
 
+                GLOBAL_NO_VARIANTS_CREATED += 1
+                GLOBAL_NO_VARIANTS_PROCESSED += 1
 
 
-                if initial_import:
-                    GLOBAL_NO_VARIANTS_CREATED += 1
-                    GLOBAL_NO_VARIANTS_PROCESSED += 1
-                    if is_bulk:
-                        action = {
-                            "_op_type": 'index',
-                            "_index": index_name,
-                            "_type": type_name,
-                            "_source": content
-                        }
-                        yield action
-                    else:
-                        yield '{"index" : {}}'
-                        yield json.dumps(content)
-                else:
-
-                    es_id, es_msg, data = get_es_id_result(es, index_name, type_name, content['CHROM'], content['POS'], content['REF'], content['ALT'])
+                #{ "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }
+                #{ "field1" : "value1" }
+                yield json.dumps({ "index" : {"_id" : es_id } })
+                yield json.dumps(content)
 
 
-                    if es_id == None:
-                        GLOBAL_NO_VARIANTS_CREATED += 1
-                        GLOBAL_NO_VARIANTS_PROCESSED += 1
-                        if is_bulk:
-                            action = {
-                                "_op_type": 'index',
-                                "_index": index_name,
-                                "_type": type_name,
-                                "_source": content
-                            }
-
-                            yield action
-                        else:
-                            yield content
-                    elif es_id:
-
-                        ### START verify data
-
-                        for key in list(content):
-                            if fields_to_skip_when_comparing_es_data:
-                                for ele in keys_to_skip:
-                                    if key.startswith(ele):
-                                        continue
-
-
-                            if key in ['refGene', 'ensGene']:
-                                if not compare_array_dictionaries(content[key], data[key]):
-                                    msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
-                                                                                                                  key,
-                                                                                                                  data[key],
-                                                                                                                  content[key])
-                                    raise VCFException(msg)
-
-                            elif key in data:
-                                if data[key] != content[key]:
-                                    msg = "Error in file: %s\nKey: %s\nData from file: %s\nCurrent data: %s\n" %(full_path,
-                                                                                                                  key,
-                                                                                                                  data[key],
-                                                                                                                  content[key])
-                                    raise VCFException(msg)
-                        ### END verify data
-
-
-                        ### Update original data
-                        ### UPDATE: FILTER, QUAL, sample
-                        ### ADD: AC_, AF_, AN_
-                        for ele in content['FILTER']:
-                            if ele not in data['FILTER']:
-                                data['FILTER'].append(ele)
-
-                        for ele in content['QUAL']:
-                            if ele not in data['QUAL']:
-                                data['QUAL'].append(ele)
-
-                        for ele in content['sample']:
-                            if ele not in data['sample']:
-                                data['sample'].append(ele)
-
-                        for key in list(content):
-                            if key not in data:
-                                data[key] = content[key]
-
-                        content = data
-
-                        GLOBAL_NO_VARIANTS_UPDATED += 1
-                        GLOBAL_NO_VARIANTS_PROCESSED += 1
-                        if is_bulk:
-                            action = {
-                                "_op_type": 'update',
-                                "_index": index_name,
-                                "_type": type_name,
-                                "_id": es_id,
-                                "doc": content
-                            }
-
-                            yield action
-                        else:
-                            yield content
-
-                        # pprint(action)
-                        # print(content['Variant'])
-                        GLOBAL_NO_VARIANTS_UPDATED += 1
-
-                    elif es_msg == 'Multiple Records Found':
-                        msg = "Multiple Records Found for: CHROM: %s -- POS: %s -- REF: %s -- ALT: %s" %(content['CHROM'],
-                                                                                                         content['POS'],
-                                                                                                         content['REF'],
-                                                                                                         content['ALT'])
-                        raise VCFException(msg)
-                    else:
-                        raise VCFException('This should never happen')
             except Exception as e:
                 print(e)
                 print(line)
-                continue
-
 
 
 def main():
@@ -671,7 +649,7 @@ def main():
     required.add_argument("--index", help="Elasticsearch index name", required=True)
     required.add_argument("--type", help="Elasticsearch doc type name", required=True)
     required.add_argument("--label", help="Cohort labels, e.g., \"control, case\" or \"None\"", required=True)
-    required.add_argument("--initial", help="Initial Import, e.g., \"True\" or \"False\"", required=True)
+    required.add_argument("--update", help="Initial Import, e.g., \"True\" or \"False\"", required=True)
     required.add_argument("--vcf", help="VCF file to import", required=True)
     required.add_argument("--mapping", help="VCF mapping", required=True)
     args = parser.parse_args()
@@ -695,11 +673,11 @@ def main():
     vcf_label = args.label
     vcf_filename = args.vcf
     vcf_mapping = json.load(open(args.mapping, 'r'))
-    initial_import = args.initial
-    if initial_import == 'True':
-        initial_import = True
-    elif initial_import == 'False':
-        initial_import = False
+    update = args.update
+    if update == 'True':
+        update = True
+    elif update == 'False':
+        update = False
 
     es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port)
     index_name = args.index
@@ -715,8 +693,7 @@ def main():
                         vcf_filename,
                         vcf_mapping,
                         vcf_label,
-                        is_bulk=False,
-                        initial_import=initial_import)):
+                        update=update)):
 
         if line_count == 0:
             filename = f'output_{file_count}.json'
@@ -734,64 +711,23 @@ def main():
         output_file.write(f'{data}\n')
     #finally:
     output_file.close()
+    # time.sleep(60)
     post_data.delay(args.hostname, args.port, index_name, type_name, filename)
+    update_refresh_interval.delay(args.hostname, args.port, index_name, '1s')
         # pprint(data)
         # es.index(index=index_name, doc_type=type_name, body=data)
 
 
-    # no_variants_processed, errors = helpers.bulk(es, set_data(es, index_name,
-    #                                             type_name,
-    #                                             vcf_filename,
-    #                                             vcf_mapping,
-    #                                             vcf_label,
-    #                                             is_bulk=True,
-    #                                             initial_import=initial_import),
-    #                                     chunk_size=10000,
-    #                                     # max_chunk_bytes=5.12e+8,
-    #                                     request_timeout=600,
-    #                                     stats_only=True)
 
-
-    # for success, info in helpers.parallel_bulk(es, set_data(es, index_name,
-    #                                             type_name,
-    #                                             vcf_filename,
-    #                                             vcf_mapping,
-    #                                             vcf_label,
-    #                                             is_bulk=True,
-    #                                             initial_import=initial_import),
-    #                                         thread_count=1,
-    #                                     chunk_size=10000,
-    #                                     # max_chunk_bytes=5.12e+8,
-    #                                     request_timeout=120
-    #                                     # stats_only=True
-    #                                     ):
-    #     if not success: print('Doc failed', info)
 
     vcf_import_end_time = datetime.now()
-    # update refresh interval
-    es.indices.put_settings(index=index_name, body={"refresh_interval": "1s"})
-
-    # if initial_import:
-    #     print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
-    #     previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
-
-    #     pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
-    #     while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
-    #         current_count = int(es.count(index_name, doc_type=type_name)['count'])
-    #         difference = current_count-previous_count
-    #         previous_count = current_count
-    #         pbar.update(difference)
-    #         time.sleep(1)
-    #     pbar.close()
-
-
 
     end_time = datetime.now()
     sys.stdout.flush()
     print('\nVCF import started at %s' %(start_time))
     print('VCF import ended at %s' %(vcf_import_end_time))
     print('VCF importing took %s' %(vcf_import_end_time-start_time))
-    # if initial_import:
+    # if update:
     #     print('Elasticsearch indexing took %s' %(end_time-vcf_import_end_time))
     print('Importing and indexing VCF took %s' %(end_time-start_time))
     print("Number of variants processed:", GLOBAL_NO_VARIANTS_PROCESSED)

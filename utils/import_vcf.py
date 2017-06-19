@@ -33,6 +33,13 @@ class VCFException(Exception):
         # allow users initialize misc. arguments as any other builtin Error
         super(VCFException, self).__init__(message, *args)
 
+def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
+    es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
+    es_id = es_id.encode('utf-8')
+    es_id = hashlib.sha224(es_id).hexdigest()
+
+    return es_id
+
 def prune_array(key, input_array):
     key_count = Counter([ele[key] for ele in input_array])
 
@@ -297,6 +304,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     header_found = False
+    exception_vcf_line_io_mode = 'w'
     with open(vcf_filename, 'r') as fp:
         for line in tqdm(fp, total=no_lines):
         # for no_line, line in enumerate(fp, 1):
@@ -352,9 +360,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                 if ID != '.':
                     content['ID'] = data['ID']
 
-                es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
-                es_id = es_id.encode('utf-8')
-                es_id = hashlib.sha224(es_id).hexdigest()
+                es_id = get_es_id(CHROM, POS, REF, ALT, index_name, type_name)
+
 
                 fields_to_update = None
                 if update:
@@ -633,8 +640,16 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
             except Exception as e:
                 print(e)
                 print(line)
-                print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
-                ipdb.set_trace()
+                with open('%s_%s_bad_vcf_lines.vcf' %(index_name, type_name), exception_vcf_line_io_mode) as fp:
+
+                    fp.write(line+'\n')
+                    # error_msg = e
+                    # error_msg = 'Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e
+                    fp.write(str(e))
+                if exception_vcf_line_io_mode == 'w':
+                    exception_vcf_line_io_mode = 'a'
+                # ipdb.set_trace()
+
 
 
 def main():

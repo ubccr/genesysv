@@ -231,7 +231,7 @@ def main():
                             }
                     vcf_fields['INFO_FIELDS'][field_name_with_label] = tmp_dict
             elif info.get('is_nested_label_field'):
-                    pprint(default_vcf_mapping['INFO_FIELDS'][field])
+                    # pprint(default_vcf_mapping['INFO_FIELDS'][field])
                     vcf_fields['INFO_FIELDS'][field] = default_vcf_mapping['INFO_FIELDS'][field]
                     vcf_fields['INFO_FIELDS'][field].update({'is_parsed': True})
             else:
