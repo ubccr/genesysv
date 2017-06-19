@@ -301,7 +301,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     run_dependent_fields = run_dependent_fixed_fields + run_dependent_info_fields + ['sample']
 
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    #no_lines = 5000
+    # no_lines = 5000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     header_found = False
@@ -711,7 +711,7 @@ def main():
         output_file.write(f'{data}\n')
     #finally:
     output_file.close()
-    # time.sleep(60)
+    # time.sleep(45)
     post_data.delay(args.hostname, args.port, index_name, type_name, filename)
     update_refresh_interval.delay(args.hostname, args.port, index_name, '1s')
         # pprint(data)

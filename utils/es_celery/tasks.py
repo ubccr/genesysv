@@ -17,8 +17,7 @@ def post_data(hostname, port, index, type, filename):
     failed_item_ids = []
     took = json_data['took']
     if json_data['errors'] == False:
-        pass
-            os.remove(filename)
+        os.remove(filename)
     else:
         for item in json_data.get('items'):
             if item.get('index'):
