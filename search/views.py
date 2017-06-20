@@ -114,7 +114,7 @@ def merge_two_dicts_array(input):
 
 def merge_two_dicts(x, y):
     '''Given two dicts, merge them into a new dict as a shallow copy.'''
-    print(x,y)
+    # print(x,y)
     z = x.copy()
     z.update(y)
     return z
@@ -330,8 +330,8 @@ def search(request):
             keys = es_filter_form_data.keys()
             used_keys = []
 
-            print(non_nested_attribute_fields)
-            print(nested_attribute_fields)
+            # print(non_nested_attribute_fields)
+            # print(nested_attribute_fields)
             nested_attribute_fields = list(set(nested_attribute_fields))
             dict_filter_fields = {}
 
@@ -672,6 +672,8 @@ def search(request):
 
             if all_genes:
                 all_genes  = sorted(list(set(all_genes)))
+                if 'NONE' in all_genes:
+                    all_genes.remove('NONE')
                 gene_mania_link =  "http://genemania.org/link?o=9606&g=%s" % ('|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link
 
