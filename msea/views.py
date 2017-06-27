@@ -102,7 +102,8 @@ def msea_plot(request):
 
 
             for dataset in Dataset.objects.filter(study=study_obj):
-                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
+                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), 
+                        study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
 
             # # Build subprocess command
                 cmd = [command, path2script] + args
@@ -116,7 +117,7 @@ def msea_plot(request):
             svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
             wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variant_selected)
             plots = []
-            for file in svg_files:
+            for file in sorted(svg_files,key=len): # hacky way to get proper display order for SIM study plots
                 print(file)
                 filename = os.path.basename(file)
                 tmp = re.search(wildcardstring, filename).groups()[0]
@@ -200,16 +201,17 @@ def msea_pvalue(request):
     return render(request, 'msea/msea_pvalue.html', context)
 
 def msea_get_sorted_pvalues(request):
+    from pprint import pprint
 
     study_short_name = request.GET.get('selected_study')
     study_obj = Study.objects.get(short_name=study_short_name)
 
     index = study_obj.es_index_name
-    results = {}
+    results = []
     for dataset in Dataset.objects.filter(study=study_obj):
         doc_type = "%s_noexpand" %(dataset.short_name)
         result = get_top100_nes(study_obj.es_index_name, doc_type, study_obj.es_host, study_obj.es_port, size=100)
-        results[dataset.short_name] = result
+        results.append((dataset.short_name,dataset.display_name,result))
 
     context = {}
     context['results'] = results
