@@ -105,26 +105,27 @@ def msea_plot(request):
                 args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), 
                         study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
 
-            # # Build subprocess command
+                # Build subprocess command
                 cmd = [command, path2script] + args
-                # print(cmd)
                 print(' '.join(cmd))
-                # # check_output will run the command and store to result
-
-                ### Run Rscript
-                subprocess.check_call(cmd)
+                
+                # only create plot if plot doesn't exist
+                filename = '%s%s_%s_%s_%s_%s.svg' %(output_folder,gene,rs_id, dataset.short_name,recurrent_variant_option,variant_selected)
+                if not os.path.isfile(filename):
+                    ### Run Rscript
+                    subprocess.check_call(cmd)
 
             svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
             wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variant_selected)
             plots = []
             for file in sorted(svg_files,key=len): # hacky way to get proper display order for SIM study plots
-                print(file)
+                #print(file)
                 filename = os.path.basename(file)
                 tmp = re.search(wildcardstring, filename).groups()[0]
                 dataset_obj = Dataset.objects.get(study=study_obj, short_name=tmp)
 
                 plots.append((gene, rs_id, variant_selected, recurrent_variant_option, dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
-            print(plots)
+            #print(plots)
             context = {}
             context['plots'] = plots
 
