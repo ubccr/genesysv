@@ -109,7 +109,7 @@ def msea_plot(request):
                 cmd = [command, path2script] + args
                 print(' '.join(cmd))
                 
-                # only create plot if plot doesn't exist
+                # only create plot if plot doesn't already exist
                 filename = '%s%s_%s_%s_%s_%s.svg' %(output_folder,gene,rs_id, dataset.short_name,recurrent_variant_option,variant_selected)
                 if not os.path.isfile(filename):
                     ### Run Rscript
@@ -118,7 +118,7 @@ def msea_plot(request):
             svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
             wildcardstring = '%s_%s_(\S+)_%s_%s' %(gene, rs_id, recurrent_variant_option, variant_selected)
             plots = []
-            for file in sorted(svg_files,key=len): # hacky way to get proper display order for SIM study plots
+            for file in sorted(svg_files,key=len): # hacky way to get 'proper' display order for SIM study plots
                 #print(file)
                 filename = os.path.basename(file)
                 tmp = re.search(wildcardstring, filename).groups()[0]
