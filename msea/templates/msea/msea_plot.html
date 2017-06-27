@@ -15,7 +15,8 @@
     <div class="page-header text-center">
         <h1>Visualize Mutation Set Enrichment Analysis (MSEA) Data</h1>
     </div>
-    <ul id="sortable">
+    <div class="row">
+    <ul class="list-unstyled" id="sortable">
         {% for gene, rs_id, variant_selected, recurrent_variant_option, dataset_short_name, dataset_display_name, study_id, file in plots %}
             <div class="col-md-6">
                 <li class="ui-state-default">
@@ -30,6 +31,8 @@
             </div>
         {% endfor %}
     </ul>
+    </div>
+    <br>
     
 <style>
 .main_image{
