@@ -33,6 +33,15 @@ import hashlib
 from collections import deque
 from pybamview.models import SampleBamInfo
 
+### CONSTANTS
+approval_status_choices = (
+    ('approved', 'Approved'),
+    ('rejected', 'Rejected'),
+    ('pending', 'Pending'),
+    ('not_reviewed', 'Not Reviewed'),
+)
+
+
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -513,6 +522,7 @@ def search(request):
             for ele in tmp_results:
                 tmp_source = ele['_source']
                 tmp_source['es_id'] = ele['_id']
+                tmp_source['variant_status'] = 'Approved'
                 results.append(tmp_source)
 
             ### Remove results that don't match input
@@ -602,6 +612,7 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
+                            tmp['variant_status'] = result['variant_status']
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
@@ -678,6 +689,7 @@ def search(request):
                 context['gene_mania_link'] = gene_mania_link
 
             context['debug'] = settings.DEBUG
+            context['approval_status_choices'] = approval_status_choices
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
@@ -929,3 +941,12 @@ class SavedSearchDelete(DeleteView):
     model = SavedSearch
     success_url = reverse_lazy('saved-search-list')
     template_name = 'search/savedsearch_confirm_delete.html'
+
+def update_variant_status(request):
+    if request.POST:
+        es_id = request.POST.get("es_id")
+        approval_status = request.POST.get("approval_status")
+        print(request.user, es_id, approval_status)
+
+        return HttpResponse('test')
+
