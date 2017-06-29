@@ -43,6 +43,7 @@
     <table id="result-table" class="table display compact" cellspacing="0" width="100%">
         <thead>
           <tr>
+                <th>Approval Status</th>
             {% for element in headers %}
                 <th>{{element.display_text}}</th>
             {% endfor %}
@@ -50,7 +51,19 @@
         </thead>
         <tbody>
             {% for row in results %}
+
                 <tr>
+                    <td>
+                        <select class="approval_status" data-esid="{{row|get_value_from_dict:"es_id"}}">
+                        {% for short_status, long_status in approval_status_choices %}
+                            {% if row|get_value_from_dict:"variant_status" == short_status %}
+                                <option value="{{short_status}}" selected>{{long_status}}</option>
+                            {% else %}
+                                <option value="{{short_status}}">{{long_status}}</option>
+                            {% endif %}
+                        {% endfor %}
+                         </select>
+                    </td>
                     {% for element in headers %}
                         <td>{{ row|get_value_from_dict_search:element|safe }}
                         {% if element == "refGene_symbol" %}
@@ -115,6 +128,49 @@
     $("#download-result-button").on("click", function() {
         $("#download-result-form").submit();
     });
+
+    $(".approval_status").on("change", function() {
+        var selected = $(this);
+        var approval_status = selected.val();
+        var es_id = selected.data("esid")
+        update_variant_status(es_id, approval_status);
+        // $( "body" ).data( "foo", 52 );
+    });
+
+
+    function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+    function update_variant_status(es_id, approval_status){
+    $.ajax(
+        {
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            type: "POST",
+            url : "{% url 'update-variant-status' %}",
+            data: {
+                    es_id: es_id,
+                    approval_status: approval_status,
+            },
+            success:function(data) {
+                console.log(data)
+            }
+        }
+
+    );
+    };
+
 </script>
 
 {% endblock %}
