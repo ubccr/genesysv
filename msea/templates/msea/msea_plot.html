@@ -16,33 +16,52 @@
         <h1>Visualize Mutation Set Enrichment Analysis (MSEA) Data</h1>
     </div>
     <div class="row">
-    <ul class="list-unstyled" id="sortable">
-        {% for gene, rs_id, variant_selected, recurrent_variant_option, dataset_short_name, dataset_display_name, study_id, file in plots %}
-            <div class="col-md-6">
-                <li class="ui-state-default">
-                    <h5 class="text-center">{{dataset_display_name}}</h5>
-                    <div class="main_image">
-                        <img src="/static/r_outputs/svg/{{file}}" alt="img" width="1000" height="1000"/>
-                        <a href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}&recurrent_variant_option={{recurrent_variant_option}}">
-                            <img class="download_inlay" src="/static/custom/images/Gnome-Document-Save-32.png" title="download as tiff">
-                        </a>
-                    </div>
-                </li>
-            </div>
-        {% endfor %}
-    </ul>
+        {% if plots|length_is:"1" %}
+            {% for gene, rs_id, variant_selected, recurrent_variant_option, dataset_short_name, dataset_display_name, study_id, file in plots %}
+                <h5 class="text-center">{{dataset_display_name}}</h5>
+                 <div class="main_image text-center">
+                    <img src="/static/r_outputs/svg/{{file}}" alt="img" width="500" height="500">
+                    <a href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}&recurrent_variant_option={{recurrent_variant_option}}">
+                        <img class="download_inlay_single" src="/static/custom/images/Gnome-Document-Save-32.png" title="download as tiff">
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+        <ul class="list-unstyled" id="sortable">
+            {% for gene, rs_id, variant_selected, recurrent_variant_option, dataset_short_name, dataset_display_name, study_id, file in plots %}
+                <div class="col-md-6">
+                    <li class="ui-state-default">
+                        <h5 class="text-center">{{dataset_display_name}}</h5>
+                        <div class="main_image">
+                            <img src="/static/r_outputs/svg/{{file}}" alt="img" width="500" height="500">
+                            <a href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}&recurrent_variant_option={{recurrent_variant_option}}">
+                                <img class="download_inlay_list" src="/static/custom/images/Gnome-Document-Save-32.png" title="download as tiff">
+                            </a>
+                        </div>
+                    </li>
+                </div>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </div>
     <br>
-    
+
 <style>
 .main_image{
     position:relative;
-    display: inline-block;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
-.download_inlay{
+.download_inlay_list{
     position:absolute;
     top:20px;
     right:30px
+}
+.download_inlay_single{
+    position:absolute;
+    top:20px;
+    right:240px
 }
 [class*="ui-state-default"] {
     background-color:white;  

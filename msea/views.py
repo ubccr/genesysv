@@ -241,19 +241,31 @@ def get_plot(request):
     output_filename = "%s_%s_%s_%s_%s.svg" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
     output_path = os.path.join(output_folder, output_filename)
 
-
     args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
-
+    
     # # Build subprocess command
     cmd = [command, path2script] + args
     # print(cmd)
     print(' '.join(cmd))
     # # check_output will run the command and store to result
 
-    subprocess.check_call(cmd)
+    # only create plot if plot doesn't already exist
+    if not os.path.isfile(output_path):
+        ### Run Rscript
+        subprocess.check_call(cmd)
 
     context = {}
     context['plot_path'] = output_filename
 
-    return render(request, 'msea/msea_get_plot.html', context)
+    dataset_obj = Dataset.objects.get(study=study_obj, short_name=dataset_short_name)
+    context['dataset_display_name'] = dataset_obj.display_name
+    
+    # The following are used to generate the 'download as tiff' link
+    context['gene'] = gene
+    context['rs_id'] = rs_id
+    context['variant_selected'] = variant_selected
+    context['recurrent_variant_option'] = recurrent_variant_option
+    context['study_id'] = study_id
+    context['dataset_short_name'] = dataset_short_name
 
+    return render(request, 'msea/msea_get_plot.html', context)
