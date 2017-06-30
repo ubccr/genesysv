@@ -53,16 +53,15 @@
         </thead>
         <tbody>
             {% for row in results %}
-
                 <tr>
                      {% if user.is_authenticated %}
                          <td>
-                        <select class="variant_approval_status" data-esid="{{row|get_value_from_dict:"es_id"}}">
+                        <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-esid="{{row|get_value_from_dict:"es_id"}}">
                         {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
                             {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
-                                <option value="{{short_status}}" selected>{{long_status}}</option>
+                                <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
                             {% else %}
-                                <option value="{{short_status}}">{{long_status}}</option>
+                                <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
                             {% endif %}
                         {% endfor %}
                          </select>
@@ -87,7 +86,6 @@
 
 <br>
 
-<br>
 
 <!-- Modal -->
 <div class="modal fade" id="saveResultsModal" tabindex="-1" role="dialog" aria-labelledby="saveResultsModalLabel">
@@ -122,6 +120,9 @@
 
     });
 
+    $('.selectpicker').selectpicker({
+    });
+
     $("#back-to-top-container").on("click", function() {
         $('#results_div').hide()
         $('#top_container').show()
@@ -139,7 +140,9 @@
         var selected = $(this);
         var variant_approval_status = selected.val();
         var es_id = selected.data("esid")
-        update_variant_approval_status(es_id, variant_approval_status);
+        if (es_id) {
+            update_variant_approval_status(es_id, variant_approval_status);
+        }
         // $( "body" ).data( "foo", 52 );
     });
 

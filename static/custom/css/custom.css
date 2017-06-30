@@ -488,3 +488,60 @@ html,body{
     float: right;
     color: inherit;
 }
+
+.badge {
+  padding: 3px 9px 4px;
+  font-size: 14px;
+  font-weight: normal;
+  white-space: nowrap;
+  color: #ffffff;
+  background-color: #999999;
+  -webkit-border-radius: 9px;
+  -moz-border-radius: 9px;
+  border-radius: 9px;
+}
+.badge:hover {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.badge-approved {
+  background-color: #62d26f !important;
+}
+.badge-approved:hover {
+  background-color: #62d26f !important;
+}
+
+.badge-rejected {
+  background-color: #e8384f !important;
+}
+.badge-rejected:hover {
+  background-color: #e8384f !important;
+}
+
+.badge-pending {
+  background-color: #fd612c !important;
+}
+.badge-pending:hover {
+  background-color: #fd612c !important;
+}
+
+.badge-not_reviewed {
+  background-color: black !important;
+}
+.badge-not_reviewed:hover {
+  background-color: black !important;
+}
+
+.btn-white {
+color: #5e5e5e;
+background-color: #fff;
+border: 1px solid #e5e9ec;
+}
+
+.btn-link {
+color: #5e5e5e;
+background-color: transparent;
+border: none;
+}

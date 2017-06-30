@@ -988,7 +988,7 @@ def update_variant_approval_status(request):
             current_variant_approval_status_obj.save()
             return HttpResponse(status=200)
         elif not current_variant_approval_status_obj:
-            variant_approval_status_obj = VariantApprovalStatus.objects.create(user=request.user,
+            variant_approval_status_obj = VariantApprovalStatus.objects.get_or_create(user=request.user,
                                                                                variant_es_id=variant_es_id,
                                                                                variant_approval_status=new_variant_approval_status)
 
