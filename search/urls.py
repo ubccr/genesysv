@@ -15,5 +15,5 @@ urlpatterns = (
     url(r'^(?P<pk>[0-9]+)$', retrieve_saved_search , name='retrieve-saved-search'),
     url(r'^saved_search/update/(?P<pk>[0-9]+)/$', SavedSearchUpdate.as_view(), name='saved-search-update'),
     url(r'^saved_search/delete/(?P<pk>[0-9]+)/$', SavedSearchDelete.as_view(), name='saved-search-delete'),
-    url(r'^update-variant-status/$', update_variant_status, name='update-variant-status'),
+    url(r'^update-variant-approval-status/$', update_variant_approval_status, name='update-variant-approval-status'),
 )

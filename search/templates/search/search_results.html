@@ -43,7 +43,9 @@
     <table id="result-table" class="table display compact" cellspacing="0" width="100%">
         <thead>
           <tr>
-                <th>Approval Status</th>
+
+               {% if user.is_authenticated %}<th>Approval Status</th>{% endif %}
+
             {% for element in headers %}
                 <th>{{element.display_text}}</th>
             {% endfor %}
@@ -53,17 +55,20 @@
             {% for row in results %}
 
                 <tr>
-                    <td>
-                        <select class="approval_status" data-esid="{{row|get_value_from_dict:"es_id"}}">
-                        {% for short_status, long_status in approval_status_choices %}
-                            {% if row|get_value_from_dict:"variant_status" == short_status %}
+                     {% if user.is_authenticated %}
+                         <td>
+                        <select class="variant_approval_status" data-esid="{{row|get_value_from_dict:"es_id"}}">
+                        {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
+                            {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
                                 <option value="{{short_status}}" selected>{{long_status}}</option>
                             {% else %}
                                 <option value="{{short_status}}">{{long_status}}</option>
                             {% endif %}
                         {% endfor %}
                          </select>
-                    </td>
+
+                        </td>
+                    {% endif %}
                     {% for element in headers %}
                         <td>{{ row|get_value_from_dict_search:element|safe }}
                         {% if element == "refGene_symbol" %}
@@ -105,6 +110,7 @@
 </div>
 
 
+{{variants_excluded}}
 
 <script>
     $(document).ready(function() {
@@ -129,11 +135,11 @@
         $("#download-result-form").submit();
     });
 
-    $(".approval_status").on("change", function() {
+    $(".variant_approval_status").on("change", function() {
         var selected = $(this);
-        var approval_status = selected.val();
+        var variant_approval_status = selected.val();
         var es_id = selected.data("esid")
-        update_variant_status(es_id, approval_status);
+        update_variant_approval_status(es_id, variant_approval_status);
         // $( "body" ).data( "foo", 52 );
     });
 
@@ -153,15 +159,15 @@
     }
     return cookieValue;
 }
-    function update_variant_status(es_id, approval_status){
+    function update_variant_approval_status(es_id, variant_approval_status){
     $.ajax(
         {
             headers: {'X-CSRFToken': getCookie('csrftoken')},
             type: "POST",
-            url : "{% url 'update-variant-status' %}",
+            url : "{% url 'update-variant-approval-status' %}",
             data: {
                     es_id: es_id,
-                    approval_status: approval_status,
+                    variant_approval_status: variant_approval_status,
             },
             success:function(data) {
                 console.log(data)

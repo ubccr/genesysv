@@ -123,6 +123,10 @@ class SearchOptionsAdmin(admin.ModelAdmin):
     list_display = ('dataset', 'es_terminate', 'es_terminate_size_per_shard', 'maximum_table_size')
 
 
+@admin.register(VariantApprovalStatus)
+class VariantApprovalStatusAdmin(admin.ModelAdmin):
+    list_display = ('variant_es_id', 'user', 'variant_approval_status',)
+
 admin.site.register(FormType, FormTypeAdmin)
 admin.site.register(WidgetType, WidgetTypeAdmin)
 admin.site.register(ESFilterType, ESFilterTypeAdmin)
@@ -139,4 +143,5 @@ admin.site.register(FilterFieldChoice, FilterFieldChoiceAdmin)
 admin.site.register(AttributeField, AttributeFieldAdmin)
 admin.site.register(SearchLog, SearchLogAdmin)
 admin.site.register(SearchOptions, SearchOptionsAdmin)
+
 

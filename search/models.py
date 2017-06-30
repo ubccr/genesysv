@@ -5,6 +5,10 @@ from sortedm2m.fields import SortedManyToManyField
 from django.contrib.auth.models import User, Group
 import json
 
+
+
+
+
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
@@ -289,3 +293,26 @@ class SavedSearch(TimeStampedModel):
 
     class Meta:
         unique_together = ('dataset', 'user', 'filters_used', 'attributes_selected')
+
+
+class VariantApprovalStatus(TimeStampedModel):
+    APPROVAL_STATUS_CHOICES = (
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('pending', 'Pending'),
+        ('not_reviewed', 'Not Reviewed'),
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    variant_es_id = models.CharField(max_length=64)
+    variant_approval_status = models.CharField(max_length=16, choices=APPROVAL_STATUS_CHOICES)
+    shared_with_group = models.ForeignKey(
+                            Group,
+                            on_delete=models.CASCADE,
+                            null=True, blank=True
+                        )
+
+

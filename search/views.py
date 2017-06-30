@@ -32,14 +32,38 @@ import itertools
 import hashlib
 from collections import deque
 from pybamview.models import SampleBamInfo
+from django.db.models import Q
+
 
 ### CONSTANTS
-approval_status_choices = (
+APPROVAL_STATUS_CHOICES = (
     ('approved', 'Approved'),
     ('rejected', 'Rejected'),
     ('pending', 'Pending'),
     ('not_reviewed', 'Not Reviewed'),
 )
+
+def get_variant_approval_status(variant_es_id, user):
+
+    try:
+        variant_approval_status_obj = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id).filter(
+                                    Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))[0]
+
+
+        return variant_approval_status_obj.variant_approval_status
+    except:
+        return 'not_reviewed'
+
+def get_variant_approval_status_obj(variant_es_id, user):
+
+    try:
+        variant_approval_status_obj = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id).filter(
+                                    Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))[0]
+
+
+        return variant_approval_status_obj
+    except:
+        return None
 
 
 
@@ -519,10 +543,22 @@ def search(request):
                 attributes_selected.append('%s-%s' %(ele.es_name, ele.path))
             tmp_results = results['hits']['hits']
             results = []
+
+            if not request.user.is_anonymous():
+                variants_to_exclude = VariantApprovalStatus.objects.filter(
+                    Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_approval_status='rejected').values_list('variant_es_id', flat=True)
+            else:
+                variants_to_exclude = []
+            variants_excluded = []
             for ele in tmp_results:
                 tmp_source = ele['_source']
-                tmp_source['es_id'] = ele['_id']
-                tmp_source['variant_status'] = 'Approved'
+                es_id = ele['_id']
+                if es_id in variants_to_exclude:
+                    variants_excluded.append(es_id)
+                    continue
+                tmp_source['es_id'] = es_id
+                if not request.user.is_anonymous():
+                    tmp_source['variant_approval_status'] = get_variant_approval_status(es_id, request.user)
                 results.append(tmp_source)
 
             ### Remove results that don't match input
@@ -553,12 +589,7 @@ def search(request):
                                     comparison_type = 'number_equal'
                         else:
                             comparison_type = 'val_in'
-                        # print(key_path, key_es_name, val, comparison_type)
 
-                        # if isinstance(result[key_path], dict):
-                        #     results_to_filter = [result[key_path]]
-                        # else:
-                        #     results_to_filter = result[key_path]
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                         if filtered_results:
@@ -612,7 +643,8 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
-                            tmp['variant_status'] = result['variant_status']
+                            if not request.user.is_anonymous():
+                                tmp['variant_approval_status'] = result['variant_approval_status']
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
@@ -689,7 +721,8 @@ def search(request):
                 context['gene_mania_link'] = gene_mania_link
 
             context['debug'] = settings.DEBUG
-            context['approval_status_choices'] = approval_status_choices
+            context['APPROVAL_STATUS_CHOICES'] = APPROVAL_STATUS_CHOICES
+            context['variants_excluded'] = variants_excluded
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
@@ -942,11 +975,26 @@ class SavedSearchDelete(DeleteView):
     success_url = reverse_lazy('saved-search-list')
     template_name = 'search/savedsearch_confirm_delete.html'
 
-def update_variant_status(request):
+def update_variant_approval_status(request):
     if request.POST:
-        es_id = request.POST.get("es_id")
-        approval_status = request.POST.get("approval_status")
-        print(request.user, es_id, approval_status)
+        variant_es_id = request.POST.get("es_id")
+        new_variant_approval_status = request.POST.get("variant_approval_status")
+        current_variant_approval_status_obj = get_variant_approval_status_obj(variant_es_id, request.user)
+        if new_variant_approval_status == 'not_reviewed' and current_variant_approval_status_obj:
+            current_variant_approval_status_obj.delete()
+            return HttpResponse(status=200)
+        elif current_variant_approval_status_obj and current_variant_approval_status_obj.variant_approval_status != new_variant_approval_status:
+            current_variant_approval_status_obj.variant_approval_status = new_variant_approval_status
+            current_variant_approval_status_obj.save()
+            return HttpResponse(status=200)
+        elif not current_variant_approval_status_obj:
+            variant_approval_status_obj = VariantApprovalStatus.objects.create(user=request.user,
+                                                                               variant_es_id=variant_es_id,
+                                                                               variant_approval_status=new_variant_approval_status)
 
-        return HttpResponse('test')
+            return HttpResponse(status=200)
+
+        else:
+            return HttpResponse(status=400)
+
 
