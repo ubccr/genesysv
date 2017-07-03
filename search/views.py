@@ -318,6 +318,14 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
+        exclude_variants = request.POST.get('exclude_variants')
+        if exclude_variants == "true":
+            exclude_variants = True
+        elif exclude_variants == "false":
+            exclude_variants = False
+        else:
+            exclude_variants = True
+
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
@@ -553,9 +561,11 @@ def search(request):
             for ele in tmp_results:
                 tmp_source = ele['_source']
                 es_id = ele['_id']
-                if es_id in variants_to_exclude:
-                    variants_excluded.append(es_id)
+
+                if exclude_variants and es_id in variants_to_exclude:
+                    variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
                     continue
+
                 tmp_source['es_id'] = es_id
                 if not request.user.is_anonymous():
                     tmp_source['variant_approval_status'] = get_variant_approval_status(es_id, request.user)

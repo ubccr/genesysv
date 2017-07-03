@@ -86,12 +86,17 @@
                              <div id="step1-dataset-select">
                                 <div class="form-group">
                                 <select class='select form-control'><option value='select_a_study'>Select a study</option></select>
+
                                 </div>
                              </div>
                             <input id="dataset_description" type="hidden" name="dataset_description" value="">
                             <ul class="list-inline pull-left">
                                 <li><button type="button" class="btn btn-primary next-step to_step2" disabled>Next <i class="fa fa-long-arrow-right"></i></button></li>
                             </ul>
+                            <div class="list-inline pull-right checkbox">
+                              <label><input id="exclude_variants" type="checkbox" value="exclude_variants">Exclude Rejected Variants</label>
+                            </div>
+
                         </div>
                         <div class="tab-pane" role="tabpanel" id="step2">
                             <ul class="list-inline">
@@ -446,6 +451,8 @@ $(".submit_via_ajax").on("click", function(event) {
         // attribute_order = $(attribute_order).serialize();
         form_data = form_data.replace(/\d+_\d+___/g, "");
         form_data = form_data.replace(/\d+___/g, "");
+        exclude_variants = $("#exclude_variants").is(":checked")
+
         $.ajax(
             {
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
@@ -453,7 +460,8 @@ $(".submit_via_ajax").on("click", function(event) {
                 url : "{% url 'search' %}",
                 data: {
                         form_data: form_data,
-                        attribute_order: JSON.stringify(attribute_order)
+                        attribute_order: JSON.stringify(attribute_order),
+                        exclude_variants: exclude_variants
                 },
                 success:function(data) {
                     $('#results_div').html(data);

@@ -38,51 +38,64 @@
 
 
 <div class="panel panel-primary">
-<div class="panel-body">
-<div class="table-responsive">
-    <table id="result-table" class="table display compact" cellspacing="0" width="100%">
-        <thead>
-          <tr>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
 
-               {% if user.is_authenticated %}<th>Approval Status</th>{% endif %}
+                       {% if user.is_authenticated %}<th>Approval Status</th>{% endif %}
 
-            {% for element in headers %}
-                <th>{{element.display_text}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-            {% for row in results %}
-                <tr>
-                     {% if user.is_authenticated %}
-                         <td>
-                        <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-esid="{{row|get_value_from_dict:"es_id"}}">
-                        {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
-                            {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
-                                <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
-                            {% else %}
-                                <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
-                            {% endif %}
-                        {% endfor %}
-                         </select>
-
-                        </td>
-                    {% endif %}
                     {% for element in headers %}
-                        <td>{{ row|get_value_from_dict_search:element|safe }}
-                        {% if element == "refGene_symbol" %}
-                            {{element}}
-                        {% endif %}
-                        </td>
+                        <th>{{element.display_text}}</th>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                        <tr>
+                             {% if user.is_authenticated %}
+                                 <td>
+                                <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-esid="{{row|get_value_from_dict:"es_id"}}">
+                                {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
+                                    {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
+                                        <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
+                                    {% else %}
+                                        <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
+                                    {% endif %}
+                                {% endfor %}
+                                 </select>
+                                </td>
+                            {% endif %}
+                            {% for element in headers %}
+                                <td>{{ row|get_value_from_dict_search:element|safe }}
+                                {% if element == "refGene_symbol" %}
+                                    {{element}}
+                                {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+
+{% if variants_excluded %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Variants Excluded from Search <span class="badge">{{variants_excluded|length}}</span></h3>
+  </div>
+  <div class="panel-body">
+    {% for dataset_id, es_id, variant in variants_excluded %}
+        <a target="_blank" href="/search/variant/{{dataset_id}}/{{es_id}}/">{{variant}}</a><br>
+    {% endfor %}
+  </div>
 </div>
-</div>
+
+{% endif %}
 
 <br>
 
@@ -108,7 +121,6 @@
 </div>
 
 
-{{variants_excluded}}
 
 <script>
     $(document).ready(function() {
