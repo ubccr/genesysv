@@ -534,6 +534,18 @@ html,body{
   background-color: black !important;
 }
 
+.badge-group_conflict {
+  background-color: #aa62e3 !important;
+}
+.badge-group_conflict:hover {
+  background-color: #aa62e3 !important;
+}
+
+.add_badge_margin_remove_hover {
+    margin: 5px 0px 5px 10px;
+    pointer-events:none;
+}
+
 .btn-white {
 color: #5e5e5e;
 background-color: #fff;

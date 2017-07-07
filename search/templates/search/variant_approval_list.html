@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Variant Approval Status List
+{% endblock %}
+
+{% block content %}
+    <script>
+        $("#main-nav-bar > ul > li.active").removeClass("active")
+        $("#navbarId-VariantApprovalStatusList").addClass("active")
+        $("#navbarId-Search-Main").addClass("active")
+    </script>
+
+{% if user_variants %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">My Variant Approval Status List</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+                    <thead>
+                      <tr>
+                        <th>Variant</th>
+                        <th>Variant Approval Status</th>
+                        <th>User</th>
+                        <th>Shared with Group</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in user_variants %}
+                            <tr>
+                                <td><a target="_blank" href="{% url 'get-variant' row.dataset.id row.variant_es_id %}">{{ row.variant }}</a></td>
+                                <td><span class='badge badge-{{row.variant_approval_status}} add_badge_margin_remove_hover'>{{ row.variant_approval_status }}</span></td>
+                                <td>{{ row.user }}</td>
+                                <td>{{ row.shared_with_group }}</td>
+                                <td>
+                                    <a href="{% url 'edit-variant' row.id %}"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                    <a href="{% url 'delete-variant' row.id %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+
+{% if group_variants %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">Group Variant Approval Status List</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+                    <thead>
+                      <tr>
+                        <th>Variant</th>
+                        <th>Variant Approval Status</th>
+                        <th>User</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in group_variants %}
+                            <tr>
+                                <td><a target="_blank" href="{% url 'get-variant' row.dataset.id row.variant_es_id %}">{{ row.variant }}</a></td>
+                                <td><span class='badge badge-{{row.variant_approval_status}} add_badge_margin_remove_hover'>{{ row.variant_approval_status }}</span></td>
+                                <td>{{ row.user }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+{% endblock %}

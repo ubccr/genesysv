@@ -93,9 +93,9 @@
                             <ul class="list-inline pull-left">
                                 <li><button type="button" class="btn btn-primary next-step to_step2" disabled>Next <i class="fa fa-long-arrow-right"></i></button></li>
                             </ul>
-                            <div class="list-inline pull-right checkbox">
+                            <!-- <div class="list-inline pull-right checkbox">
                               <label><input id="exclude_variants" type="checkbox" value="exclude_variants">Exclude Rejected Variants</label>
-                            </div>
+                            </div> -->
 
                         </div>
                         <div class="tab-pane" role="tabpanel" id="step2">
@@ -198,6 +198,8 @@
 
 <input id="results_loaded" type="hidden" name="results_loaded" value="false">
 <input id="automated_submit" type="hidden" name="automated_submit" value="false">
+
+<input id="hidden_exclude_variants" type="hidden" name="hidden_exclude_variants" value="false">
 
 <script>
     var data = {{information_json|safe }};
@@ -451,8 +453,8 @@ $(".submit_via_ajax").on("click", function(event) {
         // attribute_order = $(attribute_order).serialize();
         form_data = form_data.replace(/\d+_\d+___/g, "");
         form_data = form_data.replace(/\d+___/g, "");
-        exclude_variants = $("#exclude_variants").is(":checked")
-
+        // exclude_variants = $("#exclude_variants").is(":checked")
+        exclude_variants = $("#hidden_exclude_variants").val()
         $.ajax(
             {
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
@@ -466,8 +468,12 @@ $(".submit_via_ajax").on("click", function(event) {
                 success:function(data) {
                     $('#results_div').html(data);
                     $("#li-step4").addClass("active");
-
-
+                    current_value = $("#hidden_exclude_variants").val()
+                    if (current_value == "true") {
+                        $( "#exclude_variants" ).prop( "checked", true );
+                    } else {
+                        $( "#exclude_variants" ).prop( "checked", false );
+                    }
                 },
                 error: function(xhr, status, error) {
                   console.log(status);
@@ -485,6 +491,7 @@ $(".submit_via_ajax").on("click", function(event) {
 
     }
 });
+
 
 $("#li-step3").on("click", function() {
     // $("#li-step").removeClass("active")
@@ -520,6 +527,7 @@ $( function() {
     $( "#attribute___p" ).sortable();
     $( "#attribute___p" ).disableSelection();
   } );
+
 </script>
 
  <style>
@@ -527,5 +535,8 @@ $( function() {
   #attribute___p li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
   #attribute___p li span { position: absolute; margin-left: -1.3em; }
   </style>
+
+
+
 
 {% endblock %}

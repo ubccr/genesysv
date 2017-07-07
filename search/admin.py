@@ -125,7 +125,7 @@ class SearchOptionsAdmin(admin.ModelAdmin):
 
 @admin.register(VariantApprovalStatus)
 class VariantApprovalStatusAdmin(admin.ModelAdmin):
-    list_display = ('variant_es_id', 'user', 'variant_approval_status',)
+    list_display = ('variant_es_id', 'variant', 'user', 'variant_approval_status',)
 
 admin.site.register(FormType, FormTypeAdmin)
 admin.site.register(WidgetType, WidgetTypeAdmin)

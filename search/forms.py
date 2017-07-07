@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
-from .models import SavedSearch
+from .models import SavedSearch, VariantApprovalStatus
 
 
 EXIST_CHOICES = [('', '----'), ("only","only"), ("excluded", "excluded")]
@@ -177,3 +177,23 @@ class SaveSearchForm(forms.ModelForm):
             'attributes_selected': forms.HiddenInput(attrs={'readonly': 'readonly', 'required': True}),
             'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),
         }
+
+
+class VariantStatusApprovalUpdateForm(forms.ModelForm):
+    APPROVAL_STATUS_CHOICES = (
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('pending', 'Pending'),
+    )
+    class Meta:
+        model = VariantApprovalStatus
+        fields = ['variant', 'variant_approval_status', 'shared_with_group']
+    variant = forms.CharField(disabled=True)
+    variant_approval_status = forms.ChoiceField(choices=APPROVAL_STATUS_CHOICES)
+
+    def __init__(self, *args, **kwargs):
+        super(VariantStatusApprovalUpdateForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            username = instance.user
+            self.fields['shared_with_group'] = forms.ModelChoiceField(queryset=User.objects.get(username=username).groups.all(), required=False)

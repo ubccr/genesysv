@@ -28,10 +28,14 @@
     {% if gene_mania_link %}
         <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
     {% endif %}
+    {% if user.is_authenticated %}
+        <label><input id="exclude_variants" type="checkbox" value="exclude_variants">Exclude Rejected Variants</label>
+    {% endif %}
     <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
     <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
         {% csrf_token %}
         <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
+        <input id="download_exclude_variants" style="display: none;" type="hidden" name="exclude_variants" value="false">
     </form>
     <div class="clearfix"></div>
 </div>
@@ -55,16 +59,24 @@
                     {% for row in results %}
                         <tr>
                              {% if user.is_authenticated %}
-                                 <td>
-                                <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-esid="{{row|get_value_from_dict:"es_id"}}">
-                                {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
-                                    {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
-                                        <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
-                                    {% else %}
-                                        <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
-                                    {% endif %}
-                                {% endfor %}
-                                 </select>
+                                <td>
+                                {% if row|get_value_from_dict:"variant_approval_status_source" == 'user' or row|get_value_from_dict:"variant_approval_status_source" == 'None' %}
+                                    <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row|get_value_from_dict:"Variant"}}" data-esid="{{row|get_value_from_dict:"es_id"}}" data-datasetid="{{dataset_obj.id}}">
+                                    {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
+                                        {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
+                                            <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
+                                        {% elif short_status != "group_conflict" %}
+                                            <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
+                                        {% endif %}
+                                    {% endfor %}
+                                     </select>
+                                 {% else %}
+                                    {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
+                                        {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
+                                            <span class='badge badge-{{short_status}} add_badge_margin_remove_hover'>{{long_status}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                 {% endif %}
                                 </td>
                             {% endif %}
                             {% for element in headers %}
@@ -125,6 +137,9 @@
 <script>
     $(document).ready(function() {
         // $('#result-table').destroy();
+
+
+
         $('#result-table').DataTable({
             "iDisplayLength": 25,
             "bSortClasses": false
@@ -145,53 +160,73 @@
     });
 
     $("#download-result-button").on("click", function() {
+        $("#download_exclude_variants").val($("#hidden_exclude_variants").val())
         $("#download-result-form").submit();
     });
 
     $(".variant_approval_status").on("change", function() {
         var selected = $(this);
         var variant_approval_status = selected.val();
-        var es_id = selected.data("esid")
-        if (es_id) {
-            update_variant_approval_status(es_id, variant_approval_status);
+        var es_id = selected.data("esid");
+        var variant = selected.data("variant");
+        var datasetid = selected.data("datasetid");
+        if (es_id && variant ) {
+            update_variant_approval_status(es_id, variant, datasetid, variant_approval_status);
         }
         // $( "body" ).data( "foo", 52 );
     });
 
 
     function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
-    function update_variant_approval_status(es_id, variant_approval_status){
-    $.ajax(
-        {
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
-            type: "POST",
-            url : "{% url 'update-variant-approval-status' %}",
-            data: {
-                    es_id: es_id,
-                    variant_approval_status: variant_approval_status,
-            },
-            success:function(data) {
-                console.log(data)
-            }
-        }
 
-    );
+    function update_variant_approval_status(es_id, variant, datasetid, variant_approval_status){
+        $.ajax(
+            {
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                type: "POST",
+                url : "{% url 'update-variant-approval-status' %}",
+                data: {
+                        es_id: es_id,
+                        variant: variant,
+                        datasetid: datasetid,
+                        variant_approval_status: variant_approval_status,
+                },
+                success:function(data) {
+                    console.log(data)
+                }
+            }
+        );
     };
 
-</script>
+
+    $("#exclude_variants").on("change", function() {
+            console.log('test2')
+            current_value = $("#hidden_exclude_variants").val()
+            if (current_value == 'false') {
+                console.log('TRUE')
+                $("#hidden_exclude_variants").val('true')
+            } else {
+                console.log('FALSE')
+                $("#hidden_exclude_variants").val('false')
+            }
+            // $("#hidden_exclude_variants").val('')
+            $(".submit_via_ajax").trigger("click");
+        });
+
+    </script>
 
 {% endblock %}
