@@ -41,11 +41,11 @@ from .forms import VariantStatusApprovalUpdateForm
 
 ### CONSTANTS
 APPROVAL_STATUS_CHOICES = (
-    ('approved', 'Approved'),
-    ('rejected', 'Rejected'),
-    ('pending', 'Pending'),
-    ('not_reviewed', 'Not Reviewed'),
-    ('group_conflict', 'Group Conflict'),
+    ('approved', '<i class="fa fa-check" aria-hidden="true"></i>'),
+    ('rejected', '<i class="fa fa-times" aria-hidden="true"></i>'),
+    ('pending', '<i class="fa fa-question" aria-hidden="true"></i>'),
+    ('not_reviewed', '--'),
+    ('group_conflict', '<i class="fa fa-exclamation" aria-hidden="true"> </i>'),
 )
 
 def get_variant_approval_status(variant_es_id, user):
@@ -570,7 +570,7 @@ def search(request):
 
             attributes_selected = []
             for ele in headers:
-                attributes_selected.append('%s-%s' %(ele.es_name, ele.path))
+                attributes_selected.append('%d' %(ele.id))
             tmp_results = results['hits']['hits']
             results = []
 

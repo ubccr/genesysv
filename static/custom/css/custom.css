@@ -491,6 +491,7 @@ html,body{
 
 .badge {
   padding: 3px 9px 4px;
+  min-width: 35px;
   font-size: 14px;
   font-weight: normal;
   white-space: nowrap;
@@ -542,7 +543,7 @@ html,body{
 }
 
 .add_badge_margin_remove_hover {
-    margin: 5px 0px 5px 10px;
+    margin: 5px 0px 5px 11px;
     pointer-events:none;
 }
 

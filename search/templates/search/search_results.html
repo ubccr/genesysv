@@ -23,20 +23,21 @@
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
     <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
     {% if user.is_authenticated %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
-    {% endif %}
-    {% if gene_mania_link %}
-        <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
-    {% endif %}
-    {% if user.is_authenticated %}
         <label><input id="exclude_variants" type="checkbox" value="exclude_variants"> Exclude Rejected Variants</label>
     {% endif %}
-    <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
-    <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
-        {% csrf_token %}
-        <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
-        <input id="download_exclude_variants" style="display: none;" type="hidden" name="exclude_variants" value="false">
-    </form>
+
+    <div class="pull-right">
+        {% if user.is_authenticated %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
+        {% endif %}
+        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
+        <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
+            {% csrf_token %}
+            <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
+            <input id="download_exclude_variants" style="display: none;" type="hidden" name="exclude_variants" value="false">
+        </form>
+    </div>
+
     <div class="clearfix"></div>
 </div>
 
@@ -47,8 +48,7 @@
             <table id="result-table" class="table display compact" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-
-                       {% if user.is_authenticated %}<th>Approval Status</th>{% endif %}
+                    {% if user.is_authenticated %}<th>Review Status</th>{% endif %}
 
                     {% for element in headers %}
                         <th>{{element.display_text}}</th>
@@ -73,7 +73,7 @@
                                  {% else %}
                                     {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
                                         {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
-                                            <span class='badge badge-{{short_status}} add_badge_margin_remove_hover'>{{long_status}}</span>
+                                            <span class='badge badge-{{short_status}} add_badge_margin_remove_hover'>{{long_status|safe}}</span>
                                         {% endif %}
                                     {% endfor %}
                                  {% endif %}
@@ -88,8 +88,12 @@
                             {% endfor %}
                         </tr>
                     {% endfor %}
+
                 </tbody>
             </table>
+            {% if gene_mania_link %}
+                <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -132,6 +136,26 @@
   </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="variantStatusReviewFilter" tabindex="-1" role="dialog" aria-labelledby="variantStatusReviewFilterLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="variantStatusReviewFilterLabel">Save Search</h4>
+      </div>
+      <div class="modal-body">
+         <form class="form-horizontal" action="{% url 'save-search' %}" method="POST">
+            {% csrf_token %}
+            {% crispy save_search_form %}
+            <input type="submit" class="btn btn-submit btn-primary col-md-offset-2">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <script>

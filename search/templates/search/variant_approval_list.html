@@ -14,6 +14,12 @@
         $("#navbarId-Search-Main").addClass("active")
     </script>
 
+{% if not user_variants and not group_variants %}
+    <div class="alert alert-info">
+        You have not reviewed any variants!
+    </div>
+{% endif %}
+
 {% if user_variants %}
     <div class="panel panel-primary">
         <div class="panel-heading">My Variant Approval Status List</div>
