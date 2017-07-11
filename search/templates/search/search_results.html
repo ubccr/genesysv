@@ -29,7 +29,7 @@
         <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
     {% endif %}
     {% if user.is_authenticated %}
-        <label><input id="exclude_variants" type="checkbox" value="exclude_variants">Exclude Rejected Variants</label>
+        <label><input id="exclude_variants" type="checkbox" value="exclude_variants"> Exclude Rejected Variants</label>
     {% endif %}
     <a id="download-result-button" class="btn btn-primary pull-right" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a>
     <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">

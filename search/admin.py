@@ -127,6 +127,11 @@ class SearchOptionsAdmin(admin.ModelAdmin):
 class VariantApprovalStatusAdmin(admin.ModelAdmin):
     list_display = ('variant_es_id', 'variant', 'user', 'variant_approval_status',)
 
+@admin.register(SavedSearch)
+class SavedSearchAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'dataset', 'filters_used', 'attributes_selected', 'description')
+
+
 admin.site.register(FormType, FormTypeAdmin)
 admin.site.register(WidgetType, WidgetTypeAdmin)
 admin.site.register(ESFilterType, ESFilterTypeAdmin)

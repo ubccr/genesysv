@@ -271,11 +271,7 @@ class SavedSearch(TimeStampedModel):
             filters_used = json.loads(self.filters_used)
             output = []
             for key, val in filters_used.items():
-                es_name, es_filter_type, path = key.split('-')
-                print(es_name, es_filter_type, path)
-                filter_field_obj = FilterField.objects.get(dataset=self.dataset,
-                                                           es_name=es_name,
-                                                           es_filter_type__name=es_filter_type)
+                filter_field_obj = FilterField.objects.get(id=key)
                 output.append((key, filter_field_obj.display_text, val))
             return output
         else:
