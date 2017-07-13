@@ -23,7 +23,7 @@ def gene_link(input_string):
         output = ''
         for ele in input_string.split():
             if ele.lower() != 'none':
-                output += '<a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s"><i class="fa fa-external-link" aria-hidden="true"></i></a>' %(ele)
+                output += '<a target="_blank" href="http://www.genecards.org/cgi-bin/carddisp.pl?gene=%s"><i class="fa fa-external-link" aria-hidden="true"></i> GeneCards</a>' %(ele)
             else:
                 output += 'NONE '
         return output
@@ -39,7 +39,7 @@ def gene_mania(input_string):
         output = ''
         for ele in input_string.split():
             if ele.lower() != 'none':
-                output += '<a target="_blank" href="http://genemania.org/link?o=9606&g=%s"><i class="fa fa-external-link" aria-hidden="true"></i></a>' %(ele.replace(',','|'))
+                output += '<a target="_blank" href="http://genemania.org/link?o=9606&g=%s"><i class="fa fa-external-link" aria-hidden="true"></i> GeneMania</a>' %(ele.replace(',','|'))
             else:
                 output += 'NONE '
         return output

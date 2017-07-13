@@ -23,7 +23,7 @@
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
     <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
     {% if user.is_authenticated %}
-        <label><input id="exclude_variants" type="checkbox" value="exclude_variants"> Exclude Rejected Variants</label>
+         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#variantStatusReviewFilter"><i class="fa fa-filter" aria-hidden="true"></i> Select Post Query Filter</button>
     {% endif %}
 
     <div class="pull-right">
@@ -60,10 +60,10 @@
                         <tr>
                              {% if user.is_authenticated %}
                                 <td>
-                                {% if row|get_value_from_dict:"variant_approval_status_source" == 'user' or row|get_value_from_dict:"variant_approval_status_source" == 'None' %}
-                                    <select class="variant_approval_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row|get_value_from_dict:"Variant"}}" data-esid="{{row|get_value_from_dict:"es_id"}}" data-datasetid="{{dataset_obj.id}}">
-                                    {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
-                                        {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
+                                {% if row|get_value_from_dict:"variant_review_status_source" == 'user' or row|get_value_from_dict:"variant_review_status_source" == 'None' %}
+                                    <select class="variant_review_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row|get_value_from_dict:"Variant"}}" data-esid="{{row|get_value_from_dict:"es_id"}}" data-datasetid="{{dataset_obj.id}}">
+                                    {% for short_status, long_status in REVIEW_STATUS_CHOICES %}
+                                        {% if row|get_value_from_dict:"variant_review_status" == short_status %}
                                             <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
                                         {% elif short_status != "group_conflict" %}
                                             <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
@@ -71,8 +71,8 @@
                                     {% endfor %}
                                      </select>
                                  {% else %}
-                                    {% for short_status, long_status in APPROVAL_STATUS_CHOICES %}
-                                        {% if row|get_value_from_dict:"variant_approval_status" == short_status %}
+                                    {% for short_status, long_status in REVIEW_STATUS_CHOICES %}
+                                        {% if row|get_value_from_dict:"variant_review_status" == short_status %}
                                             <span class='badge badge-{{short_status}} add_badge_margin_remove_hover'>{{long_status|safe}}</span>
                                         {% endif %}
                                     {% endfor %}
@@ -91,13 +91,26 @@
 
                 </tbody>
             </table>
-            {% if gene_mania_link %}
-                <a class="btn btn-primary " target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-search" aria-hidden="true"></i>GeneMania </a>
-            {% endif %}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <span class='badge badge-approved add_badge_margin_remove_hover'><i class="fa fa-check" aria-hidden="true"></i></span> Approved
+                    <span class='badge badge-rejected add_badge_margin_remove_hover'><i class="fa fa-times" aria-hidden="true"></i></span> Rejected
+                    <span class='badge badge-pending add_badge_margin_remove_hover'><i class="fa fa-question" aria-hidden="true"></i></span> Pending
+                    <span class='badge badge-group_conflict add_badge_margin_remove_hover'><i class="fa fa-exclamation" aria-hidden="true"></i></span> Group Conflict
+                    <span class='badge badge-not_reviewed add_badge_margin_remove_hover'>--</span> Not Reviewed
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if gene_mania_link %}
+                        <a target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-external-link" aria-hidden="true"></i> GeneMania</a>
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
-
 
 {% if variants_excluded %}
 <div class="panel panel-primary">
@@ -143,15 +156,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="variantStatusReviewFilterLabel">Save Search</h4>
+        <h4 class="modal-title" id="variantStatusReviewFilterLabel">Select Review Status to Filter</h4>
       </div>
       <div class="modal-body">
-         <form class="form-horizontal" action="{% url 'save-search' %}" method="POST">
-            {% csrf_token %}
-            {% crispy save_search_form %}
-            <input type="submit" class="btn btn-submit btn-primary col-md-offset-2">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-         </form>
+            <form id="review_status_to_filter_form">
+                {% crispy review_status_form %}
+                <button id="post_query_filter_form_submit" type="submit" data-dismiss="modal" data-backdrop="false" class="btn btn-submit btn-primary">Apply Post Query Filter</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </form>
       </div>
     </div>
   </div>
@@ -188,14 +200,14 @@
         $("#download-result-form").submit();
     });
 
-    $(".variant_approval_status").on("change", function() {
+    $(".variant_review_status").on("change", function() {
         var selected = $(this);
-        var variant_approval_status = selected.val();
+        var variant_review_status = selected.val();
         var es_id = selected.data("esid");
         var variant = selected.data("variant");
         var datasetid = selected.data("datasetid");
         if (es_id && variant ) {
-            update_variant_approval_status(es_id, variant, datasetid, variant_approval_status);
+            update_variant_review_status(es_id, variant, datasetid, variant_review_status);
         }
         // $( "body" ).data( "foo", 52 );
     });
@@ -217,17 +229,17 @@
         return cookieValue;
     }
 
-    function update_variant_approval_status(es_id, variant, datasetid, variant_approval_status){
+    function update_variant_review_status(es_id, variant, datasetid, variant_review_status){
         $.ajax(
             {
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
                 type: "POST",
-                url : "{% url 'update-variant-approval-status' %}",
+                url : "{% url 'update-variant-review-status' %}",
                 data: {
                         es_id: es_id,
                         variant: variant,
                         datasetid: datasetid,
-                        variant_approval_status: variant_approval_status,
+                        variant_review_status: variant_review_status,
                 },
                 success:function(data) {
                     console.log(data)
@@ -237,19 +249,20 @@
     };
 
 
-    $("#exclude_variants").on("change", function() {
-            console.log('test2')
-            current_value = $("#hidden_exclude_variants").val()
-            if (current_value == 'false') {
-                console.log('TRUE')
-                $("#hidden_exclude_variants").val('true')
-            } else {
-                console.log('FALSE')
-                $("#hidden_exclude_variants").val('false')
-            }
-            // $("#hidden_exclude_variants").val('')
-            $(".submit_via_ajax").trigger("click");
+    $("#post_query_filter_form_submit").on("click", function() {
+            // console.log('test2')
+            var form_data = $('#review_status_to_filter_form').serialize();
+            $("#review_status_to_filter").val(form_data)
+            console.log($("#review_status_to_filter").val())
+            $('#variantStatusReviewFilter').modal('hide');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+            submit_via_ajax()
         });
+
+    // $("#apply_post_query_filter").on("click", function() {
+    //     $(".submit_via_ajax").trigger("click");
+    // });
 
     </script>
 

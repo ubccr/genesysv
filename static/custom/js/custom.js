@@ -43,7 +43,7 @@ function prevTab(elem) {
 $(document).on("click", "input[type=checkbox][id*=attribute_group]", (function(event){
     var checkbox = event.target;
     if (checkbox.checked == true) {
-            $('.submit_via_ajax').each(function() {
+            $('.submit_via_ajax_button').each(function() {
                 $(this).removeClass( "disabled" );
             })
             attribute_id = checkbox.id
@@ -69,7 +69,7 @@ $(document).on("click", "input[type=checkbox][id*=attribute_group]", (function(e
             $( this ).addClass( "disabled" );
             $("#li-step4").addClass("disabled");
             });
-            $('.submit_via_ajax').each(function() {
+            $('.submit_via_ajax_button').each(function() {
                 $( this ).addClass( "disabled" );
             })
 
@@ -115,7 +115,7 @@ $(document).on("click", '.select-all', (function(event){
 
                }
       }
-      $('.submit_via_ajax').each(function() {
+      $('.submit_via_ajax_button').each(function() {
                 $( this ).removeClass( "disabled" );
        })
        $("#user-alert-div").empty();
@@ -138,7 +138,7 @@ $(document).on("click", '.select-all', (function(event){
       }
 
       if ($("input[type=checkbox][id*='attribute_group']:checked").length == 0) {
-          $('.submit_via_ajax').each(function() {
+          $('.submit_via_ajax_button').each(function() {
                     $( this ).addClass( "disabled" );
 
             })
@@ -240,7 +240,7 @@ $(document).on("click", '.reset_button', (function(event){
       $(p_ele).remove();
       checked = $("input[type=checkbox][id*=attribute_group]:checked");
         if (checked.length == 0) {
-            $('.submit_via_ajax').each(function() {
+            $('.submit_via_ajax_button').each(function() {
                 $( this ).addClass( "disabled" );
             })
 

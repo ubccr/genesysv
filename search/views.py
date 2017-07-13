@@ -37,10 +37,10 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 
-from .forms import VariantStatusApprovalUpdateForm
+from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
 
 ### CONSTANTS
-APPROVAL_STATUS_CHOICES = (
+REVIEW_STATUS_CHOICES = (
     ('approved', '<i class="fa fa-check" aria-hidden="true"></i>'),
     ('rejected', '<i class="fa fa-times" aria-hidden="true"></i>'),
     ('pending', '<i class="fa fa-question" aria-hidden="true"></i>'),
@@ -48,44 +48,44 @@ APPROVAL_STATUS_CHOICES = (
     ('group_conflict', '<i class="fa fa-exclamation" aria-hidden="true"> </i>'),
 )
 
-def get_variant_approval_status(variant_es_id, user):
+def get_variant_review_status(variant_es_id, user):
 
     try:
-        # variant_approval_status_user_list = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id, user=user).filter(
+        # variant_review_status_user_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, user=user).filter(
                                     # Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))
-        variant_approval_status_user_list = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id, user=user).values_list('variant_es_id', flat=True)
-        variant_approval_status_group_list = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id, shared_with_group__pk__in=user.groups.values_list('pk', flat=True)).exclude(user=user).values_list('variant_es_id', flat=True)
+        variant_review_status_user_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, user=user).values_list('variant_es_id', flat=True)
+        variant_review_status_group_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, shared_with_group__pk__in=user.groups.values_list('pk', flat=True)).exclude(user=user).values_list('variant_es_id', flat=True)
 
-        if set(variant_approval_status_user_list).intersection(set(variant_approval_status_group_list)):
+        if set(variant_review_status_user_list).intersection(set(variant_review_status_group_list)):
             return ('group_conflict', 'group')
 
-        variant_approval_status_objs = VariantApprovalStatus.objects.filter(variant_es_id=variant_es_id).filter(
+        variant_review_status_objs = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id).filter(
                                     Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))
 
 
-        if variant_approval_status_objs.count() > 1:
+        if variant_review_status_objs.count() > 1:
             print(variant_es_id)
             raise Exception('ERROR: Only one variant approval status obj should be returned with query')
-        elif variant_approval_status_objs.count() == 0:
+        elif variant_review_status_objs.count() == 0:
             return ('not_reviewed', 'None')
         else:
-            variant_approval_status_obj = variant_approval_status_objs[0]
+            variant_review_status_obj = variant_review_status_objs[0]
 
-        if variant_approval_status_obj.user == user:
-            variant_approval_status_source = 'user'
+        if variant_review_status_obj.user == user:
+            variant_review_status_source = 'user'
         else:
-            variant_approval_status_source = 'group'
+            variant_review_status_source = 'group'
 
-        return (variant_approval_status_obj.variant_approval_status, variant_approval_status_source)
+        return (variant_review_status_obj.variant_review_status, variant_review_status_source)
     except Exception as e:
         print(e)
         return ('not_reviewed', 'None')
 
-def get_variant_approval_status_obj(variant_es_id, user):
+def get_variant_review_status_obj(variant_es_id, user):
 
     try:
-        variant_approval_status_obj = VariantApprovalStatus.objects.get(variant_es_id=variant_es_id, user=user)
-        return variant_approval_status_obj
+        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, user=user)
+        return variant_review_status_obj
     except:
         return None
 
@@ -340,17 +340,33 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
-        exclude_variants = request.POST.get('exclude_variants')
-        if exclude_variants == "true":
-            exclude_variants = True
-        elif exclude_variants == "false":
-            exclude_variants = False
-        else:
-            exclude_variants = True
+        # exclude_variants = request.POST.get('exclude_variants')
+        # if exclude_variants == "true":
+        #     exclude_variants = True
+        # elif exclude_variants == "false":
+        #     exclude_variants = False
+        # else:
+        #     exclude_variants = True
 
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
+
+
+        review_status_data = request.POST.get('review_status_to_filter', None)
+        review_status_to_filter = []
+        if review_status_data:
+            for ele in review_status_data.split("&"):
+                if 'review_status_to_filter' in ele:
+                    tmp_val = ele.split('=')[1]
+                    review_status_to_filter.append(tmp_val)
+            review_status_form = ReviewStatusForm(initial={'review_status_to_filter': review_status_to_filter})
+        else:
+            review_status_form = ReviewStatusForm()
+
+
+
+
 
         study_form = StudyForm(request.user, POST_data)
         study_form.is_valid()
@@ -574,25 +590,25 @@ def search(request):
             tmp_results = results['hits']['hits']
             results = []
 
-            if not request.user.is_anonymous():
-                variants_to_exclude = VariantApprovalStatus.objects.filter(
-                    Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_approval_status='rejected').values_list('variant_es_id', flat=True)
-            else:
-                variants_to_exclude = []
+            # if not request.user.is_anonymous():
+            #     variants_to_exclude = VariantReviewStatus.objects.filter(
+            #         Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_review_status='rejected').values_list('variant_es_id', flat=True)
+            # else:
+            #     variants_to_exclude = []
             variants_excluded = []
             for ele in tmp_results:
                 tmp_source = ele['_source']
                 es_id = ele['_id']
 
-                if exclude_variants and es_id in variants_to_exclude:
-                    variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
-                    continue
+                if not request.user.is_anonymous():
+                    variant_review_status, variant_review_status_source = get_variant_review_status(es_id, request.user)
+                    if variant_review_status in review_status_to_filter:
+                        variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
+                        continue
+                    tmp_source['variant_review_status'] = variant_review_status
+                    tmp_source['variant_review_status_source'] = variant_review_status_source
 
                 tmp_source['es_id'] = es_id
-                if not request.user.is_anonymous():
-                    variant_approval_status, variant_approval_status_source = get_variant_approval_status(es_id, request.user)
-                    tmp_source['variant_approval_status'] = variant_approval_status
-                    tmp_source['variant_approval_status_source'] = variant_approval_status_source
                 results.append(tmp_source)
 
             ### Remove results that don't match input
@@ -678,8 +694,8 @@ def search(request):
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
                             if not request.user.is_anonymous():
-                                tmp['variant_approval_status'] = result['variant_approval_status']
-                                tmp['variant_approval_status_source'] = result['variant_approval_status_source']
+                                tmp['variant_review_status'] = result['variant_review_status']
+                                tmp['variant_review_status_source'] = result['variant_review_status_source']
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
@@ -755,8 +771,9 @@ def search(request):
                 gene_mania_link =  "http://genemania.org/link?o=9606&g=%s" % ('|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link
 
+            context['review_status_form'] = review_status_form
             context['debug'] = settings.DEBUG
-            context['APPROVAL_STATUS_CHOICES'] = APPROVAL_STATUS_CHOICES
+            context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
             context['variants_excluded'] = variants_excluded
             context['used_keys'] = used_keys
             context['took'] = took
@@ -890,8 +907,8 @@ def download_result(request):
         exclude_variants = True
 
 
-    variants_to_exclude = VariantApprovalStatus.objects.filter(
-        Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_approval_status='rejected').values_list('variant_es_id', flat=True)
+    variants_to_exclude = VariantReviewStatus.objects.filter(
+        Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_review_status='rejected').values_list('variant_es_id', flat=True)
 
 
     search_log_obj_id = request.POST['search_log_obj_id']
@@ -1032,52 +1049,52 @@ class SavedSearchDelete(DeleteView):
     success_url = reverse_lazy('saved-search-list')
     template_name = 'search/savedsearch_confirm_delete.html'
 
-def update_variant_approval_status(request):
+def update_variant_review_status(request):
     if request.POST:
         variant_es_id = request.POST.get("es_id")
         variant = request.POST.get("variant")
         datasetid = request.POST.get("datasetid")
         dataset_obj = Dataset.objects.get(id=datasetid)
 
-        new_variant_approval_status = request.POST.get("variant_approval_status")
-        current_variant_approval_status_obj = get_variant_approval_status_obj(variant_es_id, request.user)
-        if new_variant_approval_status == 'not_reviewed' and current_variant_approval_status_obj:
-            current_variant_approval_status_obj.delete()
+        new_variant_review_status = request.POST.get("variant_review_status")
+        current_variant_review_status_obj = get_variant_review_status_obj(variant_es_id, request.user)
+        if new_variant_review_status == 'not_reviewed' and current_variant_review_status_obj:
+            current_variant_review_status_obj.delete()
             return HttpResponse(status=200)
-        elif current_variant_approval_status_obj and current_variant_approval_status_obj.variant_approval_status != new_variant_approval_status:
-            current_variant_approval_status_obj.variant_approval_status = new_variant_approval_status
-            current_variant_approval_status_obj.save()
+        elif current_variant_review_status_obj and current_variant_review_status_obj.variant_review_status != new_variant_review_status:
+            current_variant_review_status_obj.variant_review_status = new_variant_review_status
+            current_variant_review_status_obj.save()
             return HttpResponse(status=200)
-        elif not current_variant_approval_status_obj:
-            variant_approval_status_obj = VariantApprovalStatus.objects.get_or_create(user=request.user,
+        elif not current_variant_review_status_obj:
+            variant_review_status_obj = VariantReviewStatus.objects.get_or_create(user=request.user,
                                                                                variant_es_id=variant_es_id,
                                                                                variant=variant,
                                                                                dataset = dataset_obj,
-                                                                               variant_approval_status=new_variant_approval_status)
+                                                                               variant_review_status=new_variant_review_status)
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
 
-def list_variant_approval_status(request):
-    user_variants = VariantApprovalStatus.objects.filter(user=request.user).prefetch_related('user')
-    group_variants = VariantApprovalStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True)).exclude(user=request.user).prefetch_related('user')
+def list_variant_review_status(request):
+    user_variants = VariantReviewStatus.objects.filter(user=request.user).prefetch_related('user')
+    group_variants = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True)).exclude(user=request.user).prefetch_related('user')
 
     context = {}
     context['user_variants'] = user_variants
     context['group_variants'] = group_variants
-    return render(request, 'search/variant_approval_list.html', context)
+    return render(request, 'search/variant_review_list.html', context)
 
 def delete_variant(request, pk):
     try:
-        variant_approval_status_obj = VariantApprovalStatus.objects.get(pk=pk, user=request.user)
-        variant_approval_status_obj.delete()
-        return redirect('list-variant-approval-status')
+        variant_review_status_obj = VariantReviewStatus.objects.get(pk=pk, user=request.user)
+        variant_review_status_obj.delete()
+        return redirect('list-variant-review-status')
     except:
         raise PermissionDenied
 
 
-class VariantApprovalStatusUpdateView(UpdateView):
-    model = VariantApprovalStatus
-    form_class = VariantStatusApprovalUpdateForm
-    template_name = 'search/variant_approval_status_update.html'
+class VariantReviewStatusUpdateView(UpdateView):
+    model = VariantReviewStatus
+    form_class = VariantStatusReviewUpdateForm
+    template_name = 'search/variant_review_status_update.html'
 

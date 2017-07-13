@@ -123,7 +123,7 @@
                         <div class="tab-pane" role="tabpanel" id="step3">
                             <ul class="list-inline">
                                 <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-                                <li><button type="button" class="btn btn-success submit_via_ajax disabled">Search</button></li>
+                                <li><button type="button" class="btn btn-success submit_via_ajax_button disabled">Search</button></li>
                                 <li class="pull-right">
                                     <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?"
                                          href="/search">Reset</a>
@@ -137,7 +137,7 @@
 
                             <ul class="list-inline">
                                 <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button></li>
-                                <li><button type="button" class="btn btn-success submit_via_ajax disabled">Search</button></li>
+                                <li><button type="button" class="btn btn-success submit_via_ajax_button disabled">Search</button></li>
                             </ul>
                         </div>
                         <div class="clearfix"></div>
@@ -198,8 +198,9 @@
 
 <input id="results_loaded" type="hidden" name="results_loaded" value="false">
 <input id="automated_submit" type="hidden" name="automated_submit" value="false">
+<input id="automated_submitted" type="hidden" name="automated_submit" value="false">
 
-<input id="hidden_exclude_variants" type="hidden" name="hidden_exclude_variants" value="false">
+<input id="review_status_to_filter" type="hidden" name="review_status_to_filter" value="false">
 
 <script>
     var data = {{information_json|safe }};
@@ -303,6 +304,7 @@
   };
 
     $( document ).ready(function() {
+        $("#searchForm").unbind('submit');
         $('#loading_div').hide();
         $('#results_div').hide();
         $('#my_popup').popup();
@@ -341,6 +343,7 @@
                 $(document.getElementById("id_filter_-"+filter_name)).val(filter_value).trigger("change");
             });
             $("#filters_loaded").removeAttr('id');
+            console.log('filters', Date.now())
             $("#automated_submit").val(true).trigger("change");
             $(".next-step").click();
         }
@@ -365,6 +368,7 @@
             });
             $("#attributes_loaded").removeAttr('id');
             $(".next-step").click();
+            console.log('attributes', Date.now())
             $("#automated_submit").val(true).trigger("change");
 
         }
@@ -374,9 +378,8 @@
 
     $("#automated_submit").on("change", function() {
         if($("#filters_loaded").length == 0 && $("#attributes_loaded").length == 0) {
-            $("#loading_div").hide()
-            $(".submit_via_ajax").trigger("click");
-
+                $("#loading_div").hide()
+                submit_via_jax()
         }
     });
 
@@ -431,11 +434,8 @@
     });
 
 
-$(".submit_via_ajax").on("click", function(event) {
-
-    if ($(this).hasClass("disabled") == false) {
-
-        $('#results_div').html('<button class="btn btn-warning text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Searching...</button>');
+function submit_via_ajax() {
+     $('#results_div').html('<button class="btn btn-warning text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Searching...</button>');
         var form_data = $('#searchForm').serialize();
         $("#user-alert-div").empty();
         $("#li-step3").removeClass("active");
@@ -449,6 +449,9 @@ $(".submit_via_ajax").on("click", function(event) {
             tmp = tmp.replace(/id_\d+_\d+___/g, "id_");
             attribute_order[index] = index + "-" + tmp.split("id_attribute_group-")[1].split("___p")[0]
         });
+
+        var review_status_to_filter = $("#review_status_to_filter").val();
+        console.log('review_status_to_filter', review_status_to_filter)
         // console.log(attribute_order)
         // attribute_order = $(attribute_order).serialize();
         form_data = form_data.replace(/\d+_\d+___/g, "");
@@ -463,17 +466,12 @@ $(".submit_via_ajax").on("click", function(event) {
                 data: {
                         form_data: form_data,
                         attribute_order: JSON.stringify(attribute_order),
-                        exclude_variants: exclude_variants
+                        exclude_variants: exclude_variants,
+                        review_status_to_filter: review_status_to_filter
                 },
                 success:function(data) {
                     $('#results_div').html(data);
                     $("#li-step4").addClass("active");
-                    current_value = $("#hidden_exclude_variants").val()
-                    if (current_value == "true") {
-                        $( "#exclude_variants" ).prop( "checked", true );
-                    } else {
-                        $( "#exclude_variants" ).prop( "checked", false );
-                    }
                 },
                 error: function(xhr, status, error) {
                   console.log(status);
@@ -482,6 +480,15 @@ $(".submit_via_ajax").on("click", function(event) {
             }
 
         );
+}
+
+$(".submit_via_ajax_button").on("click", function(event) {
+    console.log('ajax', Date.now())
+    console.log(event);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if ($(this).hasClass("disabled") == false) {
+        submit_via_ajax()
     } else {
         $("#user-alert-div").html('<div class="alert alert-info">\
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\

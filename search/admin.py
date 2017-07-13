@@ -123,9 +123,9 @@ class SearchOptionsAdmin(admin.ModelAdmin):
     list_display = ('dataset', 'es_terminate', 'es_terminate_size_per_shard', 'maximum_table_size')
 
 
-@admin.register(VariantApprovalStatus)
-class VariantApprovalStatusAdmin(admin.ModelAdmin):
-    list_display = ('variant_es_id', 'variant', 'user', 'variant_approval_status',)
+@admin.register(VariantReviewStatus)
+class VariantReviewStatusAdmin(admin.ModelAdmin):
+    list_display = ('variant_es_id', 'variant', 'user', 'variant_review_status',)
 
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):

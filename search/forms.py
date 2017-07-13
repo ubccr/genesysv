@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
-from .models import SavedSearch, VariantApprovalStatus
+from .models import SavedSearch, VariantReviewStatus
 
 
 EXIST_CHOICES = [('', '----'), ("only","only"), ("excluded", "excluded")]
@@ -179,21 +179,33 @@ class SaveSearchForm(forms.ModelForm):
         }
 
 
-class VariantStatusApprovalUpdateForm(forms.ModelForm):
-    APPROVAL_STATUS_CHOICES = (
+class VariantStatusReviewUpdateForm(forms.ModelForm):
+    REVIEW_STATUS_CHOICES = (
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('pending', 'Pending'),
     )
     class Meta:
-        model = VariantApprovalStatus
-        fields = ['variant', 'variant_approval_status', 'shared_with_group']
+        model = VariantReviewStatus
+        fields = ['variant', 'variant_review_status', 'shared_with_group']
     variant = forms.CharField(disabled=True)
-    variant_approval_status = forms.ChoiceField(choices=APPROVAL_STATUS_CHOICES)
+    variant_review_status = forms.ChoiceField(choices=REVIEW_STATUS_CHOICES)
 
     def __init__(self, *args, **kwargs):
-        super(VariantStatusApprovalUpdateForm, self).__init__(*args, **kwargs)
+        super(VariantStatusReviewUpdateForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
             username = instance.user
             self.fields['shared_with_group'] = forms.ModelChoiceField(queryset=User.objects.get(username=username).groups.all(), required=False)
+
+
+class ReviewStatusForm(forms.Form):
+        REVIEW_STATUS_CHOICES = (
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+            ('pending', 'Pending'),
+            ('not_reviewed', 'Not Reviewed'),
+            ('group_conflict', 'Group Conflict'),
+        )
+        review_status_to_filter = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                             choices=REVIEW_STATUS_CHOICES, required=False)
