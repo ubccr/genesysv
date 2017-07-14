@@ -340,13 +340,13 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
-        # exclude_variants = request.POST.get('exclude_variants')
-        # if exclude_variants == "true":
-        #     exclude_variants = True
-        # elif exclude_variants == "false":
-        #     exclude_variants = False
-        # else:
-        #     exclude_variants = True
+        show_review_status = request.POST.get('show_review_status')
+        if show_review_status == "true":
+            show_review_status = True
+        elif show_review_status == "false":
+            show_review_status = False
+        else:
+            show_review_status = True
 
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
@@ -600,7 +600,8 @@ def search(request):
                 tmp_source = ele['_source']
                 es_id = ele['_id']
 
-                if not request.user.is_anonymous():
+
+                if show_review_status and not request.user.is_anonymous():
                     variant_review_status, variant_review_status_source = get_variant_review_status(es_id, request.user)
                     if variant_review_status in review_status_to_filter:
                         variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
@@ -693,7 +694,7 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
-                            if not request.user.is_anonymous():
+                            if show_review_status and not request.user.is_anonymous():
                                 tmp['variant_review_status'] = result['variant_review_status']
                                 tmp['variant_review_status_source'] = result['variant_review_status_source']
                             if tmp not in final_results:
@@ -774,6 +775,7 @@ def search(request):
             context['review_status_form'] = review_status_form
             context['debug'] = settings.DEBUG
             context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
+            context['show_review_status'] = show_review_status
             context['variants_excluded'] = variants_excluded
             context['used_keys'] = used_keys
             context['took'] = took
@@ -796,8 +798,8 @@ def yield_results(dataset_obj,
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
-                    exclude_variants,
-                    variants_to_exclude):
+                    review_status_to_filter,
+                    user):
 
 
     es = Elasticsearch(host=dataset_obj.es_host)
@@ -813,8 +815,8 @@ def yield_results(dataset_obj,
 
         result = ele['_source']
         es_id = ele['_id']
-
-        if exclude_variants and es_id in variants_to_exclude:
+        variant_review_status, variant_review_status_source = get_variant_review_status(es_id, user)
+        if review_status_to_filter and variant_review_status in review_status_to_filter:
             continue
         ### Remove results that don't match input
         yield_results = True
@@ -898,18 +900,14 @@ class Echo(object):
         return value
 @gzip_page
 def download_result(request):
-    exclude_variants = request.POST.get('exclude_variants')
-    if exclude_variants == "true":
-            exclude_variants = True
-    elif exclude_variants == "false":
-        exclude_variants = False
-    else:
-        exclude_variants = True
-
-
-    variants_to_exclude = VariantReviewStatus.objects.filter(
-        Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_review_status='rejected').values_list('variant_es_id', flat=True)
-
+    review_status_data = request.POST.get('download_review_status_to_filter', None)
+    review_status_to_filter = []
+    if review_status_data:
+        for ele in review_status_data.split("&"):
+            if 'review_status_to_filter' in ele:
+                tmp_val = ele.split('=')[1]
+                review_status_to_filter.append(tmp_val)
+    print(review_status_to_filter)
 
     search_log_obj_id = request.POST['search_log_obj_id']
     search_log_obj = SearchLog.objects.get(id=search_log_obj_id)
@@ -952,8 +950,7 @@ def download_result(request):
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
-                    exclude_variants,
-                    variants_to_exclude)
+                    review_status_to_filter, request.user)
     response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response

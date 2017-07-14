@@ -201,6 +201,7 @@
 <input id="automated_submitted" type="hidden" name="automated_submit" value="false">
 
 <input id="review_status_to_filter" type="hidden" name="review_status_to_filter" value="false">
+<input id="show_review_status" type="hidden" name="show_review_status" value="false">
 
 <script>
     var data = {{information_json|safe }};
@@ -343,7 +344,6 @@
                 $(document.getElementById("id_filter_-"+filter_name)).val(filter_value).trigger("change");
             });
             $("#filters_loaded").removeAttr('id');
-            console.log('filters', Date.now())
             $("#automated_submit").val(true).trigger("change");
             $(".next-step").click();
         }
@@ -368,7 +368,6 @@
             });
             $("#attributes_loaded").removeAttr('id');
             $(".next-step").click();
-            console.log('attributes', Date.now())
             $("#automated_submit").val(true).trigger("change");
 
         }
@@ -379,7 +378,7 @@
     $("#automated_submit").on("change", function() {
         if($("#filters_loaded").length == 0 && $("#attributes_loaded").length == 0) {
                 $("#loading_div").hide()
-                submit_via_jax()
+                submit_via_ajax()
         }
     });
 
@@ -451,12 +450,17 @@ function submit_via_ajax() {
         });
 
         var review_status_to_filter = $("#review_status_to_filter").val();
-        console.log('review_status_to_filter', review_status_to_filter)
-        // console.log(attribute_order)
-        // attribute_order = $(attribute_order).serialize();
+        var show_review_status = $("#show_review_status").val();
+        if (show_review_status == "true") {
+            $("#show_review_status").val("false");
+        } else {
+            $("#show_review_status").val("true");
+        }
+
+
         form_data = form_data.replace(/\d+_\d+___/g, "");
         form_data = form_data.replace(/\d+___/g, "");
-        // exclude_variants = $("#exclude_variants").is(":checked")
+
         exclude_variants = $("#hidden_exclude_variants").val()
         $.ajax(
             {
@@ -467,7 +471,8 @@ function submit_via_ajax() {
                         form_data: form_data,
                         attribute_order: JSON.stringify(attribute_order),
                         exclude_variants: exclude_variants,
-                        review_status_to_filter: review_status_to_filter
+                        review_status_to_filter: review_status_to_filter,
+                        show_review_status: show_review_status
                 },
                 success:function(data) {
                     $('#results_div').html(data);
@@ -483,8 +488,6 @@ function submit_via_ajax() {
 }
 
 $(".submit_via_ajax_button").on("click", function(event) {
-    console.log('ajax', Date.now())
-    console.log(event);
     event.preventDefault();
     event.stopImmediatePropagation();
     if ($(this).hasClass("disabled") == false) {

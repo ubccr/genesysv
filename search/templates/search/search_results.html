@@ -23,7 +23,8 @@
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
     <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
     {% if user.is_authenticated %}
-         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#variantStatusReviewFilter"><i class="fa fa-filter" aria-hidden="true"></i> Select Post Query Filter</button>
+        <button id="show_review_status_button" type="button" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>/<i class="fa fa-minus" aria-hidden="true"></i> Show/Hide Review Status</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#variantStatusReviewFilter"><i class="fa fa-filter" aria-hidden="true"></i> Select Post Query Filter</button>
     {% endif %}
 
     <div class="pull-right">
@@ -34,7 +35,7 @@
         <form id="download-result-form" role="form"  method="POST" action="{% url 'download-result' %}">
             {% csrf_token %}
             <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
-            <input id="download_exclude_variants" style="display: none;" type="hidden" name="exclude_variants" value="false">
+            <input id="download_review_status_to_filter" style="display: none;" type="hidden" name="download_review_status_to_filter" value="false">
         </form>
     </div>
 
@@ -48,7 +49,7 @@
             <table id="result-table" class="table display compact" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-                    {% if user.is_authenticated %}<th>Review Status</th>{% endif %}
+                    {% if show_review_status and user.is_authenticated %}<th>Review Status</th>{% endif %}
 
                     {% for element in headers %}
                         <th>{{element.display_text}}</th>
@@ -58,7 +59,7 @@
                 <tbody>
                     {% for row in results %}
                         <tr>
-                             {% if user.is_authenticated %}
+                             {% if show_review_status and user.is_authenticated %}
                                 <td>
                                 {% if row|get_value_from_dict:"variant_review_status_source" == 'user' or row|get_value_from_dict:"variant_review_status_source" == 'None' %}
                                     <select class="variant_review_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row|get_value_from_dict:"Variant"}}" data-esid="{{row|get_value_from_dict:"es_id"}}" data-datasetid="{{dataset_obj.id}}">
@@ -91,22 +92,24 @@
 
                 </tbody>
             </table>
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <span class='badge badge-approved add_badge_margin_remove_hover'><i class="fa fa-check" aria-hidden="true"></i></span> Approved
-                    <span class='badge badge-rejected add_badge_margin_remove_hover'><i class="fa fa-times" aria-hidden="true"></i></span> Rejected
-                    <span class='badge badge-pending add_badge_margin_remove_hover'><i class="fa fa-question" aria-hidden="true"></i></span> Pending
-                    <span class='badge badge-group_conflict add_badge_margin_remove_hover'><i class="fa fa-exclamation" aria-hidden="true"></i></span> Group Conflict
-                    <span class='badge badge-not_reviewed add_badge_margin_remove_hover'>--</span> Not Reviewed
+            {% if show_review_status %}
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <span class='badge badge-approved add_badge_margin_remove_hover'><i class="fa fa-check" aria-hidden="true"></i></span> Approved
+                        <span class='badge badge-rejected add_badge_margin_remove_hover'><i class="fa fa-times" aria-hidden="true"></i></span> Rejected
+                        <span class='badge badge-pending add_badge_margin_remove_hover'><i class="fa fa-question" aria-hidden="true"></i></span> Pending
+                        <span class='badge badge-group_conflict add_badge_margin_remove_hover'><i class="fa fa-exclamation" aria-hidden="true"></i></span> Group Conflict
+                        <span class='badge badge-not_reviewed add_badge_margin_remove_hover'>--</span> Not Reviewed
+                    </div>
                 </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    {% if gene_mania_link %}
+            {% endif %}
+            {% if gene_mania_link %}
+                <div class="panel panel-default">
+                    <div class="panel-body">
                         <a target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-external-link" aria-hidden="true"></i> GeneMania</a>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
 
         </div>
     </div>
@@ -196,7 +199,8 @@
     });
 
     $("#download-result-button").on("click", function() {
-        $("#download_exclude_variants").val($("#hidden_exclude_variants").val())
+        var form_data = $('#review_status_to_filter_form').serialize();
+        $("#download_review_status_to_filter").val(form_data)
         $("#download-result-form").submit();
     });
 
@@ -251,18 +255,22 @@
 
     $("#post_query_filter_form_submit").on("click", function() {
             // console.log('test2')
-            var form_data = $('#review_status_to_filter_form').serialize();
-            $("#review_status_to_filter").val(form_data)
-            console.log($("#review_status_to_filter").val())
-            $('#variantStatusReviewFilter').modal('hide');
-            $('body').removeClass('modal-open');
-            $('.modal-backdrop').remove();
-            submit_via_ajax()
-        });
+        var form_data = $('#review_status_to_filter_form').serialize();
+        $("#review_status_to_filter").val(form_data)
+        $("#show_review_status").val("true");
+        $('#variantStatusReviewFilter').modal('hide');
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
+        submit_via_ajax()
+    });
 
     // $("#apply_post_query_filter").on("click", function() {
     //     $(".submit_via_ajax").trigger("click");
     // });
+
+    $("#show_review_status_button").on("click", function() {
+        submit_via_ajax()
+    });
 
     </script>
 
