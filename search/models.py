@@ -313,9 +313,18 @@ class VariantReviewStatus(TimeStampedModel):
                             on_delete=models.CASCADE,
                             null=True, blank=True
                         )
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('list-variant-status-status')
+
+    @property
+    def has_group_conflict(self):
+        count = VariantReviewStatus.objects.filter(variant_es_id=self.variant_es_id, shared_with_group__pk__in=self.user.groups.values_list('pk', flat=True)).exclude(user=self.user).count()
+        if count > 0:
+            return 'Yes'
+        else:
+            return 'No'
 
     def __str__(self):
         return "%d: %s" %(self.pk, self.variant)

@@ -36,6 +36,8 @@ from django.db.models import Q
 from django.views.generic.edit import UpdateView
 from django.http import HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
 
@@ -603,7 +605,7 @@ def search(request):
 
                 if show_review_status and not request.user.is_anonymous():
                     variant_review_status, variant_review_status_source = get_variant_review_status(es_id, request.user)
-                    if variant_review_status in review_status_to_filter:
+                    if review_status_to_filter and variant_review_status not in review_status_to_filter:
                         variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
                         continue
                     tmp_source['variant_review_status'] = variant_review_status
@@ -816,7 +818,7 @@ def yield_results(dataset_obj,
         result = ele['_source']
         es_id = ele['_id']
         variant_review_status, variant_review_status_source = get_variant_review_status(es_id, user)
-        if review_status_to_filter and variant_review_status in review_status_to_filter:
+        if review_status_to_filter and variant_review_status not in review_status_to_filter:
             continue
         ### Remove results that don't match input
         yield_results = True
@@ -1094,4 +1096,34 @@ class VariantReviewStatusUpdateView(UpdateView):
     model = VariantReviewStatus
     form_class = VariantStatusReviewUpdateForm
     template_name = 'search/variant_review_status_update.html'
+
+
+def list_variant_review_status(request):
+    user_approved = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='approved')[:10]
+    user_rejected = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='rejected')[:10]
+    user_pending = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='pending')[:10]
+
+    group_approved = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='approved').exclude(user=request.user)[:10]
+    group_rejected = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='rejected').exclude(user=request.user)[:10]
+    group_pending = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='pending').exclude(user=request.user)[:10]
+
+
+    context = {}
+    context['user_approved'] = user_approved
+    context['user_rejected'] = user_rejected
+    context['user_pending'] = user_pending
+    context['group_approved'] = group_approved
+    context['group_rejected'] = group_rejected
+    context['group_pending'] = group_pending
+
+    context['any_variants'] = any([user_approved, user_rejected, user_pending, group_approved, group_rejected, group_pending])
+
+
+    return render(request, 'search/variant_review_status_summary.html', context)
+
+
+def list_variant_status(request, review_status):
+    variant_review_status = VariantReviewStatus.objects.filter(user=request.user, variant_review_status=review_status)
+
+    return render(request, 'search/review_status_list.html', {'review_status': review_status})
 

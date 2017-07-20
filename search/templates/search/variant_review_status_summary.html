@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Search Home
+{% endblock %}
+
+
+{% block content %}
+
+{% if not any_variants %}
+    <div class="alert alert-info">
+      You have not reviewed variants
+    </div>
+{% endif %}
+
+<div class="row">
+{% if user_approved %}
+  <div class="col-sm-4">
+      <div class="panel panel-default">
+      <div class="panel-heading">My Approved Variants <span class="badge badge-approved">{{user_approved.count}}</span></div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Variant</th>
+                <th>Group Conflict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ele in user_approved %}
+                  <tr>
+                    <td>{{ ele.variant }}</td>
+                    <td>{{ ele.has_group_conflict }}</td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <a href="{% url 'list-variant-status' 'approved' %}">List</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if user_rejected %}
+  <div class="col-sm-4">
+      <div class="panel panel-default">
+      <div class="panel-heading">My Rejected Variants <span class="badge badge-rejected">{{user_rejected.count}}</span></div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Variant</th>
+                <th>Group Conflict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ele in user_rejected %}
+                  <tr>
+                    <td>{{ ele.variant }}</td>
+                    <td>{{ ele.has_group_conflict }}</td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if user_pending %}
+  <div class="col-sm-4">
+      <div class="panel panel-default">
+      <div class="panel-heading">My Pending Variants <span class="badge badge-pending">{{user_pending.count}}</span></div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Variant</th>
+                <th>Group Conflict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ele in user_pending %}
+                  <tr>
+                    <td>{{ ele.variant }}</td>
+                    <td>{{ ele.has_group_conflict }}</td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+
+
+<div class="row">
+  {% if group_approved %}
+      <div class="col-sm-4">
+          <div class="panel panel-default">
+          <div class="panel-heading">Group Approved Variants <span class="badge badge-approved">{{group_approved.count}}</span></div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Variant</th>
+                    <th>Group Conflict</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for ele in group_approved %}
+                      <tr>
+                        <td>{{ ele.variant }}</td>
+                        <td>{{ ele.has_group_conflict }}</td>
+                      </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  {% endif %}
+
+  {% if group_approved %}
+  <div class="col-sm-4">
+      <div class="panel panel-default">
+      <div class="panel-heading">Group Rejected Variants <span class="badge badge-rejected">{{group_rejected.count}}</span></div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Variant</th>
+                <th>Group Conflict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ele in group_rejected %}
+                  <tr>
+                    <td>{{ ele.variant }}</td>
+                    <td>{{ ele.has_group_conflict }}</td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if group_pending %}
+  <div class="col-sm-4">
+      <div class="panel panel-default">
+      <div class="panel-heading">Group Pending Variants <span class="badge badge-pending">{{group_pending.count}}</span></div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Variant</th>
+                <th>Group Conflict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ele in group_pending %}
+                  <tr>
+                    <td>{{ ele.variant }}</td>
+                    <td>{{ ele.has_group_conflict }}</td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

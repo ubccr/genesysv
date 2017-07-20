@@ -23,7 +23,7 @@
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
     <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
     {% if user.is_authenticated %}
-        <button id="show_review_status_button" type="button" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>/<i class="fa fa-minus" aria-hidden="true"></i> Show/Hide Review Status</button>
+        <button id="show_review_status_button" type="button" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Show Review Status</button>
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#variantStatusReviewFilter"><i class="fa fa-filter" aria-hidden="true"></i> Select Post Query Filter</button>
     {% endif %}
 
@@ -106,7 +106,7 @@
             {% if gene_mania_link %}
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <a target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-external-link" aria-hidden="true"></i> GeneMania</a>
+                        <a style="font-size: 18px" target="_blank" role="button" href="{{gene_mania_link}}"><i class="fa fa-external-link-square fa-1x" aria-hidden="true"></i> Send selected genes to GeneMANIA</a>
                     </div>
                 </div>
             {% endif %}
@@ -159,12 +159,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="variantStatusReviewFilterLabel">Select Review Status to Filter</h4>
+        <h4 class="modal-title" id="variantStatusReviewFilterLabel">Select Review Status to Show</h4>
       </div>
       <div class="modal-body">
             <form id="review_status_to_filter_form">
                 {% crispy review_status_form %}
-                <button id="post_query_filter_form_submit" type="submit" data-dismiss="modal" data-backdrop="false" class="btn btn-submit btn-primary">Apply Post Query Filter</button>
+                <button id="post_query_filter_form_submit" type="submit" data-dismiss="modal" data-backdrop="false" class="btn btn-submit btn-primary">Apply</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </form>
       </div>
@@ -173,16 +173,59 @@
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="confirmFilter" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p id="confirmFilterModalP">Only variants you have selected to show will be downloaded.</p>
+        <div class="checkbox">
+          <label><input id="show_message" type="checkbox" value="">Do not show this message again?</label>
+        </div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
+
+    function get_options(input_string) {
+        input_string = input_string.split('&');
+        var options = new Array();
+        for (i = 0; i < input_string.length; i++) {
+            var text = input_string[i];
+            if (text.indexOf('review_status_to_filter')  >= 0) {
+                text = text.split('=')[1];
+                options.push(text)
+            }
+        }
+
+        if (options.length == 0) {
+            return ""
+        }
+        else {
+            return options.join(', ');
+        }
+    }
+
     $(document).ready(function() {
         // $('#result-table').destroy();
-
-
 
         $('#result-table').DataTable({
             "iDisplayLength": 25,
             "bSortClasses": false
         });
+
+
+        if ($("#show_review_status").val() == "true") {
+            $("#show_review_status_button").html('<i class="fa fa-minus" aria-hidden="true"></i> Hide Review Status')
+        } else {
+            $("#show_review_status_button").html('<i class="fa fa-plus" aria-hidden="true"></i> Show Review Status')
+        }
+
 
     });
 
@@ -198,10 +241,36 @@
         $('#li-step3').show()
     });
 
+    $('#confirmFilter').on('hidden.bs.modal', function () {
+        // $("#download-result-form").submit();
+        if ($("#show_message").is(":checked") === true) {
+            localStorage.setItem("gdw_show_download_message", "false");
+        } else {
+            localStorage.setItem("gdw_show_download_message", "true");
+        }
+        $("#download-result-form").submit();
+    });
+
     $("#download-result-button").on("click", function() {
         var form_data = $('#review_status_to_filter_form').serialize();
+        // var options = get_options(form_data);
         $("#download_review_status_to_filter").val(form_data)
-        $("#download-result-form").submit();
+        var options = get_options(form_data);
+        console.log(options)
+        console.log('test2')
+        if (localStorage.getItem("gdw_show_download_message") === "false") {
+            console.log('test')
+            $("#download-result-form").submit();
+
+        } else {
+            if (options !== "") {
+                $('#confirmFilter').modal('show');
+            } else {
+                $("#download-result-form").submit();
+            }
+        }
+
+
     });
 
     $(".variant_review_status").on("change", function() {
@@ -269,6 +338,14 @@
     // });
 
     $("#show_review_status_button").on("click", function() {
+        if ($("#show_review_status").val() == "true") {
+            $("#show_review_status").val("false");
+            $("#show_review_status_button").text('<i class="fa fa-plus" aria-hidden="true"></i> Show Review Status')
+        } else {
+            $("#show_review_status").val("true");
+            $("#show_review_status_button").text('<i class="fa fa-minus" aria-hidden="true"></i> Hide Review Status')
+        }
+
         submit_via_ajax()
     });
 

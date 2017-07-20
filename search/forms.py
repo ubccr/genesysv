@@ -208,4 +208,4 @@ class ReviewStatusForm(forms.Form):
             ('group_conflict', 'Group Conflict'),
         )
         review_status_to_filter = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                             choices=REVIEW_STATUS_CHOICES, required=False)
+                                             choices=REVIEW_STATUS_CHOICES, required=False, label='')

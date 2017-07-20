@@ -18,6 +18,7 @@ import functools
 import requests
 import hashlib
 import ipdb
+import math
 
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
@@ -398,10 +399,11 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
                         elif key_format_field in float_format_fields:
                             if ',' in key_value:
-                                sample_content[key_format_field_sample] = [float(s_val) for s_val in key_value.split(',')]
+                                sample_content[key_format_field_sample] = [float(s_val) for s_val in key_value.split(',') if not math.isnan(float(s_val))]
                             else:
                                 if key_value not in ['.']:
-                                    sample_content[key_format_field_sample] = float(key_value)
+                                    if not math.isnan(float(s_val)):
+                                        sample_content[key_format_field_sample] = float(key_value)
                         else:
                             if key_value not in ['.']:
                                 sample_content[key_format_field_sample] = key_value
@@ -438,7 +440,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                             if es_field_datatype == 'integer':
                                 fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: int(info_dict[field])}])
                             elif es_field_datatype == 'float':
-                                fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: float(info_dict[field])}])
+                                if not math.isnan(float(info_dict[field])):
+                                    fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: float(info_dict[field])}])
                             else:
                                 fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: info_dict[field]}])
 
@@ -455,7 +458,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                             if es_field_datatype == 'integer':
                                 fields_to_update[field].extend([{value_field_name: int(info_dict[field])}])
                             elif es_field_datatype == 'float':
-                                fields_to_update[field].extend([{value_field_name: float(info_dict[field])}])
+                                if not math.isnan(float(info_dict[field])):
+                                    fields_to_update[field].extend([{value_field_name: float(info_dict[field])}])
                             else:
                                 fields_to_update[field].extend([{value_field_name: info_dict[field]}])
 
@@ -557,9 +561,10 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         continue
                     elif es_field_datatype == 'float':
                         if ',' in val:
-                            val = [float(ele) for ele in val.split(',')]
+                            val = [float(ele) for ele in val.split(',') if not math.isnan(float(ele))]
                         else:
-                            val = float(val)
+                            if not math.isnan(float(ele)):
+                                val = float(val)
                         content[es_field_name] = val
                         continue
                     elif es_field_datatype in ['keyword', 'text'] :

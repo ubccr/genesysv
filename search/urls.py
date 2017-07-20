@@ -19,4 +19,6 @@ urlpatterns = (
     url(r'^list-variant-review-status/$', list_variant_review_status, name='list-variant-review-status'),
     url(r'^delete-variant/(?P<pk>[0-9]+)$', delete_variant, name='delete-variant'),
     url(r'^edit-variant/(?P<pk>[0-9]+)$', VariantReviewStatusUpdateView.as_view(), name='edit-variant'),
+    # url(r'^list_user_variant_status/(?P<review_status>[\w-]+)/$', list_user_variant_status, name='list-user-variant-status'),
+    url(r'^list_variant_status/(?P<review_status>[\w-]+)/$', list_variant_status, name='list-variant-status'),
 )

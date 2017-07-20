@@ -451,11 +451,6 @@ function submit_via_ajax() {
 
         var review_status_to_filter = $("#review_status_to_filter").val();
         var show_review_status = $("#show_review_status").val();
-        if (show_review_status == "true") {
-            $("#show_review_status").val("false");
-        } else {
-            $("#show_review_status").val("true");
-        }
 
 
         form_data = form_data.replace(/\d+_\d+___/g, "");
