@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
@@ -1086,8 +1086,10 @@ def list_variant_review_status(request):
 def delete_variant(request, pk):
     try:
         variant_review_status_obj = VariantReviewStatus.objects.get(pk=pk, user=request.user)
+        review_status = variant_review_status_obj.variant_review_status
         variant_review_status_obj.delete()
-        return redirect('list-variant-review-status')
+        print(reverse('list-variant-status', kwargs={'review_status': review_status}))
+        return redirect(reverse('list-variant-status', kwargs={'review_status': review_status}))
     except:
         raise PermissionDenied
 
@@ -1098,23 +1100,54 @@ class VariantReviewStatusUpdateView(UpdateView):
     template_name = 'search/variant_review_status_update.html'
 
 
-def list_variant_review_status(request):
-    user_approved = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='approved')[:10]
-    user_rejected = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='rejected')[:10]
-    user_pending = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='pending')[:10]
+def list_variant_review_summary(request):
+    MAX_SUMMARY_LEN = 5
+    user_approved = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='approved')
+    user_approved_count = user_approved.count()
+    user_approved = user_approved[:MAX_SUMMARY_LEN]
 
-    group_approved = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='approved').exclude(user=request.user)[:10]
-    group_rejected = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='rejected').exclude(user=request.user)[:10]
-    group_pending = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='pending').exclude(user=request.user)[:10]
 
+    user_rejected = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='rejected')
+    user_rejected_count = user_rejected.count()
+    user_rejected = user_rejected[:MAX_SUMMARY_LEN]
+
+    user_pending = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='pending')
+    user_pending_count = user_pending.count()
+    user_pending = user_pending[:MAX_SUMMARY_LEN]
+
+
+    group_approved = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='approved').exclude(user=request.user)
+    group_approved_count = group_approved.count()
+    group_approved = group_approved[:MAX_SUMMARY_LEN]
+
+
+    group_rejected = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='rejected').exclude(user=request.user)
+    group_rejected_count = group_rejected.count()
+    group_rejected = group_rejected[:MAX_SUMMARY_LEN]
+
+    group_pending = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='pending').exclude(user=request.user)
+    group_pending_count = group_pending[:MAX_SUMMARY_LEN]
+    group_pending = group_pending[:MAX_SUMMARY_LEN]
 
     context = {}
+
     context['user_approved'] = user_approved
+    context['user_approved_count'] = user_approved_count
+
     context['user_rejected'] = user_rejected
+    context['user_rejected_count'] = user_rejected_count
+
     context['user_pending'] = user_pending
+    context['user_pending_count'] = user_pending_count
+
     context['group_approved'] = group_approved
+    context['group_approved_count'] = group_approved_count
+
     context['group_rejected'] = group_rejected
+    context['group_rejected_count'] = group_rejected_count
+
     context['group_pending'] = group_pending
+    context['group_pending_count'] = group_pending_count
 
     context['any_variants'] = any([user_approved, user_rejected, user_pending, group_approved, group_rejected, group_pending])
 
@@ -1123,7 +1156,12 @@ def list_variant_review_status(request):
 
 
 def list_variant_status(request, review_status):
-    variant_review_status = VariantReviewStatus.objects.filter(user=request.user, variant_review_status=review_status)
+    review_status = VariantReviewStatus.objects.filter(user=request.user, variant_review_status=review_status)
 
     return render(request, 'search/review_status_list.html', {'review_status': review_status})
+
+def list_group_variant_status(request, review_status):
+    review_status = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status=review_status).exclude(user=request.user)
+
+    return render(request, 'search/list_group_review_status.html', {'review_status': review_status})
 

@@ -22,7 +22,7 @@
             {% comment %}<li id="navbarId-GA4GH"><a href="{% url 'ga4gh'%}">GA4GH API</a></li> {% endcomment %}
             <li id="navbarId-Search-Home"><a href="{% url 'search-home' %}">Search</a></li>
             {% if user.is_authenticated %}
-                <li id="navbarId-VariantReviewStatusList"><a href="{% url 'list-variant-review-status' %}">Variant Approval Status List</a></li>
+                <li id="navbarId-VariantReviewStatusList"><a href="{% url 'list-variant-review-summary' %}">Variant Review Status Summary</a></li>
                 <li id="navbarId-SavedSearch"><a href="{% url 'saved-search-list' %}">Your Saved Searches</a></li>
             {% endif %}
           </ul>

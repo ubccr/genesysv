@@ -316,7 +316,7 @@ class VariantReviewStatus(TimeStampedModel):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('list-variant-status-status')
+        return reverse('list-variant-status', kwargs={'review_status': self.variant_review_status})
 
     @property
     def has_group_conflict(self):

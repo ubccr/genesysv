@@ -9,7 +9,7 @@
         {% csrf_token %}
         {{form|crispy}}
         <input type="submit" class="btn btn-primary pull-right" value="Submit">
-        <a class="btn btn-default" href="{% url 'list-variant-approval-status' %}" role="button">Cancel</a>
+        <a class="btn btn-default" href="{% url 'list-variant-status' review_status=object.variant_review_status %}" role="button">Cancel</a>
     </form>
 
 {% endblock %}

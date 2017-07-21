@@ -20,7 +20,7 @@
 {% if user_approved %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">My Approved Variants <span class="badge badge-approved">{{user_approved.count}}</span></div>
+      <div class="panel-heading">User Approved Variants <span class="badge badge-approved">{{user_approved_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
@@ -39,8 +39,9 @@
               {% endfor %}
             </tbody>
           </table>
-          <a href="{% url 'list-variant-status' 'approved' %}">List</a>
         </div>
+        <a class="pull-right" href="{% url 'list-variant-status' 'approved' %}">Edit/show more</a>
+
       </div>
     </div>
   </div>
@@ -48,7 +49,7 @@
   {% if user_rejected %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">My Rejected Variants <span class="badge badge-rejected">{{user_rejected.count}}</span></div>
+      <div class="panel-heading">User Rejected Variants <span class="badge badge-rejected">{{user_rejected_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
@@ -68,6 +69,7 @@
             </tbody>
           </table>
         </div>
+        <a class="pull-right" href="{% url 'list-variant-status' 'rejected' %}">Edit/show more</a>
       </div>
     </div>
   </div>
@@ -75,7 +77,7 @@
   {% if user_pending %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">My Pending Variants <span class="badge badge-pending">{{user_pending.count}}</span></div>
+      <div class="panel-heading">User Pending Variants <span class="badge badge-pending">{{user_pending_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
@@ -95,6 +97,7 @@
             </tbody>
           </table>
         </div>
+        <a class="pull-right" href="{% url 'list-variant-status' 'pending' %}">Edit/show more</a>
       </div>
     </div>
   </div>
@@ -107,54 +110,56 @@
   {% if group_approved %}
       <div class="col-sm-4">
           <div class="panel panel-default">
-          <div class="panel-heading">Group Approved Variants <span class="badge badge-approved">{{group_approved.count}}</span></div>
+          <div class="panel-heading">Group Approved Variants <span class="badge badge-approved">{{group_approved_count}}</span></div>
           <div class="panel-body">
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
                   <tr>
                     <th>Variant</th>
-                    <th>Group Conflict</th>
+                    <th>User</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for ele in group_approved %}
                       <tr>
                         <td>{{ ele.variant }}</td>
-                        <td>{{ ele.has_group_conflict }}</td>
+                        <td>{{ ele.user }}</td>
                       </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
+            <a class="pull-right" href="{% url 'list-group-variant-status' 'approved' %}">Edit/show more</a>
           </div>
         </div>
       </div>
   {% endif %}
 
-  {% if group_approved %}
+  {% if group_rejected %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">Group Rejected Variants <span class="badge badge-rejected">{{group_rejected.count}}</span></div>
+      <div class="panel-heading">Group Rejected Variants <span class="badge badge-rejected">{{group_rejected_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>Variant</th>
-                <th>Group Conflict</th>
+                <th>User</th>
               </tr>
             </thead>
             <tbody>
               {% for ele in group_rejected %}
                   <tr>
                     <td>{{ ele.variant }}</td>
-                    <td>{{ ele.has_group_conflict }}</td>
+                    <td>{{ ele.user }}</td>
                   </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+        <a class="pull-right" href="{% url 'list-group-variant-status' 'rejected' %}">Edit/show more</a>
       </div>
     </div>
   </div>
@@ -163,26 +168,27 @@
   {% if group_pending %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">Group Pending Variants <span class="badge badge-pending">{{group_pending.count}}</span></div>
+      <div class="panel-heading">Group Pending Variants <span class="badge badge-pending">{{group_pending_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>Variant</th>
-                <th>Group Conflict</th>
+                <th>User</th>
               </tr>
             </thead>
             <tbody>
               {% for ele in group_pending %}
                   <tr>
                     <td>{{ ele.variant }}</td>
-                    <td>{{ ele.has_group_conflict }}</td>
+                    <td>{{ ele.user }}</td>
                   </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+        <a class="pull-right" href="{% url 'list-group-variant-status' 'pending' %}">Edit/show more</a>
       </div>
     </div>
   </div>

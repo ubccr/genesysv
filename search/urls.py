@@ -16,9 +16,10 @@ urlpatterns = (
     url(r'^saved_search/update/(?P<pk>[0-9]+)/$', SavedSearchUpdate.as_view(), name='saved-search-update'),
     url(r'^saved_search/delete/(?P<pk>[0-9]+)/$', SavedSearchDelete.as_view(), name='saved-search-delete'),
     url(r'^update-variant-review-status/$', update_variant_review_status, name='update-variant-review-status'),
-    url(r'^list-variant-review-status/$', list_variant_review_status, name='list-variant-review-status'),
+    url(r'^list-variant-review-summary/$', list_variant_review_summary, name='list-variant-review-summary'),
     url(r'^delete-variant/(?P<pk>[0-9]+)$', delete_variant, name='delete-variant'),
     url(r'^edit-variant/(?P<pk>[0-9]+)$', VariantReviewStatusUpdateView.as_view(), name='edit-variant'),
     # url(r'^list_user_variant_status/(?P<review_status>[\w-]+)/$', list_user_variant_status, name='list-user-variant-status'),
     url(r'^list_variant_status/(?P<review_status>[\w-]+)/$', list_variant_status, name='list-variant-status'),
+     url(r'^list_group_variant_status/(?P<review_status>[\w-]+)/$', list_group_variant_status, name='list-group-variant-status'),
 )
