@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
+from django.conf import settings
 
 import subprocess
 import datetime
@@ -88,7 +89,7 @@ def msea_plot(request):
             recurrent_variant_option = gene_data['recurrent_variant_option']
 
             variant_selected = variant_data['variant_choice']
-            print('*'*20, variant_selected)
+            # print('*'*20, variant_selected)
 
 
             command = 'Rscript'
@@ -96,19 +97,22 @@ def msea_plot(request):
 
             # # Variable number of args in a list
 
-            output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+            if settings.DEBUG:
+                output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+            else:
+                output_folder = os.path.join(settings.BASE_DIR, 'static_root/r_outputs/svg/')
             wildcardstring = '%s_%s_*_%s_%s.svg' %(gene, rs_id, recurrent_variant_option, variant_selected)
 
 
 
             for dataset in Dataset.objects.filter(study=study_obj):
-                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option), 
+                args = [gene , rs_id, variant_selected, '%s_%s' %(dataset.short_name, recurrent_variant_option),
                         study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
 
                 # Build subprocess command
                 cmd = [command, path2script] + args
                 print(' '.join(cmd))
-                
+
                 # only create plot if plot doesn't already exist
                 filename = '%s%s_%s_%s_%s_%s.svg' %(output_folder,gene,rs_id, dataset.short_name,recurrent_variant_option,variant_selected)
                 if not os.path.isfile(filename):
@@ -169,7 +173,7 @@ def get_variant_form(request):
     # return HttpResponse(attribute_forms)
     return render(request, "msea/get_variant_snippet.html", context)
 
-
+@gzip_page
 def get_top100_nes(index, doc_type, es_host, es_port, size=100):
     query_string = """
     {
@@ -192,6 +196,7 @@ def get_top100_nes(index, doc_type, es_host, es_port, size=100):
 
     return results
 
+@gzip_page
 def msea_pvalue(request):
 
     study_form = StudyForm(request.user)
@@ -201,6 +206,7 @@ def msea_pvalue(request):
 
     return render(request, 'msea/msea_pvalue.html', context)
 
+@gzip_page
 def msea_get_sorted_pvalues(request):
     from pprint import pprint
 
@@ -237,12 +243,15 @@ def get_plot(request):
     # # Variable number of args in a list
 
     study_obj = Study.objects.get(id=study_id)
-    output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+    if settings.DEBUG:
+        output_folder = os.path.join(settings.BASE_DIR, 'static/r_outputs/svg/')
+    else:
+        output_folder = os.path.join(settings.BASE_DIR, 'static_root/r_outputs/svg/')
     output_filename = "%s_%s_%s_%s_%s.svg" %(gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
     output_path = os.path.join(output_folder, output_filename)
 
     args = [gene , rs_id, variant_selected, '%s_%s' %(dataset_short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
-    
+
     # # Build subprocess command
     cmd = [command, path2script] + args
     # print(cmd)
@@ -259,7 +268,7 @@ def get_plot(request):
 
     dataset_obj = Dataset.objects.get(study=study_obj, short_name=dataset_short_name)
     context['dataset_display_name'] = dataset_obj.display_name
-    
+
     # The following are used to generate the 'download as tiff' link
     context['gene'] = gene
     context['rs_id'] = rs_id

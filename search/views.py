@@ -37,6 +37,8 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
@@ -53,7 +55,6 @@ def get_variant_review_status(variant_es_id, group):
 
     try:
         variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, group=group)
-        print(variant_review_status_obj)
         return variant_review_status_obj.status
     except Exception as e:
         return 'not_reviewed'
@@ -156,97 +157,116 @@ def subset_dict(input, keys):
 
     return {key:input[key] for key in keys if input.get(key) != None}
 
-
 @gzip_page
 def get_study_form(request):
     form = StudyForm(request.user)
     context = {'form':form}
     return render(request, "search/get_study_snippet.html", context)
 
+def get_dataset_form_cached(selected_study, user):
+    return DatasetForm(selected_study, user)
 
 @gzip_page
 def get_dataset_form(request):
     selected_study = request.GET['selected_study']
-    form = DatasetForm(selected_study, request.user)
+    form = get_dataset_form_cached(selected_study, request.user)
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
-#
+def get_filter_form_cached(dataset):
+    dataset_object = Dataset.objects.get(description=dataset)
+    tabs = deque()
+    for tab in FilterTab.objects.filter(dataset=dataset_object):
+        tmp_dict = {}
+        tmp_dict['name'] = tab.name
+        tmp_dict['panels'] = deque()
+        for panel in tab.filter_panels.filter(is_visible=True):
+            es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), prefix='filter_')
+            sub_panels = deque()
+
+            for sub_panel in panel.filtersubpanel_set.filter(is_visible=True):
+                if panel.are_sub_panels_mutually_exclusive:
+                    MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
+                else:
+                    MEgroup = None
+                tmp_sub_panel_dict = {}
+                tmp_sub_panel_dict['display_name'] = sub_panel.name
+                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
+                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), MEgroup, prefix='filter_')
+                sub_panels.append(tmp_sub_panel_dict)
+
+            tmp_dict['panels'].append({'display_name': panel.name,
+                                      'name': ''.join(panel.name.split()).lower(),
+                                      'form': es_form,
+                                      'sub_panels': sub_panels })
+        tabs.append(tmp_dict)
+
+    context = {}
+    context['tabs'] = tabs
+    return context
+
 @gzip_page
 def get_filter_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        dataset_object = Dataset.objects.get(description=dataset)
-        tabs = deque()
-        for tab in FilterTab.objects.filter(dataset=dataset_object):
-            tmp_dict = {}
-            tmp_dict['name'] = tab.name
-            tmp_dict['panels'] = deque()
-            for panel in tab.filter_panels.filter(is_visible=True):
-                es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), prefix='filter_')
-                sub_panels = deque()
+        cache_name = 'context_filter_{}'.format(dataset)
+        if not cache.get(cache_name):
+            context = get_filter_form_cached(dataset)
+            response = render(request, "search/get_filter_snippet.html", context)
+            cache.set(cache_name, response, None) # 10 minutes
+            return response
+        else:
+            return cache.get(cache_name)
 
-                for sub_panel in panel.filtersubpanel_set.filter(is_visible=True):
-                    if panel.are_sub_panels_mutually_exclusive:
-                        MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
-                    else:
-                        MEgroup = None
-                    tmp_sub_panel_dict = {}
-                    tmp_sub_panel_dict['display_name'] = sub_panel.name
-                    tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                    tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), MEgroup, prefix='filter_')
-                    sub_panels.append(tmp_sub_panel_dict)
+def get_attribute_form_cached(dataset):
+    dataset_object = Dataset.objects.get(description=dataset)
+    tabs = deque()
+    for tab in AttributeTab.objects.filter(dataset=dataset_object):
+        tmp_dict = {}
+        tmp_dict['name'] = tab.name
+        tmp_dict['panels'] = deque()
+        for idx_panel, panel in enumerate(tab.attribute_panels.filter(is_visible=True), start=1):
+            if panel.attribute_fields.filter(is_visible=True):
+                es_form = ESAttributeFormPart(panel.attribute_fields.filter(is_visible=True), prefix='%d___attribute_group' %(idx_panel))
+            else:
+                es_form = None
 
-                tmp_dict['panels'].append({'display_name': panel.name,
-                                          'name': ''.join(panel.name.split()).lower(),
-                                          'form': es_form,
-                                          'sub_panels': sub_panels })
-            tabs.append(tmp_dict)
+            sub_panels = deque()
+            for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.filter(is_visible=True), start=1):
+                tmp_sub_panel_dict = {}
+                tmp_sub_panel_dict['display_name'] = sub_panel.name
+                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
+                if sub_panel.attribute_fields.filter(is_visible=True):
+                    tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.filter(is_visible=True), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+                else:
+                    tmp_sub_panel_dict['form'] = None
+                tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
 
-        context = {}
-        context['tabs'] = tabs
-        return render(request, "search/get_filter_snippet.html", context)
+                sub_panels.append(tmp_sub_panel_dict)
 
+            tmp_dict['panels'].append({'display_name': panel.name,
+                                      'name': ''.join(panel.name.split()).lower(),
+                                      'form': es_form,
+                                      'attribute_group_id': '%d___attribute_group' %(idx_panel),
+                                      'sub_panels': sub_panels })
+        tabs.append(tmp_dict)
+
+    context = {}
+    context['tabs'] = tabs
+    return context
 
 @gzip_page
 def get_attribute_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        dataset_object = Dataset.objects.get(description=dataset)
-        tabs = deque()
-        for tab in AttributeTab.objects.filter(dataset=dataset_object):
-            tmp_dict = {}
-            tmp_dict['name'] = tab.name
-            tmp_dict['panels'] = deque()
-            for idx_panel, panel in enumerate(tab.attribute_panels.filter(is_visible=True), start=1):
-                if panel.attribute_fields.filter(is_visible=True):
-                    es_form = ESAttributeFormPart(panel.attribute_fields.filter(is_visible=True), prefix='%d___attribute_group' %(idx_panel))
-                else:
-                    es_form = None
-
-                sub_panels = deque()
-                for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.filter(is_visible=True), start=1):
-                    tmp_sub_panel_dict = {}
-                    tmp_sub_panel_dict['display_name'] = sub_panel.name
-                    tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                    if sub_panel.attribute_fields.filter(is_visible=True):
-                        tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.filter(is_visible=True), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
-                    else:
-                        tmp_sub_panel_dict['form'] = None
-                    tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
-
-                    sub_panels.append(tmp_sub_panel_dict)
-
-                tmp_dict['panels'].append({'display_name': panel.name,
-                                          'name': ''.join(panel.name.split()).lower(),
-                                          'form': es_form,
-                                          'attribute_group_id': '%d___attribute_group' %(idx_panel),
-                                          'sub_panels': sub_panels })
-            tabs.append(tmp_dict)
-
-        context = {}
-        context['tabs'] = tabs
-        return render(request, "search/get_attribute_snippet.html", context)
+        cache_name = 'context_attribute_{}'.format(dataset)
+        if not cache.get(cache_name):
+            context = get_attribute_form_cached(dataset)
+            response =  render(request, "search/get_attribute_snippet.html", context)
+            cache.set(cache_name, response, None) # 10 minutes
+            return response
+        else:
+            return cache.get(cache_name)
 
 
 @gzip_page
@@ -589,7 +609,6 @@ def search(request):
 
                 if show_review_status and not request.user.is_anonymous():
                     variant_review_status = get_variant_review_status(es_id, group)
-                    print(variant_review_status)
                     if review_status_to_filter and variant_review_status not in review_status_to_filter:
                         variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
                         continue
@@ -892,7 +911,6 @@ def download_result(request):
             if 'review_status_to_filter' in ele:
                 tmp_val = ele.split('=')[1]
                 review_status_to_filter.append(tmp_val)
-    print(review_status_to_filter)
 
     search_log_obj_id = request.POST['search_log_obj_id']
     search_log_obj = SearchLog.objects.get(id=search_log_obj_id)

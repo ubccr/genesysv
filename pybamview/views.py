@@ -8,7 +8,7 @@ from .models import SampleBamInfo
 from django.conf import settings
 
 def get_sample_ids(result):
-    return sorted([(ele['sample_ID']) for ele in result['sample']])
+    return sorted([(ele['sample_ID']) for ele in result['sample'] if ele['sample_GT'] not in ['0/0', './.']])
 
 def pybamview(request):
     if request.POST:
@@ -48,8 +48,8 @@ def pybamview(request):
             context['Variant'] = result['Variant']
             context['dataset_id'] = dataset_id
             context['variant_id'] = variant_id
-            context['Chr'] = result['Chr']
-            context['Start'] = result['Start']
+            context['Chr'] = result['CHROM']
+            context['Start'] = result['POS']
             context['sample_ids'] = sample_ids
             context['sample_select_form'] = sample_select_form
             return render(request, 'pybamview/pybamview.html', context)

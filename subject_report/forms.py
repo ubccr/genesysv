@@ -48,24 +48,8 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
         "bool": {
             "minimum_should_match": 1,
             "must": [
-                    {"nested": {
-                        "path": "clinvar_20150629",
-                        "query": {
-                            "bool": {
-                                "filter": [{"term": {"clinvar_20150629.clinvar_20150629_CLNDBN": "%s"}}]
-                                }
-                            }
-                        }
-                    },
-                    {"nested": {
-                        "path": "clinvar_20150629",
-                        "query": {
-                            "bool": {
-                                "filter": [{"terms": {"clinvar_20150629.clinvar_20150629_CLINSIG": ["probable-pathogenic", "pathogenic", "drug-response", "histocompatibility"]}}]
-                                }
-                            }
-                        }
-                    },
+                    {"term": {"CLNDBN": "%s"}},
+                    {"terms": {"CLINSIG": ["probable-pathogenic", "pathogenic", "drug-response", "histocompatibility"]},
                     {"nested": {
                         "path": "sample",
                         "query": {
@@ -84,7 +68,7 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
             ]
         }
         },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
+        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "CLINSIG", "CLNDBN", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 1000
     }
     """
