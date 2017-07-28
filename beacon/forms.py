@@ -26,5 +26,5 @@ class BeaconQueryForm(forms.Form):
     )
     coordinate = forms.IntegerField(
         required = True,
-        initial=20254,
+        initial=10147,
     )

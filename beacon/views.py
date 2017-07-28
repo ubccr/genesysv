@@ -4,6 +4,7 @@ from django.http import JsonResponse
 import requests
 from django.conf import settings
 import elasticsearch
+from search.models import Dataset
 
 def beacon(request):
     context = {}
@@ -20,34 +21,32 @@ def beacon_query(request):
     form = BeaconQueryForm(request.GET or None)
     if request.method == 'GET' and form.is_valid():
         data = form.cleaned_data
-        es = elasticsearch.Elasticsearch(host="199.109.195.45")
 
 
-        beacon_query_template = """
-            {
-                "query": {
-                    "bool": {
-                        "filter": [
-                            {"term": {"Chr": "%s"}},
-                            {"term": {"Alt": "%s"}},
-                            {"term": {"Start": "%s"}}
-                        ]
+        ips = list(set([ele.es_host for ele in Dataset.objects.all()]))
+        for ip in ips:
+            es = elasticsearch.Elasticsearch(host=ip)
+            beacon_query_template = """
+                {
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {"term": {"CHROM": "%s"}},
+                                {"term": {"ALT": "%s"}},
+                                {"term": {"POS": "%s"}}
+                            ]
+                        }
                     }
                 }
-            }
-        """
-        body = beacon_query_template %(data['chromosome'], data['alternate_allele'], data['coordinate'])
-        results = es.search(index='_all', body=body)
-        # # print('beacon', data)
-        # s = "http://199.109.195.45:9200/_search?q=Chr:%s&q=Alt:%s&q=Start:%s&pretty=true" %(data['chromosome'],
-        #                                                                                     data['alternate_allele'],
-        #                                                                                     data['coordinate']
-        #                                                                                     )
-        # print(results)
-        if results['hits']['total'] >= 1:
-            exists = True
-        else:
-            exists = False
+            """
+            body = beacon_query_template %(data['chromosome'], data['alternate_allele'], data['coordinate'])
+            results = es.search(index='_all', body=body)
+
+            if results['hits']['total'] >= 1:
+                exists = True
+                break
+            else:
+                exists = False
         context = {}
         context['beacon_query_form'] = form
         context['exists'] = exists

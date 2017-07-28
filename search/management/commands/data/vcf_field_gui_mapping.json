@@ -3,7 +3,7 @@
     "filters": [
       {
         "display_text": "Variant ID",
-        "in_line_tooltip": "(e.g. chr1-115252204-C-T)",
+        "in_line_tooltip": "(e.g. 1-115252204-C-T)",
         "es_filter_type": "filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
