@@ -2,39 +2,39 @@
 {% load staticfiles %}
 
  <ul class="nav nav-tabs">
-{% for key, value in results.items %}
+{% for short_name, display_name, result in results %}
     {% if forloop.first %}
-        <li class="active"><a data-toggle="tab" href="#{{forloop.counter}}">{{key}}</a></li>
+        <li class="active"><a data-toggle="tab" href="#{{forloop.counter}}">{{display_name}}</a></li>
     {% else %}
-        <li><a data-toggle="tab" href="#{{forloop.counter}}">{{key}}</a></li>
+        <li><a data-toggle="tab" href="#{{forloop.counter}}">{{display_name}}</a></li>
     {% endif %}
 {% endfor %}
 
 </ul>
 
 <div class="tab-content">
-{% for key, value in results.items %}
+{% for short_name, display_name, result in results %}
     {% if forloop.first %}
       <div id="{{forloop.counter}}" class="tab-pane fade in active">
     {% else %}
       <div id="{{forloop.counter}}" class="tab-pane fade">
     {% endif %}
-        <h3>{{key}}</h3>
+        <!--<h3>{{key}}</h3>-->
         <div class="table-responsive">
             <table id="result-table-{{forloop.counter}}" class="table display compact" cellspacing="0">
                 <thead>
                   <tr>
-                      <th>refgene_id</th>
-                      <th>gene_name</th>
-                      <th>vset</th>
+                      <th>refgene id</th>
+                      <th>gene name</th>
+                      <th>variant set</th>
                       <th>nes</th>
-                      <th>pavalue</th>
+                      <th>p-value</th>
                   </tr>
                 </thead>
                 <tbody>
-                    {% for ele in value%}
+                    {% for ele in result%}
                         <tr>
-                            <td><a target="_blank" href="/msea/get-plot?study_id={{study_id}}&rs_id={{ele.refgene_id}}&variant_selected={{ele.vset}}&gene={{ele.gene_name}}&dataset_short_name={{key}}">{{ ele.refgene_id}}</a></td>
+                            <td><a target="_blank" href="/msea/get-plot?study_id={{study_id}}&rs_id={{ele.refgene_id}}&variant_selected={{ele.vset}}&gene={{ele.gene_name}}&dataset_short_name={{short_name}}">{{ ele.refgene_id}}</a></td>
                             <td>{{ ele.gene_name}}</td>
                             <td>{{ ele.vset}}</td>
                             <td>{{ ele.nes}}</td>
