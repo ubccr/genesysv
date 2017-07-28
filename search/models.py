@@ -5,10 +5,6 @@ from sortedm2m.fields import SortedManyToManyField
 from django.contrib.auth.models import User, Group
 import json
 
-
-
-
-
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
@@ -289,16 +285,16 @@ class SavedSearch(TimeStampedModel):
     class Meta:
         unique_together = ('dataset', 'user', 'filters_used', 'attributes_selected')
 
-class VariantReviewStatus(TimeStampedModel):
-    REVIEW_STATUS_CHOICES = (
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-        ('pending', 'Pending'),
-        ('not_reviewed', 'Not Reviewed'),
-    )
+REVIEW_STATUS_CHOICES = (
+    ('approved', 'Approved'),
+    ('rejected', 'Rejected'),
+    ('pending', 'Pending'),
+    ('not_reviewed', 'Not Reviewed'),
+)
 
-    user = models.ForeignKey(
-        User,
+class VariantReviewStatus(TimeStampedModel):
+    group = models.ForeignKey(
+        Group,
         on_delete=models.CASCADE,
     )
     dataset = models.ForeignKey(
@@ -307,24 +303,23 @@ class VariantReviewStatus(TimeStampedModel):
     )
     variant_es_id = models.CharField(max_length=64)
     variant = models.CharField(max_length=64)
-    variant_review_status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
-    shared_with_group = models.ForeignKey(
-                            Group,
-                            on_delete=models.CASCADE,
-                            null=True, blank=True
-                        )
+    status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
 
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('list-variant-status', kwargs={'review_status': self.variant_review_status})
 
-    @property
-    def has_group_conflict(self):
-        count = VariantReviewStatus.objects.filter(variant_es_id=self.variant_es_id, shared_with_group__pk__in=self.user.groups.values_list('pk', flat=True)).exclude(user=self.user).count()
-        if count > 0:
-            return 'Yes'
-        else:
-            return 'No'
-
     def __str__(self):
-        return "%d: %s" %(self.pk, self.variant)
+        return self.variant
+
+class VariantReviewStatusHistory(models.Model):
+    variant_review_status = models.ForeignKey(
+        'VariantReviewStatus',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
+    modified = models.DateTimeField(auto_now_add=True)

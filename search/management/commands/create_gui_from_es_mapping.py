@@ -106,7 +106,6 @@ class Command(BaseCommand):
         required.add_argument("--port", type=int, help="Elasticsearch port", required=True)
         required.add_argument("--index", help="Elasticsearch index name", required=True)
         required.add_argument("--type", help="Elasticsearch doc type name", required=True)
-        required.add_argument("--labels", help="Cohort labels, e.g., \"control, case\" or \"None\"", required=True)
         required.add_argument("--study", help="Study name", required=True)
         required.add_argument("--dataset", help="Dataset name", required=True)
 

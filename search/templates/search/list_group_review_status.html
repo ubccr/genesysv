@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
+{% load tz %}
 
 
 {% block title %}
@@ -11,24 +12,41 @@
 {% block content %}
 
 {% if review_status %}
+{% localtime on %}
     <div class="panel panel-primary">
         <div class="panel-heading">Group Review Status List </div>
         <div class="panel-body">
             <div class="table-responsive">
-                <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+                <table id="result-table" class="table table-condensed">
                     <thead>
                       <tr>
                         <th>Variant</th>
                         <th>Variant Approval Status</th>
-                        <th>User</th>
+                        <th>Dataset</th>
+                        <th>History</th>
                       </tr>
                     </thead>
                     <tbody>
                         {% for row in review_status %}
                             <tr>
                                 <td><a target="_blank" href="{% url 'get-variant' row.dataset.id row.variant_es_id %}">{{ row.variant }}</a></td>
-                                <td><span class='badge badge-{{row.variant_review_status}} add_badge_margin_remove_hover'>{{ row.variant_review_status|title }}</span></td>
-                                <td>{{ row.user }}</td>
+                                <td>
+                                    <select class="variant_review_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row.variant}}" data-esid="{{row.variant_es_id}}" data-datasetid="{{row.dataset.id}}">
+                                    {% for short_status, long_status in REVIEW_STATUS_CHOICES %}
+                                        {% if row.status == short_status %}
+                                            <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{short_status}}</span>">{{short_status}}</option>
+                                        {% else %}
+                                            <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{short_status}}</span>"></option>
+                                        {% endif %}
+                                    {% endfor %}
+                                     </select>
+                                </td>
+                                <td>{{ row.dataset }}</td>
+                                <td>
+                                    {% for ele in row.variantreviewstatushistory_set.all  reversed %}
+                                        ({{ele.user}}, {{ele.status}}, {{ele.modified|localtime}}) <br>
+                                    {% endfor %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -36,8 +54,61 @@
             </div>
         </div>
     </div>
-
+{% endlocaltime %}
 {% endif %}
 
+<script>
+        $('.selectpicker').selectpicker({
+    });
 
+    $(".variant_review_status").on("change", function() {
+        var selected = $(this);
+        var variant_review_status = selected.val();
+        var es_id = selected.data("esid");
+        var variant = selected.data("variant");
+        var datasetid = selected.data("datasetid");
+        if (es_id && variant ) {
+            update_variant_review_status(es_id, variant, datasetid, variant_review_status);
+        }
+        // $( "body" ).data( "foo", 52 );
+    });
+
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function update_variant_review_status(es_id, variant, datasetid, variant_review_status){
+        $.ajax(
+            {
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                type: "POST",
+                url : "{% url 'update-variant-review-status' %}",
+                data: {
+                        es_id: es_id,
+                        variant: variant,
+                        datasetid: datasetid,
+                        variant_review_status: variant_review_status,
+                },
+                success:function(data) {
+                    console.log(data)
+                }
+            }
+        );
+    };
+
+
+</script>
 {% endblock %}

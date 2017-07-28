@@ -47,46 +47,21 @@ REVIEW_STATUS_CHOICES = (
     ('rejected', '<i class="fa fa-times" aria-hidden="true"></i>'),
     ('pending', '<i class="fa fa-question" aria-hidden="true"></i>'),
     ('not_reviewed', '--'),
-    ('group_conflict', '<i class="fa fa-exclamation" aria-hidden="true"> </i>'),
 )
 
-def get_variant_review_status(variant_es_id, user):
+def get_variant_review_status(variant_es_id, group):
 
     try:
-        # variant_review_status_user_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, user=user).filter(
-                                    # Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))
-        variant_review_status_user_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, user=user).values_list('variant_es_id', flat=True)
-        variant_review_status_group_list = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id, shared_with_group__pk__in=user.groups.values_list('pk', flat=True)).exclude(user=user).values_list('variant_es_id', flat=True)
-
-        if set(variant_review_status_user_list).intersection(set(variant_review_status_group_list)):
-            return ('group_conflict', 'group')
-
-        variant_review_status_objs = VariantReviewStatus.objects.filter(variant_es_id=variant_es_id).filter(
-                                    Q(user=user)| Q(shared_with_group__pk__in=user.groups.values_list('pk', flat=True)))
-
-
-        if variant_review_status_objs.count() > 1:
-            print(variant_es_id)
-            raise Exception('ERROR: Only one variant approval status obj should be returned with query')
-        elif variant_review_status_objs.count() == 0:
-            return ('not_reviewed', 'None')
-        else:
-            variant_review_status_obj = variant_review_status_objs[0]
-
-        if variant_review_status_obj.user == user:
-            variant_review_status_source = 'user'
-        else:
-            variant_review_status_source = 'group'
-
-        return (variant_review_status_obj.variant_review_status, variant_review_status_source)
+        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, group=group)
+        print(variant_review_status_obj)
+        return variant_review_status_obj.status
     except Exception as e:
-        print(e)
-        return ('not_reviewed', 'None')
+        return 'not_reviewed'
 
-def get_variant_review_status_obj(variant_es_id, user):
+def get_variant_review_status_obj(variant_es_id, group):
 
     try:
-        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, user=user)
+        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, group=group)
         return variant_review_status_obj
     except:
         return None
@@ -342,6 +317,14 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
+
+        if not request.user.is_anonymous():
+            if request.user.groups.count() != 1:
+                print('More than one group')
+                return HttpResponse(status=400)
+            else:
+                group = request.user.groups.all()[:1].get()
+
         show_review_status = request.POST.get('show_review_status')
         if show_review_status == "true":
             show_review_status = True
@@ -349,6 +332,7 @@ def search(request):
             show_review_status = False
         else:
             show_review_status = True
+
 
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
@@ -604,12 +588,12 @@ def search(request):
 
 
                 if show_review_status and not request.user.is_anonymous():
-                    variant_review_status, variant_review_status_source = get_variant_review_status(es_id, request.user)
+                    variant_review_status = get_variant_review_status(es_id, group)
+                    print(variant_review_status)
                     if review_status_to_filter and variant_review_status not in review_status_to_filter:
                         variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
                         continue
                     tmp_source['variant_review_status'] = variant_review_status
-                    tmp_source['variant_review_status_source'] = variant_review_status_source
 
                 tmp_source['es_id'] = es_id
                 results.append(tmp_source)
@@ -698,7 +682,6 @@ def search(request):
                             tmp["es_id"] = result["es_id"]
                             if show_review_status and not request.user.is_anonymous():
                                 tmp['variant_review_status'] = result['variant_review_status']
-                                tmp['variant_review_status_source'] = result['variant_review_status_source']
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
@@ -801,7 +784,7 @@ def yield_results(dataset_obj,
                     dict_filter_fields,
                     used_keys,
                     review_status_to_filter,
-                    user):
+                    group):
 
 
     es = Elasticsearch(host=dataset_obj.es_host)
@@ -817,7 +800,7 @@ def yield_results(dataset_obj,
 
         result = ele['_source']
         es_id = ele['_id']
-        variant_review_status, variant_review_status_source = get_variant_review_status(es_id, user)
+        variant_review_status = get_variant_review_status(es_id, group)
         if review_status_to_filter and variant_review_status not in review_status_to_filter:
             continue
         ### Remove results that don't match input
@@ -945,6 +928,11 @@ def download_result(request):
     writer = csv.writer(pseudo_buffer, delimiter='\t')
 
 
+    if request.user.groups.count() != 1:
+            return HttpResponse(status=400)
+    else:
+        group = request.user.groups.all()[:1].get()
+
     results = yield_results(dataset_obj,
                     header_keys,
                     query,
@@ -952,7 +940,7 @@ def download_result(request):
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
-                    review_status_to_filter, request.user)
+                    review_status_to_filter, group)
     response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response
@@ -1050,26 +1038,42 @@ class SavedSearchDelete(DeleteView):
 
 def update_variant_review_status(request):
     if request.POST:
+        ### make sure user only belongs to one group
+        if request.user.groups.count() != 1:
+            print('No Group')
+            return HttpResponse(status=400)
+        else:
+            group = request.user.groups.all()[:1].get()
+
         variant_es_id = request.POST.get("es_id")
         variant = request.POST.get("variant")
         datasetid = request.POST.get("datasetid")
         dataset_obj = Dataset.objects.get(id=datasetid)
 
         new_variant_review_status = request.POST.get("variant_review_status")
-        current_variant_review_status_obj = get_variant_review_status_obj(variant_es_id, request.user)
-        if new_variant_review_status == 'not_reviewed' and current_variant_review_status_obj:
-            current_variant_review_status_obj.delete()
+
+
+        variant_review_status_obj = get_variant_review_status_obj(variant_es_id, group)
+        if new_variant_review_status == 'not_reviewed' and variant_review_status_obj:
+            variant_review_status_obj.delete()
             return HttpResponse(status=200)
-        elif current_variant_review_status_obj and current_variant_review_status_obj.variant_review_status != new_variant_review_status:
-            current_variant_review_status_obj.variant_review_status = new_variant_review_status
-            current_variant_review_status_obj.save()
+        elif variant_review_status_obj and variant_review_status_obj.status != new_variant_review_status:
+            variant_review_status_obj.status = new_variant_review_status
+            variant_review_status_obj.save()
+            variant_review_status_history = VariantReviewStatusHistory.objects.create(variant_review_status=variant_review_status_obj,
+                                                                                      user=request.user,
+                                                                                      status=new_variant_review_status)
+
             return HttpResponse(status=200)
-        elif not current_variant_review_status_obj:
-            variant_review_status_obj = VariantReviewStatus.objects.get_or_create(user=request.user,
+        elif not variant_review_status_obj:
+            variant_review_status_obj, _ = VariantReviewStatus.objects.get_or_create(group=group,
                                                                                variant_es_id=variant_es_id,
                                                                                variant=variant,
                                                                                dataset = dataset_obj,
-                                                                               variant_review_status=new_variant_review_status)
+                                                                               status=new_variant_review_status)
+            variant_review_status_history = VariantReviewStatusHistory.objects.create(variant_review_status=variant_review_status_obj,
+                                                                                      user=request.user,
+                                                                                      status=new_variant_review_status)
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
@@ -1102,43 +1106,27 @@ class VariantReviewStatusUpdateView(UpdateView):
 
 def list_variant_review_summary(request):
     MAX_SUMMARY_LEN = 5
-    user_approved = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='approved')
-    user_approved_count = user_approved.count()
-    user_approved = user_approved[:MAX_SUMMARY_LEN]
 
+    if request.user.groups.count() != 1:
+        print('No Group')
+        return HttpResponse(status=400)
+    else:
+        group = request.user.groups.all()[:1].get()
 
-    user_rejected = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='rejected')
-    user_rejected_count = user_rejected.count()
-    user_rejected = user_rejected[:MAX_SUMMARY_LEN]
-
-    user_pending = VariantReviewStatus.objects.filter(user=request.user, variant_review_status='pending')
-    user_pending_count = user_pending.count()
-    user_pending = user_pending[:MAX_SUMMARY_LEN]
-
-
-    group_approved = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='approved').exclude(user=request.user)
+    group_approved = VariantReviewStatus.objects.filter(group=group, status='approved')
     group_approved_count = group_approved.count()
     group_approved = group_approved[:MAX_SUMMARY_LEN]
 
 
-    group_rejected = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='rejected').exclude(user=request.user)
+    group_rejected = VariantReviewStatus.objects.filter(group=group, status='rejected')
     group_rejected_count = group_rejected.count()
     group_rejected = group_rejected[:MAX_SUMMARY_LEN]
 
-    group_pending = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status='pending').exclude(user=request.user)
-    group_pending_count = group_pending[:MAX_SUMMARY_LEN]
+    group_pending = VariantReviewStatus.objects.filter(group=group, status='pending')
+    group_pending_count = group_pending.count()
     group_pending = group_pending[:MAX_SUMMARY_LEN]
 
     context = {}
-
-    context['user_approved'] = user_approved
-    context['user_approved_count'] = user_approved_count
-
-    context['user_rejected'] = user_rejected
-    context['user_rejected_count'] = user_rejected_count
-
-    context['user_pending'] = user_pending
-    context['user_pending_count'] = user_pending_count
 
     context['group_approved'] = group_approved
     context['group_approved_count'] = group_approved_count
@@ -1149,19 +1137,23 @@ def list_variant_review_summary(request):
     context['group_pending'] = group_pending
     context['group_pending_count'] = group_pending_count
 
-    context['any_variants'] = any([user_approved, user_rejected, user_pending, group_approved, group_rejected, group_pending])
+    context['any_variants'] = any([group_approved, group_rejected, group_pending])
+
 
 
     return render(request, 'search/variant_review_status_summary.html', context)
 
 
-def list_variant_status(request, review_status):
-    review_status = VariantReviewStatus.objects.filter(user=request.user, variant_review_status=review_status)
-
-    return render(request, 'search/review_status_list.html', {'review_status': review_status})
-
 def list_group_variant_status(request, review_status):
-    review_status = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True), variant_review_status=review_status).exclude(user=request.user)
+    if request.user.groups.count() != 1:
+        print('No Group')
+        return HttpResponse(status=400)
+    else:
+        group = request.user.groups.all()[:1].get()
+    review_status = VariantReviewStatus.objects.filter(group=group, status=review_status)
 
-    return render(request, 'search/list_group_review_status.html', {'review_status': review_status})
+    context = {}
+    context['review_status'] = review_status
+    context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
+    return render(request, 'search/list_group_review_status.html', context)
 

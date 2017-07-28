@@ -187,16 +187,16 @@ class VariantStatusReviewUpdateForm(forms.ModelForm):
     )
     class Meta:
         model = VariantReviewStatus
-        fields = ['variant', 'variant_review_status', 'shared_with_group']
+        fields = ['variant', 'variant_review_status']
     variant = forms.CharField(disabled=True)
     variant_review_status = forms.ChoiceField(choices=REVIEW_STATUS_CHOICES)
 
-    def __init__(self, *args, **kwargs):
-        super(VariantStatusReviewUpdateForm, self).__init__(*args, **kwargs)
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            username = instance.user
-            self.fields['shared_with_group'] = forms.ModelChoiceField(queryset=User.objects.get(username=username).groups.all(), required=False)
+    # def __init__(self, *args, **kwargs):
+    #     super(VariantStatusReviewUpdateForm, self).__init__(*args, **kwargs)
+    #     instance = getattr(self, 'instance', None)
+    #     if instance and instance.pk:
+    #         username = instance.user
+    #         self.fields['shared_with_group'] = forms.ModelChoiceField(queryset=User.objects.get(username=username).groups.all(), required=False)
 
 
 class ReviewStatusForm(forms.Form):

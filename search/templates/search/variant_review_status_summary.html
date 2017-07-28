@@ -17,114 +17,26 @@
 {% endif %}
 
 <div class="row">
-{% if user_approved %}
-  <div class="col-sm-4">
-      <div class="panel panel-default">
-      <div class="panel-heading">User Approved Variants <span class="badge badge-approved">{{user_approved_count}}</span></div>
-      <div class="panel-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Variant</th>
-                <th>Group Conflict</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for ele in user_approved %}
-                  <tr>
-                    <td>{{ ele.variant }}</td>
-                    <td>{{ ele.has_group_conflict }}</td>
-                  </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <a class="pull-right" href="{% url 'list-variant-status' 'approved' %}">Edit/show more</a>
-
-      </div>
-    </div>
-  </div>
-  {% endif %}
-  {% if user_rejected %}
-  <div class="col-sm-4">
-      <div class="panel panel-default">
-      <div class="panel-heading">User Rejected Variants <span class="badge badge-rejected">{{user_rejected_count}}</span></div>
-      <div class="panel-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Variant</th>
-                <th>Group Conflict</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for ele in user_rejected %}
-                  <tr>
-                    <td>{{ ele.variant }}</td>
-                    <td>{{ ele.has_group_conflict }}</td>
-                  </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <a class="pull-right" href="{% url 'list-variant-status' 'rejected' %}">Edit/show more</a>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-  {% if user_pending %}
-  <div class="col-sm-4">
-      <div class="panel panel-default">
-      <div class="panel-heading">User Pending Variants <span class="badge badge-pending">{{user_pending_count}}</span></div>
-      <div class="panel-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Variant</th>
-                <th>Group Conflict</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for ele in user_pending %}
-                  <tr>
-                    <td>{{ ele.variant }}</td>
-                    <td>{{ ele.has_group_conflict }}</td>
-                  </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <a class="pull-right" href="{% url 'list-variant-status' 'pending' %}">Edit/show more</a>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-</div>
-
-
 
 <div class="row">
   {% if group_approved %}
       <div class="col-sm-4">
           <div class="panel panel-default">
-          <div class="panel-heading">Group Approved Variants <span class="badge badge-approved">{{group_approved_count}}</span></div>
+          <div class="panel-heading">Approved Variants <span class="badge badge-approved">{{group_approved_count}}</span></div>
           <div class="panel-body">
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
                   <tr>
                     <th>Variant</th>
-                    <th>User</th>
+                    <th>Dataset</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for ele in group_approved %}
                       <tr>
                         <td>{{ ele.variant }}</td>
-                        <td>{{ ele.user }}</td>
+                        <td>{{ ele.dataset }}</td>
                       </tr>
                   {% endfor %}
                 </tbody>
@@ -139,21 +51,21 @@
   {% if group_rejected %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">Group Rejected Variants <span class="badge badge-rejected">{{group_rejected_count}}</span></div>
+      <div class="panel-heading">Rejected Variants <span class="badge badge-rejected">{{group_rejected_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>Variant</th>
-                <th>User</th>
+                <th>Dataset</th>
               </tr>
             </thead>
             <tbody>
               {% for ele in group_rejected %}
                   <tr>
                     <td>{{ ele.variant }}</td>
-                    <td>{{ ele.user }}</td>
+                    <td>{{ ele.dataset }}</td>
                   </tr>
               {% endfor %}
             </tbody>
@@ -168,21 +80,21 @@
   {% if group_pending %}
   <div class="col-sm-4">
       <div class="panel panel-default">
-      <div class="panel-heading">Group Pending Variants <span class="badge badge-pending">{{group_pending_count}}</span></div>
+      <div class="panel-heading">Pending Variants <span class="badge badge-pending">{{group_pending_count}}</span></div>
       <div class="panel-body">
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>Variant</th>
-                <th>User</th>
+                <th>Dataset</th>
               </tr>
             </thead>
             <tbody>
               {% for ele in group_pending %}
                   <tr>
                     <td>{{ ele.variant }}</td>
-                    <td>{{ ele.user }}</td>
+                    <td>{{ ele.dataset }}</td>
                   </tr>
               {% endfor %}
             </tbody>

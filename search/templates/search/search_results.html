@@ -61,23 +61,15 @@
                         <tr>
                              {% if show_review_status and user.is_authenticated %}
                                 <td>
-                                {% if row|get_value_from_dict:"variant_review_status_source" == 'user' or row|get_value_from_dict:"variant_review_status_source" == 'None' %}
                                     <select class="variant_review_status selectpicker" data-width="auto" data-style="btn-link" data-width="fit" data-variant="{{row|get_value_from_dict:"Variant"}}" data-esid="{{row|get_value_from_dict:"es_id"}}" data-datasetid="{{dataset_obj.id}}">
                                     {% for short_status, long_status in REVIEW_STATUS_CHOICES %}
                                         {% if row|get_value_from_dict:"variant_review_status" == short_status %}
                                             <option value="{{short_status}}" selected data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>">{{long_status}}</option>
-                                        {% elif short_status != "group_conflict" %}
+                                        {% else %}
                                             <option value="{{short_status}}" data-content="<span class='badge badge-{{short_status}}'>{{long_status}}</span>"></option>
                                         {% endif %}
                                     {% endfor %}
                                      </select>
-                                 {% else %}
-                                    {% for short_status, long_status in REVIEW_STATUS_CHOICES %}
-                                        {% if row|get_value_from_dict:"variant_review_status" == short_status %}
-                                            <span class='badge badge-{{short_status}} add_badge_margin_remove_hover'>{{long_status|safe}}</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                 {% endif %}
                                 </td>
                             {% endif %}
                             {% for element in headers %}
@@ -98,7 +90,6 @@
                         <span class='badge badge-approved add_badge_margin_remove_hover'><i class="fa fa-check" aria-hidden="true"></i></span> Approved
                         <span class='badge badge-rejected add_badge_margin_remove_hover'><i class="fa fa-times" aria-hidden="true"></i></span> Rejected
                         <span class='badge badge-pending add_badge_margin_remove_hover'><i class="fa fa-question" aria-hidden="true"></i></span> Pending
-                        <span class='badge badge-group_conflict add_badge_margin_remove_hover'><i class="fa fa-exclamation" aria-hidden="true"></i></span> Group Conflict
                         <span class='badge badge-not_reviewed add_badge_margin_remove_hover'>--</span> Not Reviewed
                     </div>
                 </div>
@@ -182,7 +173,7 @@
         <div class="checkbox">
           <label><input id="show_message" type="checkbox" value="">Do not show this message again?</label>
         </div>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
       </div>
     </div>
   </div>
@@ -229,8 +220,6 @@
 
     });
 
-    $('.selectpicker').selectpicker({
-    });
 
     $("#back-to-top-container").on("click", function() {
         $('#results_div').hide()
@@ -271,6 +260,9 @@
         }
 
 
+    });
+
+    $('.selectpicker').selectpicker({
     });
 
     $(".variant_review_status").on("change", function() {

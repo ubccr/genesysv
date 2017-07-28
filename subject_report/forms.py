@@ -560,7 +560,7 @@ class SubjectReportForm2(forms.Form):
         super(SubjectReportForm2, self).__init__(*args, **kwargs)
 
         dataset_object = Dataset.objects.get(name=database_name)
-        SUBJECT_CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field__display_name='Sample ID',
+        SUBJECT_CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field__display_text='sample_ID',
                                                         filter_field__dataset=dataset_object)]
         SUBJECT_CHOICES.insert(0, ('','---'))
         self.fields['subject'] = forms.ChoiceField(label='Subject', choices=SUBJECT_CHOICES)

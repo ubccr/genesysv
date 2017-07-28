@@ -492,6 +492,7 @@ html,body{
 .badge {
   padding: 3px 9px 4px;
   min-width: 35px;
+  max-width: 100px;
   font-size: 14px;
   font-weight: normal;
   white-space: nowrap;

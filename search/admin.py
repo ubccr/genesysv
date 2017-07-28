@@ -125,11 +125,15 @@ class SearchOptionsAdmin(admin.ModelAdmin):
 
 @admin.register(VariantReviewStatus)
 class VariantReviewStatusAdmin(admin.ModelAdmin):
-    list_display = ('variant_es_id', 'variant', 'user', 'variant_review_status',)
+    list_display = ('variant_es_id', 'variant', 'group', 'status',)
 
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'dataset', 'filters_used', 'attributes_selected', 'description')
+
+@admin.register(VariantReviewStatusHistory)
+class VariantReviewStatusHistoryAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'variant_review_status', 'user', 'status', 'modified')
 
 
 admin.site.register(FormType, FormTypeAdmin)
