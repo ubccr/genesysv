@@ -5,10 +5,10 @@
 ###                     4. dataset: which cohort (ie sim_wgs_noexpand, sim_res_expand)
 
 library(plyr)
-library(ggplot2) # must be version 1.0.1 or older!
+library(ggplot2)
 library(grid)
-library(elastic)
-library(jsonlite)
+suppressMessages(library(elastic))
+suppressMessages(library(jsonlite))
 library(svglite)
 
 generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_port, output_folder, output_type) {
@@ -121,9 +121,9 @@ generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_
                   eigenset = 'Eigen score >= 0.65')
     vset <- vset_map[[gene_info$vset]]
 
-    plot_title <- paste0(gene_info$gene_name, ' (', gene_info$refgene_id, '), ', vset,
-                         ' -- P-Value: ', format(gene_info$pvalue, digits = 5),
-                         ' -- NES: ', format(gene_info$nes, digits = 5))
+    plot_title <- paste0(gene_info$gene_name, ' (', gene_info$refgene_id, '); ', vset,
+                         '; p = ', format(gene_info$pvalue, digits = 5),
+                         '; NES = ', format(gene_info$nes, digits = 5))
     palette <- c('#CC79A7','#D55E00','#0072B2','#F0E442','#009E73','#56B4E9','#E69F00','#999999')
     arrow = arrow(angle=15,length=unit(.15,'inches'),end='both',type='closed')
     seq.line <- annotate('segment', x=1, xend=gene_info$length, y=seq_line_y, yend=seq_line_y, color='gray', size=3)
@@ -181,7 +181,7 @@ generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_
     q <- q + theme_bw()
     q <- q + theme(axis.line = element_line(),
                    panel.border = element_blank(),
-                   plot.title=element_text(hjust = 0, size = 12),
+                   plot.title=element_text(hjust = 0, size = 10),
                    axis.text.x = element_text(vjust = 0.5, angle = 90))
     if (vset=='Promoter') {
         q <- q + labs(title = plot_title, x='Nucleotide Sequence', y='Mutation Accumulation Score (MAS)')
@@ -234,7 +234,7 @@ generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_
     if (output_type == 'tiff') {
         ggsave(file=output_file,plot=q,device='tiff',height=9,width=9,units='in',dpi=300)
     } else {
-        svglite(output_file,width=9,height=9)
+        svglite(output_file,width=7,height=7)
         print(q)
         dev.off()
     }

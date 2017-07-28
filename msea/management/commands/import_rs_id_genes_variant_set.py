@@ -25,7 +25,7 @@ STUDIES = (
     ("sim",
      "Statin Induced Myopathy (SIM)",
      "msea_sim",
-     "199.109.192.255",
+     "199.109.194.243",
      "9200",
      "20170222_SIM_WGS-20170424-expand_lookahead.txt",
      25274
@@ -33,10 +33,10 @@ STUDIES = (
 )
 
 SIM_DATASETS = (
-    ('sim', 'sim_wgs', 'SIM-Sensitive Whole Genome Sequencing variants'),
-    ('sim', 'sim_con', 'SIM-Resistant Whole Exome Sequencing variants'),
-    ('sim', 'sim_wgs_minus_con', 'SIM-Sensitive minus SIM-Resistant variants'),
-    ('sim', 'sim_con_minus_wgs', 'SIM-Resistant minus SIM-Sensitive variants'),
+    ('sim', 'sim_wgs', 'Sensitive WGS variants'),
+    ('sim', 'sim_con', 'Resistant WES variants'),
+    ('sim', 'sim_wgs_minus_con', 'Sensitive minus Resistant variants'),
+    ('sim', 'sim_con_minus_wgs', 'Resistant minus Sensitive variants'),
 )
 
 
