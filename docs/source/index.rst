@@ -2,22 +2,22 @@
 Genomics Data Warehouse documentation
 =================================================
 
-
 GDW at a glance
 ==========================
-Genomics Data Warehouse (GDW) is built on top of Django, a Python web framework, and Elasticsearch, a distributed
-RESTful search and analytics engine. To use GDW, you need to install Elasticsearch and the GDW Django app.
-
+Genomics Data Warehouse (GDW) is built using Elasticsearch, a distributed RESTful search and analytics engine,
+and Django, a Python web framework. To use GDW, you need to install Elasticsearch and the GDW Django app.
 
 Installing Elasticsearch
 ==========================
-We assume that GDW will be installed in a Eucalyptus-based cloud environment. The first step is to create a new security group in Eucalyptus. This security group will be used to isolate Elasticsearch nodes from the outside world. Elasticsearch by default does not have any security enabled. This allows anyone who can access port 9200 on the machine that Elasticsearch is installed on to make queries and even make changes to the Elasticsearch index. The company behind Elasticsearch provides a security package to manage security, but it is proprietary. The simplest way to secure Elasticsearch nodes is to use the Eucalyptus security groups to block all connections to the Elasticsearch nodes and selectively allow connections from trusted machines. As will be discussed later, the trusted machines should be in a separate security group from the Elasticsearch security group. Such a setup avoids accidentally opening up the Elasticsearch nodes to the outside world.
+We assume that GDW will be installed in a Eucalyptus-based cloud environment. The first step is to create a new security group in Eucalyptus. This security group will be used to isolate Elasticsearch nodes from the outside world. Elasticsearch by default does not have any security enabled. This allows anyone who can access port 9200 on the machine that Elasticsearch is installed on to make queries and even make changes to the Elasticsearch index. The company behind Elasticsearch provides a security package to control access, but it is proprietary. The simplest way to secure Elasticsearch nodes is to use the Eucalyptus security groups to block all connections to the Elasticsearch nodes and selectively allow connections from trusted IP addresses. As will be discussed later, the trusted IP addresses should be in a separate security group from the Elasticsearch security group. Such a setup avoids accidentally opening up the Elasticsearch nodes to the outside world.
 
-Go to https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups to create a new security group. In the new security group, open ports 22 and 9200 to your local machine. Port 22 is used for SSH access to nodes in the new security group. Port 9200 is used to communicate with the Elasticsearch nodes. Note that the nodes communicate with each other using port 9300, but nodes within a security group are treated as trusted, so all connections are allowed.
+Go to https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups to create a new security group for your Elasticsearch nodes. In the create new security group page, open ports 22 and 9200 for TCP traffic from your local machine. Port 22 is used for SSH access to the nodes in the new security group. Port 9200 is used to communicate with the Elasticsearch nodes. Note that the nodes communicate with each other using port 9300. Since instances within an Eucalyptus security group are treated as trusted, all communications between nodes are allowed without explicitly opening up ports.
 
-For the purposes of this documentation, an Elasticsearch cluster will be setup with three nodes, i.e., there will be three instances of Elasticsearch running. Elasticsearch has light CPU requirements. The ideal machine should have maximum of 64 GB. More memory does not help because of JVM limitations. Small amount of memory, less than 8 GB, will just lead to too much swapping, which is counterproductive.
+For the purposes of this documentation, an Elasticsearch cluster will be setup with three nodes, i.e., there will be three instances of Elasticsearch running. Elasticsearch has light CPU requirements. The ideal machine should have a maximum of 64 GB of RAM. More memory does not help because of JVM limitations. A small amount of memory, less than 8 GB, however, will lead to excessive swapping, which can degrade Elasticsearch performance.
 
-In Eucalyptus, launch three new instances with Ubuntu 16.04 EBS. For instance type, choose ``m2.4xlarge: 4 CPUS, 49152 memory (MB)``. You can change the following cloud-init script to automate SSH login for your user.  Update ``name`` to your username, ``gecos`` to your full name, and ``ssh-authorized-keys`` to your SSH key::
+To launch the instances, go to https://console.ccr-cbls-2.ccr.buffalo.edu/instances/new. This webpage shows a four step wizard for launching new instances. In the first step, called ``1 Image``, select ``Ubuntu 16.04 EBS``, which will automatically advance you to the second step of the wizard, called `` 2 Details``. In the top most section of page, input ``3`` for the ``Number of instances``. Optionally, you can specify a custom name for each instance using the ``Name`` field. For ``Instance type``, choose ``m2.4xlarge: 4 CPUS, 49152 memory (MB)``.
+
+There two ways to log in to your instances. First is using a PEM file generated by the Eucalyptus console. Second is using your SSH public key. The second method is easier. To upload your SSH key in to your instances, copy and paste the cloud-config below in to a file and save it. Then update ``name`` to your username, ``gecos`` to your full name, and ``ssh-authorized-keys`` to your SSH public key::
 
     #cloud-config
 
@@ -40,10 +40,14 @@ In Eucalyptus, launch three new instances with Ubuntu 16.04 EBS. For instance ty
       - timedatectl set-timezone America/New_York
       - updatedb
 
+If you need help generating your SSH key, go to https://ubccr.freshdesk.com/support/solutions/articles/13000025842.
 
-Under the ``USER DATA`` section select ``Enter text`` radio button and copy and paste the modified cloud-init script.
-For storage volume size, specify 100 GB, which is more than enough for testing purposes. Change it if you think you will require more storage. Each GDW Elasticsearch nodes, for example, have 700 GB storage attached to them.
+Then under the ``USER DATA`` section, select the ``Enter text`` radio button and copy and paste the modified cloud-init script. Alternatively, you can click the ``Upload button`` radio button and upload your saved cloud-config file. After inputting the ``USER DATA``, click the next button to proceed to the next step.
 
+In the third step, called ``3 Security``, you will have to choose a ``Key name`` and ``Security group`` to associate with your instances. create a new key pair if you do not already have one or select a key pair you generated previously . The key pair is your unique PEM file. You will not be using this to log in to your instances, but you need to associate a PEM file with your instances to launch them. In the security group, select the Elasticsearch security group that you created previously. In the third section from the top, click ``Select advanced options`` to advance to the fourth step, called ``4 Advanced``. In this step you will specify the storage volume size. Input 50 GB in the ``STORAGE`` section for the Root volume. Finally, click ``LAUNCH INSTANCE`` button to launch all three instances. It will take couple of minutes for the instances to be ready for use.
+
+Once the status of your three instances has changed to ``running``, log in to one of your instances by logging in to your terminal and typing ``ssh <IP address of instance>``.  The IP address of your instances is listed in the ``PUBLIC ADDR``
+column here: https://console.ccr-cbls-2.ccr.buffalo.edu/instances?status=running
 
 Next we will install Elasticsearch on each instance. Begin by doing system updates::
 
@@ -56,9 +60,6 @@ Add repository for installing latest Oracle JAVA::
     sudo add-apt-repository -y ppa:webupd8team/java
     sudo apt-get update
 
-If aforementioned command does not work, you might have to open ports 80 and 443.
-This was not necessary with instance image ``ubuntu1604-ebs-ccr-20170222-2``.
-
 Install JAVA::
 
     sudo apt-get -y install oracle-java8-installer
@@ -66,19 +67,15 @@ Install JAVA::
 Install Elasticsearch::
 
     wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.deb
-    sudo dpkg -i elasticsearch-5.1.1.deb
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.1.deb
+    sudo dpkg -i elasticsearch-5.5.1.deb
 
-Elasticsearch V5.1.1 might not be the latest version available, but it is the latest version tested with GDW.
-
-Next we will modify Elasticsearch options and update system-wide configurations to suit Elasticsearch.
-This is best done by first becoming root::
+Next we will modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance
+This is best done by becoming root staying as root for the next series of step. Become root by issuing the command::
 
     sudo su -
 
-Open the file ``/etc/elasticsearch/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The
-amount of memory is set to half the system memory. Our instances were configured with 49156 MB of memory, so half of that
-is around 24 GB. You will have to update two lines to allow JVM to allocate 24 GB. WARNING: Never allocate more than 32 GB.
+Open the file ``/etc/elasticsearch/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. Our instances were configured with 49156 MB of RAM, so half of that is around 24 GB. You will have to update two lines to allow JVM to allocate 24 GB. WARNING: Never allocate more than 32 GB.
 Change lines::
 
     -Xms2g
@@ -89,7 +86,6 @@ to::
     -Xms24g
     -Xmx24g
 
-
 and save and close file.
 
 Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment and update the following lines::
@@ -97,8 +93,8 @@ Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment and update
     # Uncomment line and update cluster name
     cluster.name: GDW-Test-Cluster
 
-    # Uncomment line and update node name
-    node.name: gdw-test-node-1
+    # Uncomment line and update node name, e.g., gdw-test-node-1
+    node.name: gdw-test-node-xxx
 
     # Uncomment line to enable JVM memory allocation when Elasticsearch starts
     bootstrap.memory_lock: true
@@ -109,11 +105,10 @@ Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment and update
     # Uncomment line and add private IP addresses of other nodes in cluster.
     discovery.zen.ping.unicast.hosts: ["172.17.XX.XXX", "172.17.XX.XXX"]
 
-    # You can update data location if you want. Default is /var/lib/elasticsearch -- which you can leave as is for now
-    #path.data: /media/different_media
 
-and save and close file. The ``cluster.name`` determines the cluster name. Nodes that share the same ``cluster.name`` are part
-of an Elasticsearch cluster. Therefore, it is possible to create multiple clusters within a single Eucalyptus security group.
+and save and close file. The ``cluster.name`` determines the cluster name. Nodes that share the same ``cluster.name`` are part of an Elasticsearch cluster. Therefore, it is possible to create multiple clusters within a single Eucalyptus security group. For our setting, the three instances will have the same ``cluster.name``, but the ``node.name`` will be different.
+Setting ``bootstrap.memory_lock`` to ``true`` allocates RAM exclusively for Eucalyptus when it starts up. The ``network.host`` is the private IP address associated with the instance you are logged in to. Update ``discovery.zen.ping.unicast.hosts``
+with the private IP addresses of the other two instances. This will allow the current instance to recognize the other instances as port of your Elasticsearch cluster.
 
 
 Next open ``/etc/security/limits.conf``, add limits for Elasticsearch at the end of file ::
@@ -125,7 +120,7 @@ Next open ``/etc/security/limits.conf``, add limits for Elasticsearch at the end
 
 save and close file. These limits allow Elasticsearch to open large number of files at once and allows it to allocate unlimited amount of page/memory.
 
-Next open ``/usr/lib/systemd/system/elasticsearch.service``, uncomment the following line, ::
+Next open ``/usr/lib/systemd/system/elasticsearch.service``, uncomment the following line ::
 
     # Uncomment line to allow elasticsearch to allocate memory at startup
     LimitMEMLOCK=infinity
@@ -143,11 +138,11 @@ Next open ``/etc/default/elasticsearch``, uncomment the following lines,::
 save, and close.
 
 Next we need to install the Elasticsearch free license. The license is valid for one year. To install the license,
-you have to first install ``X-Pack``, a plug-in for Elasticsearch that manages license and security. We will, however, disable
-the security feature because it is proprietary. To install ``X-Pack`` execute::
+you have to first install ``X-Pack``, a plug-in for Elasticsearch that manages license and security. We will, however, disable the security feature because it is proprietary. To install ``X-Pack`` execute ::
 
     /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack
 
+You can ignore the warnings and accept to install the plugin.
 
 Open ``/etc/elasticsearch/elasticsearch.yml`` and disable X-pack security by adding the following line at the end of the file ::
 
@@ -164,10 +159,8 @@ Next enable Elasticsearch and configure it to start at boot by executing the fol
 Test the Elasticsearch installation by going to its public IP address on port 9200::
     http://199.109.XXX.XXX:9200/
 
-To get the free/basic Elasicsearch license, register https://register.elastic.co/. You should receive an email pointing
-to a website from which you can downloading the license as a JSON file. So install the license, you have to send the license
-to your instance of Elasticsearch twice. Change to the directory on your local machine where the JSON license file is saved.
-Send the license file using CURL from your local machine as follows::
+To get the free/basic Elasicsearch license, register at https://register.elastic.co/. You should receive an email pointing
+to a website from which you can download the license to your local machine file. Select the license for version 5.X. To install the license, you have to send the license to an Elasticsearch instance twice. In your shell, change to the directory on your local machine where the JSON license file is saved. Send the license file to the Elasicsearch instance using CURL from your local machine as follows ::
 
     curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
 
@@ -177,7 +170,7 @@ where you should update the IP address to match your Elasticsearch instance and 
 
 Send the license again, but this time with acknowledgment::
 
-    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license?acknowledge=true' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
+    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license**?acknowledge=true**' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
 
 Check that the license was installed by going to http://199.109.XXX.XXX:9200/_xpack/license. You should see something like::
 
@@ -230,8 +223,8 @@ This completes the installation of Elasticsearch.
 
 Installation checklist for Elasticsearch
 =================================================
-- [ ] Create a new security group in Eucalyptus
-- [ ] Open ports 22 and 9200 to your local machine in the new security group
+- [ ] Create a new security group in Eucalyptus for the Elasticsearch nodes
+- [ ] Open ports 22 and 9200 to TCP traffic from your local machine in the new security group
 - [ ] Launch three instances with new security group
     - [ ] Select Ubuntu 16.04 EBS for image type
     - [ ] Choose ``m2.4xlarge: 4 CPUs, 49152 memory (MB)`` for instance type
@@ -241,7 +234,7 @@ Installation checklist for Elasticsearch
     - [ ] Log in
     - [ ] Do system update
     - [ ] Add JAVA repository and update apt-get
-    - [ ] Download and install Elasticsearch
+    - [ ] Download and install Java and Elasticsearch
 - [ ] Configure Elasticsearch
     - [ ] Become root ``sudo su -``
     - [ ] Edit ``/etc/elasticsearch/jvm.options``
@@ -261,12 +254,9 @@ Installation checklist for Elasticsearch
     \newpage
 
 
-Installing GDW App
-==========================
-Begin by creating a new security group in Eucalyptus. Open ports 22 and 8000 to your local machine. Port 22 will be used
-to access your new instance and port 8000 will run the development instance of the GDW App. Launch one instance of image
-type Ubuntu 16.04 EBS, instance type ``c1.medium: 4 CPUs, 16384 memory (MB)``, and storage volume of at least 40 GB.
-You can use the following cloud-init script to automate SSH login for your user ::
+Installing Genomics Data Warehouse
+======================================
+Begin by creating a new security group in Eucalyptus for the GDW application node. Open ports 22 and 8000 to TCP traffic from your local machine. Port 22 will be used to access your new instance and port 8000 will run the development instance of GDW. Launch one instance of image type Ubuntu 16.04 EBS, instance type ``c1.medium: 4 CPUs, 16384 memory (MB)``, and storage volume of at least 40 GB. You can use the following cloud-init script to automate SSH login for your user ::
 
     #cloud-config
 
