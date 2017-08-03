@@ -18,6 +18,8 @@ import functools
 import requests
 from es_celery.tasks import post_data, update_refresh_interval
 import hashlib
+import math
+import tempfile
 
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
@@ -83,8 +85,29 @@ def CHROM_parser(input_string):
 def gwasCatalog_parser(input_string):
     return input_string.replace('|', ' ')
 
-def CLINSIG_parser(input_string):
-    return re.split(',|\|',input_string)
+def clinvar_parser(input_dict):
+    output = []
+    size = len(input_dict['CLNDBN'].split('|'))
+    CLINSIG_split = input_dict['CLINSIG'].split('|')
+    CLNDBN_split = input_dict['CLNDBN'].split('|')
+    CLNACC_split = input_dict['CLNACC'].split('|')
+    CLNDSDB_split = input_dict['CLNDSDB'].split('|')
+    CLNDSDBID_split = input_dict['CLNDSDBID'].split('|')
+
+    for i in range(size):
+        CLINSIG = CLINSIG_split[i]
+        CLNDBN = CLNDBN_split[i]
+        CLNACC = CLNACC_split[i]
+        CLNDSDB = CLNDSDB_split[i]
+        CLNDSDBID = CLNDSDBID_split[i]
+        output.append({'clinvar_CLINSIG': CLINSIG,
+                        'clinvar_CLNDBN': CLNDBN,
+                        'clinvar_CLNACC': CLNACC,
+                        'clinvar_CLNDSDB': CLNDSDB,
+                        'clinvar_CLNDSDBID': CLNDSDBID
+                        })
+
+    return output
 
 def GTEx_V6_tissue_parser(input_string):
     return input_string.replace('|', ' ')
@@ -279,14 +302,15 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
     parse_with_fields = {info_fields[key].get('parse_with'): key  for key in info_fields.keys() if 'parse_with' in info_fields[key]}
 
-    fields_to_skip = set(['ALLELE_END', 'ANNOVAR_DATE', 'END'])
+    fields_to_skip = set(['ALLELE_END', 'ANNOVAR_DATE', 'END',])
     run_dependent_fixed_fields = ['FILTER', 'QUAL']
     run_dependent_info_fields=[
                                 'BaseQRankSum',
                                 'ClippingRankSum',
                                 'DP',
-                                'FS',
+                                # 'FS',
                                 'InbreedingCoeff',
+                                # 'GQ_MEAN',
                                 'MLEAC',
                                 'MLEAF',
                                 'MQ',
@@ -301,7 +325,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     run_dependent_fields = run_dependent_fixed_fields + run_dependent_info_fields + ['sample']
 
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 5000
+    # no_lines = 100000
     time_now = datetime.now()
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     header_found = False
@@ -334,7 +358,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
             info_dict = {}
             for ele in info:
-                if ele in fields_to_skip:
+                if ele.split('=')[0] in fields_to_skip:
                     continue
                 if '=' in ele:
                     key, val = (ele.split('=')[0], ''.join(ele.split('=')[1:]))
@@ -381,7 +405,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     sample_values = data.get(sample)
                     sample_values = sample_values.split(':')
 
-                    if sample_values[gt_location] == './.':
+                    if sample_values[gt_location] in ['./.', '0/0']:
                         continue
 
                     sample_content['sample_ID'] = sample
@@ -399,9 +423,9 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
                         elif key_format_field in float_format_fields:
                             if ',' in key_value:
-                                sample_content[key_format_field_sample] = [float(s_val) for s_val in key_value.split(',')]
+                                sample_content[key_format_field_sample] = [float(s_val) for s_val in key_value.split(',') if not math.isnan(float(s_val))]
                             else:
-                                if key_value not in ['.']:
+                                if key_value not in ['.'] and not math.isnan(float(key_value)):
                                     sample_content[key_format_field_sample] = float(key_value)
                         else:
                             if key_value not in ['.']:
@@ -423,13 +447,16 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         AC_label = 'AC_%s' %(vcf_label)
                         AF_label = 'AF_%s' %(vcf_label)
                         AN_label = 'AN_%s' %(vcf_label)
-                        fields_to_update[AC_label] = info_dict.get('AC')
-                        fields_to_update[AF_label] = info_dict.get('AF')
-                        fields_to_update[AN_label] = info_dict.get('AN')
+                        fields_to_update[AC_label] = int(info_dict.get('AC'))
+                        fields_to_update[AF_label] = float(info_dict.get('AF'))
+                        fields_to_update[AN_label] = int(info_dict.get('AN'))
                         fields_to_update['FILTER'].extend([{'FILTER_label': vcf_label, 'FILTER_status': data['FILTER']}])
-                        fields_to_update['QUAL'].extend([{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}])
+                        if not math.isnan(float(data['QUAL'])):
+                            fields_to_update['QUAL'].extend([{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}])
                         for field in run_dependent_info_fields:
                             if not info_dict.get(field):
+                                continue
+                            if info_dict[field] == 'nan':
                                 continue
                             label_field_name = "%s_label" %(field)
                             value_field_name = "%s_value" %(field)
@@ -438,16 +465,19 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                                 fields_to_update[field] = []
                             if es_field_datatype == 'integer':
                                 fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: int(info_dict[field])}])
-                            elif es_field_datatype == 'float':
+                            elif es_field_datatype == 'float' and not math.isnan(float(info_dict[field])):
                                 fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: float(info_dict[field])}])
                             else:
                                 fields_to_update[field].extend([{label_field_name: vcf_label, value_field_name: info_dict[field]}])
 
                     else:
                         fields_to_update['FILTER'].extend([{'FILTER_status': data['FILTER']}])
-                        fields_to_update['QUAL'].extend([{'QUAL_score': float(data['QUAL'])}])
+                        if not math.isnan(float(data['QUAL'])):
+                            fields_to_update['QUAL'].extend([{'QUAL_score': float(data['QUAL'])}])
                         for field in run_dependent_info_fields:
                             if not info_dict.get(field):
+                                continue
+                            if info_dict[field] == 'nan':
                                 continue
                             value_field_name = "%s_value" %(field)
                             es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
@@ -455,7 +485,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                                 fields_to_update[field] = []
                             if es_field_datatype == 'integer':
                                 fields_to_update[field].extend([{value_field_name: int(info_dict[field])}])
-                            elif es_field_datatype == 'float':
+                            elif es_field_datatype == 'float' and not math.isnan(float(info_dict[field])):
                                 fields_to_update[field].extend([{value_field_name: float(info_dict[field])}])
                             else:
                                 fields_to_update[field].extend([{value_field_name: info_dict[field]}])
@@ -483,46 +513,55 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                 content['Variant'] = '%s-%d-%s-%s' %(CHROM, POS, REF[:10], ALT[:10])
 
                 if vcf_label != 'None':
+                    ## this requires fixing!!!
                     AC_label = 'AC_%s' %(vcf_label)
                     AF_label = 'AF_%s' %(vcf_label)
                     AN_label = 'AN_%s' %(vcf_label)
-                    info_dict[AC_label] = info_dict.pop('AC')
-                    info_dict[AF_label] = info_dict.pop('AF')
-                    info_dict[AN_label] = info_dict.pop('AN')
+                    info_dict[AC_label] = (info_dict.pop('AC'))
+                    info_dict[AF_label] = (info_dict.pop('AF'))
+                    info_dict[AN_label] = (info_dict.pop('AN'))
                     content['FILTER'] = [{'FILTER_label': vcf_label, 'FILTER_status': data['FILTER']}]
-                    content['QUAL'] = [{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}]
+                    if not math.isnan(float(data['QUAL'])):
+                        content['QUAL'] = [{'QUAL_label': vcf_label, 'QUAL_score': float(data['QUAL'])}]
                     for field in run_dependent_info_fields:
                         if not info_dict.get(field):
+                            continue
+                        if info_dict[field] == 'nan':
                             continue
                         label_field_name = "%s_label" %(field)
                         value_field_name = "%s_value" %(field)
                         es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
                         if es_field_datatype == 'integer':
                             content[field] = [{label_field_name: vcf_label, value_field_name: int(info_dict[field])}]
-                        elif es_field_datatype == 'float':
+                        elif es_field_datatype == 'float' and not math.isnan(float(info_dict[field])):
                             content[field] = [{label_field_name: vcf_label, value_field_name: float(info_dict[field])}]
                         else:
                             content[field] = [{label_field_name: vcf_label, value_field_name: info_dict[field]}]
                 else:
                     content['FILTER'] = [{'FILTER_status': data['FILTER']}]
-                    content['QUAL'] = [{'QUAL_score': float(data['QUAL'])}]
+                    if not math.isnan(float(data['QUAL'])):
+                        content['QUAL'] = [{'QUAL_score': float(data['QUAL'])}]
                     for field in run_dependent_info_fields:
                         if not info_dict.get(field):
+                            continue
+                        if info_dict[field] == 'nan':
                             continue
                         value_field_name = "%s_value" %(field)
                         es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
                         if es_field_datatype == 'integer':
-                            content[field] = [{label_field_name: vcf_label, value_field_name: int(info_dict[field])}]
-                        elif es_field_datatype == 'float':
-                            content[field] = [{label_field_name: vcf_label, value_field_name: float(info_dict[field])}]
+                            content[field] = [{value_field_name: int(info_dict[field])}]
+                        elif es_field_datatype == 'float' and not math.isnan(float(info_dict[field])):
+                            content[field] = [{value_field_name: float(info_dict[field])}]
                         else:
-                            content[field] = [{label_field_name: vcf_label, value_field_name: info_dict[field]}]
-                        content[field].extend([{value_field_name: info_dict[field]}])
+                            content[field] = [{value_field_name: info_dict[field]}]
 
                 for key, val in null_fields:
                     content[key] = val
 
                 for info_key in info_fields.keys():
+
+                    if info_key in fields_to_skip:
+                        continue
 
                     if info_fields[info_key].get('is_nested_label_field'):
                         continue
@@ -551,10 +590,11 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         continue
                     elif es_field_datatype == 'float':
                         if ',' in val:
-                            val = [float(ele) for ele in val.split(',')]
+                            val = [float(ele) for ele in val.split(',') if not math.isnan(float(ele))]
                         else:
                             val = float(val)
-                        content[es_field_name] = val
+                        if not math.isnan(float(val)):
+                            content[es_field_name] = val
                         continue
                     elif es_field_datatype in ['keyword', 'text'] :
                         if info_fields[info_key].get('value_mapping'):
@@ -593,8 +633,24 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                             content[es_field_name] = val
                             continue
 
-
+                    clinvar_input_dict = {}
                     if info_fields[info_key].get('es_nested_path'):
+
+                        ## special case for clinvar
+                        if info_key == 'CLNDBN' and val != '.':
+                            clinvar_input_dict = {
+                                'CLINSIG' : info_dict['CLINSIG'],
+                                'CLNACC' : info_dict['CLNACC'],
+                                'CLNDBN' : info_dict['CLNDBN'],
+                                'CLNDSDB' : info_dict['CLNDSDB'],
+                                'CLNDSDBID' : info_dict['CLNDSDBID'],
+                            }
+                            clinvar_output_dict = clinvar_parser(clinvar_input_dict)
+                            content['clinvar'] = clinvar_output_dict
+                            continue
+                        elif info_key in ['CLNACC', 'CLINSIG', 'CLNDSDB', 'CLNDSDBID']:
+                            continue
+
                         parse_function = eval(info_fields[info_key].get('parse_function'))
                         es_field_name = info_fields[info_key].get('es_nested_path')
                         val = parse_function(val)
@@ -604,8 +660,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         else:
                             content[es_field_name] = val
                             continue
-
-
 
 
                 for overwrite_key, orig_key in overwrite_fields:
@@ -630,7 +684,9 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
             except Exception as e:
                 print(e)
-                print(line)
+                print(info_key, es_field_datatype, val)
+                print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
+                # print(line)
 
 
 def main():
@@ -688,32 +744,45 @@ def main():
 
 
     file_count = 1
+    file_size_total = 0
+    directory_name = tempfile.mkdtemp()
+    data_available = False
     for line_count, data in enumerate(set_data(es, index_name,
                         type_name,
                         vcf_filename,
                         vcf_mapping,
                         vcf_label,
-                        update=update)):
+                        update=update), 1):
 
-        if line_count == 0:
-            filename = f'output_{file_count}.json'
-            output_file = open(filename, 'w')
+        file_size_total += sys.getsizeof(data)
 
-        elif line_count % 20000 == 0:
-            output_file.close()
-            post_data.delay(args.hostname, args.port, index_name, type_name, filename)
-            #
-            file_count += 1
-            filename = f'output_{file_count}.json'
+        if line_count == 1:
+            filename = os.path.join(directory_name, f'output_{file_count}.json')
             output_file = open(filename, 'w')
 
 
         output_file.write(f'{data}\n')
+        data_available = True
+
+        if file_size_total > 83886080 and ((line_count % 2) == 0):
+            output_file.close()
+            post_data.delay(args.hostname, args.port, index_name, type_name, filename)
+            #
+            file_count += 1
+            filename = os.path.join(directory_name, f'output_{file_count}.json')
+            output_file = open(filename, 'w')
+            file_size_total = 0
+            data_available = False
+
+
+
     #finally:
-    output_file.close()
-    # time.sleep(45)
-    post_data.delay(args.hostname, args.port, index_name, type_name, filename)
-    update_refresh_interval.delay(args.hostname, args.port, index_name, '1s')
+    if data_available:
+        output_file.close()
+        post_data.delay(args.hostname, args.port, index_name, type_name, filename)
+
+    time.sleep(60)
+    update_refresh_interval.delay(args.hostname, args.port, index_name, '30s')
         # pprint(data)
         # es.index(index=index_name, doc_type=type_name, body=data)
 

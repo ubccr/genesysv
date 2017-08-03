@@ -223,7 +223,7 @@ def main():
             if info.get('is_non_nested_label_field') and args.labels != "None":
                 es_field_datatype = default_vcf_mapping['INFO_FIELDS'][field]['es_field_datatype']
                 for label in args.labels.split(','):
-                    field_name_with_label = "%s___label___%s" %(field, label.strip())
+                    field_name_with_label = "%s_%s" %(field, label.strip())
                     es_field_name = field_name_with_label
                     tmp_dict = { 'es_field_name': es_field_name,
                                  'es_field_datatype': es_field_datatype,
