@@ -339,8 +339,11 @@ def search(request):
     if request.POST:
 
         if not request.user.is_anonymous():
-            if request.user.groups.count() != 1:
+            if request.user.groups.count() >= 1:
                 print('More than one group')
+                return HttpResponse(status=400)
+            elif request.user.groups.count() == 0:
+                print('All users must be in a group!')
                 return HttpResponse(status=400)
             else:
                 group = request.user.groups.all()[:1].get()

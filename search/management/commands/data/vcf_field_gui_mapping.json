@@ -2093,66 +2093,72 @@
     "sub_panel": "Exome Sequencing Project (ESP6500siv2)",
     "tab": "Basic"
   },
-  "CLNDBN": {
+  "clinvar_CLNDBN": {
     "filters": [
       {
         "display_text": "Disease name",
-        "es_filter_type": "filter_term",
+        "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-        "widget_type": "TextInput"
+        "widget_type": "TextInput",
+        "path": "clinvar"
       }
     ],
     "panel": "Disease Association",
     "sub_panel": "Clinically significant variants from ClinVar DB",
     "tab": "Basic"
   },
-  "CLINSIG": {
+  "clinvar_CLINSIG": {
     "filters": [
       {
         "display_text": "Clinical Significance",
-        "es_filter_type": "filter_terms",
+        "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
         "widget_type": "SelectMultiple",
-        "values": "get_from_es()"
+        "values": "get_from_es()",
+        "path": "clinvar"
       }
     ],
     "panel": "Disease Association",
     "sub_panel": "Clinically significant variants from ClinVar DB",
     "tab": "Basic"
   },
-  "CLNACC": {
+  "clinvar_CLNACC": {
     "filters": [
       {
         "display_text": "Accession and Versions",
-        "es_filter_type": "filter_term",
+        "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-        "widget_type": "TextInput"
+        "widget_type": "TextInput",
+        "path": "clinvar"
       }
     ],
     "panel": "Disease Association",
     "sub_panel": "Clinically significant variants from ClinVar DB",
     "tab": "Basic"
   },
-  "CLNDSDB": {
+  "clinvar_CLNDSDB": {
     "filters": [
       {
         "display_text": "Disease database name",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "path": "clinvar"
       }
     ],
     "panel": "Disease Association",
     "sub_panel": "Clinically significant variants from ClinVar DB",
     "tab": "Basic"
   },
-  "CLNDSDBID": {
+  "clinvar_CLNDSDBID": {
     "filters": [
       {
         "display_text": "Disease database ID",
-        "es_filter_type": "filter_term",
+        "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-        "widget_type": "TextInput"
+        "widget_type": "TextInput",
+        "path": "clinvar"
       }
     ],
     "panel": "Disease Association",
