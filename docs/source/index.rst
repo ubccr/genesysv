@@ -1207,4 +1207,24 @@ To build the UI using the JSON file, run the following command ::
     python manage.py import_config_from_json search/management/commands/data/demo_mon.json
 
 
+Annotating a vcf file using ANNOVAR:
+============================================
+We will be using a publicly available vcf from the pilot phase of the 1000 genomes project. The download is ~580MB::
 
+    wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/pilot_data/paper_data_sets/a_map_of_human_variation/low_coverage/snps/CHBJPT.low_coverage.2010_09.genotypes.vcf.gz
+
+We'll use the first 10,000 lines for the sake of expediency::
+
+    less CHBJPT.low_coverage.2010_09.genotypes.vcf.gz  | head -10000 > CHBJPT.low_coverage.2010_09.genotypes.sample.vcf    
+
+Sign up to download ANNOVAR at http://www.openbioinformatics.org/annovar/annovar_download_form.php. Once you receive the download link in your email, wget the link then ``tar -xvzf annovar.latest.tar.gz`` to unpack it.
+
+We now need to update our local ANNOVAR install with a few desired databases, so from your newly-unpacked annovar directory::
+
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ensGene humandb/
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20150629 humandb/
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp30a humandb/
+
+Now, run ANNOVAR on the small vcf we created::
+
+    perl table_annovar.pl ../annovar_1kgchr22/CHBJPT.low_coverage.2010_09.genotypes.sample.vcf ./humandb -buildver hg19 -out ../annovar_1kgchr22/CHBJPT.low_coverage.2010_09.genotypes.sample -protocol refGene,ensGene,clinvar_20150629,dbnsfp30a -operation g,g,f,f -nastring . -vcfinput -remove
