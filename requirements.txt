@@ -43,7 +43,6 @@ pexpect==4.2.1
 pickleshare==0.7.4
 Pillow==4.2.1
 pip-review==0.5.3
-pkg-resources==0.0.0
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 pycodestyle==2.3.1

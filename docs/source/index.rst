@@ -262,41 +262,35 @@ First create a new security group in Eucalyptus for the GDW application instance
 Use the same key pair you used for the Elasticsearch nodes, but this time, use the new GDW application security group instead of the Elasticsearch security group. (The Eucalyptus UI may pre-populate the security group list with your Elasticsearch security group – delete it from the list if so.)
 
 Next, allow TCP traffic access to port 9200 in the Elasticsearch security group that you created previously from your new instance's IP address. You need to use the Public IP address. GDW is built on top of Django. Django requires Python. The best way to
-install Django is to first install Anaconda Python, create a virtualenv in Anaconda Python, and finally install all the
-required python packages in the virtualenv using ``pip``. This setup ensures complete isolation of your python installation from the system-wide installation. Download Anaconda Python ::
+install Django is to first create a virtualenv, and then install all the
+required python packages in the virtualenv using ``pip``. This setup ensures complete isolation of your python installation from the system-wide installation. Note that GDW requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
 
-    wget https://repo.continuum.io/archive/Anaconda3-4.4.0-Linux-x86_64.sh
+    sudo apt-get install python3-venv
 
-Make the downloaded file executable using ``chmod`` ::
-
-    chmod +x Anaconda3-4.4.0-Linux-x86_64.sh
-
-Run the script to install Anaconda ::
-
-    ./Anaconda3-4.4.0-Linux-x86_64.sh
-
-and make sure agree to prepend the Anaconda3 install location. Log out and log back in so that Anaconda Python is your default Python. You check check this by executing ``which python``, which should show path to your newly installed Anaconda
-installation ::
-
-    which python
-    /Users/mkzia/anaconda3/bin/python
-
-Create a new Python virtualenv ::
-
-    conda create -n gdw python=3 pip
-
-Activate the new virtualenv::
-
-    source activate gdw
 
 Clone the GDW repository in to your GDW instance::
 
     git clone https://github.com/ubccr/GDW.git
 
+Change in to to GDW directory ::
 
-Install the python packages required for GDW ::
+    cd GDW
+
+Install the python virtual environment ::
+
+    python3.5 -m venv env
+
+Activate the newly created virtual environment ::
+
+    source env/bin/activate
+
+Install the python packages required for GDW, you can ignore the warning messages ::
 
      pip install -r requirements.txt
+
+GDW uses memcached to speed up form loading. Install memcached::
+
+    sudo apt-get install memcached
 
 Create the database tables associated with the app and some default values by executing ::
 
@@ -308,9 +302,9 @@ Create a superuser who can log in to the admin site::
 
     python manage.py createsuperuser
 
-Open gdw/settings.py and add the Public IP address in the allowed hosts lists::
+Open gdw/settings.py add your machines local Public IP address in the allowed hosts lists::
 
-    ALLOWED_HOSTS = ['199.109.194.239', 'gdwdev.ccr.buffalo.edu', 'gdw.ccr.buffalo.edu', 'PUT PUBLIC IP HERE']
+    ALLOWED_HOSTS = ['PUT PUBLIC IP HERE']
 
 save and close file.
 
@@ -320,7 +314,7 @@ Start the development server using the private IP address::
 
 Navigate the public IP address port 8000 of your instance and the GDW website should be running. Most of the functionality
 will be broken because there is no connection with the Elasticsearch database. You can stop the development server using
-``CTRL + c``. Note that the the manage.py commands also have to be run inside the ``gdw`` virtualenv.
+``CTRL + c``. Note that the the manage.py commands also have to be run inside the virtualenv.
 
 .. raw:: latex
 
@@ -351,8 +345,10 @@ Installation checklist for Genomics Data Warehouse
 
 Getting familiar with Elasticsearch
 =================================================
-Now we will import sample data in to Elasticsearch in order to get familiar with it. Start by first cloning the GDW repository
-to your local machine. Open the file ``new_data.json``. The file contains seven records that will be imported in to Elasticsearch. A sample JSON record is as follows::
+Now we will import a sample data in to Elasticsearch in order to get familiar with it. Open the file ``new_data.json`` located
+in ``GDW/docs/example``.
+The file contains seven records that will be imported in to Elasticsearch.
+A sample JSON record is as follows::
 
     {
         "index": 0,
@@ -386,16 +382,16 @@ to your local machine. Open the file ``new_data.json``. The file contains seven 
         "favoriteFruit": "strawberry"
     }
 
-There are nine fields in each record. The ``friend`` field is a nested field. Elasticsearch is a NoSQL database that stores
-JSON documents. Before inserting new documents in to Elasticsearch, you have to define the ''mapping'' of the data. A Mapping
-is a description of the data that indicates to Elasticsearch how to store and query the data. For example, if something
-is stored as a float, then Elasticsearch knows that range operators are allowed. To define the mapping, we will use the Python 3 API
-for Elasticsearch Make sure that your Python environment on your local machine has the Elasticsearch package installed::
+There are nine fields in each record. Note that the ``friend`` field is a nested field. Elasticsearch is a NoSQL database that stores
+JSON documents. Before inserting new documents in to Elasticsearch, you should define the ''mapping'' of the data. A Mapping
+is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if somethingis stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch
+can automatically assign a mapping, which might not be optimal. To define a mapping, we will use the Python 3 API
+for Elasticsearch. Make sure that Python virtual environment is activated and install the package ::
 
     pip install elasticsearch
 
 
-The following is a possible mapping for the JSON discussed previously::
+The following is a possible mapping for the JSON shown previously::
 
     'properties': {
         'index':            {'type' : 'integer'},
@@ -416,11 +412,10 @@ The following is a possible mapping for the JSON discussed previously::
         'favoriteFruit':    {'type' : 'keyword'}
     }
 
-The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend``, but it is a requirement of the GDW App. The ``balance`` field
-is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` as define as keyword.
+The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend_``, but it is a convention of the GDW App. The ``balance`` field
+is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` are define as keyword.
 Keyword mappings indicate to Elasticsearch that exact match is required, meaning it is case sensitive and spaces are significant.
-The fields ``tag`` and ``friend_name``, however, are defined as text. This is the default analyzer for Elasticsearch. Text types
-are are converted to lower case, split on spaces and punctuations are removed. So for example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will give a hit, but not ``John`` or ``DOE``.
+The fields ``tag`` and ``friend_name``, however, are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuations. So for example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
 
 We will now put the mapping in Elasticsearch using ``create_index.py``. Open the file for editing. Update the IP Address
 to an Elasticsearch node ::
@@ -437,7 +432,7 @@ in MySQL.
 
 ``type_name = 'demo_mon'`` specifies the ``type_name``. Type name in Elasticsearch is loosely equivalent to a table name, but
 in Elasticsearch it is a name of a type of document that will be stored in an index. The following conditional deletes
-the Index if it already exists. The following lines define the mapping previously discussed. ::
+the Index if it already exists. The following lines define the mapping previously discussed ::
 
     mapping = {
         type_name: {
@@ -464,13 +459,11 @@ the Index if it already exists. The following lines define the mapping previousl
 
 
 ``es.indices.put_mapping(index=INDEX_NAME, doc_type=type_name, body=mapping)`` puts the mapping in Elasticsearch. Run the script
-after updating the IP address to put the mapping in Elasticsearch. You can verify that the mapping has been put in Elasticsearch by going to http://199.109.XXX.XXX:9200/demo_mon?pretty=true
+after updating the IP address to put the mapping in Elasticsearch. You can verify that the mapping has been put in Elasticsearch by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true
 
 
-Next open the file ``insert_index.py`` and update the IP address. The is simple to understand. It reads the data contained
-in ``new_data.json`` and inserts it in to Elasticsearch. Run the script after updating the IP address. You can verify
-that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/_search?pretty=true. Now we will make some
-queries using Elasticsearch.
+Next open the file ``insert_index.py``. This script reads the data contained in ``new_data.json`` and inserts it in to Elasticsearch.
+Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch.
 
 Lets find all the active users. Paste the following in your shell::
 
@@ -486,7 +479,7 @@ Lets find all the active users. Paste the following in your shell::
 
 Lets find all users whose age is greater than or equal to 22. Paste the following in your shell::
 
-    curl -XGET 'http://199.109.193.196:9200/demo_mon/demo_mon/_search?pretty=true' -d '
+    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
         "query": {
             "range" : {
@@ -500,7 +493,7 @@ Lets find all users whose age is greater than or equal to 22. Paste the followin
 
 Lets find Friend name `tanner`. Paste the following in your shell::
 
-    curl -XGET 'http://199.109.193.196:9200/demo_mon/demo_mon/_search?pretty=true' -d '
+    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
         "query": {
             "nested" : {
@@ -516,8 +509,8 @@ Lets find Friend name `tanner`. Paste the following in your shell::
     '
 
 Notice that the whole document is returned along with the other the nested friends. This is how Elasticsearch works. GDW
-filters the irrelevant nested term -- somewhat broken right now. As you can see, the search query string can become
-unwieldy. Next we will learn how to create a GUI in GDW  to make queries with Elasticsearch convenient.
+filters the irrelevant nested term.  As you can see, the search query string can become
+unwieldy. Next we will learn how to create a GUI in GDW to make queries with Elasticsearch convenient.
 
 Building the GDW Web User Interface
 ============================================
