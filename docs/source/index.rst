@@ -165,7 +165,7 @@ to a website from which you can download the license to your local machine file.
 
     curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
 
-where you should update the IP address to match your Elasticsearch instance and after the `@` should be the name of your license file. You should receive a message as follows::
+where you should update the IP address to match your Elasticsearch instance and after the `@` should be the name of your license file. You should receive a message as follows ::
 
     {"acknowledged":false,"license_status":"valid","acknowledge":{"message":"This license update requires acknowledgement. To acknowledge the license, please read the following messages and update the license again, this time with the \"acknowledge=true\" parameter:","watcher":["Watcher will be disabled"],"security":["The following X-Pack security functionality will be disabled: authentication, authorization, ip filtering, and auditing. Please restart your node after applying the license.","Field and document level access control will be disabled.","Custom realms will be ignored."],"monitoring":["Multi-cluster support is disabled for clusters with [BASIC] license. If you are\nrunning multiple clusters, users won't be able to access the clusters with\n[BASIC] licenses from within a single X-Pack Kibana instance. You will have to deploy a\nseparate and dedicated X-pack Kibana instance for each [BASIC] cluster you wish to monitor.","Automatic index cleanup is locked to 7 days for clusters with [BASIC] license."],"graph":["Graph will be disabled"]}}
 
@@ -383,9 +383,9 @@ A sample JSON record is as follows::
     }
 
 There are nine fields in each record. Note that the ``friend`` field is a nested field. Elasticsearch is a NoSQL database that stores
-JSON documents. Before inserting new documents in to Elasticsearch, you should define the ''mapping'' of the data. A Mapping
-is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if somethingis stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch
-can automatically assign a mapping, which might not be optimal. To define a mapping, we will use the Python 3 API
+JSON documents. Before inserting new documents in to Elasticsearch, you should define a ''mapping'' of the data. A Mapping
+is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if something is stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch
+can automatically guess the mapping, but this may not be optimal. To define a mapping, we will use the Python 3 API
 for Elasticsearch. Make sure that Python virtual environment is activated and install the package ::
 
     pip install elasticsearch
@@ -412,10 +412,10 @@ The following is a possible mapping for the JSON shown previously::
         'favoriteFruit':    {'type' : 'keyword'}
     }
 
-The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend_``, but it is a convention of the GDW App. The ``balance`` field
+The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend_``, i.e.,but it is a convention of GDW. The ``balance`` field
 is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` are define as keyword.
 Keyword mappings indicate to Elasticsearch that exact match is required, meaning it is case sensitive and spaces are significant.
-The fields ``tag`` and ``friend_name``, however, are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuations. So for example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
+The ``tag`` and ``friend_name`` fields are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuations. So for example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
 
 We will now put the mapping in Elasticsearch using ``create_index.py``. Open the file for editing. Update the IP Address
 to an Elasticsearch node ::
@@ -463,11 +463,12 @@ after updating the IP address to put the mapping in Elasticsearch. You can verif
 
 
 Next open the file ``insert_index.py``. This script reads the data contained in ``new_data.json`` and inserts it in to Elasticsearch.
-Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch.
+Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch through the REST APi.
 
-Lets find all the active users. Paste the following in your shell::
+For all the following scripts, update the IP address before running them. The scripts are located in ``GDW/docs/example``
+Execute ``bash query1.es`` to find all the active users.  ::
 
-    curl -XGET 'http://199.109.193.196:9200/demo_mon/demo_mon/_search?pretty=true' -d '
+    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
         "query": {
             "bool": {
@@ -476,22 +477,21 @@ Lets find all the active users. Paste the following in your shell::
     }
     '
 
-
-Lets find all users whose age is greater than or equal to 22. Paste the following in your shell::
+Execute ``bash query2.es`` to find all users whose age is greater than or equal to 26 ::
 
     curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
         "query": {
             "range" : {
                 "age" : {
-                    "gte" : 22
+                    "gte" : 26
                 }
             }
         }
     }
     '
 
-Lets find Friend name `tanner`. Paste the following in your shell::
+Execute ``bash query3.es`` to find Friend name `tanner` ::
 
     curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
@@ -508,8 +508,8 @@ Lets find Friend name `tanner`. Paste the following in your shell::
     }
     '
 
-Notice that the whole document is returned along with the other the nested friends. This is how Elasticsearch works. GDW
-filters the irrelevant nested term.  As you can see, the search query string can become
+Notice that the whole JSON document is returned along with the other nested friends and not just `tanner`. This is how Elasticsearch works. GDW
+filters the irrelevant nested terms.  As you can see, the search query string can become
 unwieldy. Next we will learn how to create a GUI in GDW to make queries with Elasticsearch convenient.
 
 Building the GDW Web User Interface
@@ -557,8 +557,8 @@ a dataset. Datasets are associated with a study. Finally, study can contain mult
 Adding study, dataset, and search options
 --------------------------------------------
 To begin building the UI log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that
-the development server is running. Use the username and password that you used to create the `superuser`. First we will
-add a new study by clicking the ``+ Add`` button next to `Studys`, see Figure :numref:`add_study`. In the `Add Study`
+the development server is running. Use the username and password that you used to create the ``superuser``. First we will
+add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure :numref:`add_study`. In the ``Add Study``
 page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is
 optional, as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in
 the breadcrumb navigation to return to the admin home page.
@@ -578,10 +578,10 @@ the breadcrumb navigation to return to the admin home page.
    Figure shows the Add study page. This page is used to add and update a study.
 
 Next we will add a dataset that is associated with the study that we just added. Click ``+ Add`` button next to
-`Datasets`. Select the study that you just added from the drop down menu. Fill in the dataset name
-and description field. Next fill in the `Es index name`, `Es type name`, `Es host`, and `Es port`, which should be
-`demo_mon`, `demo_mon`, the public IP address to an Elasticsearch node instance, and 9200, respectively. Check the
-`is_public` field to make the demo dataset accessible by all. The allowed groups field allows you to manage which
+``Datasets``. Select the study that you just added from the drop down menu. Fill in the dataset name
+and description field. Next fill in the ``Es index name``, ``Es type name``, ``Es host``, and ``Es port``, which should be
+`demo_mon`, `demo_mon`, the public IP address to the Elasticsearch node instance, and 9200, respectively. Check the
+``is_public`` field to make the demo dataset accessible by all. The allowed groups field allows you to manage which
 groups can access the dataset if you want to restrict access to the dataset. User permissions will be described
 in detail later. Figure :numref:`add_dataset_page` shows the add dataset page with the fields filled.
 Click on the `home` link in the breadcrumb navigation to return to the admin home page.
@@ -597,8 +597,8 @@ Next we need to add search options for the dataset. A dataset can contain millio
 many results can cause rendering issues, so we use search options to limit the number of results that are shown to
 400 documents. If you want to to fetch all the results, you can download them from the search results page.
 To add the default search options,
-click the ``+ Add`` button next to `Search options`. Choose the dataset you just added and leave the other values
-to the default. Figure :numref:`add_search_options_page` shows the page for adding searching options for a dataset.
+click the ``+ Add`` button next to ``Search options``. Choose the dataset you just added and leave the other values
+to the default and click SAVE. Figure :numref:`add_search_options_page` shows the page for adding searching options for a dataset.
 
 .. _add_search_options_page:
 .. figure:: images/add_search_options_page.png
@@ -610,20 +610,19 @@ to the default. Figure :numref:`add_search_options_page` shows the page for addi
 
 Adding filter fields
 ---------------------------
-Now we are ready to add filter fields. Currently GDW supports three types of forms for filter fields: `CharField`,
-`ChoiceField` and `MultipleChoiceField`. The `CharField` can use three types of form widget: `TextInput`, `TextArea`,
-and `UploadField`. The `TextInput` widget is a simple text input box that allows the user to search for a single term.
-The `TextArea` is also a text input box but allows rows of terms. Finally, the `UploadField` is uses the `TextArea` widget but with an extra upload button that allows the user to select a file from which to populate the `TextArea` widget.
-The `TextArea` and `UploadField` widgets allow the user to search for multiple terms. The `ChoiceField` uses the `Select` widget
+Now we are ready to add filter fields. Currently GDW supports three types of forms for filter fields: ``CharField``,
+``ChoiceField`` and ``MultipleChoiceField``. The ``CharField`` can use three types of form widget: ``TextInput``, ``TextArea``,
+and ``UploadField``. The ``TextInput`` widget is a simple text input box that allows the user to search for a single term.
+The ``TextArea`` is also a text input box but allows rows of terms. Finally, the ``UploadField`` uses the ``TextArea`` widget but with an extra upload button that allows users to select a file from which to populate the ``TextArea`` widget.
+The ``TextArea`` and ``UploadField`` widgets allow users to search for multiple terms. The ``ChoiceField`` uses the ``Select`` widget
 that renders a single-select drop down menu for selecting a single term to search for from a list of
-choices. And the `MultipleChoiceField` field uses a `SelectMultiple` widget that renders a multi-select field to allow
-the user to select multiple terms to search for from a list of choices.
+choices. And the ``MultipleChoiceField`` field uses a ``SelectMultiple`` widget that renders a multi-select field to allow
+users to select multiple terms to search for from a list of choices.
 
-Click ``+ Add`` button next to the ``Filter Fields``. Select `test_dataset` for Dataset, fill in `Display name`,
-`Form type`, `Widget type`, `Es name`, `Es data type`, and `Es filter type` with `First Name, `CharField`, `TextArea`, `first`,
-`keyword`, and
-`filter_term`, respectively. Hit save to create the field. Figure :numref:`add_filter_field_page` shows an example
-page for adding a filter field.
+Click ``+ Add`` button next to the ``Filter Fields``. Select ``test_dataset`` for Dataset, fill in ``Display name``,
+``Form type``, ``Widget type``, ``Es name``, ``Es data type``, and ``Es filter type``, ``Place in panel`` with
+``First Name``, ``CharField``, ``TextArea``, ``first``, ``keyword``, ``filter_term``, and ``User Information``,
+respectively. Hit save to create the field. Figure :numref:`add_filter_field_page` shows an example page for adding a filter field.
 
 .. _add_filter_field_page:
 .. figure:: images/add_filter_field_page.png
@@ -632,16 +631,22 @@ page for adding a filter field.
 
    Figure shows the add filter field page.
 
-The `Display name` field allows the user to specify the name that will be displayed as the text title for the filter
-field. This name can be different from the name in Elasticsearch. The `In line tooltip`
-field allows the user to display a a tooltip next to the display name. The `Tooltip` field allows the user to specify
+The ``Display name`` field allows the user to specify the name that will be displayed as the text label for the filter
+field. This name can be different from the name in Elasticsearch. The ``In line tooltip``
+field allows the user to display a tooltip next to the display name. The ``Tooltip`` field allows the user to specify
 a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field.
-The `Form type` is one of the three form types that GDW currently supports. The `Widget type` is one of the five types
-of Widget that GDW currently supports. The `Es name` is the name of field that will be searched in Elasticsearch.
-The `path` field specifies the path of the filter field if it is a nested field. By convention, GDW expects that the path name be prefixed to the `Es name` of any filter field. For example, ES field name will be `friend_name` and the its path name will be `friend`.
-The `Es data type` field specifies what Elasticsearch data type the field is such as integer, float, keyword or text.
-Finally, the `Es filter type` field allows the user to specify which Elasticsearch type query to use.
-Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GDW. Finally,
+The ``Form type`` is one of the three form types that GDW currently supports. The ``Widget type`` is one of the five types
+of Widget that GDW currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch.
+The ``path`` field specifies the path of the filter field if it is a nested field. By convention, GDW expects that the path name
+and an underscore be prefixed to the ``Es name`` of the nested filter field. For example, ES field name will
+be ``friend_name`` and the its path name will be ``friend``. The ``Es data type`` field specifies what Elasticsearch data type
+the field is such as integer, float, keyword or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use
+if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+for details about the various analyzers.
+The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel``
+is used internally by GDW for properly displaying the available filter fields for a given dataset. It should be the
+``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide
+filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GDW.
 
 .. tabularcolumns:: |J|J|
 
@@ -662,29 +667,37 @@ must_not_exists              To find documents in which the field specified does
 nested_filter_exists         To find documents in which the nested field specified exists
 ===========================  ===========================================================================================
 
-Using the information in table 2, create the remaining filter fields. Figure :numref:`all_filter_fields_listed` shows what the admin site should look after adding the 13 fields.
+Using the information in table 2, create the remaining filter fields. Figure :numref:`all_filter_fields_listed` shows what the admin site should look after adding the 13 fields. Note that the dataset for all the filter fields is ``test_dataset``.
 
-
-
-.. tabularcolumns:: |J|J|J|J|J|J|J|J|J|
-
-====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================
-Dataset                 Display  name           In line tooltip         Form type               Widget type             Es name                 path                    Es data type            Es filter type
-====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================
-test_dataset            First Name                                      CharField               Textinput               first                                           keyword                 filter_term
-test_dataset            Index                                           CharField               Textinput               index                                           integer                 filter_term
-test_dataset            Last Name                                       CharField               Textinput               last                                            keyword                 filter_term
-test_dataset            Age                     (<=)                    CharField               Textinput               age                                             integer                 filter_range_lte
-test_dataset            Age                     (>=)                    CharField               Textinput               age                                             integer                 filter_range_gte
-test_dataset            Is Active                                       ChoiceField             Select                  isActive                                        keyword                 filter_term
-test_dataset            Balance                 (<=)                    CharField               Textinput               balance                                         float                   filter_range_lte
-test_dataset            Balance                 (>=)                    CharField               Textinput               balance                                         float                   filter_range_gte
-test_dataset            Favorite Fruit                                  CharField               Textinput               favoriteFruit                                   keyword                 filter_term
-test_dataset            Eye Color                                       MultipleChoiceField     SelectMultiple          eyeColor                                        keyword                 filter_terms
-test_dataset            Tag                                             CharField               Textinput               tag                                             text                    filter_term
-test_dataset            Friend ID                                       CharField               Textinput               friend_id               friend                  integer                 nested_filter_term
-test_dataset            Friend Name                                     CharField               Textinput               friend_name             friend                  text                    nested_filter_term
-====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================    ====================
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Display name   | in line tooltip | Form type           | Widget Type    | ES Name       | Path   | ES Data Type | ES Filter Type     | Place in Panel      |
++================+=================+=====================+================+===============+========+==============+====================+=====================+
+| First Name     |                 | CharField           | Textinput      | first         |        | keyword      | filter_term        | User Information    |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Index          |                 | CharField           | Textinput      | index         |        | integer      | filter_term        | User Information    |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Last Name      |                 | CharField           | Textinput      | last          |        | keyword      | filter_term        | User Information    |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Age            | (<=)            | CharField           | Textinput      | age           |        | integer      | filter_range_lte   | User Information    |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Age            | (>=)            | CharField           | Textinput      | age           |        | integer      | filter_range_gte   | User Information    |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Is Active      |                 | ChoiceField         | Select         | isActive      |        | keyword      | filter_term        | Account Information |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Balance        | (<=)            | CharField           | Textinput      | balance       |        | float        | filter_range_lte   | Account Information |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Balance        | (>=)            | CharField           | Textinput      | balance       |        | float        | filter_range_gte   | Account Information |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Favorite Fruit |                 | CharField           | Textinput      | favoriteFruit |        | keyword      | filter_term        | Other Information   |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Eye Color      |                 | MultipleChoiceField | SelectMultiple | eyeColor      |        | keyword      | filter_terms       | Other Information   |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Tag            |                 | CharField           | Textinput      | tag           |        | text         | filter_term        | Other Information   |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Friend ID      |                 | CharField           | Textinput      | friend_id     | friend | integer      | nested_filter_term | Other Information   |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
+| Friend Name    |                 | CharField           | Textinput      | friend_name   | friend | text         | nested_filter_term | Other Information   |
++----------------+-----------------+---------------------+----------------+---------------+--------+--------------+--------------------+---------------------+
 
 .. _all_filter_fields_listed:
 .. figure:: images/all_filter_fields_listed.png
@@ -693,9 +706,8 @@ test_dataset            Friend Name                                     CharFiel
 
    Figure shows all the filter fields in the admin site.
 
-`ChoiceField` and `MultipleChoiceField` require that you specify choices for them. Click the ``+ Add`` next to the
-`Filter Choice Fields`. Click the search icon to open a another window from which you will choose 'Is Active (test-dataset)' for Filter field. This will automatically
-put the id of the chosen field in the filter field. Next specify the value `true` and hit save.
+``ChoiceField`` and ``MultipleChoiceField`` require that you specify choices for them. Click the ``+ Add`` next to the
+``Filter Choice Fields``. Click the search (magnifying glass) icon to open a another window from which you will choose ``Is Active (test-dataset)`` for Filter field. This will automatically put the ID of the chosen field in the filter field. Next specify the value ``true`` and hit save.
 Figure :numref:`add_filter_field_choice` shows an example add filter field choice page.
 
 .. _add_filter_field_choice:
@@ -703,11 +715,11 @@ Figure :numref:`add_filter_field_choice` shows an example add filter field choic
    :scale: 75 %
    :alt: Add Filter Field Choice Page
 
-   Figure shows an example of add filter choice field page. Single and multiple select choice fields require that you specify
+   Figure shows an example of an add filter choice field page. Single and multiple select choice fields require that you specify
    the choices. This page is used to add choices.
 
-Next add the value `false` for 'Is Active (test-dataset)'. Similarly for `Eye Color (test_dataset)` add the colors
-`brown`, `blue`, `green`. Figure :numref:`all_filter_field_choices` shows what the admin site should look like
+Next add the value ``false`` for ``Is Active (test-dataset)``. Similarly for ``Eye Color (test_dataset)`` add the colors
+``brown``, ``blue``, ``green``. Figure :numref:`all_filter_field_choices` shows what the admin site should look like
 after adding five filter field choices.
 
 .. _all_filter_field_choices:
@@ -717,9 +729,65 @@ after adding five filter field choices.
 
    Figure shows what the admin site should look like after adding some filter field choice options.
 
+Once the filter fields and filter field choices have been created, you now need to create three panels and a tab. Click
+``+ Add`` next to ``Filter panels``. Choose ``test_dataset`` for Dataset and input ``User Information`` name and and hit save.
+Figure :numref:`add_filter_panel` shows the add filter page.
 
-Once the filter fields and filter field choices have been created, you now need to create a tab and a panel. Click
-``+ Add`` next to ``Filter tabs``. Choose `test_dataset` for Dataset, specify `Basic` for name and hit save.
+.. _add_filter_panel:
+.. figure:: images/all_filter_panel.png
+   :scale: 75 %
+   :alt: Add Filter Panel
+
+   Figure shows an example of an add filter panel page.
+
+After you hit save, you should see a page for selecting filter panel. This page should list only one name--``User Information``.
+Click on ``User Information``, which will lead you to a page to edit the new panel you created. Notice that this time
+the ``Filter fields`` section has less options to select from, see Figure :numref:`edit_filter_panel`.
+
+.. _edit_filter_panel:
+.. figure:: images/edit_filter_panel.png
+   :scale: 75 %
+   :alt: Edit Filter Panel
+
+   Figure shows an example of a change filter panel page with filtered lists of filter fields available for selection.
+
+This is because when we created the filter fields, we specified ``Place in panel`` field. This field is used to filter the list of
+available filter fields you can add to a panel, but
+only after the panel has been created with a ``Name`` that matches the ``Place in panel`` field of a filter field. Check all the filter fields.
+and hit SAVE. Now create two more panels: ``Account Information`` and ``Other Information``. For both panels, first just create
+the panels with the name only, not adding any filter fields to the panel. Then for the ``Account Information``, edit it after
+it has been created and add the fields listed in the ``Filter fields``. For the ``Other Information`` panel, we will not add
+the filter fields. Rather, we will first create subpanels and then associate the filter fields with them.
+
+Click the ``+ Add`` next to ``Filter sub panels``. For ``Dataset`` select ``test_dataset``, for ``Filter panel`` select ``Other Information``,
+for ``Name`` input ``Non-nested Fields`` and hit SAVE, see Figure :numref:`edit_filter_sub_panel`. In the sub panel to change page,
+click ``Non-nested Fields`` panel to edit. Select ``Favorite Fruit``, ``Eye Color``, and ``Tag`` and hit SAVE, see Figure :numref:`edit_filter_sub_panel2`.
+
+.. _edit_filter_sub_panel:
+.. figure:: images/edit_filter_sub_panel.png
+   :scale: 75 %
+   :alt: Edit Filter subpanel without filtered list
+
+   Figure shows an example of a change filter subpanel page without filtered lists of filter fields available for selection.
+
+.. _edit_filter_sub_panel2:
+.. figure:: images/edit_filter_sub_panel2.png
+   :scale: 75 %
+   :alt: Edit Filter subpanel
+
+   Figure shows an example of a change filter subpanel page with filtered lists of filter fields available for selection.
+
+Next create another subpanel called ``Nested Fields`` and click SAVE, and then add filter fields ``Friend ID`` and ``Friend Name``,
+see Figure :numref:`edit_nested_panel`.
+
+.. _edit_nested_panel:
+.. figure:: images/edit_nested_panel.png
+   :scale: 75 %
+   :alt: Edit Filter subpanel with filtered list
+
+   Figure shows an example of a change filter subpanel page with filtered lists of filter fields available for selection.
+
+Finally, click ``+ Add`` next to ``Filter tabs``. Input ``Basic`` for name and select all three panels and hit SAVE, see
 Figure :numref:`add_filter_tab` shows an example of the add filter tab page.
 
 .. _add_filter_tab:
@@ -729,29 +797,16 @@ Figure :numref:`add_filter_tab` shows an example of the add filter tab page.
 
    Figure shows an example of the add filter tab page.
 
-
-
-
-Next we need put all the filter fields in to a panel. Click ``+ Add`` next to ``Filter panels``. Select
-`Basic` for Filter tab. Name the panel `Demo Panel` and check all the fields in the `filter fields` div.
-Figure :numref:`add_filter_panel` shows the screen for adding a new panel.
-
-.. _add_filter_panel:
-.. figure:: images/add_filter_panel.png
-   :scale: 75 %
-   :alt: List Filter Filed Choices
-
-   Figure shows an example of the add filter panel page.
-
 This completes the steps needed to add the filter fields. To recap, there are 7 steps for building the filter UI:
 
 1. Add study
 2. Add dataset
 3. Add search options
-4. Add filter field
+4. Add filter fields
 5. Add filter field choices if necessary
-6. Add tab
-7. Add panel
+6. Add panels
+7. Add subpanels if necessary
+8. Add tab
 
 Adding attribute fields
 -----------------------------
@@ -767,31 +822,48 @@ Note that you only need one field for age and balance.
 
    Figure shows an example of what the admin site should look like after adding all the attribute fields.
 
-.. tabularcolumns:: |J|J|J|
-
-================ ==================== ==================
-Display name     Es Name              path
-================ ==================== ==================
-Index            index                None
-Is Active        isActive             None
-Balance ($)      balance              None
-Age              age                  None
-Eye Color        eyeColor             None
-First Name       first                None
-Last Name        last                 None
-Tag              tag                  None
-Favorite Fruit   favoriteFruit        None
-Friend ID        friend_id            friend
-Friend Name      friend_name          friend
-================ ==================== ==================
++----------------+---------------+--------+---------------------+
+| Display Name   | ES Name       | path   | Place in Panel      |
++================+===============+========+=====================+
+| First Name     | first         |        | User Information    |
++----------------+---------------+--------+---------------------+
+| Last Name      | last          |        | User Information    |
++----------------+---------------+--------+---------------------+
+| Age            | age           |        | User Information    |
++----------------+---------------+--------+---------------------+
+| Index          | index         |        | User Information    |
++----------------+---------------+--------+---------------------+
+| Is Active      | isActive      |        | Account Information |
++----------------+---------------+--------+---------------------+
+| Balance        | balance       |        | Account Information |
++----------------+---------------+--------+---------------------+
+| Eye Color      | eyeColor      |        | Other Information   |
++----------------+---------------+--------+---------------------+
+| Tag            | tag           |        | Other Information   |
++----------------+---------------+--------+---------------------+
+| Favorite Fruit | favoriteFruit |        | Other Information   |
++----------------+---------------+--------+---------------------+
+| Friend ID      | friend_id     | friend | Other Information   |
++----------------+---------------+--------+---------------------+
+| Friend Name    | friend_name   | friend | Other Information   |
++----------------+---------------+--------+---------------------+
 
 The steps for building the attribute fields GUI, assuming that the study, dataset, and the search options have been
 added, are:
 
-1. Add attribute field
-2. Add tab
-3. Add panel
+1. Add attribute fields
+2. Add panels
+3. Add subpanels if necessary
+4. Add tab
 
+Figure :numref:`attribute_fields` shows the attribute fields.
+
+.. _attribute_fields:
+.. figure:: images/attribute_fields.png
+   :scale: 75 %
+   :alt: Attribute fields
+
+   Figure shows all the attribute fields added
 
 Now we can start using the GDW GUI to search.
 
@@ -857,20 +929,18 @@ it splits on spaces and converts strings to lowercase. So the name `Greta Henry`
 But you can now search for `Greta Henry` using either the first or last name, irrespective of the case.
 
 
-
 Rearrange Filter and Attribute Fields
 -------------------------------------------
 This use case shows how to rearrange the results and to rearrange the filter and attribute fields.
 http://199.109.xxx.xxx:8000/search/ and select 'test_study' for study and 'Test Dataset' for dataset and click
 Next to proceed to the filter selection tab. In the Filter demo panel, do not select anything. Proceed to the attribute
-field and select all the fields except the two friends field and click Search to search. Yo should see eight results.
-The arrangement of the results, meaning the columns, is not in a logical order. Maybe the name columns should precede all the
-columns except index. You can rearrange the columns in the result by managing the order of the attributes by dragging
-the order of the attributes under the Summary div, see Figure xxx. Click search again to rearrange the results.
+field and select all the fields except the two friends field and click Search to search. You should see eight results.
+You can rearrange the columns in the result by managing the order of the attributes by dragging
+the order of the attributes under the Summary div. Click search again to rearrange the results.
 The rearranged results are also reflected in the Downloaded TSV file.
 
 It is possible to rearrange the filter and attributes in the panels also. Log in to the GDW admin and select the filter
-or attribute panel you want to rearrange. Drag and drop the fields to rearrange the order, see Figure xxx. Now when you
+or attribute panel you want to rearrange. Drag and drop the fields to rearrange the order. Now when you
 search the panels, the fields should be in the order you specified.
 
 
@@ -883,291 +953,13 @@ are associated filter and attribute tabs. Tabs contain panels and sometimes the 
 subpanels contain the filter and attribute fields. This nested hierarchical relationship is easily represented in a JSON.
 THe following JSON shows an example JSON for building a GUI associated with the test dataset. ::
 
-    {
-      "study": {
-        "name": "Demo Study",
-        "description": "This is a Demo Study",
-        "dataset": {
-          "name": "demo_mon",
-          "description": "Test Dataset",
-          "es_index_name": "demo_mon",
-          "es_type_name": "demo_mon",
-          "es_host": "199.109.193.196",
-          "es_port": "9200",
-          "is_public": true,
-          "filters": {
-            "tabs": [
-              {
-                "name": "Basic",
-                "panels": [
-                  {
-                    "name": "User Information",
-                    "fields": [
-                      {
-                        "display_name": "Index",
-                        "in_line_tooltip": "",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "index",
-                        "es_filter_type": "filter_term",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "First Name",
-                        "in_line_tooltip": "",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "first",
-                        "es_filter_type": "filter_term",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Last Name",
-                        "in_line_tooltip": "",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "last",
-                        "es_filter_type": "filter_term",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Age",
-                        "in_line_tooltip": "(<=)",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "age",
-                        "es_filter_type": "filter_range_lte",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Age",
-                        "in_line_tooltip": "(>=)",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "age",
-                        "es_filter_type": "filter_range_gte",
-                        "path": ""
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Account Information",
-                    "fields": [
-                      {
-                        "display_name": "Is Active",
-                        "in_line_tooltip": "",
-                        "tooltip": "",
-                        "form_type": "ChoiceField",
-                        "widget_type": "Select",
-                        "es_name": "isActive",
-                        "es_filter_type": "filter_term",
-                        "path": "",
-                        "values": [
-                          "true",
-                          "false"
-                        ]
-                      },
-                      {
-                        "display_name": "Balance",
-                        "in_line_tooltip": "(<=)",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "balance",
-                        "es_filter_type": "filter_range_lte",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Balance",
-                        "in_line_tooltip": "(>=)",
-                        "tooltip": "",
-                        "form_type": "CharField",
-                        "widget_type": "TextInput",
-                        "es_name": "balance",
-                        "es_filter_type": "filter_range_gte",
-                        "path": ""
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Other Information",
-                    "subpanels": [
-                      {
-                        "name": "Non-nested Fields",
-                        "fields": [
-                          {
-                            "display_name": "Favorite Fruit",
-                            "in_line_tooltip": "",
-                            "tooltip": "",
-                            "form_type": "MultipleChoiceField",
-                            "widget_type": "SelectMultiple",
-                            "es_name": "favoriteFruit",
-                            "es_filter_type": "filter_terms",
-                            "path": "",
-                            "values": "get_from_es()"
-                          },
-                          {
-                            "display_name": "Eye Color",
-                            "in_line_tooltip": "",
-                            "tooltip": "",
-                            "form_type": "MultipleChoiceField",
-                            "widget_type": "SelectMultiple",
-                            "es_name": "eyeColor",
-                            "es_filter_type": "filter_terms",
-                            "path": "",
-                            "values": [
-                              "blue",
-                              "brown",
-                              "green"
-                            ]
-                          },
-                          {
-                            "display_name": "Tag",
-                            "in_line_tooltip": "",
-                            "tooltip": "",
-                            "form_type": "CharField",
-                            "widget_type": "TextInput",
-                            "es_name": "tag",
-                            "es_filter_type": "filter_term",
-                            "path": ""
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Nested Fields",
-                        "fields": [
-                          {
-                            "display_name": "Friend ID",
-                            "in_line_tooltip": "",
-                            "tooltip": "",
-                            "form_type": "MultipleChoiceField",
-                            "widget_type": "SelectMultiple",
-                            "es_name": "friend_id",
-                            "es_filter_type": "nested_filter_terms",
-                            "path": "friend",
-                            "values": "get_from_es()"
-                          },
-                          {
-                            "display_name": "Friend Name",
-                            "in_line_tooltip": "",
-                            "tooltip": "",
-                            "form_type": "CharField",
-                            "widget_type": "TextInput",
-                            "es_name": "friend_name",
-                            "es_filter_type": "nested_filter_term",
-                            "path": "friend"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "attributes": {
-            "tabs": [
-              {
-                "name": "Basic",
-                "panels": [
-                  {
-                    "name": "User Information",
-                    "fields": [
-                      {
-                        "display_name": "Index",
-                        "es_name": "index",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "First Name",
-                        "es_name": "first",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Last Name",
-                        "es_name": "last",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Age",
-                        "es_name": "age",
-                        "path": ""
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Account Information",
-                    "fields": [
-                      {
-                        "display_name": "Is Active",
-                        "es_name": "isActive",
-                        "path": ""
-                      },
-                      {
-                        "display_name": "Balance",
-                        "es_name": "balance",
-                        "path": ""
-                      }
-                    ]
-                  },
-                  {
-                    "name": "Other Information",
-                    "subpanels": [
-                      {
-                        "name": "Non-nested Fields",
-                        "fields": [
-                          {
-                            "display_name": "Favorite Fruit",
-                            "es_name": "favoriteFruit",
-                            "path": ""
-                          },
-                          {
-                            "display_name": "Eye Color",
-                            "es_name": "eyeColor",
-                            "path": ""
-                          },
-                          {
-                            "display_name": "Tag",
-                            "es_name": "tag",
-                            "path": ""
-                          }
-                        ]
-                      },
-                      {
-                        "name": "Nested Fields",
-                        "fields": [
-                          {
-                            "display_name": "Friend ID",
-                            "es_name": "friend_id",
-                            "path": "friend"
-                          },
-                          {
-                            "display_name": "Friend Name",
-                            "es_name": "friend_name",
-                            "path": "friend"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      }
-    }
 
 You should be familiar with all the properties except ``values`` for filter fields. The ``values`` property allows
 you to define the values for single and multiple select fields. There are three ways to specify the values. First, as an
 array of values. Second, by specifying ``get_from_es()``. This method will grab the first 1000 unique values from Elasticsearch.
 Third, by specifying a valid Python string that when evaluated results in a Python list. To use this method, put
 the Python string inside ``python_eval()``, for example, ::
+
     "values": "python_eval([str(n) for n in range(23)] + ['X', 'Y', 'MT'])"
 
 When defining the filter fields, you do not need to specify the `Es data type`. This information is automatically fetched

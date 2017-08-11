@@ -32,7 +32,6 @@ class FilterSubPanelForm(forms.ModelForm):
             print(kwargs.get('instance'))
             self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
                                                                                dataset=kwargs['instance'].dataset)
-
     class Meta:
         model = FilterSubPanel
         exclude = ('dataset',)
