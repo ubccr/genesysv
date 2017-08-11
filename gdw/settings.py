@@ -25,7 +25,7 @@ SECRET_KEY = '4*6$y+wz$!8mjq01t=th10(0rl^z89$)t4g#9*86kk-+0_sd5i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.109.194.239', 'gdwdev.ccr.buffalo.edu', 'gdw.ccr.buffalo.edu']
+ALLOWED_HOSTS = ['199.109.193.136']
 
 
 # Application definition

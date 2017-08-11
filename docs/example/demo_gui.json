@@ -1,0 +1,131 @@
+{
+  "first": {
+    "filters": [
+      {
+        "display_text": "First Name",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "User Information",
+    "tab": "Basic"
+  },
+  "last": {
+    "filters": [
+      {
+        "display_text": "Last Name",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "User Information",
+    "tab": "Basic"
+  },
+  "age": {
+    "filters": [
+      {
+        "display_text": "Age",
+        "in_line_tooltip": "(>=)",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "User Information",
+    "tab": "Basic"
+  },
+  "isActive": {
+    "filters": [
+      {
+        "display_text": "Is Active",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "widget_type": "isActive"
+      }
+    ],
+    "panel": "Account Information",
+    "tab": "Basic"
+  },
+  "balance": {
+    "filters": [
+      {
+        "display_text": "Balance",
+        "in_line_tooltip": "(>=)",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Account Information",
+    "tab": "Basic"
+  },
+  "favoriteFruit": {
+    "filters": [
+      {
+        "display_text": "Favorite Fruit",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other Information",
+    "sub_panel": "Non-nested Fields",
+    "tab": "Basic"
+  },
+  "eyeColor": {
+    "filters": [
+      {
+        "display_text": "Eye Color",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Other Information",
+    "sub_panel": "Non-nested Fields",
+    "tab": "Basic"
+  },
+  "tag": {
+    "filters": [
+      {
+        "display_text": "Tag",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other Information",
+    "sub_panel": "Non-nested Fields",
+    "tab": "Basic"
+  },
+  "friend_id": {
+    "filters": [
+      {
+        "display_text": "Friend ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "friend"
+      }
+    ],
+    "panel": "Other Information",
+    "sub_panel": "Nested Fields",
+    "tab": "Basic"
+  },
+  "friend_name": {
+    "filters": [
+      {
+        "display_text": "Friend Name",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "friend"
+      }
+    ],
+    "panel": "Other Information",
+    "sub_panel": "Nested Fields",
+    "tab": "Basic"
+  }
+}

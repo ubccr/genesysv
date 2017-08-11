@@ -29,6 +29,7 @@ class Study(TimeStampedModel):
 
     class Meta:
         unique_together = ('name', 'description',)
+        verbose_name_plural = 'studies'
 
     def __str__(self):
         return self.name
@@ -182,8 +183,6 @@ class FilterTab(TimeStampedModel):
 
     def __str__(self):
         return self.name
-
-
 
 class AttributePanel(TimeStampedModel):
     dataset = models.ForeignKey(
