@@ -1,4 +1,16 @@
 {
+  "index": {
+    "filters": [
+      {
+        "display_text": "Index",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "User Information",
+    "tab": "Simple"
+  },
   "first": {
     "filters": [
       {
@@ -9,7 +21,7 @@
       }
     ],
     "panel": "User Information",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "last": {
     "filters": [
@@ -21,20 +33,27 @@
       }
     ],
     "panel": "User Information",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "age": {
     "filters": [
       {
         "display_text": "Age",
-        "in_line_tooltip": "(>=)",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Age",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
     "panel": "User Information",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "isActive": {
     "filters": [
@@ -42,24 +61,32 @@
         "display_text": "Is Active",
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
-        "widget_type": "isActive"
+        "widget_type": "Select",
+        "values": "get_from_es()"
       }
     ],
     "panel": "Account Information",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "balance": {
     "filters": [
       {
         "display_text": "Balance",
-        "in_line_tooltip": "(>=)",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "in_line_tooltip": "(<=)"
+      },
+      {
+        "display_text": "Balance",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
-        "widget_type": "TextInput"
+        "widget_type": "TextInput",
+        "in_line_tooltip": "(>=)"
       }
     ],
     "panel": "Account Information",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "favoriteFruit": {
     "filters": [
@@ -72,7 +99,7 @@
     ],
     "panel": "Other Information",
     "sub_panel": "Non-nested Fields",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "eyeColor": {
     "filters": [
@@ -80,12 +107,13 @@
         "display_text": "Eye Color",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
-        "widget_type": "SelectMultiple"
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()"
       }
     ],
     "panel": "Other Information",
     "sub_panel": "Non-nested Fields",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "tag": {
     "filters": [
@@ -98,7 +126,7 @@
     ],
     "panel": "Other Information",
     "sub_panel": "Non-nested Fields",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "friend_id": {
     "filters": [
@@ -106,13 +134,12 @@
         "display_text": "Friend ID",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-        "widget_type": "TextInput",
-        "path": "friend"
+        "widget_type": "TextInput"
       }
     ],
     "panel": "Other Information",
     "sub_panel": "Nested Fields",
-    "tab": "Basic"
+    "tab": "Simple"
   },
   "friend_name": {
     "filters": [
@@ -126,6 +153,6 @@
     ],
     "panel": "Other Information",
     "sub_panel": "Nested Fields",
-    "tab": "Basic"
+    "tab": "Simple"
   }
 }
