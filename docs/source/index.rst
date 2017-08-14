@@ -948,10 +948,167 @@ Programmatically building the Web User Interface
 =================================================
 By now you should be familiar with the components of the UI and how it is built using the GDW
 admin site. Now we will show you how to do this programmatically. The UI is built by reading a JSON file that defines
-the nested hierarchical relationship between the components of the UI. Recall that a study contains datasets. Datasets
-are associated filter and attribute tabs. Tabs contain panels and sometimes the panels can contain subpanels. The panels or
-subpanels contain the filter and attribute fields. This nested hierarchical relationship is easily represented in a JSON.
-THe following JSON shows an example JSON for building a GUI associated with the test dataset. ::
+for each data type its location in the UI.  The following JSON shows an example JSON for building a UI associated with the test dataset. ::
+
+    {
+      "index": {
+        "filters": [
+          {
+            "display_text": "Index",
+            "es_filter_type": "filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "User Information",
+        "tab": "Simple"
+      },
+      "first": {
+        "filters": [
+          {
+            "display_text": "First Name",
+            "es_filter_type": "filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "User Information",
+        "tab": "Simple"
+      },
+      "last": {
+        "filters": [
+          {
+            "display_text": "Last Name",
+            "es_filter_type": "filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "User Information",
+        "tab": "Simple"
+      },
+      "age": {
+        "filters": [
+          {
+            "display_text": "Age",
+            "es_filter_type": "filter_range_lte",
+            "form_type": "CharField",
+            "in_line_tooltip": "(<=)",
+            "widget_type": "TextInput"
+          },
+          {
+            "display_text": "Age",
+            "es_filter_type": "filter_range_gte",
+            "form_type": "CharField",
+            "in_line_tooltip": "(>=)",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "User Information",
+        "tab": "Simple"
+      },
+      "isActive": {
+        "filters": [
+          {
+            "display_text": "Is Active",
+            "es_filter_type": "filter_term",
+            "form_type": "ChoiceField",
+            "widget_type": "Select",
+            "values": "get_from_es()"
+          }
+        ],
+        "panel": "Account Information",
+        "tab": "Simple"
+      },
+      "balance": {
+        "filters": [
+          {
+            "display_text": "Balance",
+            "es_filter_type": "filter_range_lte",
+            "form_type": "CharField",
+            "widget_type": "TextInput",
+            "in_line_tooltip": "(<=)"
+          },
+          {
+            "display_text": "Balance",
+            "es_filter_type": "filter_range_gte",
+            "form_type": "CharField",
+            "widget_type": "TextInput",
+            "in_line_tooltip": "(>=)"
+          }
+        ],
+        "panel": "Account Information",
+        "tab": "Simple"
+      },
+      "favoriteFruit": {
+        "filters": [
+          {
+            "display_text": "Favorite Fruit",
+            "es_filter_type": "filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "Other Information",
+        "sub_panel": "Non-nested Fields",
+        "tab": "Simple"
+      },
+      "eyeColor": {
+        "filters": [
+          {
+            "display_text": "Eye Color",
+            "es_filter_type": "filter_terms",
+            "form_type": "MultipleChoiceField",
+            "widget_type": "SelectMultiple",
+            "values": "get_from_es()"
+          }
+        ],
+        "panel": "Other Information",
+        "sub_panel": "Non-nested Fields",
+        "tab": "Simple"
+      },
+      "tag": {
+        "filters": [
+          {
+            "display_text": "Tag",
+            "es_filter_type": "filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "Other Information",
+        "sub_panel": "Non-nested Fields",
+        "tab": "Simple"
+      },
+      "friend_id": {
+        "filters": [
+          {
+            "display_text": "Friend ID",
+            "es_filter_type": "nested_filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput"
+          }
+        ],
+        "panel": "Other Information",
+        "sub_panel": "Nested Fields",
+        "tab": "Simple"
+      },
+      "friend_name": {
+        "filters": [
+          {
+            "display_text": "Friend Name",
+            "es_filter_type": "nested_filter_term",
+            "form_type": "CharField",
+            "widget_type": "TextInput",
+            "path": "friend"
+          }
+        ],
+        "panel": "Other Information",
+        "sub_panel": "Nested Fields",
+        "tab": "Simple"
+      }
+    }
+
 
 
 You should be familiar with all the properties except ``values`` for filter fields. The ``values`` property allows
@@ -963,10 +1120,20 @@ the Python string inside ``python_eval()``, for example, ::
     "values": "python_eval([str(n) for n in range(23)] + ['X', 'Y', 'MT'])"
 
 When defining the filter fields, you do not need to specify the `Es data type`. This information is automatically fetched
-from Elasticsearch based on the name of the field and path, if applicable.
+from Elasticsearch based on the name of the field and path, if applicable. Note that ``age`` and ``balance`` have to two
+filter fields associated with two range filter terms. Lastly, the attributes fields are automatically generated based on
+filter fields.
 
-To build the UI using the JSON file, run the following command ::
-    python manage.py import_config_from_json search/management/commands/data/demo_mon.json
+To build the UI using the JSON file, run the following command after updating the hostname and the full path to the demo_gui.json file ::
+
+   python manage.py create_gui_from_es_mapping --hostname 199.109.XXX.XXX --port 9200 --index demo_mon --type demo_mon --study test_study2 --dataset test_dataset2 --gui /home/XXX/GDW/docs/example/demo_gui.json
+
+
+Now if you start the development server, you should see the newly created UI.
+
+
+
+
 
 
 
