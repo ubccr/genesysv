@@ -19,246 +19,37 @@ import requests
 import hashlib
 import ipdb
 import math
+from utils import (VCFException,
+                   get_es_id,
+                   prune_array,
+                   estimate_no_variants_in_file,
+                   CHROM_parser,
+                   gwasCatalog_parser,
+                   CLINSIG_parser,
+                   GTEx_V6_tissue_parser,
+                   GTEx_V6_gene_parser,
+                   Gene_refGene_parser,
+                   Gene_ensGene_parser,
+                   AAChange_refGene_parser,
+                   AAChange_ensGene_parser,
+                   convert_escaped_chars,
+                )
 
+
+
+# Global Variables
 
 GLOBAL_NO_VARIANTS_PROCESSED = 0
 GLOBAL_NO_VARIANTS_CREATED = 0
 GLOBAL_NO_VARIANTS_UPDATED = 0
-
-class VCFException(Exception):
-    """Raise for my specific kind of exception"""
-    def __init__(self, message, *args):
-        self.message = message # without this you may get DeprecationWarning
-        # Special attribute you desire with your Error,
-        # perhaps the value that caused the error?:
-        # allow users initialize misc. arguments as any other builtin Error
-        super(VCFException, self).__init__(message, *args)
-
-def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
-    es_id = es_id.encode('utf-8')
-    es_id = hashlib.sha224(es_id).hexdigest()
-
-    return es_id
-
-def prune_array(key, input_array):
-    key_count = Counter([ele[key] for ele in input_array])
-
-    output_array = []
-    for ele in input_array:
-        tmp_key = ele[key]
-        if key_count[tmp_key] == 1:
-            output_array.append(ele)
-        elif key_count[tmp_key] > 1:
-            if len(ele) > 1:
-                output_array.append(ele)
-
-    return output_array
-
-def estimate_no_variants_in_file(filename, no_lines_for_estimating):
-    no_lines = 0
-    size_list = deque()
-
-    with open(filename, 'r') as fp:
-        for line in fp:
-            if line.startswith('#'):
-                continue
-
-            if no_lines_for_estimating < no_lines:
-                break
-
-            size_list.appendleft(sys.getsizeof(line))
-
-            no_lines += 1
-
-    filesize = os.path.getsize(filename)
-
-    no_variants = int(filesize/statistics.median(size_list))
-
-    return no_variants
-
-def CHROM_parser(input_string):
-    return input_string.lower().replace('chr','').strip()
-
-def gwasCatalog_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def CLINSIG_parser(input_string):
-    return re.split(',|\|',input_string)
-
-def GTEx_V6_tissue_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def GTEx_V6_gene_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def Gene_refGene_parser(relevant_info_fields):
-
-    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$'
-
-    Gene_refGene = relevant_info_fields['Gene.refGene']
-    symbol = ' '.join(re.split('[;,]', Gene_refGene))
-
-    tmp_content_array = []
-
-    if relevant_info_fields.get('GeneDetail.refGene'):
-
-        GeneDetail_refGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.refGene'))
-
-        if re.match(pattern, GeneDetail_refGene):
-            tmp_content = {}
-            tmp_content['refGene_symbol'] = symbol
-            tmp_content['refGene_distance_to_gene'] = GeneDetail_refGene
-            tmp_content_array.append(tmp_content)
-
-        elif ':' in GeneDetail_refGene:
-            for record in GeneDetail_refGene.split(','):
-                # print(record)
-                tmp_content = {}
-                for ele in record.split(':'):
-                    if ele.startswith('N'):
-                        tmp_content['refGene_refgene_id'] = ele
-                    elif ele.startswith('exon'):
-                        tmp_content['refGene_location'] = ele
-                    elif ele.startswith('c.'):
-                        tmp_content['refGene_cDNA_change'] = ele
-
-                tmp_content['refGene_symbol'] = symbol
-                # print(tmp_content)
-                tmp_content_array.append(tmp_content)
-
-    else:
-        tmp_content = {}
-        tmp_content['refGene_symbol'] = symbol
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-
-def Gene_ensGene_parser(relevant_info_fields):
-
-    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$' # pattern to detect dist
-    Gene_ensGene = relevant_info_fields["Gene.ensGene"]
-
-    gene_id = ' '.join(re.split('[;,]', Gene_ensGene))
-
-    tmp_content_array = []
-
-    if relevant_info_fields.get('GeneDetail.ensGene'):
-
-        GeneDetail_ensGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.ensGene'))
-
-
-        if re.match(pattern, GeneDetail_ensGene):
-            tmp_content = {}
-            tmp_content['ensGene_gene_id'] = gene_id
-            tmp_content['ensGene_distance_to_gene'] = GeneDetail_ensGene
-            tmp_content_array.append(tmp_content)
-
-        elif ':' in GeneDetail_ensGene:
-            for record in GeneDetail_ensGene.split(','):
-                tmp_content = {}
-                for ele in record.split(':'):
-                    if ele.startswith('ENST'):
-                        tmp_content['ensGene_transcript_id'] = ele
-                    elif ele.startswith('exon'):
-                        tmp_content['ensGene_location'] = ele
-                    elif ele.startswith('c.'):
-                        tmp_content['ensGene_cDNA_change'] = ele
-
-                tmp_content['ensGene_gene_id'] = gene_id
-
-                tmp_content_array.append(tmp_content)
-
-    else:
-        tmp_content = {}
-        tmp_content['ensGene_gene_id'] = gene_id
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-def AAChange_refGene_parser(AAChange_refGene):
-
-    tmp_content_array = []
-    AAChange_refGene = AAChange_refGene.split(',')
-
-    for ele in AAChange_refGene:
-        if not ele:
-            continue
-        if ele.lower() == 'unknown':
-            continue
-        tmp_content = {}
-        tmp_tmp = ele.split(':')
-        if len(tmp_tmp) == 5:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-            tmp_content['refGene_cDNA_change'] = tmp_tmp[3]
-            tmp_content['refGene_aa_change'] = tmp_tmp[4]
-        elif len(tmp_tmp) == 4:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-            tmp_content['refGene_cDNA_change'] = tmp_tmp[3]
-        elif len(tmp_tmp) == 3:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-        else:
-            print(ele)
-            raise VCFException('Length of refGene is not 3, 4, or 5')
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-def AAChange_ensGene_parser(AAChange_ensGene):
-
-    tmp_content_array = []
-    AAChange_ensGene = AAChange_ensGene.split(',')
-
-    for ele in AAChange_ensGene:
-        if not ele:
-            continue
-        if ele.lower() == 'unknown':
-            continue
-        tmp_content = {}
-        tmp_tmp = ele.split(':')
-        if len(tmp_tmp) == 5:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-            tmp_content['ensGene_cDNA_change'] = tmp_tmp[3]
-            tmp_content['ensGene_aa_change'] = tmp_tmp[4]
-        elif len(tmp_tmp) == 4:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-            tmp_content['ensGene_cDNA_change'] = tmp_tmp[3]
-        elif len(tmp_tmp) == 3:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-        else:
-            print(ele)
-            raise VCFException('Length of ensGene is not 3, 4, or 5')
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-
-
-def convert_escaped_chars(input_string):
-    input_string = input_string.replace("\\x3b", ";")
-    input_string = input_string.replace("\\x2c", ",")
-    input_string = input_string.replace("\\x3d", "=")
-
-    return input_string
 
 
 
 #@profile
 def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **kwargs):
 
+
+    ## Specific vars to non-celery imports
     is_bulk = kwargs.get('is_bulk')
     update = kwargs.get('update')
 
@@ -268,13 +59,24 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     global GLOBAL_NO_VARIANTS_UPDATED
 
 
-    format_fields = vcf_mapping.get('FORMAT_FIELDS').get('nested_fields')
+    ###
+
+    # grab CHROM POS ID REF ALT QUAL FILTER
     fixed_fields = vcf_mapping.get('FIXED_FIELDS')
+
+    # grab INFO
     info_fields = vcf_mapping.get('INFO_FIELDS')
 
+     # grab FORMAT
+    format_fields = vcf_mapping.get('FORMAT_FIELDS').get('nested_fields')
+
+    ###
+
+    # group FORMAT fields based on int and float
     int_format_fields = set([key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'integer'])
     float_format_fields = set([key for key in format_fields.keys() if format_fields[key].get('es_field_datatype') == 'float'])
 
+    # group fields based on
     null_fields = [(key, info_fields[key].get('null_value')) for key in info_fields.keys() if 'null_value' in info_fields[key]]
     overwrite_fields = [(key, info_fields[key].get('overwrites')) for key in info_fields.keys() if 'overwrites' in info_fields[key]]
     exist_only_fields = set([key for key in info_fields.keys() if 'is_exists_only' in info_fields[key]])
@@ -519,6 +321,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     for field in run_dependent_info_fields:
                         if not info_dict.get(field):
                             continue
+                        label_field_name = "%s_label" %(field)
                         value_field_name = "%s_value" %(field)
                         es_field_datatype =  info_fields[field]['nested_fields'][value_field_name]['es_field_datatype']
                         if es_field_datatype == 'integer':
