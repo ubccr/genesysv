@@ -173,8 +173,7 @@ def get_dataset_form(request):
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
-def get_filter_form_cached(dataset):
-    dataset_object = Dataset.objects.get(description=dataset)
+def get_filter_form_cached(dataset_object):
     tabs = deque()
     for tab in FilterTab.objects.filter(dataset=dataset_object):
         tmp_dict = {}
@@ -209,7 +208,8 @@ def get_filter_form_cached(dataset):
 def get_filter_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        cache_name = 'context_filter_{}'.format(dataset)
+        dataset = Dataset.objects.get(description=dataset)
+        cache_name = 'context_filter_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_filter_form_cached(dataset)
             response = render(request, "search/get_filter_snippet.html", context)
@@ -218,8 +218,7 @@ def get_filter_form(request):
         else:
             return cache.get(cache_name)
 
-def get_attribute_form_cached(dataset):
-    dataset_object = Dataset.objects.get(description=dataset)
+def get_attribute_form_cached(dataset_object):
     tabs = deque()
     for tab in AttributeTab.objects.filter(dataset=dataset_object):
         tmp_dict = {}
@@ -259,7 +258,8 @@ def get_attribute_form_cached(dataset):
 def get_attribute_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        cache_name = 'context_attribute_{}'.format(dataset)
+        dataset = Dataset.objects.get(description=dataset)
+        cache_name = 'context_attribute_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_attribute_form_cached(dataset)
             response =  render(request, "search/get_attribute_snippet.html", context)
@@ -337,9 +337,9 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
-
+        print(request.user.groups.count())
         if not request.user.is_anonymous():
-            if request.user.groups.count() >= 1:
+            if request.user.groups.count() > 1:
                 print('More than one group')
                 return HttpResponse(status=400)
             elif request.user.groups.count() == 0:
@@ -599,6 +599,12 @@ def search(request):
             tmp_results = results['hits']['hits']
             results = []
 
+            try:
+                FilterField.objects.get(dataset=dataset_obj, name='Variant')
+                variant_field_exist = True
+            except:
+                variant_field_exist = False
+
             # if not request.user.is_anonymous():
             #     variants_to_exclude = VariantReviewStatus.objects.filter(
             #         Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_review_status='rejected').values_list('variant_es_id', flat=True)
@@ -794,6 +800,8 @@ def search(request):
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj
+            context['variant_field_exist'] = variant_field_exist
+
 
 
             return render(request, 'search/search_results.html', context)

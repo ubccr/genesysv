@@ -185,8 +185,6 @@ class FilterTab(TimeStampedModel):
     def __str__(self):
         return self.name
 
-
-
 class AttributePanel(TimeStampedModel):
     dataset = models.ForeignKey(
         'Dataset',

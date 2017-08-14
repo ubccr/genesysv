@@ -1,6 +1,6 @@
 from pprint import pprint
 import elasticsearch
-es = elasticsearch.Elasticsearch(host="199.109.195.45")
+es = elasticsearch.Elasticsearch(host="199.109.192.174")
 INDEX_NAME = 'demo_mon'
 #type_name = 'SIM_case_control'
 type_name = 'demo_mon'
