@@ -337,7 +337,7 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
-        print(request.user.groups.count())
+        # print(request.user.groups.count())
         if not request.user.is_anonymous():
             if request.user.groups.count() > 1:
                 print('More than one group')
@@ -355,7 +355,6 @@ def search(request):
             show_review_status = False
         else:
             show_review_status = True
-
 
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
@@ -601,10 +600,11 @@ def search(request):
             results = []
 
             try:
-                FilterField.objects.get(dataset=dataset_obj, name='Variant')
+                FilterField.objects.get(dataset=dataset_obj, es_name='Variant')
                 variant_field_exist = True
             except:
                 variant_field_exist = False
+
 
             # if not request.user.is_anonymous():
             #     variants_to_exclude = VariantReviewStatus.objects.filter(
@@ -1122,7 +1122,7 @@ def delete_variant(request, pk):
         variant_review_status_obj = VariantReviewStatus.objects.get(pk=pk, user=request.user)
         review_status = variant_review_status_obj.variant_review_status
         variant_review_status_obj.delete()
-        print(reverse('list-variant-status', kwargs={'review_status': review_status}))
+        # print(reverse('list-variant-status', kwargs={'review_status': review_status}))
         return redirect(reverse('list-variant-status', kwargs={'review_status': review_status}))
     except:
         raise PermissionDenied
