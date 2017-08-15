@@ -22,10 +22,17 @@
 
 
     <div class="page-header">
-        <h1>Mutation Set Enrichment Analysis (MSEA) P-Value</h1>
+        <h1>Ranked MSEA results</h1>
     </div>
-
+    
     <div>
+    <p>
+    P-values of 0 are not simply extremely small p-values that are truncated / rounded to 0. They are a result of the method used in the <a target="_blank" href="http://doi.org/10.1186/s13059-014-0489-9">MSEA paper</a> and are akin to "more information needed." In the case of a p-value of 0, use the nes (normalized enrichment score) as a proxy. Please note that for nes, <u>higher</u> values are desired.
+    </p>
+    </div>
+    
+    <div>
+
         {{study_form|crispy}}
 
     </div>
