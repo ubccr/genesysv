@@ -1,5 +1,9 @@
 import re
 from collections import defaultdict, deque, Counter
+import hashlib
+import sys
+import os
+import statistics
 
 def convert_escaped_chars(input_string):
     input_string = input_string.replace("\\x3b", ";")
@@ -88,7 +92,7 @@ class VCFException(Exception):
         super(VCFException, self).__init__(message, *args)
 
 def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
+    es_id = '%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, index_name, type_name)
     es_id = es_id.encode('utf-8')
     es_id = hashlib.sha224(es_id).hexdigest()
 

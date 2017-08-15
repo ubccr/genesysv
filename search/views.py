@@ -560,7 +560,7 @@ def search(request):
 
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            pprint(query)
+            pprint(content)
 
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
 
@@ -574,6 +574,7 @@ def search(request):
                 uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
             results = json.loads(response.text)
+            # pprint(results)
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']

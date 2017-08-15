@@ -37,7 +37,7 @@ class VCFException(Exception):
 
 
 def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = f'{CHROM}{POS}{REF}{ALT}{index_name}{type_name}'
+    es_id = '%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, index_name, type_name)
     es_id = es_id.encode('utf-8')
     es_id = hashlib.sha224(es_id).hexdigest()
 
@@ -405,13 +405,13 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     sample_values = data.get(sample)
                     sample_values = sample_values.split(':')
 
-                    if sample_values[gt_location] in ['./.', '0/0']:
+                    if sample_values[gt_location] in ['./.', '0/0', '0|0']:
                         continue
 
                     sample_content['sample_ID'] = sample
 
                     for idx, key_format_field in enumerate(format_fields_for_current_line):
-                        key_format_field_sample = f'sample_{key_format_field}'
+                        key_format_field_sample = 'sample_%s' %(key_format_field)
                         key_value = sample_values[idx]
                         if key_format_field in int_format_fields:
                             if ',' in key_value:
@@ -593,8 +593,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                             val = [float(ele) for ele in val.split(',') if not math.isnan(float(ele))]
                         else:
                             val = float(val)
-                        if not math.isnan(float(val)):
-                            content[es_field_name] = val
+                            if not math.isnan(val):
+                                content[es_field_name] = val
                         continue
                     elif es_field_datatype in ['keyword', 'text'] :
                         if info_fields[info_key].get('value_mapping'):
@@ -683,7 +683,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
 
             except Exception as e:
-                print(e)
                 print(info_key, es_field_datatype, val)
                 print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
                 # print(line)
