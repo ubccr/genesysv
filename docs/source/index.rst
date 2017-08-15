@@ -1132,8 +1132,61 @@ To build the UI using the JSON file, run the following command after updating th
 Now if you start the development server, you should see the newly created UI.
 
 
+Annotating a VCF file using ANNOVAR:
+============================================
+This section will show you how to use GDW for searching an annotated VCF.
+
+We will be using a publicly available VCF from the pilot phase of the 1000 genomes project. The download is ~580MB::
+
+    wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/pilot_data/paper_data_sets/a_map_of_human_variation/low_coverage/snps/CHBJPT.low_coverage.2010_09.genotypes.vcf.gz
+
+We'll use the first 10,000 lines for the sake of expediency::
+
+    less CHBJPT.low_coverage.2010_09.genotypes.vcf.gz  | head -10000 > CHBJPT.low_coverage.2010_09.genotypes.sample.vcf
+
+Sign up to download ANNOVAR at http://www.openbioinformatics.org/annovar/annovar_download_form.php. Once you receive the download link in your email, wget the link then ``tar -xvzf annovar.latest.tar.gz`` to unpack it.
+
+We now need to update our local ANNOVAR install with a few desired databases, so from your newly-unpacked annovar directory::
+
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ensGene humandb/
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20150629 humandb/
+    perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp30a humandb/
+
+Now, run ANNOVAR on the small VCF we created::
+
+    perl table_annovar.pl ../CHBJPT.low_coverage.2010_09.genotypes.sample.vcf ./humandb -buildver hg19 -out ../CHBJPT.low_coverage.2010_09.genotypes.sample -protocol refGene,ensGene,clinvar_20150629,dbnsfp30a -operation g,g,f,f -nastring . -vcfinput -remove
 
 
+VCF files are are import in to Elasticsearch in three steps. In the first step we inspect the VCF files to gather information about
+what fields are available. From the ``GDW/utils`` folder run the following command after updating the ::
 
+    python inspect_vcf.py --index test_vcf --type test_vcf --vcf /<PATH>/CHBJPT.low_coverage.2010_09.genotypes.sample.hg19_multianno.vcf --labels None
 
+The ``--index`` specifies the index name in which the VCF data will be stored. The ``--type`` specifies the document name inside the index in which the
+data will be stored. The ``--vcf`` option specifies the full path to the VCF you annotated using ANNOVAR. The ``--labels`` field is used to label
+the data. GDW currently supports two labels: `case` and `control`. Alternatively, you do not have to provide a label, which is what we have chosen.
+Running the script will create an output called ``inspect_output_for_test_vcf_test_vcf.txt`` inside ``./es_scripts/``. This file contains
+the information about the available fields.
 
+Next we will create the Elasticsearch mapping automatically from ``inspect_output_for_test_vcf_test_vcf.txt``. Run the following command after updating
+the IP address in the ``hostname`` option to an Elasticsearch instance ::
+
+    python prepare_elasticsearch_for_import.py --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --info es_scripts/inspect_output_for_test_vcf_test_vcf.txt
+
+This will create two scripts in the ``./es_scripts``. The script ``create_index_test_vcf_and_put_mapping_test_vcf`` creates the index and puts the Elasticsearch
+mapping for your document that will store the VCF information. The script ``delete_index_test_vcf.sh`` can be used to delete the index if needed. The run
+following command to create the Elasticsearch index for your VCF data ::
+
+    bash es_scripts/create_index_test_vcf_and_put_mapping_test_vcf.sh
+
+Now we are ready to import the VCF file. From the base directory of GDW run the following command after updating the IP address to your Elasticsearch instance
+in the hostname option::
+
+    python import_vcf.py --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --label None --vcf /<PATH>CHBJPT.low_coverage.2010_09.genotypes.sample.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_test_vcf_test_vcf.txt --update False
+
+Finally, we can automatically create the UI by running the following command after updating IP address to your Elasticsearch instance
+in the hostname option ::
+
+  python manage.py create_gui_from_es_mapping --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --study test_vcf --dataset test_vcf --gui /home/mkzia/doc_gdw/GDW/search/management/commands/data/vcf_field_gui_mapping.json
+
+The ``--study`` and ``--dataset`` options specify the name of your study and dataset, respectively. The ``--gui`` options specifies the full path to a file that maps the Elasticsearch fields to UI components. After you run command you will see some error messages. Those can be ignored. They tell you which Elasticsearch fields do not have a UI component specified in the mapping file.
