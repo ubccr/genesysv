@@ -633,11 +633,11 @@ def search(request):
                 for idx, result in enumerate(results):
                     add_results = True
                     for key, val in dict_filter_fields.items():
+
                         filter_field_obj = FilterField.objects.get(id=key)
                         key_path = filter_field_obj.path
                         key_es_name = filter_field_obj.es_name
                         key_es_filter_type = filter_field_obj.es_filter_type.name
-
                         if not result.get(key_path):
                             continue
 
@@ -692,6 +692,9 @@ def search(request):
                     combined = False
                     combined_nested = None
                     for idx, path in enumerate(nested_attribute_fields):
+                        if path.startswith('FILTER_') or path.startswith('QUAL_'):
+                            continue
+
                         if path not in result:
                             continue
 
@@ -724,8 +727,18 @@ def search(request):
                 final_results = results
 
 
+            ### remove duplicates
+            results = deque()
+            hash_list = deque()
+            for tmp_result in final_results:
+                print(tmp_result)
+                list_hash = hashlib.sha256(str(tmp_result).encode('utf-8','ignore')).hexdigest()
+                print(list_hash)
+                if list_hash not in hash_list:
+                    hash_list.append(list_hash)
+                    results.append(tmp_result)
 
-
+            final_results = results
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)
             if nested_attribute_fields:

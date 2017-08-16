@@ -51,7 +51,7 @@ def must_not_array_dicts(array, key, values, comparison_type):
                 if val != tmp.split():
                     output.append(ele)
             else:
-                if val in tmp:
+                if val not in tmp:
                     output.append(ele)
 
     return output
