@@ -45,7 +45,7 @@ If you need help generating your SSH key, go to https://ubccr.freshdesk.com/supp
 
 Then under the ``USER DATA`` section, select the ``Enter text`` radio button and copy and paste the modified cloud-init script. Alternatively, you can click the ``Upload button`` radio button and upload your saved cloud-config file. After inputting the ``USER DATA``, click the next button to proceed to the next step.
 
-In the third step, called ``3 Security``, you will have to choose a ``Key name`` and ``Security group`` to associate with your instances. create a new key pair if you do not already have one or select a key pair you generated previously . The key pair is your unique PEM file. You will not be using this to log in to your instances, but you need to associate a PEM file with your instances to launch them. In the security group, select the Elasticsearch security group that you created previously. In the third section from the top, click ``Select advanced options`` to advance to the fourth step, called ``4 Advanced``. In this step you will specify the storage volume size. Input 50 GB in the ``STORAGE`` section for the Root volume. Finally, click ``LAUNCH INSTANCE`` button to launch all three instances. It will take couple of minutes for the instances to be ready for use.
+In the third step, called ``3 Security``, you will have to choose a ``Key name`` and ``Security group`` to associate with your instances. Create a new key pair if you do not already have one or select a key pair you generated previously . The key pair is your unique PEM file. You will not be using this to log in to your instances, but you need to associate a PEM file with your instances to launch them. In the security group, select the Elasticsearch security group that you created previously. In the third section from the top, click ``Select advanced options`` to advance to the fourth step, called ``4 Advanced``. In this step you will specify the storage volume size. Input 50 GB in the ``STORAGE`` section for the Root volume. Finally, click ``LAUNCH INSTANCE`` button to launch all three instances. It will take couple of minutes for the instances to be ready for use.
 
 Once the status of your three instances has changed to ``running``, log in to one of your instances by logging in to your terminal and typing ``ssh <IP address of instance>``.  The IP address of your instances is listed in the ``PUBLIC ADDR``
 column here: https://console.ccr-cbls-2.ccr.buffalo.edu/instances?status=running
@@ -72,7 +72,7 @@ Install Elasticsearch::
     sudo dpkg -i elasticsearch-5.5.1.deb
 
 Next we will modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance
-This is best done by becoming root staying as root for the next series of step. Become root by issuing the command::
+This is best done by becoming root staying as root for the next series of steps. Become root by issuing the command::
 
     sudo su -
 
@@ -128,7 +128,7 @@ Next open ``/usr/lib/systemd/system/elasticsearch.service``, uncomment the follo
 
 save, and close.
 
-Next open ``/etc/default/elasticsearch``, uncomment the following lines,::
+Next open ``/etc/default/elasticsearch``, uncomment the following lines ::
 
     # Uncomment line to allow elasticsearch to open large amounts of files
     MAX_OPEN_FILES=65536
@@ -157,11 +157,11 @@ Next enable Elasticsearch and configure it to start at boot by executing the fol
     systemctl enable elasticsearch.service
     systemctl start elasticsearch.service
 
-Test the Elasticsearch installation by going to its public IP address on port 9200::
+Test the Elasticsearch installation by going to its public IP address on port 9200 ::
     http://199.109.XXX.XXX:9200/
 
 To get the free/basic Elasicsearch license, register at https://register.elastic.co/. You should receive an email pointing
-to a website from which you can download the license to your local machine file. Select the license for version 5.X. To install the license, you have to send the license to an Elasticsearch instance twice. In your shell, change to the directory on your local machine where the JSON license file is saved. Send the license file to the Elasicsearch instance using CURL from your local machine as follows ::
+to a website from which you can download the license to your local machine. Select the license for version 5.X. To install the license, you have to send the license to an Elasticsearch instance twice. In your shell, change to the directory on your local machine where the JSON license file is saved. Send the license file to the Elasicsearch instance using CURL from your local machine as follows ::
 
     curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
 
@@ -171,7 +171,7 @@ where you should update the IP address to match your Elasticsearch instance and 
 
 Send the license again, but this time with acknowledgment::
 
-    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license**?acknowledge=true**' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
+    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license?acknowledge=true' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
 
 Check that the license was installed by going to http://199.109.XXX.XXX:9200/_xpack/license. You should see something like::
 
@@ -261,7 +261,9 @@ First create a new security group in Eucalyptus for the GDW application instance
 
 Use the same key pair you used for the Elasticsearch nodes, but this time, use the new GDW application security group instead of the Elasticsearch security group. (The Eucalyptus UI may pre-populate the security group list with your Elasticsearch security group – delete it from the list if so.)
 
-Next, allow TCP traffic access to port 9200 in the Elasticsearch security group that you created previously from your new instance's IP address. You need to use the Public IP address. GDW is built on top of Django. Django requires Python. The best way to
+Next, allow TCP traffic access to port 9200 in the Elasticsearch security group that you created previously from your new instance's IP address. You need to use the Public IP address. 
+
+GDW is built on top of Django. Django requires Python. The best way to
 install Django is to first create a virtualenv, and then install all the
 required python packages in the virtualenv using ``pip``. This setup ensures complete isolation of your python installation from the system-wide installation. Note that GDW requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
 
@@ -302,7 +304,7 @@ Create a superuser who can log in to the admin site::
 
     python manage.py createsuperuser
 
-Open gdw/settings.py add your machines local Public IP address in the allowed hosts lists::
+Open gdw/settings.py and add the instance's Public IP address in the allowed hosts list::
 
     ALLOWED_HOSTS = ['PUT PUBLIC IP HERE']
 
@@ -312,7 +314,7 @@ Start the development server using the private IP address::
 
     python manage.py runserver 172.17.XX.XXX:8000
 
-Navigate the public IP address port 8000 of your instance and the GDW website should be running. Most of the functionality
+Navigate to the public IP address, port 8000, of your instance and the GDW website should be running. Most of the functionality
 will be broken because there is no connection with the Elasticsearch database. You can stop the development server using
 ``CTRL + c``. Note that the the manage.py commands also have to be run inside the virtualenv.
 
@@ -332,7 +334,7 @@ Installation checklist for Genomics Data Warehouse
 - [ ] Open port 9200 in the Elasticsearch security group for TCP traffic from the public IP address of your new instance
 - [ ] Install Anaconda
 - [ ] Create new Python virtualenv and activate it
-- [ ] Download GDW App zip file and unzip
+- [ ] Clone GDW repository
 - [ ] Install the requirements via ``pip``
 - [ ] Create database tables and import default settings
 - [ ] Create superuser
@@ -345,9 +347,8 @@ Installation checklist for Genomics Data Warehouse
 
 Getting familiar with Elasticsearch
 =================================================
-Now we will import a sample data in to Elasticsearch in order to get familiar with it. Open the file ``new_data.json`` located
-in ``GDW/docs/example``.
-The file contains seven records that will be imported in to Elasticsearch.
+Now we will import some sample data into Elasticsearch in order to get familiar with it. Traverse to ``GDW/docs/example`` and open the file ``new_data.json``.
+The file contains seven records that will be imported into Elasticsearch.
 A sample JSON record is as follows::
 
     {
@@ -383,7 +384,7 @@ A sample JSON record is as follows::
     }
 
 There are nine fields in each record. Note that the ``friend`` field is a nested field. Elasticsearch is a NoSQL database that stores
-JSON documents. Before inserting new documents in to Elasticsearch, you should define a ''mapping'' of the data. A Mapping
+JSON documents. Before inserting new documents into Elasticsearch, you should define a ''mapping'' of the data. A mapping
 is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if something is stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch
 can automatically guess the mapping, but this may not be optimal. To define a mapping, we will use the Python 3 API
 for Elasticsearch. Make sure that Python virtual environment is activated and install the package ::
@@ -413,9 +414,9 @@ The following is a possible mapping for the JSON shown previously::
     }
 
 The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend_``, i.e.,but it is a convention of GDW. The ``balance`` field
-is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` are define as keyword.
-Keyword mappings indicate to Elasticsearch that exact match is required, meaning it is case sensitive and spaces are significant.
-The ``tag`` and ``friend_name`` fields are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuations. So for example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
+is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` are defined as keyword.
+Keyword mappings indicate to Elasticsearch that an exact match is required, meaning they are case sensitive and spaces are significant.
+The ``tag`` and ``friend_name`` fields are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuation. As an example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
 
 We will now put the mapping in Elasticsearch using ``create_index.py``. Open the file for editing. Update the IP Address
 to an Elasticsearch node ::
@@ -425,14 +426,14 @@ to an Elasticsearch node ::
 
 Now we will walk through the Python script and explain it.
 
-``es = elasticsearch.Elasticsearch(host="199.109.XXX.XX")`` establishes connection to your Elasticsearch cluster.
+``es = elasticsearch.Elasticsearch(host="199.109.XXX.XX")`` establishes a connection to your Elasticsearch cluster.
 
 ``INDEX_NAME = 'demo_mon'`` specifies the ``INDEX_NAME``. Index name in Elasticsearch is loosely equivalent to database name
 in MySQL.
 
 ``type_name = 'demo_mon'`` specifies the ``type_name``. Type name in Elasticsearch is loosely equivalent to a table name, but
-in Elasticsearch it is a name of a type of document that will be stored in an index. The following conditional deletes
-the Index if it already exists. The following lines define the mapping previously discussed ::
+in Elasticsearch it is a name of a type of document that will be stored in an index. The subsequent conditional deletes
+the index if it already exists. The following lines define the mapping previously discussed::
 
     mapping = {
         type_name: {
@@ -459,11 +460,11 @@ the Index if it already exists. The following lines define the mapping previousl
 
 
 ``es.indices.put_mapping(index=INDEX_NAME, doc_type=type_name, body=mapping)`` puts the mapping in Elasticsearch. Run the script
-after updating the IP address to put the mapping in Elasticsearch. You can verify that the mapping has been put in Elasticsearch by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true
+after updating the IP address to put the mapping into Elasticsearch. You can verify that the mapping has been put into Elasticsearch by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true
 
 
 Next open the file ``insert_index.py``. This script reads the data contained in ``new_data.json`` and inserts it in to Elasticsearch.
-Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch through the REST APi.
+Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch through the REST API.
 
 For all the following scripts, update the IP address before running them. The scripts are located in ``GDW/docs/example``
 Execute ``bash query1.es`` to find all the active users.  ::
@@ -491,7 +492,7 @@ Execute ``bash query2.es`` to find all users whose age is greater than or equal 
     }
     '
 
-Execute ``bash query3.es`` to find Friend name `tanner` ::
+Execute ``bash query3.es`` to find users with friend named `tanner` ::
 
     curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
     {
@@ -517,7 +518,7 @@ Building the GDW Web User Interface
 Basically GDW provides a web-based user interface (UI) to make Elasticsearch queries. There are two ways to build the UI.
 First, by logging in to the GDW admin site and building the UI by clicking through it. This is quite flexible,
 but can become very tedious. Second, by programmatically building the UI by reading a JSON file that defines the
-fields of the UI. Both ways will be described to make you familiar with how GDW works. Both ways are complementary
+fields of the UI. Both ways will be described to make you familiar with how GDW works. They are complementary
 because in practice the UI is initially built programmatically and then modified and tweaked using the GDW admin
 site. We begin by showing you how to build the UI using the GDW admin site.
 
@@ -536,7 +537,7 @@ Before you can begin building the UI, you need to become familiar with how its c
 Figure :numref:`component_1` shows the components of the UI. Fields used for filtering are put inside a panel. Panels are used to
 logically group filter fields. Panels can also also contain sub-panels that in turn can contain filter fields.
 Sub-panels allows further grouping of filter fields within a panel. Figure :numref:`component_2` shows an example of a
-sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels in to different groups such
+sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such
 as `basic` and `advanced` search fields.
 
 .. _component_2:
@@ -547,20 +548,20 @@ as `basic` and `advanced` search fields.
    Figure shows an example of how sub-panels can be used to further organize filter fields with a panel.
 
 
-GDW allows user to select which fields they want to display in the search results. This allows user to include more,
+GDW allows a user to select which fields they want to display in the search results. This allows a user to include more,
 less, or different fields in the search results than the ones used for searching. The result fields are called
-`attributes`--we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a
+`attributes` – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a
 similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain
 sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with
-a dataset. Datasets are associated with a study. Finally, study can contain multiple datasets.
+a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.
 
 Adding study, dataset, and search options
 --------------------------------------------
-To begin building the UI log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that
+To begin building the UI, log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that
 the development server is running. Use the username and password that you used to create the ``superuser``. First we will
 add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure :numref:`add_study`. In the ``Add Study``
 page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is
-optional, as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in
+optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in
 the breadcrumb navigation to return to the admin home page.
 
 .. _add_study:
@@ -579,7 +580,7 @@ the breadcrumb navigation to return to the admin home page.
 
 Next we will add a dataset that is associated with the study that we just added. Click ``+ Add`` button next to
 ``Datasets``. Select the study that you just added from the drop down menu. Fill in the dataset name
-and description field. Next fill in the ``Es index name``, ``Es type name``, ``Es host``, and ``Es port``, which should be
+and description field. Next fill in ``Es index name``, ``Es type name``, ``Es host``, and ``Es port``, which should be
 `demo_mon`, `demo_mon`, the public IP address to the Elasticsearch node instance, and 9200, respectively. Check the
 ``is_public`` field to make the demo dataset accessible by all. The allowed groups field allows you to manage which
 groups can access the dataset if you want to restrict access to the dataset. User permissions will be described
@@ -638,8 +639,8 @@ a hover-over tooltip associated with the filter field. This can be used to guide
 The ``Form type`` is one of the three form types that GDW currently supports. The ``Widget type`` is one of the five types
 of Widget that GDW currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch.
 The ``path`` field specifies the path of the filter field if it is a nested field. By convention, GDW expects that the path name
-and an underscore be prefixed to the ``Es name`` of the nested filter field. For example, ES field name will
-be ``friend_name`` and the its path name will be ``friend``. The ``Es data type`` field specifies what Elasticsearch data type
+and an underscore be prefixed to the ``Es name`` of the nested filter field. For example, the nested ES field name
+of ``friend_name`` has the path name of ``friend``. The ``Es data type`` field specifies what Elasticsearch data type
 the field is such as integer, float, keyword or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use
 if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
 for details about the various analyzers.
@@ -740,7 +741,7 @@ Figure :numref:`add_filter_panel` shows the add filter page.
 
    Figure shows an example of an add filter panel page.
 
-After you hit save, you should see a page for selecting filter panel. This page should list only one name--``User Information``.
+After you hit save, you should see a page for selecting filter panel. This page should list only one name – ``User Information``.
 Click on ``User Information``, which will lead you to a page to edit the new panel you created. Notice that this time
 the ``Filter fields`` section has less options to select from, see Figure :numref:`edit_filter_panel`.
 
@@ -753,7 +754,7 @@ the ``Filter fields`` section has less options to select from, see Figure :numre
 
 This is because when we created the filter fields, we specified ``Place in panel`` field. This field is used to filter the list of
 available filter fields you can add to a panel, but
-only after the panel has been created with a ``Name`` that matches the ``Place in panel`` field of a filter field. Check all the filter fields.
+only after the panel has been created with a ``Name`` that matches the ``Place in panel`` field of a filter field. Check all the filter fields
 and hit SAVE. Now create two more panels: ``Account Information`` and ``Other Information``. For both panels, first just create
 the panels with the name only, not adding any filter fields to the panel. Then for the ``Account Information``, edit it after
 it has been created and add the fields listed in the ``Filter fields``. For the ``Other Information`` panel, we will not add
@@ -880,12 +881,12 @@ to proceed to the attribute selection tab. Click Select All to select all the at
 `Friend ID` and `Friend Name`. Click Search to search. The result fields are all sortable. You can download the results
 using the Download button.
 
-Lets modify the search criteria. Either click the Back button twice or the second circle tab to go back to the filter
+Let's modify the search criteria. Either click the Back button twice or the second circle tab to go back to the filter
 tab. Specify 33 for `Age (<=)` and search again. Now all the results should be within age range [29-33]. Go back
 to the attribute tab and select the `Friend ID` and `Friend Name` attribute fields and search. You will notice
 that now some of the results are repeated. This is because each of the hits have a nested field that has three friends.
 GDW is setup to expand the nested structures. This means that each element in the nested structure is combined with
-the non-nested results to produce the final results. If there are multiple nested fields, then the final results
+the non-nested results to produce the final results. If there are multiple nested fields, then the final result
 is a cross-product of the nested fields. So if there are two nested fields where the first nested fields has three
 elements and the second nested field has two elements, this will result in six rows in the results.
 
@@ -894,7 +895,7 @@ Name Search
 This use case shows how the name search works and the way Elasticsearch works with strings. Go to
 http://199.109.xxx.xxx:8000/search/ and select 'test_study' for study and 'Test Dataset' for dataset and click
 Next to proceed to the filter selection tab. In the Filter demo panel, enter `Jeri` in the First name filter field. Click
-Next to proceed to the attribute selection tab. Select all the attribute except the two friend attributes. Click Search
+Next to proceed to the attribute selection tab. Select all the attributes except the two friend attributes. Click Search
 to search. You should see just one result. Lets modify this search and change the first name to `jeri`, making
 the first name all lower case. Now if you search you should see no results. So what happened? If you remember,
 when we defined the first name field in the Elasticsearch mapping, we defined it as a keyword type in Elasticsearch.
@@ -914,12 +915,12 @@ Eye Color Search
 This use case shows how a multiple select search works. Go to
 http://199.109.xxx.xxx:8000/search/ and select 'test_study' for study and 'Test Dataset' for dataset and click
 Next to proceed to the filter selection tab. In the Filter demo panel, select colors `blue` and 'green` for the
-``Eye Color`` field. Proceedto the attribute field and select all the fields except the two friend fields and search.
+``Eye Color`` field. Proceed to the attribute field and select all the fields except the two friend fields and search.
 The results should only show users that have blue or green eyes.
 
 Friend Search
 -------------------------------------------
-This use case shows how nested fields works and discusses the current limitation of GDW.
+This use case shows how nested fields work and discusses the current limitations of GDW. Go to 
 http://199.109.xxx.xxx:8000/search/ and select 'test_study' for study and 'Test Dataset' for dataset and click
 Next to proceed to the filter selection tab. In the Filter demo panel, enter `Greta` in the ``Friend Name``
 field. Proceed to the attribute field and select all the fields and search. The results should show only one result.
@@ -931,7 +932,7 @@ But you can now search for `Greta Henry` using either the first or last name, ir
 
 Rearrange Filter and Attribute Fields
 -------------------------------------------
-This use case shows how to rearrange the results and to rearrange the filter and attribute fields.
+This use case shows how to rearrange the results and to rearrange the filter and attribute fields. Go to 
 http://199.109.xxx.xxx:8000/search/ and select 'test_study' for study and 'Test Dataset' for dataset and click
 Next to proceed to the filter selection tab. In the Filter demo panel, do not select anything. Proceed to the attribute
 field and select all the fields except the two friends field and click Search to search. You should see eight results.
@@ -1157,8 +1158,8 @@ Now, run ANNOVAR on the small VCF we created::
     perl table_annovar.pl ../CHBJPT.low_coverage.2010_09.genotypes.sample.vcf ./humandb -buildver hg19 -out ../CHBJPT.low_coverage.2010_09.genotypes.sample -protocol refGene,ensGene,clinvar_20150629,dbnsfp30a -operation g,g,f,f -nastring . -vcfinput -remove
 
 
-VCF files are are import in to Elasticsearch in three steps. In the first step we inspect the VCF files to gather information about
-what fields are available. From the ``GDW/utils`` folder run the following command after updating the ::
+VCF files are imported into Elasticsearch in three steps. In the first step we inspect the VCF files to gather information about
+what fields are available. From the ``GDW/utils`` folder run the following command::
 
     python inspect_vcf.py --index test_vcf --type test_vcf --vcf /<PATH>/CHBJPT.low_coverage.2010_09.genotypes.sample.hg19_multianno.vcf --labels None
 
@@ -1169,24 +1170,24 @@ Running the script will create an output called ``inspect_output_for_test_vcf_te
 the information about the available fields.
 
 Next we will create the Elasticsearch mapping automatically from ``inspect_output_for_test_vcf_test_vcf.txt``. Run the following command after updating
-the IP address in the ``hostname`` option to an Elasticsearch instance ::
+the IP address in the ``hostname`` option to an Elasticsearch instance::
 
     python prepare_elasticsearch_for_import.py --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --info es_scripts/inspect_output_for_test_vcf_test_vcf.txt
 
 This will create two scripts in the ``./es_scripts``. The script ``create_index_test_vcf_and_put_mapping_test_vcf`` creates the index and puts the Elasticsearch
-mapping for your document that will store the VCF information. The script ``delete_index_test_vcf.sh`` can be used to delete the index if needed. The run
+mapping for your document that will store the VCF information. The script ``delete_index_test_vcf.sh`` can be used to delete the index if needed. Run the 
 following command to create the Elasticsearch index for your VCF data ::
 
     bash es_scripts/create_index_test_vcf_and_put_mapping_test_vcf.sh
 
-Now we are ready to import the VCF file. From the base directory of GDW run the following command after updating the IP address to your Elasticsearch instance
+Now we are ready to import the VCF file. From the ``GDW/utils`` folder run the following command after updating the IP address to your Elasticsearch instance
 in the hostname option::
 
     python import_vcf.py --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --label None --vcf /<PATH>CHBJPT.low_coverage.2010_09.genotypes.sample.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_test_vcf_test_vcf.txt --update False
 
-Finally, we can automatically create the UI by running the following command after updating IP address to your Elasticsearch instance
-in the hostname option ::
+Finally, we can automatically create the UI by running the following command from the base directory of GDW after updating the IP address to your Elasticsearch instance
+in the hostname option::
 
-  python manage.py create_gui_from_es_mapping --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --study test_vcf --dataset test_vcf --gui /home/mkzia/doc_gdw/GDW/search/management/commands/data/vcf_field_gui_mapping.json
+  python manage.py create_gui_from_es_mapping --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --study test_vcf --dataset test_vcf --gui /<PATH>/<TO>/GDW/search/management/commands/data/vcf_field_gui_mapping.json
 
-The ``--study`` and ``--dataset`` options specify the name of your study and dataset, respectively. The ``--gui`` options specifies the full path to a file that maps the Elasticsearch fields to UI components. After you run command you will see some error messages. Those can be ignored. They tell you which Elasticsearch fields do not have a UI component specified in the mapping file.
+The ``--study`` and ``--dataset`` options specify the name of your study and dataset, respectively. The ``--gui`` options specifies the full path to a file that maps the Elasticsearch fields to UI components. After you run the command you will see some error messages. Those can be ignored. They tell you which Elasticsearch fields do not have a UI component specified in the mapping file.
