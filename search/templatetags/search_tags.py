@@ -72,7 +72,7 @@ def format_gatkfilter_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['FILTER_cohort'].title(), ele['FILTER_status']))
+                tmp.append('%s: %s' %(ele['FILTER_label'].title(), ele['FILTER_status']))
             return '; '.join(tmp)
 
 
@@ -89,7 +89,7 @@ def format_gatkqs_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['QUAL_cohort'].title(), ele['QUAL_score']))
+                tmp.append('%s: %s' %(ele['QUAL_label'].title(), ele['QUAL_score']))
             return '; '.join(tmp)
 
 
@@ -145,7 +145,18 @@ def get_value_from_dict_search(dict_data, element):
     """
 
     if element:
-        data = dict_data.get(element.es_name)
+        if element.path:
+            path = element.path
+            try:
+                data = dict_data.get(path)[0]
+            except:
+                print('Error in fetching field path: %s -- es_name: %s' %(element.path, element.es_name))
+                return None
+            data = data.get(element.es_name)
+            # print(data)
+        else:
+            data = dict_data.get(element.es_name)
+        # print(element.es_name, data)
         if not data:
             return None
         es_id = dict_data.get("es_id")

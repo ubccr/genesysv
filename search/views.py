@@ -658,6 +658,7 @@ def search(request):
 
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+                        print(filtered_results)
                         if filtered_results:
                             result[key_path] = filtered_results
                         else:
@@ -726,17 +727,6 @@ def search(request):
             else:
                 final_results = results
 
-
-            ### remove duplicates
-            results = deque()
-            hash_list = deque()
-            for tmp_result in final_results:
-                print(tmp_result)
-                list_hash = hashlib.sha256(str(tmp_result).encode('utf-8','ignore')).hexdigest()
-                print(list_hash)
-                if list_hash not in hash_list:
-                    hash_list.append(list_hash)
-                    results.append(tmp_result)
 
             final_results = results
             header_json = serializers.serialize("json", headers)
