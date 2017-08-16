@@ -29,6 +29,7 @@ class Study(TimeStampedModel):
 
     class Meta:
         unique_together = ('name', 'description',)
+        verbose_name_plural = 'studies'
 
     def __str__(self):
         return self.name
@@ -102,7 +103,8 @@ class FilterField(TimeStampedModel):
         'ESFilterType',
         on_delete=models.CASCADE,
     )
-    place_in_panel = models.CharField(max_length=255)
+    place_in_panel = models.CharField(max_length=255) # Did not make this a foreign key because that would lead to a circular relationship.
+                                                      # But I still need the panel name to get the admin interface to filter correctly.
     is_visible = models.BooleanField(default=True)
 
     class Meta:
@@ -182,8 +184,6 @@ class FilterTab(TimeStampedModel):
 
     def __str__(self):
         return self.name
-
-
 
 class AttributePanel(TimeStampedModel):
     dataset = models.ForeignKey(

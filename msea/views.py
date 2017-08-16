@@ -22,7 +22,7 @@ from django.conf import settings
 
 
 
-@gzip_page
+
 def msea_home(request):
     form = GeneForm(request.user)
     context = {'form':form}
@@ -137,7 +137,7 @@ def msea_plot(request):
             return render(request, 'msea/msea_plot.html', context)
 
 
-@gzip_page
+
 def search_gene_rs_id(request):
     q = request.GET.get('q', None)
     study = request.GET.get('study', None)
@@ -163,7 +163,7 @@ def search_gene_rs_id(request):
                     ]}
         return JsonResponse(json_response)
 
-@gzip_page
+
 def get_variant_form(request):
     rs_id = request.GET['selected_rs_id']
     study = request.GET['study']
@@ -173,7 +173,6 @@ def get_variant_form(request):
     # return HttpResponse(attribute_forms)
     return render(request, "msea/get_variant_snippet.html", context)
 
-@gzip_page
 def get_top100_nes(index, doc_type, es_host, es_port, size=100):
     query_string = """
     {
@@ -196,7 +195,7 @@ def get_top100_nes(index, doc_type, es_host, es_port, size=100):
 
     return results
 
-@gzip_page
+
 def msea_pvalue(request):
 
     study_form = StudyForm(request.user)
@@ -206,7 +205,7 @@ def msea_pvalue(request):
 
     return render(request, 'msea/msea_pvalue.html', context)
 
-@gzip_page
+
 def msea_get_sorted_pvalues(request):
     from pprint import pprint
 

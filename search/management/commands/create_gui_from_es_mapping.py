@@ -108,6 +108,7 @@ class Command(BaseCommand):
         required.add_argument("--type", help="Elasticsearch doc type name", required=True)
         required.add_argument("--study", help="Study name", required=True)
         required.add_argument("--dataset", help="Dataset name", required=True)
+        required.add_argument("--gui", help="GUI Mapping", required=True)
 
 
     def handle(self, *args, **options):
@@ -118,6 +119,7 @@ class Command(BaseCommand):
         study = options.get('study')
         dataset = options.get('dataset')
         type_name = options.get('type')
+        gui_mapping = options.get('gui')
 
 
 
@@ -145,7 +147,7 @@ class Command(BaseCommand):
 
 
 
-        vcf_gui_mapping = json.load(open('search/management/commands/data/vcf_field_gui_mapping.json', 'r'), object_pairs_hook=OrderedDict)
+        vcf_gui_mapping = json.load(open(gui_mapping, 'r'), object_pairs_hook=OrderedDict)
 
 
         print("*"*80+"\n")
@@ -235,6 +237,7 @@ class Command(BaseCommand):
                                             port,
                                             field_es_name,
                                             field_path)
+                        pprint(field_values)
                     elif match:
                         match_status = True
                         tmp_str = match.groups()[0]

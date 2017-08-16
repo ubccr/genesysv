@@ -73,25 +73,25 @@ class ElasticSearchFilter():
         return self.nested_must_wildcard
 
     def add_filter_range_gt(self, field_name, value):
-        self.filter_range_gt.append((field_name, value))
+        self.filter_range_gt.append((field_name, float(value)))
 
     def get_filter_range_gt(self):
         return self.filter_range_gt
 
     def add_filter_range_gte(self, field_name, value):
-        self.filter_range_gte.append((field_name, value))
+        self.filter_range_gte.append((field_name, float(value)))
 
     def get_filter_range_gte(self):
         return self.filter_range_gte
 
     def add_filter_range_lt(self, field_name, value):
-        self.filter_range_lt.append((field_name, value))
+        self.filter_range_lt.append((field_name, float(value)))
 
     def get_filter_range_lt(self):
         return self.filter_range_lt
 
     def add_filter_range_lte(self, field_name, value):
-        self.filter_range_lte.append((field_name, value))
+        self.filter_range_lte.append((field_name, float(value)))
 
     def get_filter_range_lte(self):
         return self.filter_range_lte
@@ -100,7 +100,7 @@ class ElasticSearchFilter():
     def add_nested_filter_range_gte(self, field_name, value, path):
         if path not in self.nested_filter_range_gte:
             self.nested_filter_range_gte[path] = []
-        self.nested_filter_range_gte[path].append((field_name, value))
+        self.nested_filter_range_gte[path].append((field_name, float(value)))
 
     def get_nested_filter_range_gte(self):
         if list(self.nested_filter_range_gte):
@@ -110,7 +110,7 @@ class ElasticSearchFilter():
     def add_nested_filter_range_lte(self, field_name, value, path):
         if path not in self.nested_filter_range_lte:
             self.nested_filter_range_lte[path] = []
-        self.nested_filter_range_lte[path].append((field_name, value))
+        self.nested_filter_range_lte[path].append((field_name, float(value)))
 
     def get_nested_filter_range_lte(self):
         if list(self.nested_filter_range_gte):

@@ -167,6 +167,36 @@
       "es_field_datatype": "keyword",
       "es_field_name": "AA_sub"
     },
+    "AC_case": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AC",
+      "is_non_nested_label_field": true
+    },
+    "AF_case": {
+      "es_field_datatype": "float",
+      "es_field_name": "AF",
+      "is_non_nested_label_field": true
+    },
+    "AN_case": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AN",
+      "is_non_nested_label_field": true
+    },
+    "AC_control": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AC",
+      "is_non_nested_label_field": true
+    },
+    "AF_control": {
+      "es_field_datatype": "float",
+      "es_field_name": "AF",
+      "is_non_nested_label_field": true
+    },
+    "AN_control": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AN",
+      "is_non_nested_label_field": true
+    },
     "AC": {
       "es_field_datatype": "integer",
       "es_field_name": "AC",
@@ -293,28 +323,139 @@
       "es_field_name": "CCC"
     },
     "CLINSIG": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CLINSIG",
-      "parse_function": "CLINSIG_parser"
+      "es_nested_path": "clinvar",
+      "nested_fields": {
+        "CLINSIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLINSIG",
+          "parse_function": "CLINSIG_parser"
+        },
+        "CLNACC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNACC"
+        },
+        "CLNDBN": {
+          "es_field_datatype": "text",
+          "es_field_name": "clinvar_CLNDBN",
+          "es_field_text_analyzer": "simple"
+        },
+        "CLNDSDB": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDB"
+        },
+        "CLNDSDBID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
     },
     "CLNACC": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CLNACC"
+      "es_nested_path": "clinvar",
+      "nested_fields": {
+        "CLINSIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLINSIG",
+          "parse_function": "CLINSIG_parser"
+        },
+        "CLNACC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNACC"
+        },
+        "CLNDBN": {
+          "es_field_datatype": "text",
+          "es_field_name": "clinvar_CLNDBN",
+          "es_field_text_analyzer": "simple"
+        },
+        "CLNDSDB": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDB"
+        },
+        "CLNDSDBID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
     },
     "CLNDBN": {
-      "es_field_datatype": "text",
-      "es_field_name": "CLNDBN",
-      "es_field_text_analyzer": "simple"
+      "es_nested_path": "clinvar",
+      "nested_fields": {
+        "CLINSIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLINSIG",
+          "parse_function": "CLINSIG_parser"
+        },
+        "CLNACC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNACC"
+        },
+        "CLNDBN": {
+          "es_field_datatype": "text",
+          "es_field_name": "clinvar_CLNDBN",
+          "es_field_text_analyzer": "simple"
+        },
+        "CLNDSDB": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDB"
+        },
+        "CLNDSDBID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
     },
     "CLNDSDB": {
-      "es_field_datatype": "text",
-      "es_field_name": "CLNDSDB",
-      "es_field_text_analyzer": "simple"
+      "es_nested_path": "clinvar",
+      "nested_fields": {
+        "CLINSIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLINSIG",
+          "parse_function": "CLINSIG_parser"
+        },
+        "CLNACC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNACC"
+        },
+        "CLNDBN": {
+          "es_field_datatype": "text",
+          "es_field_name": "clinvar_CLNDBN",
+          "es_field_text_analyzer": "simple"
+        },
+        "CLNDSDB": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDB"
+        },
+        "CLNDSDBID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
     },
     "CLNDSDBID": {
-      "es_field_datatype": "text",
-      "es_field_name": "CLNDSDBID",
-      "es_field_text_analyzer": "simple"
+      "es_nested_path": "clinvar",
+      "nested_fields": {
+        "CLINSIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLINSIG",
+          "parse_function": "CLINSIG_parser"
+        },
+        "CLNACC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNACC"
+        },
+        "CLNDBN": {
+          "es_field_datatype": "text",
+          "es_field_name": "clinvar_CLNDBN",
+          "es_field_text_analyzer": "simple"
+        },
+        "CLNDSDB": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDB"
+        },
+        "CLNDSDBID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
     },
     "COSMIC_ID": {
       "es_field_datatype": "keyword",

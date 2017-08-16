@@ -173,8 +173,7 @@ def get_dataset_form(request):
     context = {'form':form}
     return render(request, "search/get_dataset_snippet.html", context)
 
-def get_filter_form_cached(dataset):
-    dataset_object = Dataset.objects.get(description=dataset)
+def get_filter_form_cached(dataset_object):
     tabs = deque()
     for tab in FilterTab.objects.filter(dataset=dataset_object):
         tmp_dict = {}
@@ -209,7 +208,8 @@ def get_filter_form_cached(dataset):
 def get_filter_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        cache_name = 'context_filter_{}'.format(dataset)
+        dataset = Dataset.objects.get(description=dataset)
+        cache_name = 'context_filter_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_filter_form_cached(dataset)
             response = render(request, "search/get_filter_snippet.html", context)
@@ -218,8 +218,7 @@ def get_filter_form(request):
         else:
             return cache.get(cache_name)
 
-def get_attribute_form_cached(dataset):
-    dataset_object = Dataset.objects.get(description=dataset)
+def get_attribute_form_cached(dataset_object):
     tabs = deque()
     for tab in AttributeTab.objects.filter(dataset=dataset_object):
         tmp_dict = {}
@@ -259,7 +258,8 @@ def get_attribute_form_cached(dataset):
 def get_attribute_form(request):
     if request.GET:
         dataset = request.GET.get('selected_dataset')
-        cache_name = 'context_attribute_{}'.format(dataset)
+        dataset = Dataset.objects.get(description=dataset)
+        cache_name = 'context_attribute_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_attribute_form_cached(dataset)
             response =  render(request, "search/get_attribute_snippet.html", context)
@@ -337,9 +337,9 @@ def search_home2(request):
 def search(request):
 
     if request.POST:
-
+        # print(request.user.groups.count())
         if not request.user.is_anonymous():
-            if request.user.groups.count() >= 1:
+            if request.user.groups.count() > 1:
                 print('More than one group')
                 return HttpResponse(status=400)
             elif request.user.groups.count() == 0:
@@ -355,7 +355,6 @@ def search(request):
             show_review_status = False
         else:
             show_review_status = True
-
 
         start_time = datetime.now()
         attribute_order = json.loads(request.POST['attribute_order'])
@@ -560,7 +559,7 @@ def search(request):
 
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
-            pprint(query)
+            pprint(content)
 
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
 
@@ -574,6 +573,7 @@ def search(request):
                 uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query)
             results = json.loads(response.text)
+            # pprint(results)
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
@@ -598,6 +598,13 @@ def search(request):
                 attributes_selected.append('%d' %(ele.id))
             tmp_results = results['hits']['hits']
             results = []
+
+            try:
+                FilterField.objects.get(dataset=dataset_obj, es_name='Variant')
+                variant_field_exist = True
+            except:
+                variant_field_exist = False
+
 
             # if not request.user.is_anonymous():
             #     variants_to_exclude = VariantReviewStatus.objects.filter(
@@ -626,11 +633,11 @@ def search(request):
                 for idx, result in enumerate(results):
                     add_results = True
                     for key, val in dict_filter_fields.items():
+
                         filter_field_obj = FilterField.objects.get(id=key)
                         key_path = filter_field_obj.path
                         key_es_name = filter_field_obj.es_name
                         key_es_filter_type = filter_field_obj.es_filter_type.name
-
                         if not result.get(key_path):
                             continue
 
@@ -685,6 +692,9 @@ def search(request):
                     combined = False
                     combined_nested = None
                     for idx, path in enumerate(nested_attribute_fields):
+                        if path.startswith('FILTER_') or path.startswith('QUAL_'):
+                            continue
+
                         if path not in result:
                             continue
 
@@ -717,8 +727,18 @@ def search(request):
                 final_results = results
 
 
+            ### remove duplicates
+            results = deque()
+            hash_list = deque()
+            for tmp_result in final_results:
+                print(tmp_result)
+                list_hash = hashlib.sha256(str(tmp_result).encode('utf-8','ignore')).hexdigest()
+                print(list_hash)
+                if list_hash not in hash_list:
+                    hash_list.append(list_hash)
+                    results.append(tmp_result)
 
-
+            final_results = results
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)
             if nested_attribute_fields:
@@ -794,6 +814,8 @@ def search(request):
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj
+            context['variant_field_exist'] = variant_field_exist
+
 
 
             return render(request, 'search/search_results.html', context)
@@ -1113,7 +1135,7 @@ def delete_variant(request, pk):
         variant_review_status_obj = VariantReviewStatus.objects.get(pk=pk, user=request.user)
         review_status = variant_review_status_obj.variant_review_status
         variant_review_status_obj.delete()
-        print(reverse('list-variant-status', kwargs={'review_status': review_status}))
+        # print(reverse('list-variant-status', kwargs={'review_status': review_status}))
         return redirect(reverse('list-variant-status', kwargs={'review_status': review_status}))
     except:
         raise PermissionDenied

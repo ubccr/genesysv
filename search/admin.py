@@ -2,40 +2,37 @@ from django import forms
 from django.contrib import admin
 from .models import *
 
-
-
 class FilterTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
-
 
 class FilterPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FilterPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            print(kwargs.get('instance'))
             self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
                                                                                dataset=kwargs['instance'].dataset)
-
+            self.fields['dataset'].disabled = True
+            print(self.fields['dataset'].widget)
     class Meta:
         model = FilterPanel
-        exclude = ('dataset',)
+        fields = '__all__'
 
 class FilterPanelAdmin(admin.ModelAdmin):
     form = FilterPanelForm
-    list_display = ('name',)
+    list_display = ('name', 'dataset')
     search_fields = ('name',)
 
 class FilterSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FilterSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            print(kwargs.get('instance'))
-            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].filter_panel.name,
                                                                                dataset=kwargs['instance'].dataset)
+            self.fields['dataset'].disabled = True
 
     class Meta:
         model = FilterSubPanel
-        exclude = ('dataset',)
+        fields = '__all__'
 
 
 class FilterSubPanelAdmin(admin.ModelAdmin):
@@ -47,17 +44,17 @@ class AttributeTabAdmin(admin.ModelAdmin):
     list_display = ('name', 'dataset')
     list_filter = ('attribute_panels',)
 
-
 class AttributePanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributePanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
             self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
                                                                                      dataset=kwargs['instance'].dataset)
+            self.fields['dataset'].disabled = True
 
     class Meta:
         model = AttributePanel
-        exclude = ('dataset',)
+        fields = '__all__'
 
 
 class AttributePanelAdmin(admin.ModelAdmin):
@@ -69,13 +66,12 @@ class AttributeSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributeSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].attribute_panel.name,
                                                                                      dataset=kwargs['instance'].dataset)
-
+            self.fields['dataset'].disabled = True
     class Meta:
         model = AttributeSubPanel
-        exclude = ('dataset',)
-
+        fields = '__all__'
 
 class AttributeSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_panel')
@@ -83,18 +79,21 @@ class AttributeSubPanelAdmin(admin.ModelAdmin):
     form = AttributeSubPanelForm
 
 class FilterFieldAdmin(admin.ModelAdmin):
-    list_display = ('display_text', 'dataset', 'in_line_tooltip', 'tooltip', 'form_type', 'widget_type', 'es_name', 'path', 'es_data_type', 'es_filter_type', )
+    list_display = ('display_text', 'dataset', 'in_line_tooltip', 'tooltip', 'form_type', 'widget_type', 'es_name', 'path', 'es_data_type', 'es_filter_type', 'place_in_panel', 'is_visible', )
     list_filter = ('dataset',)
     search_fields = ('display_text',)
 
 class FilterFieldChoiceAdmin(admin.ModelAdmin):
-    list_display = ('filter_field', 'value',)
+    list_display = ('filter_field', 'dataset', 'value',)
     list_filter = ('filter_field__dataset',)
     search_fields = ('filter_field__display_text', 'value')
     raw_id_fields = ('filter_field',)
 
+    def dataset(self, obj):
+        return obj.filter_field.dataset
+
 class AttributeFieldAdmin(admin.ModelAdmin):
-    list_display = ('display_text', 'dataset', 'es_name', 'path',)
+    list_display = ('display_text', 'dataset', 'es_name', 'path', 'place_in_panel', 'is_visible', )
     list_filter = ('dataset',)
     search_fields = ('display_text',)
 
@@ -152,5 +151,3 @@ admin.site.register(FilterFieldChoice, FilterFieldChoiceAdmin)
 admin.site.register(AttributeField, AttributeFieldAdmin)
 admin.site.register(SearchLog, SearchLogAdmin)
 admin.site.register(SearchOptions, SearchOptionsAdmin)
-
-
