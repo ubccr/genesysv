@@ -39,6 +39,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from collections import defaultdict
 
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
@@ -50,6 +51,54 @@ REVIEW_STATUS_CHOICES = (
     ('pending', '<i class="fa fa-question" aria-hidden="true"></i>'),
     ('not_reviewed', '--'),
 )
+
+
+def filter_FILTER_QUAL(result, FILTER_status, QUAL_score):
+        case_filter_status = None
+        control_filter_status = None
+        case_qual_score = None
+        control_qual_score = None
+        for ele in result.get('FILTER'):
+            if ele.get('FILTER_label'):
+                if ele.get('FILTER_label') == "case":
+                    case_filter_status = ele.get('FILTER_status')
+                elif ele.get('FILTER_label') == "control":
+                    control_filter_status = ele.get('FILTER_status')
+
+        for ele in result.get('QUAL'):
+            if ele.get('QUAL_label'):
+                if ele.get('QUAL_label') == "case":
+                    case_qual_score = ele.get('QUAL_score')
+                elif ele.get('QUAL_label') == "control":
+                    control_qual_score = ele.get('QUAL_score')
+
+        keep_label = {}
+
+        if case_filter_status == FILTER_status and case_qual_score >= QUAL_score:
+            keep_label["case"] = True
+        else:
+            keep_label["case"] = False
+
+        if control_filter_status == FILTER_status and control_qual_score >= QUAL_score:
+            keep_label["control"] = True
+        else:
+            keep_label["control"] = False
+
+        old_filter_data = result['FILTER']
+        new_filter_data = []
+        for ele in old_filter_data:
+            label = ele['FILTER_label']
+            if keep_label.get(label):
+                new_filter_data.append(ele)
+
+        old_qual_data = result['QUAL']
+        new_qual_data = []
+        for ele in old_qual_data:
+            label = ele['QUAL_label']
+            if keep_label.get(label):
+                new_qual_data.append(ele)
+
+        return (new_filter_data, new_qual_data)
 
 def get_variant_review_status(variant_es_id, group):
 
@@ -402,6 +451,7 @@ def search(request):
             ### I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
             ### not put on a separate line; Maybe better to add some attribute to the field in model instead.
 
+
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
                     attribute_field_obj = AttributeField.objects.get(id=key)
@@ -424,6 +474,11 @@ def search(request):
 
             filters_used = {}
 
+
+
+            FILTER_status = None
+            QUAL_score = None
+
             for key, filter_field_obj in [ (key, FilterField.objects.get(id=key)) for key in keys]:
 
             # for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
@@ -439,6 +494,11 @@ def search(request):
                 path = filter_field_obj.path
                 es_filter_type = filter_field_obj.es_filter_type.name
 
+
+                if path == 'FILTER':
+                    FILTER_status = data
+                if path == 'QUAL':
+                    QUAL_score = float(data)
 
                 ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
                 if path and path not in source_fields:
@@ -581,12 +641,15 @@ def search(request):
             context = {}
             headers = []
 
+            nested_attributes_selected = defaultdict(list)
             for key, val in attribute_order.items():
                 order, pk = val.split('-')
 
                 attribute_field_obj = AttributeField.objects.get(id=pk)
                 es_name = attribute_field_obj.es_name
                 path = attribute_field_obj.path
+                if path:
+                    nested_attributes_selected[path].append(es_name)
                 headers.append((int(order), attribute_field_obj))
 
 
@@ -627,6 +690,38 @@ def search(request):
                 tmp_source['es_id'] = es_id
                 results.append(tmp_source)
 
+
+            ### Deal with FILTER and QUAL fields -- if both are
+            if FILTER_status and QUAL_score and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
+                filtered_results = []
+                for result in results:
+                    new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_status, QUAL_score)
+                    if new_filter_data and new_qual_data:
+                        result['FILTER'] = new_filter_data
+                        result['QUAL'] = new_qual_data
+                        filtered_results.append(result)
+
+
+                results = filtered_results
+
+            ### Remove nested attributes that were not selected
+            if nested_attributes_selected:
+                for result in results:
+                    for path, nested_attributes in nested_attributes_selected.items():
+                        if path in ['FILTER', 'QUAL']:
+                            continue
+                        old_data = result[path]
+                        new_data = []
+                        for ele in old_data:
+                            tmp_dict = {}
+                            for nested_attribute in nested_attributes:
+                                if ele.get(nested_attribute):
+                                    tmp_dict[nested_attribute] = ele[nested_attribute]
+                            if tmp_dict not in new_data:
+                                new_data.append(tmp_dict)
+                        result[path] = new_data
+
+
             ### Remove results that don't match input
             tmp_results = []
             if dict_filter_fields:
@@ -658,7 +753,7 @@ def search(request):
 
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                        print(filtered_results)
+                        # print(filtered_results)
                         if filtered_results:
                             result[key_path] = filtered_results
                         else:
@@ -667,17 +762,9 @@ def search(request):
                     if add_results:
                         tmp_results.append(result)
 
-            ### remove duplicates
-            if tmp_results:
-                results = []
-                hash_list = deque()
-                for tmp_result in tmp_results:
-                    list_hash = hashlib.sha256(str(tmp_result).encode('utf-8','ignore')).hexdigest()
-                    if list_hash not in hash_list:
-                        hash_list.append(list_hash)
-                        results.append(tmp_result)
 
             ## gene_names
+            result_hash_list = deque()
             all_genes = []
             if nested_attribute_fields:
                 final_results = []
@@ -688,12 +775,12 @@ def search(request):
                             if ele.get('refGene_symbol'):
                                 genes = ele.get('refGene_symbol').split()
                                 all_genes.extend(genes)
-                    if results_count>search_options.maximum_table_size:
+                    if results_count > search_options.maximum_table_size:
                         break
                     combined = False
                     combined_nested = None
                     for idx, path in enumerate(nested_attribute_fields):
-                        if path.startswith('FILTER_') or path.startswith('QUAL_'):
+                        if path.startswith('FILTER') or path.startswith('QUAL'):
                             continue
 
                         if path not in result:
@@ -707,14 +794,21 @@ def search(request):
                             combined_nested = list(itertools.product(combined_nested, result[path]))
                             combined_nested = merge_two_dicts_array(combined_nested)
 
+
                     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
                     if combined_nested:
                         tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+                        # pprint(tmp_output)
+
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
                             if show_review_status and not request.user.is_anonymous():
                                 tmp['variant_review_status'] = result['variant_review_status']
+
+                            tmp['FILTER'] = result['FILTER']
+                            tmp['QUAL'] = result['QUAL']
+
                             if tmp not in final_results:
                                 final_results.append(tmp)
                                 results_count += 1
@@ -723,12 +817,18 @@ def search(request):
                             final_results.append(result)
                             results_count += 1
 
-
             else:
                 final_results = results
 
 
-            final_results = results
+            ### remove duplicates
+            tmp_results = []
+            hash_list = deque()
+            for result in final_results:
+                if result not in tmp_results:
+                    tmp_results.append(result)
+            final_results = tmp_results
+
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)
             if nested_attribute_fields:

@@ -145,18 +145,22 @@ def get_value_from_dict_search(dict_data, element):
     """
 
     if element:
-        if element.path:
-            path = element.path
-            try:
-                data = dict_data.get(path)[0]
-            except:
-                print('Error in fetching field path: %s -- es_name: %s' %(element.path, element.es_name))
-                return None
-            data = data.get(element.es_name)
-            # print(data)
+        path = element.path
+        if path in ['FILTER', 'QUAL']:
+            if path == "FILTER":
+                data = dict_data.get(path)
+                if len(data) >= 1:
+                    return '; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_status')) for ele in data])
+                else:
+                    return "Report ERROR"
+            elif path == "QUAL":
+                data = dict_data.get(path)
+                if len(data) >= 1:
+                    return '; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_score')) for ele in data])
+                else:
+                    return "Report ERROR"
         else:
             data = dict_data.get(element.es_name)
-        # print(element.es_name, data)
         if not data:
             return None
         es_id = dict_data.get("es_id")
