@@ -65,7 +65,7 @@ class ESFilterFormPart(forms.Form):
                     self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
-                CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                 self.fields[field_name] = forms.MultipleChoiceField(label=label, required=False, choices=CHOICES)
                 if MEgroup:
                     self.fields[field_name].widget.attrs.update({'groupId': MEgroup})
@@ -74,7 +74,7 @@ class ESFilterFormPart(forms.Form):
                 if field.es_filter_type.name == 'filter_exists':
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
                 else:
-                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                     CHOICES.insert(0,('', '----'))
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
                 if MEgroup:
@@ -113,14 +113,14 @@ class ESFilterForm(forms.Form):
                 self.fields[field_name].widget.attrs.update({'Khawar': 'off'})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
-                CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                CHOICES =[(ele.value, ' '.join(ele.value.split('_'))) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                 self.fields[field_name] = forms.MultipleChoiceField(label=label, required=False, choices=CHOICES)
 
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
                 if field.es_filter_type.name == 'filter_exists':
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
                 else:
-                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field)]
+                    CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                     CHOICES.insert(0,('', '----'))
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=CHOICES)
 

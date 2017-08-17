@@ -1188,6 +1188,7 @@ in the hostname option::
 Finally, we can automatically create the UI by running the following command from the base directory of GDW after updating the IP address to your Elasticsearch instance
 in the hostname option::
 
+
   python manage.py create_gui_from_es_mapping --hostname 199.109.XXX.XXX --port 9200 --index test_vcf --type test_vcf --study test_vcf --dataset test_vcf --gui /<PATH>/<TO>/GDW/search/management/commands/data/vcf_field_gui_mapping.json
 
 The ``--study`` and ``--dataset`` options specify the name of your study and dataset, respectively. The ``--gui`` options specifies the full path to a file that maps the Elasticsearch fields to UI components. After you run the command you will see some error messages. Those can be ignored. They tell you which Elasticsearch fields do not have a UI component specified in the mapping file.

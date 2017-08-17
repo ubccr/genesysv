@@ -73,8 +73,8 @@
                                         <td>{{finding.sample.sample_GT}}</td>
                                         <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
                                         <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
-                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLNDBN'|safe}}</td>
-                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLINSIG'|safe}}</td>
+                                        <td>{{finding.clinvar|flatten_key:'clinvar_CLNDBN'|safe}}</td>
+                                        <td>{{finding.clinvar|flatten_key:'clinvar_CLINSIG'|safe}}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -148,8 +148,8 @@
                                         <td>{{finding.sample.sample_GT}}</td>
                                         <td>{{finding.refGene|flatten_key:'refGene_symbol'|safe}}</td>
                                         <td>{{finding.refGene|flatten_key:'refGene_refgene_id'|safe}}</td>
-                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLNDBN'|safe}}</td>
-                                        <td>{{finding.clinvar_20150629|flatten_key:'clinvar_20150629_CLINSIG'|safe}}</td>
+                                        <td>{{finding.clinvar|flatten_key:'clinvar_CLNDBN'|safe}}</td>
+                                        <td>{{finding.clinvar|flatten_key:'clinvar_CLINSIG'|safe}}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

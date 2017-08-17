@@ -54,15 +54,15 @@
             <td><strong>{{ result|get_value_from_dict:"cytoBand" }}</strong></td>
         </tr>
         <tr>
-            {% if result.FILTER_status %}
+            {% if result.FILTER %}
                 <td>GATK Filter Status</td>
-                <td><strong>{{ result.FILTER_status}}</strong></td>
+                <td><strong>{{ result.FILTER|format_gatkfilter_array}}</strong></td>
             </tr>
         {% endif %}
-        {% if result.QUAL_score %}
+        {% if result.QUAL %}
             <tr>
                 <td>GATK Quality Score</td>
-                <td><strong>{{ result.QUAL_score}}</strong></td>
+                <td><strong>{{ result.QUAL|format_gatkqs_array}}</strong></td>
             </tr>
         {% endif %}
         {% if result.ID %}

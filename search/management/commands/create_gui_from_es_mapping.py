@@ -237,6 +237,7 @@ class Command(BaseCommand):
                                             port,
                                             field_es_name,
                                             field_path)
+                        pprint(field_values)
                     elif match:
                         match_status = True
                         tmp_str = match.groups()[0]

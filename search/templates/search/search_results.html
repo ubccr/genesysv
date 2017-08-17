@@ -19,6 +19,7 @@
     <br>
 {% endif %}
 
+
 <div class="well">
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
     <a class="btn btn-primary " role="button" href="/search"><i class="fa fa-search" aria-hidden="true"></i> New Search</a>
@@ -74,9 +75,6 @@
                             {% endif %}
                             {% for element in headers %}
                                 <td>{{ row|get_value_from_dict_search:element|safe }}
-                                {% if element == "refGene_symbol" %}
-                                    {{element}}
-                                {% endif %}
                                 </td>
                             {% endfor %}
                         </tr>

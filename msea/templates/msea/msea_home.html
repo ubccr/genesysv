@@ -29,6 +29,12 @@
       <h1>Visualize Mutation Set Enrichment Analysis (MSEA) Data</h1>
     </div>
 
+    <div>
+    <p>
+    This MSEA plotting tool creates plots designed to emulate those presented in the original paper. The underlying data is originally present as an annotated multi-sample vcf and proceeds through a pipeline which ends in an Elasticsearch database. Plots are generated on the fly by an R script using data queried from the Elasticsearch database.
+    </p>
+    </div>
+
     <form id="msea-form" role="form"  method="POST" action="{% url 'msea-plot' %}" autocomplete="off">
         {% csrf_token %}
         {{form|crispy}}

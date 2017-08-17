@@ -46,20 +46,36 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
     {
     "query": {
         "bool": {
-            "minimum_should_match": 1,
             "must": [
-                    {"term": {"CLNDBN": "%s"}},
-                    {"terms": {"CLINSIG": ["probable-pathogenic", "pathogenic", "drug-response", "histocompatibility"]},
+                    {"nested": {
+                        "path": "clinvar",
+                        "query": {
+                            "bool": {
+                                "filter": [{"term": {"clinvar.clinvar_CLNDBN": "%s"}}]
+                                }
+                            }
+                        }
+                    },
+                    {"nested": {
+                        "path": "clinvar",
+                        "query": {
+                            "bool": {
+                                "filter": [{"terms": {"clinvar.clinvar_CLINSIG": ["Likely_pathogenic", "Pathogenic", "drug-response"]}}]
+                                }
+                            }
+                        }
+                    },
                     {"nested": {
                         "path": "sample",
                         "query": {
                             "bool": {
-                                "filter": [{"terms": {"sample.sample_ID": ["%s"]}}]
+                                "filter": [{"term": {"sample.sample_ID": "%s"}}]
                                 }
                             }
                         }
                     }
                 ],
+            "minimum_should_match": 1,
             "should" : [
                 {"term" : {"SIFT_pred": "Deleterious"}},
                 {"term" : {"LRT_pred": "Deleterious"}},
@@ -68,7 +84,7 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
             ]
         }
         },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "CLINSIG", "CLNDBN", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
+        "_source": ["Variant", "CHROM", "POS", "REF", "ALT", "refGene", "clinvar", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
         "size": 1000
     }
     """
@@ -84,12 +100,12 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
     for ele in tmp_results:
         tmp_source = ele['_source']
         tmp_source['es_id'] = ele['_id']
-        tmp_source['clinvar_20150629'] = filter_array_dicts(tmp_source['clinvar_20150629'],
-                                                     'clinvar_20150629_CLINSIG',
-                                                     ['probable-pathogenic', 'pathogenic', 'drug-response', 'histocompatibility'],
+        tmp_source['clinvar'] = filter_array_dicts(tmp_source['clinvar'],
+                                                     'clinvar_CLINSIG',
+                                                     ['Likely_pathogenic', 'Pathogenic', 'drug-response'],
                                                      'equal')
-        tmp_source['clinvar_20150629'] = filter_array_dicts(tmp_source['clinvar_20150629'],
-                                                     'clinvar_20150629_CLNDBN',
+        tmp_source['clinvar'] = filter_array_dicts(tmp_source['clinvar'],
+                                                     'clinvar_CLNDBN',
                                                      [indication_for_testing,],
                                                      'default')
         tmp_source['sample'] = filter_array_dicts(tmp_source['sample'],
@@ -102,7 +118,7 @@ def get_relevant_clinvar(subject, database_name, indication_for_testing):
             tmp_source['AF'] = tmp_source['1000g2015aug_all']
         else:
             tmp_source['AF'] = 'N/A'
-        if tmp_source['clinvar_20150629']:
+        if tmp_source['clinvar']:
             results.append(tmp_source)
 
 
@@ -115,51 +131,50 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
     es = elasticsearch.Elasticsearch(host=dataset_obj.es_host)
 
     es_query_string_template = """
-    {
-        "query": {
-            "bool": {
-                "minimum_should_match": 1,
-                "filter": [
-                        {"nested": {
-                            "path": "clinvar_20150629",
-                            "query": {
-                                "bool": {
-                                    "must_not": [{"term": {"clinvar_20150629.clinvar_20150629_CLNDBN": "%s"}}]
-                                    }
-                                }
-                            }
-                        },
-                        {"nested": {
-                            "path": "clinvar_20150629",
-                            "query": {
-                                "bool": {
-                                    "filter": [{"terms": {"clinvar_20150629.clinvar_20150629_CLINSIG": ["probable-pathogenic", "pathogenic", "drug-response", "histocompatibility"]}}]
-                                    }
-                                }
-                            }
-                        },
-                        {"nested": {
-                            "path": "sample",
-                            "query": {
-                                "bool": {
-                                    "filter": [{"terms": {"sample.sample_ID": ["%s"]}}]
-                                    }
+        {
+    "query": {
+        "bool": {
+            "must": [
+                    {"nested": {
+                        "path": "clinvar",
+                        "query": {
+                            "bool": {
+                                "must_not": [{"term": {"clinvar.clinvar_CLNDBN": "%s"}}]
                                 }
                             }
                         }
-                    ],
-                "should" : [
-                    {"term" : {"SIFT_pred": "Deleterious"}},
-                    {"term" : {"LRT_pred": "Deleterious"}},
-                    {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
-                    {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
-                ]
-                }
-            },
-        "_source": ["Variant", "Chr", "Start", "Ref", "Alt", "refGene", "clinvar_20150629", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
-        "size": 25
+                    },
+                    {"nested": {
+                        "path": "clinvar",
+                        "query": {
+                            "bool": {
+                                "filter": [{"terms": {"clinvar.clinvar_CLINSIG": ["Likely_pathogenic", "Pathogenic", "drug-response"]}}]
+                                }
+                            }
+                        }
+                    },
+                    {"nested": {
+                        "path": "sample",
+                        "query": {
+                            "bool": {
+                                "filter": [{"term": {"sample.sample_ID": "%s"}}]
+                                }
+                            }
+                        }
+                    }
+                ],
+            "minimum_should_match": 1,
+            "should" : [
+                {"term" : {"SIFT_pred": "Deleterious"}},
+                {"term" : {"LRT_pred": "Deleterious"}},
+                {"terms" : {"Polyphen2_HDIV_pred": ["possibly_damaging","probably_damaging"]}},
+                {"terms" : {"Polyphen2_HVAR_pred": ["possibly_damaging","probably_damaging"]}}
+            ]
+        }
+        },
+        "_source": ["Variant", "CHROM", "POS", "REF", "ALT", "refGene", "clinvar", "sample", "ExAC_ALL", "1000g2015aug_all", "SIFT_pred", "LRT_pred", "Polyphen2_HDIV_pred", "Polyphen2_HVAR_pred"],
+        "size": 1000
     }
-
     """
     es_query_string = es_query_string_template %(indication_for_testing, subject)
     # print(es_query_string)
@@ -172,12 +187,12 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
     for ele in tmp_results:
         tmp_source = ele['_source']
         tmp_source['es_id'] = ele['_id']
-        tmp_source['clinvar_20150629'] = filter_array_dicts(tmp_source['clinvar_20150629'],
-                                                     'clinvar_20150629_CLINSIG',
-                                                     ['probable-pathogenic', 'pathogenic', 'drug-response', 'histocompatibility'],
+        tmp_source['clinvar'] = filter_array_dicts(tmp_source['clinvar'],
+                                                     'clinvar_CLINSIG',
+                                                     ['Likely_pathogenic', 'Pathogenic', 'drug-response'],
                                                      'equal')
-        tmp_source['clinvar_20150629'] = must_not_array_dicts(tmp_source['clinvar_20150629'],
-                                                     'clinvar_20150629_CLNDBN',
+        tmp_source['clinvar'] = must_not_array_dicts(tmp_source['clinvar'],
+                                                     'clinvar_CLNDBN',
                                                      [indication_for_testing,],
                                                      'default')
         tmp_source['sample'] = filter_array_dicts(tmp_source['sample'],
@@ -190,7 +205,7 @@ def get_not_relevant_clinvar(subject, database_name, indication_for_testing):
             tmp_source['AF'] = tmp_source['1000g2015aug_all']
         else:
             tmp_source['AF'] = 'N/A'
-        if tmp_source['clinvar_20150629']:
+        if tmp_source['clinvar']:
             results.append(tmp_source)
 
     # print(results)
@@ -327,7 +342,7 @@ def get_read_depth(database_name, subject):
         for line in fp:
             tmp = line.strip().split(',')
             if tmp[0] == subject:
-                print(tmp[2], tmp[3], tmp[4], tmp[6])
+                # print(tmp[2], tmp[3], tmp[4], tmp[6])
                 return (tmp[2], tmp[3], tmp[4], tmp[6])
 
     return ('??'*4)
@@ -558,7 +573,7 @@ class SubjectReportForm3(forms.Form):
         subject = extra_data['subject']
         database_name = extra_data['database_name']
         indication_for_testing = extra_data['indication_for_testing'].lower()
-        print(indication_for_testing)
+        # print(indication_for_testing)
 
         relevant_clinvar = get_relevant_clinvar(subject, database_name, indication_for_testing)
         RELEVANT_CLINVAR_CHOICES = [(ele['es_id'], '') for ele in relevant_clinvar]
