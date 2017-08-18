@@ -169,11 +169,6 @@ def get_value_from_dict_search(dict_data, element):
             # print(element.dataset.id)
             output = '<a target="_blank" href="/search/variant/%d/%s">%s</a>' %(element.dataset.id, es_id, data)
             return output
-        elif element.es_name == "qs":
-            tmp  = []
-            for ele in dict_data.get('gatkQS'):
-                tmp.append('%s: %s' %(ele['cohort'].title(), ele['qs']))
-            return '; '.join(tmp)
         else:
             return data
 
