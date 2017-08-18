@@ -479,7 +479,7 @@ def search(request):
             FILTER_status = None
             QUAL_score = None
 
-            for key, filter_field_obj in [ (key, FilterField.objects.get(id=key)) for key in keys]:
+            for key, filter_field_obj in [(key, FilterField.objects.get(id=key)) for key in keys]:
 
             # for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
@@ -911,18 +911,19 @@ def search(request):
             return render(request, 'search/search_results.html', context)
 
 def yield_results(dataset_obj,
-                    header_keys,
+                    headers,
                     query,
                     nested_attribute_fields,
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
                     review_status_to_filter,
-                    group):
+                    group, FILTER_status=None, QUAL_score=None):
 
 
     es = Elasticsearch(host=dataset_obj.es_host)
     # query = json.dumps(query)
+    header_keys = [ele.display_text for ele in headers]
     yield header_keys
     for ele in helpers.scan(es,
                             query=query,
@@ -931,12 +932,20 @@ def yield_results(dataset_obj,
                             preserve_order=False,
                             index=dataset_obj.es_index_name,
                             doc_type=dataset_obj.es_type_name):
-
         result = ele['_source']
         es_id = ele['_id']
         variant_review_status = get_variant_review_status(es_id, group)
         if review_status_to_filter and variant_review_status not in review_status_to_filter:
             continue
+
+        #
+        new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_status, QUAL_score)
+        if new_filter_data and new_qual_data:
+            result['FILTER'] = new_filter_data
+            result['QUAL'] = new_qual_data
+        else:
+            continue
+
         ### Remove results that don't match input
         yield_results = True
         if dict_filter_fields:
@@ -960,7 +969,6 @@ def yield_results(dataset_obj,
 
                 else:
                     comparison_type = 'val_in'
-
                 filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
                 if filtered_results:
                     result[key_path] = filtered_results
@@ -975,8 +983,11 @@ def yield_results(dataset_obj,
             combined = False
             combined_nested = None
             for idx, path in enumerate(nested_attribute_fields):
+                if path.startswith('FILTER') or path.startswith('QUAL'):
+                    continue
                 if path not in result:
                     continue
+
 
                 if not combined:
                     combined_nested = result[path]
@@ -991,6 +1002,8 @@ def yield_results(dataset_obj,
                 tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
                 for x,y in tmp_output:
                     tmp = merge_two_dicts(x,y)
+                    tmp['FILTER'] = result['FILTER']
+                    tmp['QUAL'] = result['QUAL']
                     if tmp not in final_results:
                         final_results.append(tmp)
             else:
@@ -1000,12 +1013,20 @@ def yield_results(dataset_obj,
         else:
             final_results = [result,]
 
-
         for idx, result in enumerate(final_results):
             tmp = []
 
-            for header in header_keys:
-                tmp.append(str(result.get(header, None)))
+            for header in headers:
+                path = header.path
+                if path in ['FILTER', 'QUAL']:
+                    if path == "FILTER":
+                        data = result.get(path)
+                        tmp.append('; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_status')) for ele in data]))
+                    elif path == "QUAL":
+                        data = result.get(path)
+                        tmp.append('; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_score')) for ele in data]))
+                else:
+                    tmp.append(str(result.get(header.es_name, None)))
             yield tmp
 
 
@@ -1054,8 +1075,15 @@ def download_result(request):
     else:
         used_keys = []
 
-    header_keys = [ele.es_name for ele in headers]
+    FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_status')
+    QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_score')
 
+    if str(FILTER_field_obj.id) in dict_filter_fields and str(QUAL_field_obj.id) in dict_filter_fields:
+        FILTER_status = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
+        QUAL_score = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
+    else:
+        FILTER_status = None
+        QUAL_score = None
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer, delimiter='\t')
@@ -1067,13 +1095,13 @@ def download_result(request):
         group = request.user.groups.all()[:1].get()
 
     results = yield_results(dataset_obj,
-                    header_keys,
+                    headers,
                     query,
                     nested_attribute_fields,
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
-                    review_status_to_filter, group)
+                    review_status_to_filter, group, FILTER_status=FILTER_status, QUAL_score=QUAL_score)
     response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response
