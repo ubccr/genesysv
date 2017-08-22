@@ -805,8 +805,10 @@ def search(request):
                             if show_review_status and not request.user.is_anonymous():
                                 tmp['variant_review_status'] = result['variant_review_status']
 
-                            tmp['FILTER'] = result['FILTER']
-                            tmp['QUAL'] = result['QUAL']
+                            if FILTER_value:
+                                tmp['FILTER'] = result['FILTER']
+                            if QUAL_value:
+                                tmp['QUAL'] = result['QUAL']
 
                             if tmp not in final_results:
                                 final_results.append(tmp)
