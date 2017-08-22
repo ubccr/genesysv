@@ -629,7 +629,8 @@
 </div>
 {% endif %}
 
-{% if result.CLINSIG or result.gwasCatalog %}
+
+{% if result.clinvar or result.gwasCatalog %}
 <div class="col-md-12">
     <div class="panel-group">
         <div class="panel panel-primary">
@@ -641,7 +642,7 @@
             <div id="clinical_annotations" class="panel-collapse collapse">
                 <div class="panel-body">
 
-                    {% if result.CLINSIG %}
+                    {% if result.clinvar %}
                     <div class="panel panel-info">
                         <div class="panel-heading">ClinVar</div>
                         <div class="panel-body">
@@ -651,22 +652,21 @@
                                     <tr>
                                         <th>Disease Name</th>
                                         <th>Clinical Significance</th>
-                                        <th>Review Status</th>
                                         <th>Disease Database Name</th>
                                         <th>Disease Disease Database ID</th>
                                         <th>Accession and Versions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                        {% for ele in result.clinvar %}
                                         <tr>
-                                            <td>{{result.CLNDBN}}</td>
-                                            <td>{{result.CLINSIG}}</td>
-                                            <td>{{result.CLNREVSTAT}}</td>
-                                            <td>{{result.CLNDSDB}}</td>
-                                            <td>{{result.CLNDSDBID}}</td>
-                                            <td>{{result.CLNACC}}</td>
-
+                                            <td>{{ele|get_value_from_dict:"clinvar_CLNDBN"}}</td>
+                                            <td>{{ele|get_value_from_dict:"clinvar_CLINSIG"}}</td>
+                                            <td>{{ele|get_value_from_dict:"clinvar_CLNDSDB"}}</td>
+                                            <td>{{ele|get_value_from_dict:"clinvar_CLNDSDBID"}}</td>
+                                            <td>{{ele|get_value_from_dict:"clinvar_CLNACC"}}</td>
                                         </tr>
+                                        {% endfor %}
                                 </tbody>
                                 </table>
                             </div>
