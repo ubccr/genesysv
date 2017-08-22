@@ -95,10 +95,10 @@
     "panel": "Variant Related Information",
     "tab": "Basic"
   },
-  "FILTER_cohort": {
+  "FILTER_value": {
     "filters": [
       {
-        "display_text": "Filter Cohort",
+        "display_text": "Filter Value",
         "es_filter_type": "nested_filter_term",
         "form_type": "ChoiceField",
         "widget_type": "Select",
@@ -109,35 +109,7 @@
     "panel": "Variant Related Information",
     "tab": "Basic"
   },
-  "FILTER_status": {
-    "filters": [
-      {
-        "display_text": "Filter status",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "ChoiceField",
-        "widget_type": "Select",
-        "values": "get_from_es()",
-        "path": "FILTER"
-      }
-    ],
-    "panel": "Variant Related Information",
-    "tab": "Basic"
-  },
-  "QUAL_cohort": {
-    "filters": [
-      {
-        "display_text": "Quality Cohort",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "ChoiceField",
-        "widget_type": "Select",
-        "values": "get_from_es()",
-        "path": "QUAL"
-      }
-    ],
-    "panel": "Variant Related Information",
-    "tab": "Basic"
-  },
-  "QUAL_score": {
+  "QUAL_value": {
     "filters": [
       {
         "display_text": "Quality Score",

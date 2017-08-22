@@ -1,9 +1,15 @@
 from django.db import models
 from common.models import TimeStampedModel
 from sortedm2m.fields import SortedManyToManyField
+import memcache
 
 from django.contrib.auth.models import User, Group
 import json
+
+def flush_memcache():
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    mc.flush_all()
+
 
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=255)
@@ -110,6 +116,12 @@ class FilterField(TimeStampedModel):
     class Meta:
         unique_together = ('dataset', 'es_name', 'es_filter_type', 'form_type', 'widget_type')
 
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(FilterField, self).save(*args, **kwargs)
+
+
+
     def __str__(self):
         return "%s %s" %(self.display_text, self.in_line_tooltip)
 
@@ -123,8 +135,15 @@ class FilterFieldChoice(TimeStampedModel):
     class Meta:
         unique_together = ('filter_field', 'value',)
 
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(FilterFieldChoice, self).save(*args, **kwargs)
+
+
     def __str__(self):
         return self.value
+
+
 
 
 class AttributeField(TimeStampedModel):
@@ -141,6 +160,11 @@ class AttributeField(TimeStampedModel):
     class Meta:
         unique_together = ('dataset', 'es_name', 'path')
 
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(AttributeField, self).save(*args, **kwargs)
+
+
     def __str__(self):
         return "%s" %(self.display_text)
 
@@ -154,6 +178,11 @@ class FilterPanel(TimeStampedModel):
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     filter_fields = SortedManyToManyField(FilterField, blank=True)
     is_visible = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(FilterPanel, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name
@@ -171,6 +200,11 @@ class FilterSubPanel(TimeStampedModel):
     filter_fields = SortedManyToManyField(FilterField, blank=True)
     is_visible = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(FilterSubPanel, self).save(*args, **kwargs)
+
+
     def __str__(self):
         return self.name
 
@@ -181,6 +215,11 @@ class FilterTab(TimeStampedModel):
     )
     name = models.CharField(max_length=255)
     filter_panels = SortedManyToManyField(FilterPanel, blank=True)
+
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(FilterTab, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name
@@ -194,6 +233,11 @@ class AttributePanel(TimeStampedModel):
     are_sub_panels_mutually_exclusive = models.BooleanField(default=False)
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)
     is_visible = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(AttributePanel, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name
@@ -211,6 +255,11 @@ class AttributeSubPanel(TimeStampedModel):
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)
     is_visible = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(AttributeSubPanel, self).save(*args, **kwargs)
+
+
     def __str__(self):
         return self.name
 
@@ -221,6 +270,11 @@ class AttributeTab(TimeStampedModel):
     )
     name = models.CharField(max_length=255)
     attribute_panels = SortedManyToManyField(AttributePanel, blank=True)
+
+    def save(self, *args, **kwargs):
+        flush_memcache()
+        super(AttributeTab, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name

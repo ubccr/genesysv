@@ -53,7 +53,7 @@ REVIEW_STATUS_CHOICES = (
 )
 
 
-def filter_FILTER_QUAL(result, FILTER_status, QUAL_score):
+def filter_FILTER_QUAL(result, FILTER_value, QUAL_value):
         case_filter_status = None
         control_filter_status = None
         case_qual_score = None
@@ -61,25 +61,25 @@ def filter_FILTER_QUAL(result, FILTER_status, QUAL_score):
         for ele in result.get('FILTER'):
             if ele.get('FILTER_label'):
                 if ele.get('FILTER_label') == "case":
-                    case_filter_status = ele.get('FILTER_status')
+                    case_filter_status = ele.get('FILTER_value')
                 elif ele.get('FILTER_label') == "control":
-                    control_filter_status = ele.get('FILTER_status')
+                    control_filter_status = ele.get('FILTER_value')
 
         for ele in result.get('QUAL'):
             if ele.get('QUAL_label'):
                 if ele.get('QUAL_label') == "case":
-                    case_qual_score = ele.get('QUAL_score')
+                    case_qual_score = ele.get('QUAL_value')
                 elif ele.get('QUAL_label') == "control":
-                    control_qual_score = ele.get('QUAL_score')
+                    control_qual_score = ele.get('QUAL_value')
 
         keep_label = {}
 
-        if case_filter_status == FILTER_status and case_qual_score >= QUAL_score:
+        if case_filter_status == FILTER_value and case_qual_score >= QUAL_value:
             keep_label["case"] = True
         else:
             keep_label["case"] = False
 
-        if control_filter_status == FILTER_status and control_qual_score >= QUAL_score:
+        if control_filter_status == FILTER_value and control_qual_score >= QUAL_value:
             keep_label["control"] = True
         else:
             keep_label["control"] = False
@@ -172,7 +172,7 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
             elif comparison_type == "text":
-                if val in tmp:
+                if val.lower() in tmp.lower():
                     output.append(ele)
                     break
 
@@ -184,7 +184,6 @@ def filter_array_dicts(array, key, values, comparison_type):
             else:
                 if val in tmp:
                     output.append(ele)
-
     return output
 
 def merge_two_dicts_array(input):
@@ -476,8 +475,8 @@ def search(request):
 
 
 
-            FILTER_status = None
-            QUAL_score = None
+            FILTER_value = None
+            QUAL_value = None
 
             for key, filter_field_obj in [(key, FilterField.objects.get(id=key)) for key in keys]:
 
@@ -496,9 +495,9 @@ def search(request):
 
 
                 if path == 'FILTER':
-                    FILTER_status = data
+                    FILTER_value = data
                 if path == 'QUAL':
-                    QUAL_score = float(data)
+                    QUAL_value = float(data)
 
                 ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
                 if path and path not in source_fields:
@@ -692,10 +691,10 @@ def search(request):
 
 
             ### Deal with FILTER and QUAL fields -- if both are
-            if FILTER_status and QUAL_score and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
+            if FILTER_value and QUAL_value and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
                 filtered_results = []
                 for result in results:
-                    new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_status, QUAL_score)
+                    new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
                     if new_filter_data and new_qual_data:
                         result['FILTER'] = new_filter_data
                         result['QUAL'] = new_qual_data
@@ -886,7 +885,7 @@ def search(request):
                 all_genes  = sorted(list(set(all_genes)))
                 if 'NONE' in all_genes:
                     all_genes.remove('NONE')
-                gene_mania_link =  "http://genemania.org/link?o=9606&g=%s" % ('|'.join(all_genes))
+                gene_mania_link =  "http://genemania.org/#/search/9606/%s" % ('|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link
 
             context['review_status_form'] = review_status_form
@@ -918,7 +917,7 @@ def yield_results(dataset_obj,
                     dict_filter_fields,
                     used_keys,
                     review_status_to_filter,
-                    group, FILTER_status=None, QUAL_score=None):
+                    group, FILTER_value=None, QUAL_value=None):
 
 
     es = Elasticsearch(host=dataset_obj.es_host)
@@ -939,7 +938,7 @@ def yield_results(dataset_obj,
             continue
 
         #
-        new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_status, QUAL_score)
+        new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
         if new_filter_data and new_qual_data:
             result['FILTER'] = new_filter_data
             result['QUAL'] = new_qual_data
@@ -1021,10 +1020,10 @@ def yield_results(dataset_obj,
                 if path in ['FILTER', 'QUAL']:
                     if path == "FILTER":
                         data = result.get(path)
-                        tmp.append('; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_status')) for ele in data]))
+                        tmp.append('; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_value')) for ele in data]))
                     elif path == "QUAL":
                         data = result.get(path)
-                        tmp.append('; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_score')) for ele in data]))
+                        tmp.append('; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_value')) for ele in data]))
                 else:
                     tmp.append(str(result.get(header.es_name, None)))
             yield tmp
@@ -1075,15 +1074,15 @@ def download_result(request):
     else:
         used_keys = []
 
-    FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_status')
-    QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_score')
+    FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_value')
+    QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_value')
 
     if str(FILTER_field_obj.id) in dict_filter_fields and str(QUAL_field_obj.id) in dict_filter_fields:
-        FILTER_status = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
-        QUAL_score = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
+        FILTER_value = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
+        QUAL_value = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
     else:
-        FILTER_status = None
-        QUAL_score = None
+        FILTER_value = None
+        QUAL_value = None
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer, delimiter='\t')
@@ -1101,7 +1100,7 @@ def download_result(request):
                     non_nested_attribute_fields,
                     dict_filter_fields,
                     used_keys,
-                    review_status_to_filter, group, FILTER_status=FILTER_status, QUAL_score=QUAL_score)
+                    review_status_to_filter, group, FILTER_value=FILTER_value, QUAL_value=QUAL_value)
     response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response

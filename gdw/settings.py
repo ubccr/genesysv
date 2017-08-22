@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4*6$y+wz$!8mjq01t=th10(0rl^z89$)t4g#9*86kk-+0_sd5i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = ['gdwdev.ccr.buffalo.edu']

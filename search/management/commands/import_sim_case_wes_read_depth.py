@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        dataset_object = Dataset.objects.get(name="import_sim_wgs_case_wes_control_read_depth")
+        dataset_object = Dataset.objects.get(name="sim_wes_case")
 
 
         with open('./search/management/commands/data/case_wes_rd_v_count.txt','r') as fp:

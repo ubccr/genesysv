@@ -20,6 +20,7 @@ class FilterPanelForm(forms.ModelForm):
 class FilterPanelAdmin(admin.ModelAdmin):
     form = FilterPanelForm
     list_display = ('name', 'dataset')
+    list_filter = ('dataset',)
     search_fields = ('name',)
 
 class FilterSubPanelForm(forms.ModelForm):
@@ -38,6 +39,7 @@ class FilterSubPanelForm(forms.ModelForm):
 class FilterSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_panel')
     search_fields = ('name',)
+    list_filter = ('dataset',)
     form = FilterSubPanelForm
 
 class AttributeTabAdmin(admin.ModelAdmin):
@@ -61,6 +63,7 @@ class AttributePanelAdmin(admin.ModelAdmin):
     form = AttributePanelForm
     list_display = ('name',)
     search_fields = ('name',)
+    list_filter = ('dataset',)
 
 class AttributeSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -76,6 +79,7 @@ class AttributeSubPanelForm(forms.ModelForm):
 class AttributeSubPanelAdmin(admin.ModelAdmin):
     list_display = ('name', 'attribute_panel')
     search_fields = ('name',)
+    list_filter = ('dataset',)
     form = AttributeSubPanelForm
 
 class FilterFieldAdmin(admin.ModelAdmin):
