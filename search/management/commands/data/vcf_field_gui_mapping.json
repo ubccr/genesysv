@@ -98,7 +98,7 @@
   "FILTER_value": {
     "filters": [
       {
-        "display_text": "Filter Value",
+        "display_text": "GATK Filter",
         "es_filter_type": "nested_filter_term",
         "form_type": "ChoiceField",
         "widget_type": "Select",
@@ -112,30 +112,12 @@
   "QUAL_value": {
     "filters": [
       {
-        "display_text": "Quality Score",
+        "display_text": "GATK VQSR Score",
         "es_filter_type": "nested_filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput",
         "path": "QUAL"
-      }
-    ],
-    "panel": "Variant Related Information",
-    "tab": "Basic"
-  },
-  "ID": {
-    "filters": [
-      {
-        "display_text": "ID",
-        "es_filter_type": "filter_terms",
-        "form_type": "CharField",
-        "widget_type": "UploadField"
-      },
-      {
-        "display_text": "Limit Variants to ID",
-        "es_filter_type": "filter_exists",
-        "form_type": "ChoiceField",
-        "widget_type": "Select"
       }
     ],
     "panel": "Variant Related Information",
@@ -162,14 +144,14 @@
   "AC": {
     "filters": [
       {
-        "display_text": "Minimum Allele Count Case",
+        "display_text": "Allele Count Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Maximum Allele Count Case",
+        "display_text": "Allele Count Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -182,14 +164,14 @@
   "AC_case": {
     "filters": [
       {
-        "display_text": "Minimum Allele Count Case",
+        "display_text": "Allele Count Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Maximum Allele Count Case",
+        "display_text": "Allele Count Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -203,14 +185,14 @@
   "AC_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Count Control",
+        "display_text": "Allele Count Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Maximum Allele Count Control",
+        "display_text": "Allele Count Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -224,14 +206,14 @@
   "AF": {
     "filters": [
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Allele Frequency Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Allele Frequency Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -244,14 +226,14 @@
   "AF_case": {
     "filters": [
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Allele Frequency Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Frequency Case",
+        "display_text": "Allele Frequency Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -265,14 +247,14 @@
   "AF_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Frequency Control",
+        "display_text": "Allele Frequency Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Frequency Control",
+        "display_text": "Allele Frequency Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -286,14 +268,14 @@
   "AN": {
     "filters": [
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Allele Number Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Allele Number Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -306,14 +288,14 @@
   "AN_case": {
     "filters": [
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Allele Number Case",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Number Case",
+        "display_text": "Allele Number Case",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -327,14 +309,14 @@
   "AN_control": {
     "filters": [
       {
-        "display_text": "Minimum Allele Number Control",
+        "display_text": "Allele Number Control",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Minimum Allele Number Control",
+        "display_text": "Allele Number Control",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -371,39 +353,13 @@
     "panel": "Functional Consequence",
     "tab": "Basic"
   },
-  "ExonicFunc_refGene": {
-    "filters": [
-      {
-        "display_text": "ExonicFunc_refGene",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "Functional Consequence",
-    "tab": "Basic"
-  },
-  "ExonicFunc_ensGene": {
-    "filters": [
-      {
-        "display_text": "ExonicFunc_ensGene",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "Functional Consequence",
-    "tab": "Basic"
-  },
   "refGene_symbol": {
     "filters": [
       {
         "display_text": "Gene",
         "es_filter_type": "nested_filter_terms",
         "form_type": "CharField",
-        "in_line_tooltip": "(e.g. PCSK9)",
+        "in_line_tooltip": "(e.g. RYR1)",
         "widget_type": "UploadField",
         "path": "refGene"
       }
@@ -478,6 +434,7 @@
         "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
+	"in_line_tooltip": "(bp)",
         "widget_type": "TextInput",
         "path": "refGene"
       }
@@ -567,6 +524,7 @@
         "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
+	"in_line_tooltip": "(bp)",
         "widget_type": "TextInput",
         "path": "ensGene"
       }
@@ -575,6 +533,82 @@
     "sub_panel": "Ensembl Identifier",
     "tab": "Basic"
   },
+  "SIFT_pred": {
+    "filters": [
+      {
+        "display_text": "SIFT pred",
+        "es_filter_type": "filter_term",
+        "tooltip": "SIFT (Sorting Intolerant From Tolerant) predicts whether an amino acid substitution affects protein function",
+        "form_type": "ChoiceField",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Pathogenic Prediction",
+    "sub_panel": "Coding Region",
+    "tab": "Basic"
+  },
+  "Polyphen2_HDIV_pred": {
+    "filters": [
+      {
+        "display_text": "Polyphen2_HDIV_pred",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "tooltip": "For rare alleles at loci involved in complex diseases, etc.",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Pathogenic Prediction",
+    "sub_panel": "Coding Region",
+    "tab": "Basic"
+  },
+  "Polyphen2_HVAR_pred": {
+    "filters": [
+      {
+        "display_text": "Polyphen2_HVAR_pred",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "tooltip": "For diagnostics of Mendelian diseases.",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Pathogenic Prediction",
+    "sub_panel": "Coding Region",
+    "tab": "Basic"
+  },
+  "MutationAssessor_pred": {
+    "filters": [
+      {
+        "display_text": "MutationAssessor_pred",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Entropy of multiple sequence alignment. H/M means functional and L/N means non-functional.",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Pathogenic Prediction",
+    "sub_panel": "Coding Region",
+    "tab": "Basic"
+  },
+  "MutationTaster_pred": {
+    "filters": [
+      {
+        "display_text": "MutationTaster_pred",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Bayes Classifier",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Pathogenic Prediction",
+    "sub_panel": "Coding Region",
+    "tab": "Basic"
+  },
+
   "fathmm-MKL_coding_pred": {
     "filters": [
       {
@@ -679,66 +713,6 @@
     "sub_panel": "Coding Region",
     "tab": "Basic"
   },
-  "MutationAssessor_pred": {
-    "filters": [
-      {
-        "display_text": "MutationAssessor_pred",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "tooltip": "Entropy of multiple sequence alignment. H/M means functional and L/N means non-functional.",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "Pathogenic Prediction",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
-  "MutationTaster_pred": {
-    "filters": [
-      {
-        "display_text": "MutationTaster_pred",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "tooltip": "Bayes Classifier",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "Pathogenic Prediction",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
-  "Polyphen2_HDIV_pred": {
-    "filters": [
-      {
-        "display_text": "Polyphen2_HDIV_pred",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv.",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Pathogenic Prediction",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
-  "Polyphen2_HVAR_pred": {
-    "filters": [
-      {
-        "display_text": "Polyphen2_HVAR_pred",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar.",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Pathogenic Prediction",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
   "PROVEAN_pred": {
     "display_text": "PROVEAN pred",
     "filters": [
@@ -747,21 +721,6 @@
         "es_filter_type": "filter_term",
         "form_type": "ChoiceField",
         "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences.",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Pathogenic Prediction",
-    "sub_panel": "Coding Region",
-    "tab": "Basic"
-  },
-  "SIFT_pred": {
-    "filters": [
-      {
-        "display_text": "SIFT pred",
-        "es_filter_type": "filter_term",
-        "tooltip": "SIFT (Sorting Intolerant From Tolerant) predicts whether an amino acid substitution affects protein function",
-        "form_type": "ChoiceField",
         "values": "get_from_es()",
         "widget_type": "Select"
       }
@@ -789,51 +748,6 @@
     "filters": [
       {
         "display_text": "CADD_Phred",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "All Genomic Region",
-    "tab": "Basic"
-  },
-  "CADD_phred": {
-    "filters": [
-      {
-        "display_text": "CADD_phred",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "All Genomic Region",
-    "tab": "Basic"
-  },
-  "CADD_raw": {
-    "filters": [
-      {
-        "display_text": "CADD_raw",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Pathogenic Predictor Score",
-    "sub_panel": "All Genomic Region",
-    "tab": "Basic"
-  },
-  "CADD_raw_rankscore": {
-    "filters": [
-      {
-        "display_text": "CADD_raw_rankscore",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -922,7 +836,7 @@
   "GERPplusplus_RS": {
     "filters": [
       {
-        "display_text": "GERP++_RS",
+        "display_text": "GERP++",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -937,7 +851,7 @@
   "GERPplusplus_RS_rankscore": {
     "filters": [
       {
-        "display_text": "GERP++_RS_rankscore",
+        "display_text": "GERP++ rankscore",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -1617,83 +1531,14 @@
     "panel": "Conserved/Constrained Genomic Elements/Positions",
     "tab": "Basic"
   },
-  "1000g2015aug_afr": {
+  "ExAC_ALL": {
     "filters": [
       {
-        "display_text": "AFR (African)",
+        "display_text": "ExAC ALL",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
         "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "1000 Genomes Project (Aug. 2015)",
-    "tab": "Basic"
-  },
-  "1000g2015aug_all": {
-    "filters": [
-      {
-        "display_text": "ALL (All available population)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "1000 Genomes Project (Aug. 2015)",
-    "tab": "Basic"
-  },
-  "1000g2015aug_amr": {
-    "filters": [
-      {
-        "display_text": "AMR (Admixed American)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "1000 Genomes Project (Aug. 2015)",
-    "tab": "Basic"
-  },
-  "1000g2015aug_eur": {
-    "filters": [
-      {
-        "display_text": "EUR (European)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "1000 Genomes Project (Aug. 2015)",
-    "tab": "Basic"
-  },
-  "1000g2015aug_sas": {
-    "filters": [
-      {
-        "display_text": "SAS (South Asian)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "1000 Genomes Project (Aug. 2015)",
-    "tab": "Basic"
-  },
-  "ExAC_AFR": {
-    "filters": [
-      {
-        "display_text": "AFR (African)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<)",
+	"tooltip": "All available population",
         "widget_type": "TextInput"
       }
     ],
@@ -1701,12 +1546,13 @@
     "sub_panel": "The Exome Aggregation Consortium (ExAC)",
     "tab": "Basic"
   },
-  "ExAC_ALL": {
+  "ExAC_AFR": {
     "filters": [
       {
-        "display_text": "ALL (All available population)",
+        "display_text": "ExAC AFR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "African population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1718,9 +1564,10 @@
   "ExAC_AMR": {
     "filters": [
       {
-        "display_text": "AMR (Admixed American)",
+        "display_text": "ExAC AMR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1732,9 +1579,10 @@
   "ExAC_EAS": {
     "filters": [
       {
-        "display_text": "EAS (East Asian)",
+        "display_text": "ExAC EAS",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "East Asian population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1746,9 +1594,10 @@
   "ExAC_FIN": {
     "filters": [
       {
-        "display_text": "FIN (Finnish)",
+        "display_text": "ExAC FIN",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Finnish population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1760,9 +1609,10 @@
   "ExAC_NFE": {
     "filters": [
       {
-        "display_text": "NFE (Non-Finnish European)",
+        "display_text": "ExAC NFE",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Non-Finnish European population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1774,9 +1624,10 @@
   "ExAC_OTH": {
     "filters": [
       {
-        "display_text": "OTH (Other)",
+        "display_text": "ExAC OTH",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Other population",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
@@ -1788,23 +1639,10 @@
   "ExAC_SAS": {
     "filters": [
       {
-        "display_text": "SAS (South Asian)",
+        "display_text": "ExAC SAS",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "The Exome Aggregation Consortium (ExAC)",
-    "tab": "Basic"
-  },
-  "ExAC_nonpsych_AFR": {
-    "filters": [
-      {
-        "display_text": "AFR non-psych (African)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
+	"tooltip": "South Asian population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1816,9 +1654,26 @@
   "ExAC_nonpsych_ALL": {
     "filters": [
       {
-        "display_text": "ALL non-psych (All available population)",
+        "display_text": "ExAC ALL non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "All available population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "The Exome Aggregation Consortium (ExAC)",
+    "tab": "Basic"
+  },
+
+  "ExAC_nonpsych_AFR": {
+    "filters": [
+      {
+        "display_text": "ExAC AFR non-psych",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "African population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1830,9 +1685,10 @@
   "ExAC_nonpsych_AMR": {
     "filters": [
       {
-        "display_text": "AMR non-psych (American)",
+        "display_text": "ExAC AMR non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1844,9 +1700,10 @@
   "ExAC_nonpsych_EAS": {
     "filters": [
       {
-        "display_text": "EAS non-psych (East Asian)",
+        "display_text": "ExAC EAS non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "East Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1858,9 +1715,10 @@
   "ExAC_nonpsych_FIN": {
     "filters": [
       {
-        "display_text": "FIN non-psych (Finnish)",
+        "display_text": "ExAC FIN non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Finnish population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1872,9 +1730,10 @@
   "ExAC_nonpsych_NFE": {
     "filters": [
       {
-        "display_text": "NFE non-psych (Non-Finnish European)",
+        "display_text": "ExAC NFE non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Non-Finnish European",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1886,9 +1745,10 @@
   "ExAC_nonpsych_OTH": {
     "filters": [
       {
-        "display_text": "OTH non-psych (Other)",
+        "display_text": "ExAC OTH non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Other population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1900,23 +1760,10 @@
   "ExAC_nonpsych_SAS": {
     "filters": [
       {
-        "display_text": "SAS non-psych (South Asian)",
+        "display_text": "ExAC SAS non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-        "in_line_tooltip": "(<)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Minor Allele Frequency (MAF)",
-    "sub_panel": "The Exome Aggregation Consortium (ExAC)",
-    "tab": "Basic"
-  },
-  "ExAC_nontcga_AFR": {
-    "filters": [
-      {
-        "display_text": "AFR nonTCGA (African)",
-        "es_filter_type": "filter_range_lt",
-        "form_type": "CharField",
+	"tooltip": "South Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1928,9 +1775,25 @@
   "ExAC_nontcga_ALL": {
     "filters": [
       {
-        "display_text": "ALL nonTCGA (All available population)",
+        "display_text": "ExAC ALL nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "All available population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "The Exome Aggregation Consortium (ExAC)",
+    "tab": "Basic"
+  },
+  "ExAC_nontcga_AFR": {
+    "filters": [
+      {
+        "display_text": "ExAC AFR nonTCGA",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "African",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1942,9 +1805,10 @@
   "ExAC_nontcga_AMR": {
     "filters": [
       {
-        "display_text": "AMR nonTCGA (American)",
+        "display_text": "ExAC AMR nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1956,9 +1820,10 @@
   "ExAC_nontcga_EAS": {
     "filters": [
       {
-        "display_text": "EAS nonTCGA (East Asian)",
+        "display_text": "ExAC EAS nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "East Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1970,9 +1835,10 @@
   "ExAC_nontcga_FIN": {
     "filters": [
       {
-        "display_text": "FIN nonTCGA (Finnish)",
+        "display_text": "ExAC FIN nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Finnish",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1984,9 +1850,10 @@
   "ExAC_nontcga_NFE": {
     "filters": [
       {
-        "display_text": "NFE nonTCGA (Non-Finnish European)",
+        "display_text": "ExAC NFE nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Non-Finnish European",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1998,9 +1865,10 @@
   "ExAC_nontcga_OTH": {
     "filters": [
       {
-        "display_text": "OTH nonTCGA (Other)",
+        "display_text": "ExAC OTH nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "Other population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2012,9 +1880,10 @@
   "ExAC_nontcga_SAS": {
     "filters": [
       {
-        "display_text": "SAS nonTCGA (South Asian)",
+        "display_text": "ExAC SAS nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "South Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2023,12 +1892,88 @@
     "sub_panel": "The Exome Aggregation Consortium (ExAC)",
     "tab": "Basic"
   },
-  "esp6500siv2_aa": {
+  "1000g2015aug_all": {
     "filters": [
       {
-        "display_text": "AA (African American)",
+        "display_text": "1KGP ALL",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "All available population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "1000 Genomes Project (Aug. 2015)",
+    "tab": "Basic"
+  },
+  "1000g2015aug_afr": {
+    "filters": [
+      {
+        "display_text": "1KGP AFR",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "African",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "1000 Genomes Project (Aug. 2015)",
+    "tab": "Basic"
+  },
+  "1000g2015aug_amr": {
+    "filters": [
+      {
+        "display_text": "1KGP AMR",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "Admixed American",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "1000 Genomes Project (Aug. 2015)",
+    "tab": "Basic"
+  },
+  "1000g2015aug_eur": {
+    "filters": [
+      {
+        "display_text": "1KGP EUR",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "European",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "1000 Genomes Project (Aug. 2015)",
+    "tab": "Basic"
+  },
+  "1000g2015aug_sas": {
+    "filters": [
+      {
+        "display_text": "1KGP SAS",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "South Asian",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": "1000 Genomes Project (Aug. 2015)",
+    "tab": "Basic"
+  },
+  "esp6500siv2_all": {
+    "filters": [
+      {
+        "display_text": "ESP6500 ALL",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+	"tooltip": "All available population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2037,12 +1982,13 @@
     "sub_panel": "Exome Sequencing Project (ESP6500siv2)",
     "tab": "Basic"
   },
-  "esp6500siv2_all": {
+  "esp6500siv2_aa": {
     "filters": [
       {
-        "display_text": "ALL (All available population)",
+        "display_text": "ESP6500 AA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "African American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2054,9 +2000,10 @@
   "esp6500siv2_ea": {
     "filters": [
       {
-        "display_text": "EA (European American)",
+        "display_text": "ESP6500 EA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
+	"tooltip": "European American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2094,49 +2041,6 @@
     "sub_panel": "Clinically significant variants from ClinVar DB",
     "tab": "Basic"
   },
-  "clinvar_CLNACC": {
-    "filters": [
-      {
-        "display_text": "Accession and Versions",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput",
-        "path": "clinvar"
-      }
-    ],
-    "panel": "Disease Association",
-    "sub_panel": "Clinically significant variants from ClinVar DB",
-    "tab": "Basic"
-  },
-  "clinvar_CLNDSDB": {
-    "filters": [
-      {
-        "display_text": "Disease database name",
-        "es_filter_type": "nested_filter_terms",
-        "form_type": "MultipleChoiceField",
-        "widget_type": "SelectMultiple",
-        "values": "get_from_es()",
-        "path": "clinvar"
-      }
-    ],
-    "panel": "Disease Association",
-    "sub_panel": "Clinically significant variants from ClinVar DB",
-    "tab": "Basic"
-  },
-  "clinvar_CLNDSDBID": {
-    "filters": [
-      {
-        "display_text": "Disease database ID",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput",
-        "path": "clinvar"
-      }
-    ],
-    "panel": "Disease Association",
-    "sub_panel": "Clinically significant variants from ClinVar DB",
-    "tab": "Basic"
-  },
   "gwasCatalog": {
     "filters": [
       {
@@ -2150,276 +2054,13 @@
     "sub_panel": "Disease Database",
     "tab": "Basic"
   },
-  "snp138NonFlagged": {
-    "filters": [
-      {
-        "display_text": "snp138NonFlagged",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Disease Association",
-    "sub_panel": "Disease Database",
-    "tab": "Basic"
-  },
-  "sample_AD": {
-    "filters": [
-      {
-        "display_text": "sample_AD",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Allelic depths for the ref and alt alleles in the order listed.",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_AD",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Allelic depths for the ref and alt alleles in the order listed.",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_AF": {
-    "filters": [
-      {
-        "display_text": "sample_AF",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Allele frequency based on Flow Evaluator observation counts",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_AF",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Allele frequency based on Flow Evaluator observation counts",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_AO": {
-    "filters": [
-      {
-        "display_text": "sample_AO",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_AO",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
   "sample_DP": {
     "filters": [
       {
-        "display_text": "sample_DP",
+        "display_text": "Read depth",
         "es_filter_type": "nested_filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Read Depth",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_DP",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Read Depth",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FAO": {
-    "filters": [
-      {
-        "display_text": "sample_FAO",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FAO",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FDP": {
-    "filters": [
-      {
-        "display_text": "sample_FDP",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Read Depth",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FDP",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Read Depth",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FRO": {
-    "filters": [
-      {
-        "display_text": "sample_FRO",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Reference allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FRO",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Reference allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FSAF": {
-    "filters": [
-      {
-        "display_text": "sample_FSAF",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FSAF",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FSAR": {
-    "filters": [
-      {
-        "display_text": "sample_FSAR",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FSAR",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FSRF": {
-    "filters": [
-      {
-        "display_text": "sample_FSRF",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator reference observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FSRF",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator reference observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_FSRR": {
-    "filters": [
-      {
-        "display_text": "sample_FSRR",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator reference observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_FSRR",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator reference observations on the reverse strand",
         "widget_type": "TextInput",
         "path": "sample"
       }
@@ -2430,20 +2071,10 @@
   "sample_GQ": {
     "filters": [
       {
-        "display_text": "sample_GQ",
+        "display_text": "Gemptype quality",
         "es_filter_type": "nested_filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
-        "tooltip": "Genotype Quality",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_GQ",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Genotype Quality",
         "widget_type": "TextInput",
         "path": "sample"
       }
@@ -2454,10 +2085,9 @@
   "sample_GT": {
     "filters": [
       {
-        "display_text": "sample_GT",
+        "display_text": "Sample genotype",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
-        "tooltip": "Genotype",
         "widget_type": "SelectMultiple",
         "values": "get_from_es()",
         "path": "sample"
@@ -2472,6 +2102,7 @@
         "display_text": "sample_label",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
+	"tootip": "Sample source, i.e. case or control",
         "widget_type": "SelectMultiple",
         "values": "get_from_es()",
         "path": "sample"
@@ -2483,232 +2114,12 @@
   "sample_ID": {
     "filters": [
       {
-        "display_text": "sample_ID",
+        "display_text": "sample ID",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
-        "tooltip": "ID",
+        "tooltip": "Deidentified patient sample ID",
         "widget_type": "SelectMultiple",
         "values": "get_from_es()",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_MIN_DP": {
-    "filters": [
-      {
-        "display_text": "sample_MIN_DP",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Minimum DP observed within the GVCF block",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_MIN_DP",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Minimum DP observed within the GVCF block",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_PGT": {
-    "filters": [
-      {
-        "display_text": "sample_PGT",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "CharField",
-        "tooltip": "Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_PID": {
-    "filters": [
-      {
-        "display_text": "sample_PID",
-        "es_filter_type": "nested_filter_term",
-        "form_type": "CharField",
-        "tooltip": "Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_PL": {
-    "filters": [
-      {
-        "display_text": "sample_PL",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_PL",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_RO": {
-    "filters": [
-      {
-        "display_text": "sample_RO",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Reference allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_RO",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Reference allele observation count",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_SAF": {
-    "filters": [
-      {
-        "display_text": "sample_SAF",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_SAF",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_SAR": {
-    "filters": [
-      {
-        "display_text": "sample_SAR",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_SAR",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_SB": {
-    "filters": [
-      {
-        "display_text": "sample_SB",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias.",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_SB",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias.",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_SRF": {
-    "filters": [
-      {
-        "display_text": "sample_SRF",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of reference observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_SRF",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of reference observations on the forward strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      }
-    ],
-    "panel": "Patient/Sample Related Information",
-    "tab": "Basic"
-  },
-  "sample_SRR": {
-    "filters": [
-      {
-        "display_text": "sample_SRR",
-        "es_filter_type": "nested_filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of reference observations on the reverse strand",
-        "widget_type": "TextInput",
-        "path": "sample"
-      },
-      {
-        "display_text": "sample_SRR",
-        "es_filter_type": "nested_filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of reference observations on the reverse strand",
-        "widget_type": "TextInput",
         "path": "sample"
       }
     ],
@@ -2737,1613 +2148,6 @@
       }
     ],
     "panel": "microRNA/snoRNA",
-    "tab": "Basic"
-  },
-  "BA1": {
-    "filters": [
-      {
-        "display_text": "BA1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP1": {
-    "filters": [
-      {
-        "display_text": "BP1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Missense variant in a gene for which primarily truncating variants are known to cause disease",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP2": {
-    "filters": [
-      {
-        "display_text": "BP2",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder or observed in cis with a pathogenic variant in any inheritance pattern",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP3": {
-    "filters": [
-      {
-        "display_text": "BP3",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "In-frame deletions/insertions in a repetitive region without a known function",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP4": {
-    "filters": [
-      {
-        "display_text": "BP4",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Multiple lines of computational evidence suggest no impact on gene or gene product (conservation, evolutionary, splicing impact, etc.)",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP5": {
-    "filters": [
-      {
-        "display_text": "BP5",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Variant found in a case with an alternate molecular basis for disease",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP6": {
-    "filters": [
-      {
-        "display_text": "BP6",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Reputable source recently reports variant as benign, but the evidence is not available to the laboratory to perform an independent evaluation",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BP7": {
-    "filters": [
-      {
-        "display_text": "BP7",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BS1": {
-    "filters": [
-      {
-        "display_text": "BS1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Allele frequency is greater than expected for disorder",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BS2": {
-    "filters": [
-      {
-        "display_text": "BS2",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or X-linked (hemizygous) disorder, with full penetrance expected at an early age",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BS3": {
-    "filters": [
-      {
-        "display_text": "BS3",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Well-established in vitro or in vivo functional studies show no damaging effect on protein function or splicing",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BS4": {
-    "filters": [
-      {
-        "display_text": "BS4",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Lack of segregation in affected members of a family",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM1": {
-    "filters": [
-      {
-        "display_text": "PM1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Located in a mutational hot spot and/or critical and well-established functional domain (e.g., active site of an enzyme) without benign variation",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM2": {
-    "filters": [
-      {
-        "display_text": "PM2",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Absent from controls (or at extremely low frequency if recessive) in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM3": {
-    "filters": [
-      {
-        "display_text": "PM3",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "For recessive disorders, detected in trans with a pathogenic variant",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM4": {
-    "filters": [
-      {
-        "display_text": "PM4",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Protein length changes as a result of in-frame deletions/insertions in a nonrepeat region or stop-loss variants",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM5": {
-    "filters": [
-      {
-        "display_text": "PM5",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Novel missense change at an amino acid residue where a different missense change determined to be pathogenic has been seen before",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PM6": {
-    "filters": [
-      {
-        "display_text": "PM6",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Assumed de novo, but without confirmation of paternity and maternity",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "BaseQRankSum": {
-    "filters": [
-      {
-        "display_text": "Base Q Rank Sum",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "Base Q Rank Sum",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "GATK Score",
-    "tab": "Basic"
-  },
-  "PP1": {
-    "filters": [
-      {
-        "display_text": "PP1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Cosegregation with disease in multiple affected family members in a gene definitively known to cause the disease",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PP2": {
-    "filters": [
-      {
-        "display_text": "PP2",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Missense variant in a gene that has a low rate of benign missense variation and in which missense variants are a common mechanism of disease",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PP3": {
-    "filters": [
-      {
-        "display_text": "PP3",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Multiple lines of computational evidence support a deleterious effect on the gene or gene product (conservation, evolutionary, splicing impact, etc.)",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PP4": {
-    "filters": [
-      {
-        "display_text": "PP4",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Patient's phenotype or family history is highly specific for a disease with a single genetic etiology",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PP5": {
-    "filters": [
-      {
-        "display_text": "PP5",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Reputable source recently reports variant as pathogenic, but the evidence is not available to the laboratory to perform an independent evaluation",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PS1": {
-    "filters": [
-      {
-        "display_text": "PS1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PS2": {
-    "filters": [
-      {
-        "display_text": "PS2",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PS3": {
-    "filters": [
-      {
-        "display_text": "PS3",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "Well-established in vitro or in vivo functional studies supportive of a damaging effect on the gene or gene product",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PS4": {
-    "filters": [
-      {
-        "display_text": "PS4",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "The prevalence of the variant in affected individuals is significantly increased compared with the prevalence in controls",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "PVS1": {
-    "filters": [
-      {
-        "display_text": "PVS1",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "tooltip": "null variant (nonsense, frameshift, canonical +- 2 splice sites, initiation codon, single or multiexon deletion) in a gene where LOF is a known mechanism of disease",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
-    "tab": "Basic"
-  },
-  "ClippingRankSum": {
-    "filters": [
-      {
-        "display_text": "ClippingRankSum",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref number of hard clipped bases",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "ClippingRankSum",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref number of hard clipped bases",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "GATK Score",
-    "tab": "Basic"
-  },
-  "AO": {
-    "filters": [
-      {
-        "display_text": "AO",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observations.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "AO",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observations.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "DP": {
-    "filters": [
-      {
-        "display_text": "DP",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Approximate read depth; some reads may have been filtered",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "Eigen_coding_or_noncoding": {
-    "filters": [
-      {
-        "display_text": "Eigen_coding_or_noncoding",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FAO": {
-    "filters": [
-      {
-        "display_text": "FAO",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observations.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FAO",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observations.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FDP": {
-    "filters": [
-      {
-        "display_text": "FDP",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator read depth at the locus.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FDP",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator read depth at the locus.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FR": {
-    "filters": [
-      {
-        "display_text": "FR",
-        "tooltip": "Reason why the variant was filtered.",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FRO": {
-    "filters": [
-      {
-        "display_text": "FRO",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Reference allele observations.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FRO",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Reference allele observations.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FS": {
-    "filters": [
-      {
-        "display_text": "FS",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Phred-scaled p-value using Fisher's exact test to detect strand bias",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FS",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Phred-scaled p-value using Fisher's exact test to detect strand bias",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FSAF": {
-    "filters": [
-      {
-        "display_text": "FSAF",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FSAF",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the forward strand.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FSAR": {
-    "filters": [
-      {
-        "display_text": "FSAR",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FSAR",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Alternate allele observations on the reverse strand.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FSRF": {
-    "filters": [
-      {
-        "display_text": "FSRF",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Reference observations on the forward strand.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FSRF",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Reference observations on the forward strand.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FSRR": {
-    "filters": [
-      {
-        "display_text": "FSRR",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator Reference observations on the reverse strand.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FSRR",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator Reference observations on the reverse strand.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FWDB": {
-    "filters": [
-      {
-        "display_text": "FWDB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Forward strand bias in prediction.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FWDB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Forward strand bias in prediction.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "FXX": {
-    "filters": [
-      {
-        "display_text": "FXX",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Flow Evaluator failed read ratio.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "FXX",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Flow Evaluator failed read ratio.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "GQ_MEAN": {
-    "filters": [
-      {
-        "display_text": "GQ_MEAN",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Mean of all GQ values",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GQ_MEAN",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Mean of all GQ values",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "GQ_STDDEV": {
-    "filters": [
-      {
-        "display_text": "GQ_STDDEV",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Standard deviation of all GQ values",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "GQ_STDDEV",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Standard deviation of all GQ values",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "GTEx_V6_gene": {
-    "filters": [
-      {
-        "display_text": "GTEx_V6_gene",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "GTEx_V6_tissue": {
-    "filters": [
-      {
-        "display_text": "GTEx_V6_tissue",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "HRUN": {
-    "filters": [
-      {
-        "display_text": "HRUN",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Run length: the number of consecutive repeats of the alternate allele in the reference genome.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "HRUN",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Run length: the number of consecutive repeats of the alternate allele in the reference genome.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "HS": {
-    "filters": [
-      {
-        "display_text": "HS",
-        "tooltip": "Indicate it is at a hot spot",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "InbreedingCoeff": {
-    "filters": [
-      {
-        "display_text": "InbreedingCoeff",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "InbreedingCoeff",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "Interpro_domain": {
-    "filters": [
-      {
-        "display_text": "Interpro Domain",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "LEN": {
-    "filters": [
-      {
-        "display_text": "LEN",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Allele length",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "LEN",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Allele length",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MLEAC": {
-    "filters": [
-      {
-        "display_text": "MLEAC",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Maximum likelihood expectation (MLE) for the allele counts (not necessarily the same as the AC), for each ALT allele, in the same order as listed.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MLEAC",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Maximum likelihood expectation (MLE) for the allele counts (not necessarily the same as the AC), for each ALT allele, in the same order as listed.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MLEAF": {
-    "filters": [
-      {
-        "display_text": "MLEAF",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Maximum likelihood expectation (MLE) for the allele frequency (not necessarily the same as the AF), for each ALT allele, in the same order as listed",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MLEAF",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Maximum likelihood expectation (MLE) for the allele frequency (not necessarily the same as the AF), for each ALT allele, in the same order as listed",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MLLD": {
-    "filters": [
-      {
-        "display_text": "MLLD",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Mean log-likelihood delta per read",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MLLD",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Mean log-likelihood delta per read",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MQ": {
-    "filters": [
-      {
-        "display_text": "MQ",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "RMS Mapping Quality",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MQ",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "RMS Mapping Quality",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MQ0": {
-    "filters": [
-      {
-        "display_text": "MQ0",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Total Mapping Quality Zero Reads",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MQ0",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Total Mapping Quality Zero Reads",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "MQRankSum": {
-    "filters": [
-      {
-        "display_text": "MQRankSum",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "MQRankSum",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "NCC": {
-    "filters": [
-      {
-        "display_text": "NCC",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of no-called samples",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "NCC",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of no-called samples",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "NS": {
-    "filters": [
-      {
-        "display_text": "NS",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of samples with data.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "NS",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of samples with data.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "OALT": {
-    "filters": [
-      {
-        "display_text": "OALT",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "List of original variant bases",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "OALT",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "List of original variant bases",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "OID": {
-    "filters": [
-      {
-        "display_text": "OID",
-        "tooltip": "List of original Hotspot IDs",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "OMAPALT": {
-    "filters": [
-      {
-        "display_text": "OMAPALT",
-        "tooltip": "Maps OID,OPOS,OREF,OALT entries to specific ALT alleles",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "OPOS": {
-    "filters": [
-      {
-        "display_text": "OPOS",
-        "tooltip": "List of original allele positions",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "OREF": {
-    "filters": [
-      {
-        "display_text": "OREF",
-        "tooltip": "List of original reference bases",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "PB": {
-    "filters": [
-      {
-        "display_text": "PB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Bias of relative variant position in reference reads versus variant reads. Equals Mann-Whitney U rho statistic P(Y>X)+0.5P(Y=X)",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "PB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Bias of relative variant position in reference reads versus variant reads. Equals Mann-Whitney U rho statistic P(Y>X)+0.5P(Y=X)",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "PBP": {
-    "filters": [
-      {
-        "display_text": "PBP",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Pval of relative variant position in reference reads versus variant reads.  Related to GATK ReadPosRankSumTest",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "PBP",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Pval of relative variant position in reference reads versus variant reads.  Related to GATK ReadPosRankSumTest",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "QD": {
-    "display_text": "QD",
-    "filters": [
-      {
-        "display_text": "QD",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Variant Confidence/Quality by Depth",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "QD",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Variant Confidence/Quality by Depth",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "RBI": {
-    "filters": [
-      {
-        "display_text": "RBI",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Distance of bias parameters from zero",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "RBI",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Distance of bias parameters from zero",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "REFB": {
-    "filters": [
-      {
-        "display_text": "REFB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Reference Hypothesis bias in prediction",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "REFB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Reference Hypothesis bias in prediction",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "REVB": {
-    "filters": [
-      {
-        "display_text": "REVB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Reverse strand bias in prediction",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "REVB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Reverse strand bias in prediction",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "RO": {
-    "filters": [
-      {
-        "display_text": "RO",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Reference allele observation count",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "RO",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Reference allele observation count",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "ReadPosRankSum": {
-    "filters": [
-      {
-        "display_text": "ReadPosRankSum",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "ReadPosRankSum",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SAF": {
-    "filters": [
-      {
-        "display_text": "SAF",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observations on the forward strand",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SAF",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observations on the forward strand",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SAR": {
-    "filters": [
-      {
-        "display_text": "SAR",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SAR",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Alternate allele observations on the reverse strand",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SOR": {
-    "filters": [
-      {
-        "display_text": "SOR",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Symmetric Odds Ratio of 2x2 contingency table to detect strand bias",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SOR",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Symmetric Odds Ratio of 2x2 contingency table to detect strand bias",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SRF": {
-    "filters": [
-      {
-        "display_text": "SRF",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of reference observations on the forward strand",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SRF",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of reference observations on the forward strand",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SRR": {
-    "filters": [
-      {
-        "display_text": "SRR",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Number of reference observations on the reverse strand",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SRR",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Number of reference observations on the reverse strand",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SSEN": {
-    "filters": [
-      {
-        "display_text": "SSEN",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Strand-specific-error prediction on negative strand.",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SSEN",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Strand-specific-error prediction on negative strand.",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SSEP": {
-    "filters": [
-      {
-        "display_text": "SSEP",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Strand-specific-error prediction on positive strand",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SSEP",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Strand-specific-error prediction on positive strand",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "SSSB": {
-    "filters": [
-      {
-        "display_text": "SSSB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Strand-specific strand bias for allele",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "SSSB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Strand-specific strand bias for allele",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "STB": {
-    "filters": [
-      {
-        "display_text": "STB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Strand bias in variant relative to reference",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "STB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Strand bias in variant relative to reference",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "STBP": {
-    "filters": [
-      {
-        "display_text": "STBP",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Pval of Strand bias in variant relative to reference",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "STBP",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Pval of Strand bias in variant relative to reference",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "TYPE": {
-    "filters": [
-      {
-        "display_text": "TYPE",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "VARB": {
-    "filters": [
-      {
-        "display_text": "VARB",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Variant Hypothesis bias in prediction",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "VARB",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Variant Hypothesis bias in prediction",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "VQSLOD": {
-    "filters": [
-      {
-        "display_text": "VQSLOD",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
-        "tooltip": "Log odds ratio of being a true variant versus being false under the trained Gaussian mixture model",
-        "widget_type": "TextInput"
-      },
-      {
-        "display_text": "VQSLOD",
-        "es_filter_type": "filter_range_lte",
-        "form_type": "CharField",
-        "in_line_tooltip": "(<=)",
-        "tooltip": "Log odds ratio of being a true variant versus being false under the trained Gaussian mixture model",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "cosmic70": {
-    "filters": [
-      {
-        "display_text": "cosmic70",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Other",
-    "tab": "Basic"
-  },
-  "culprit": {
-    "filters": [
-      {
-        "display_text": "culprit",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "tooltip": "The annotation which was the worst performing in the Gaussian mixture model, likely the reason why the variant was filtered out",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "Other",
     "tab": "Basic"
   }
 }

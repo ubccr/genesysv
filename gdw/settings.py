@@ -26,7 +26,7 @@ SECRET_KEY = '4*6$y+wz$!8mjq01t=th10(0rl^z89$)t4g#9*86kk-+0_sd5i'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['gdwdev.ccr.buffalo.edu']
+ALLOWED_HOSTS = ['199.109.193.40']
 
 
 
