@@ -149,12 +149,16 @@ def get_value_from_dict_search(dict_data, element):
         if path in ['FILTER', 'QUAL']:
             if path == "FILTER":
                 data = dict_data.get(path)
+                if not data:
+                    return None
                 if len(data) >= 1:
                     return '; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_value')) for ele in data])
                 else:
                     return "Report ERROR"
             elif path == "QUAL":
                 data = dict_data.get(path)
+                if not data:
+                    return None
                 if len(data) >= 1:
                     return '; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_value')) for ele in data])
                 else:

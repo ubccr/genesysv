@@ -499,6 +499,7 @@ def search(request):
                 if path == 'QUAL':
                     QUAL_value = float(data)
 
+
                 ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
                 if path and path not in source_fields:
                     source_fields.append(path)
@@ -709,7 +710,10 @@ def search(request):
                     for path, nested_attributes in nested_attributes_selected.items():
                         if path in ['FILTER', 'QUAL']:
                             continue
-                        old_data = result[path]
+                        if result.get(path):
+                            old_data = result[path]
+                        else:
+                            continue
                         new_data = []
                         for ele in old_data:
                             tmp_dict = {}
@@ -805,9 +809,9 @@ def search(request):
                             if show_review_status and not request.user.is_anonymous():
                                 tmp['variant_review_status'] = result['variant_review_status']
 
-                            if FILTER_value:
+                            if result.get('FILTER'):
                                 tmp['FILTER'] = result['FILTER']
-                            if QUAL_value:
+                            if result.get('QUAL'):
                                 tmp['QUAL'] = result['QUAL']
 
                             if tmp not in final_results:
@@ -940,12 +944,13 @@ def yield_results(dataset_obj,
             continue
 
         #
-        new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
-        if new_filter_data and new_qual_data:
-            result['FILTER'] = new_filter_data
-            result['QUAL'] = new_qual_data
-        else:
-            continue
+        if FILTER_value and QUAL_value:
+            new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
+            if new_filter_data and new_qual_data:
+                result['FILTER'] = new_filter_data
+                result['QUAL'] = new_qual_data
+            else:
+                continue
 
         ### Remove results that don't match input
         yield_results = True
@@ -1003,8 +1008,10 @@ def yield_results(dataset_obj,
                 tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
                 for x,y in tmp_output:
                     tmp = merge_two_dicts(x,y)
-                    tmp['FILTER'] = result['FILTER']
-                    tmp['QUAL'] = result['QUAL']
+                    if result.get('FILTER'):
+                        tmp['FILTER'] = result['FILTER']
+                    if result.get('QUAL'):
+                        tmp['QUAL'] = result['QUAL']
                     if tmp not in final_results:
                         final_results.append(tmp)
             else:
@@ -1076,15 +1083,20 @@ def download_result(request):
     else:
         used_keys = []
 
-    FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_value')
-    QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_value')
-
-    if str(FILTER_field_obj.id) in dict_filter_fields and str(QUAL_field_obj.id) in dict_filter_fields:
-        FILTER_value = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
-        QUAL_value = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
-    else:
+    try:
+        FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_value')
+        QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_value')
+        if str(FILTER_field_obj.id) in dict_filter_fields and str(QUAL_field_obj.id) in dict_filter_fields:
+            FILTER_value = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
+            QUAL_value = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
+        else:
+            FILTER_value = None
+            QUAL_value = None
+    except:
         FILTER_value = None
         QUAL_value = None
+
+
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer, delimiter='\t')
