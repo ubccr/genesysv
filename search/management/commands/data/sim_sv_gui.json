@@ -225,9 +225,10 @@
   "DP": {
     "filters": [
       {
-        "display_text": "Read depth (>=)",
+        "display_text": "Read depth",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -237,9 +238,10 @@
   "SU": {
     "filters": [
       {
-        "display_text": "Total number of supporting read count (>=)",
+        "display_text": "Total number of supporting read count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -249,9 +251,10 @@
   "RO": {
     "filters": [
       {
-        "display_text": "Reference allele observation count (>=)",
+        "display_text": "Reference allele observation count",
         "es_filter_type": "filter_range_gte",
 	"tooltip": "Reference allele observation count, with partial observations recorded fractionally",
+	"in_line_tooltip": "(>=)",
         "form_type": "CharField",
         "widget_type": "TextInput"
       }
@@ -262,9 +265,10 @@
   "AO": {
     "filters": [
       {
-        "display_text": "Alternate allele observation count (>=)",
+        "display_text": "Alternate allele observation count",
         "es_filter_type": "filter_range_gte",
 	"tooltip": "Alternate allele observations, with partial observations recorded fractionally",
+	"in_line_tooltip": "(>=)",
         "form_type": "CharField",
         "widget_type": "TextInput"
       }
@@ -276,9 +280,10 @@
   "PE": {
     "filters": [
       {
-        "display_text": "Paired-end read count (>=)",
+        "display_text": "Paired-end read count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -288,9 +293,10 @@
   "SR": {
     "filters": [
       {
-        "display_text": "Split-read count (>=)",
+        "display_text": "Split-read count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -300,10 +306,11 @@
   "RP": {
     "filters": [
       {
-        "display_text": "Reference allele paired-end observation count (>=)",
+        "display_text": "Reference allele paired-end observation count",
         "es_filter_type": "filter_range_gte",
 	"tooltip": "Reference allele paired-end observation count, with partial observations recorded fractionally",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -326,9 +333,10 @@
   "RS": {
     "filters": [
       {
-        "display_text": "Reference allele split-read observation count (>=)",
+        "display_text": "Reference allele split-read observation count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
 	"tooltip": "Reference allele split-read observation count, with partial observations recorded fractionally",
         "widget_type": "TextInput"
       }
@@ -339,9 +347,10 @@
   "AS": {
     "filters": [
       {
-        "display_text": "Alternate allele split-read observation count (>=)",
+        "display_text": "Alternate allele split-read observation count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
 	"tooltip": "Alternate allele split-read observation count, with partial observations recorded fractionally",
         "widget_type": "TextInput"
       }
@@ -352,9 +361,10 @@
   "GQ": {
     "filters": [
       {
-        "display_text": "Genotype quality (>=)",
+        "display_text": "Genotype quality",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -364,9 +374,10 @@
   "SQ": {
     "filters": [
       {
-        "display_text": "SQ (>=)",
+        "display_text": "SQ",
         "es_filter_type": "filter_range_gte",
 	"tooltip": "Phred-scaled probability that this site is variant (non-reference in this sample",
+	"in_line_tooltip": "(>=)",
         "form_type": "CharField",
         "widget_type": "TextInput"
       }
@@ -378,9 +389,10 @@
   "ASC": {
     "filters": [
       {
-        "display_text": "Alternate allele clipped-read count (>=)",
+        "display_text": "Alternate allele clipped-read count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -390,9 +402,10 @@
   "QR": {
     "filters": [
       {
-        "display_text": "Sum of quality of reference observations (>=)",
+        "display_text": "Sum of quality of reference observations",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -402,9 +415,10 @@
   "QA": {
     "filters": [
       {
-        "display_text": "Sum of quality of alternate observations (>=)",
+        "display_text": "Sum of quality of alternate observations",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
     ],
@@ -414,9 +428,10 @@
   "RS": {
     "filters": [
       {
-        "display_text": "Reference allele split-read observation count (>=)",
+        "display_text": "Reference allele split-read observation count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
 	"tooltip": "Reference allele split-read observation count, with partial observations recorded fractionally",
         "widget_type": "TextInput"
       }
@@ -427,8 +442,9 @@
   "AS": {
     "filters": [
       {
-        "display_text": "Alternate allele split-read observation count (>=)",
+        "display_text": "Alternate allele split-read observation count",
         "es_filter_type": "filter_range_gte",
+	"in_line_tooltip": "(>=)",
 	"tooltip": "Alternate allele split-read observation count, with partial observations recorded fractionally",
         "form_type": "CharField",
         "widget_type": "TextInput"

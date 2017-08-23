@@ -85,7 +85,7 @@
   "cytoBand": {
     "filters": [
       {
-        "display_text": "cytoBand",
+        "display_text": "CytoBand",
         "es_filter_type": "filter_terms",
         "form_type": "MultipleChoiceField",
         "values": "get_from_es()",
@@ -2071,7 +2071,7 @@
   "sample_GQ": {
     "filters": [
       {
-        "display_text": "Gemptype quality",
+        "display_text": "Genotype quality",
         "es_filter_type": "nested_filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
@@ -2099,7 +2099,7 @@
   "sample_label": {
     "filters": [
       {
-        "display_text": "sample_label",
+        "display_text": "Case/Control",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
 	"tootip": "Sample source, i.e. case or control",
@@ -2114,7 +2114,7 @@
   "sample_ID": {
     "filters": [
       {
-        "display_text": "sample ID",
+        "display_text": "Sample ID",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
         "tooltip": "Deidentified patient sample ID",
