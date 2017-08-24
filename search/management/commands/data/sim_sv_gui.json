@@ -147,33 +147,6 @@
     "panel": "Variant Related Information",
     "tab": "Simple"
   },
-  "STRANDS": {
-    "filters": [
-      {
-        "display_text": "Strands",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-	"tooltip": "Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Variant Related Information",
-    "tab": "Simple"
-  },
-  "IMPRECISE": {
-    "filters": [
-      {
-        "display_text": "Imprecise",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
-	"tooltip": "Imprecise structural variation",
-        "widget_type": "Select",
-	"values": "get_from_es()"
-      }
-    ],
-    "panel": "Variant Related Information",
-    "tab": "Simple"
-  },
   "SECONDARY": {
     "filters": [
       {
@@ -320,7 +293,7 @@
   "AP": {
     "filters": [
       {
-        "display_text": "Alternate allele paired-end observation count (>=)",
+        "display_text": "Alternate allele paired-end observation count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
 	"tooltip": "Alternate allele paired-end observation count, with partial observations recorded fractionally",
@@ -447,19 +420,6 @@
 	"in_line_tooltip": "(>=)",
 	"tooltip": "Alternate allele split-read observation count, with partial observations recorded fractionally",
         "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Supporting evidence",
-    "tab": "Simple"
-  },
-  "GL": {
-    "filters": [
-      {
-        "display_text": "Genotype likelyhood",
-        "es_filter_type": "filter_range_gte",
-        "form_type": "CharField",
-	"tooltip": "log10-scaled likelihoods of the data given the called genotype for each possible genotype generated from the reference and alternate alleles given the sample ploidy",
         "widget_type": "TextInput"
       }
     ],
