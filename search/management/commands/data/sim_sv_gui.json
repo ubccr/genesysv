@@ -296,6 +296,7 @@
         "display_text": "Alternate allele paired-end observation count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
 	"tooltip": "Alternate allele paired-end observation count, with partial observations recorded fractionally",
         "widget_type": "TextInput"
       }
