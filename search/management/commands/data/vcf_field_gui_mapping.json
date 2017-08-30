@@ -741,11 +741,11 @@
     "filters": [
       {
         "display_text": "Polyphen2_HDIV_pred",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
         "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv.",
         "values": "get_from_es()",
-        "widget_type": "Select"
+        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "Pathogenic Prediction",
@@ -756,11 +756,11 @@
     "filters": [
       {
         "display_text": "Polyphen2_HVAR_pred",
-        "es_filter_type": "filter_term",
-        "form_type": "ChoiceField",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
         "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar.",
         "values": "get_from_es()",
-        "widget_type": "Select"
+        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "Pathogenic Prediction",
