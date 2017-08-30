@@ -1,0 +1,524 @@
+{
+  "sv_name": {
+    "filters": [
+      {
+        "display_text": "SV name",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "CHROM": {
+    "filters": [
+      {
+        "display_text": "Chromosome",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+	"values": "get_from_es()"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "POS": {
+    "filters": [
+      {
+        "display_text": "Start position (bp)",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "END": {
+    "filters": [
+      {
+        "display_text": "End position (bp)",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+
+  "SVLEN": {
+    "filters": [
+      {
+        "display_text": "SV length (bp)",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "SV length (bp)",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "SVTYPE": {
+    "filters": [
+      {
+        "display_text": "SV type",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "widget_type": "Select",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "REF": {
+    "filters": [
+      {
+        "display_text": "Ref allele",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "ALT": {
+    "filters": [
+      {
+        "display_text": "Alternate allele",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "QUAL": {
+    "filters": [
+      {
+        "display_text": "Quality score",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+	"tooltip": "Quality score based on Lumpy",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "ID": {
+    "filters": [
+      {
+        "display_text": "SV ID",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "MATEID": {
+    "filters": [
+      {
+        "display_text": "Mate ID",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+	"tooltip": "ID of mate breakends",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "SECONDARY": {
+    "filters": [
+      {
+        "display_text": "Secondary",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"tooltip": "Secondary breakend in a multi-line variants",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+
+  "GT": {
+    "filters": [
+      {
+        "display_text": "Genotype",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "widget_type": "Select",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+  "CN": {
+    "filters": [
+      {
+        "display_text": "Copy number",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Copy number",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Variant Related Information",
+    "tab": "Simple"
+  },
+
+  "DP": {
+    "filters": [
+      {
+        "display_text": "Read depth",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "SU": {
+    "filters": [
+      {
+        "display_text": "Total number of supporting read count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "RO": {
+    "filters": [
+      {
+        "display_text": "Reference allele observation count",
+        "es_filter_type": "filter_range_gte",
+	"tooltip": "Reference allele observation count, with partial observations recorded fractionally",
+	"in_line_tooltip": "(>=)",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "AO": {
+    "filters": [
+      {
+        "display_text": "Alternate allele observation count",
+        "es_filter_type": "filter_range_gte",
+	"tooltip": "Alternate allele observations, with partial observations recorded fractionally",
+	"in_line_tooltip": "(>=)",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+
+  "PE": {
+    "filters": [
+      {
+        "display_text": "Paired-end read count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "SR": {
+    "filters": [
+      {
+        "display_text": "Split-read count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "RP": {
+    "filters": [
+      {
+        "display_text": "Reference allele paired-end observation count",
+        "es_filter_type": "filter_range_gte",
+	"tooltip": "Reference allele paired-end observation count, with partial observations recorded fractionally",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "AP": {
+    "filters": [
+      {
+        "display_text": "Alternate allele paired-end observation count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+	"tooltip": "Alternate allele paired-end observation count, with partial observations recorded fractionally",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "RS": {
+    "filters": [
+      {
+        "display_text": "Reference allele split-read observation count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+	"tooltip": "Reference allele split-read observation count, with partial observations recorded fractionally",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "AS": {
+    "filters": [
+      {
+        "display_text": "Alternate allele split-read observation count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+	"tooltip": "Alternate allele split-read observation count, with partial observations recorded fractionally",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "GQ": {
+    "filters": [
+      {
+        "display_text": "Genotype quality",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "SQ": {
+    "filters": [
+      {
+        "display_text": "SQ",
+        "es_filter_type": "filter_range_gte",
+	"tooltip": "Phred-scaled probability that this site is variant (non-reference in this sample",
+	"in_line_tooltip": "(>=)",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+
+  "ASC": {
+    "filters": [
+      {
+        "display_text": "Alternate allele clipped-read count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "QR": {
+    "filters": [
+      {
+        "display_text": "Sum of quality of reference observations",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "QA": {
+    "filters": [
+      {
+        "display_text": "Sum of quality of alternate observations",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "RS": {
+    "filters": [
+      {
+        "display_text": "Reference allele split-read observation count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+	"in_line_tooltip": "(>=)",
+	"tooltip": "Reference allele split-read observation count, with partial observations recorded fractionally",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "AS": {
+    "filters": [
+      {
+        "display_text": "Alternate allele split-read observation count",
+        "es_filter_type": "filter_range_gte",
+	"in_line_tooltip": "(>=)",
+	"tooltip": "Alternate allele split-read observation count, with partial observations recorded fractionally",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+  "AB": {
+    "filters": [
+      {
+        "display_text": "Allele balance",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+	"tooltip": "Fraction of observations from alternate allele, QA/(QR+QA)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Supporting evidence",
+    "tab": "Simple"
+  },
+
+  "sample": {
+    "filters": [
+      {
+        "display_text": "Sample ID",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "widget_type": "Select",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Sample Related Information",
+    "tab": "Simple"
+  },
+  "SYMBOL": {
+    "filters": [
+      {
+        "display_text": "Gene Name",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "annotation"
+      }
+    ],
+    "panel": "Annotation",
+    "tab": "Simple"
+  },
+  "Gene": {
+    "filters": [
+      {
+        "display_text": "Ensembl gene ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+	"path": "annotation"
+      }
+    ],
+    "panel": "Annotation",
+    "tab": "Simple"
+  },
+  "Feature": {
+    "filters": [
+      {
+        "display_text": "Ensembl transcript ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+	"path": "annotation"
+      }
+    ],
+    "panel": "Annotation",
+    "tab": "Simple"
+  },
+  "Consequence": {
+    "filters": [
+      {
+        "display_text": "Functional consequence",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+	"path": "annotation"
+      }
+    ],
+    "panel": "Annotation",
+    "tab": "Simple"
+  },
+  "BIOTYPE": {
+    "filters": [
+      {
+        "display_text": "Biotype",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+	"path": "annotation",
+        "values": "get_from_es()"
+      }
+    ],
+    "panel": "Annotation",
+    "tab": "Simple"
+  }
+}

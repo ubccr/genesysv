@@ -39,7 +39,7 @@ def gene_mania(input_string):
         output = ''
         for ele in input_string.split():
             if ele.lower() != 'none':
-                output += '<a target="_blank" href="http://genemania.org/link?o=9606&g=%s"><i class="fa fa-external-link-square fa-1x" aria-hidden="true"></i> GeneMANIA</a>' %(ele.replace(',','|'))
+                output += '<a target="_blank" href="http://genemania.org/#/search/9606/%s"><i class="fa fa-external-link-square fa-1x" aria-hidden="true"></i> GeneMANIA</a>' %(ele.replace(',','|'))
             else:
                 output += 'NONE '
         return output
@@ -72,7 +72,7 @@ def format_gatkfilter_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['FILTER_label'].title(), ele['FILTER_status']))
+                tmp.append('%s: %s' %(ele['FILTER_label'].title(), ele['FILTER_value']))
             return '; '.join(tmp)
 
 
@@ -89,7 +89,7 @@ def format_gatkqs_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['QUAL_label'].title(), ele['QUAL_score']))
+                tmp.append('%s: %s' %(ele['QUAL_label'].title(), ele['QUAL_value']))
             return '; '.join(tmp)
 
 
@@ -149,14 +149,18 @@ def get_value_from_dict_search(dict_data, element):
         if path in ['FILTER', 'QUAL']:
             if path == "FILTER":
                 data = dict_data.get(path)
+                if not data:
+                    return None
                 if len(data) >= 1:
-                    return '; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_status')) for ele in data])
+                    return '; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_value')) for ele in data])
                 else:
                     return "Report ERROR"
             elif path == "QUAL":
                 data = dict_data.get(path)
+                if not data:
+                    return None
                 if len(data) >= 1:
-                    return '; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_score')) for ele in data])
+                    return '; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_value')) for ele in data])
                 else:
                     return "Report ERROR"
         else:
