@@ -4,9 +4,9 @@
  <ul class="nav nav-tabs">
 {% for short_name, display_name, result in results %}
     {% if forloop.first %}
-        <li class="active"><a data-toggle="tab" href="#{{forloop.counter}}">{{display_name}}</a></li>
+        <li class="active"><a data-toggle="tab" href="#{{forloop.counter}}">SIM {{display_name}}</a></li>
     {% else %}
-        <li><a data-toggle="tab" href="#{{forloop.counter}}">{{display_name}}</a></li>
+        <li><a data-toggle="tab" href="#{{forloop.counter}}">SIM {{display_name}}</a></li>
     {% endif %}
 {% endfor %}
 
