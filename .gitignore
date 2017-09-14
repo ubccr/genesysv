@@ -16,3 +16,4 @@ build/
 src/
 utils/es_scripts/
 static/r_outputs/
+utils/import_exceptions*

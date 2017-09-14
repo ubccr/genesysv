@@ -28,9 +28,9 @@
           "es_field_datatype": "keyword",
           "es_field_name": "FILTER_label"
         },
-        "FILTER_status": {
+        "FILTER_value": {
           "es_field_datatype": "keyword",
-          "es_field_name": "FILTER_status"
+          "es_field_name": "FILTER_value"
         }
       }
     },
@@ -49,9 +49,9 @@
           "es_field_datatype": "keyword",
           "es_field_name": "QUAL_label"
         },
-        "QUAL_score": {
+        "QUAL_value": {
           "es_field_datatype": "float",
-          "es_field_name": "QUAL_score"
+          "es_field_name": "QUAL_value"
         }
       }
     },
@@ -279,11 +279,11 @@
       }
     },
     "CADD": {
-      "es_field_datatype": "keyword",
+      "es_field_datatype": "float",
       "es_field_name": "CADD"
     },
     "CADD13_PHRED": {
-      "es_field_datatype": "keyword",
+      "es_field_datatype": "float",
       "es_field_name": "CADD13_PHRED"
     },
     "CADD13_RawScore": {
@@ -1270,7 +1270,8 @@
     },
     "REVEL": {
       "es_field_datatype": "float",
-      "es_field_name": "REVEL"
+      "es_field_name": "REVEL",
+      "null_value": 0
     },
     "ReadPosRankSum": {
       "is_nested_label_field": true,
@@ -1509,8 +1510,7 @@
     },
     "wgRna": {
       "es_field_datatype": "keyword",
-      "es_field_name": "wgRna",
-      "parse_function": "gwasCatalog_parser"
+      "es_field_name": "wgRna"
     },
     "NS": {
       "es_field_datatype": "integer",
