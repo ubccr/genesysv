@@ -195,7 +195,7 @@ def main():
 
             line_no += 1
 
-    msg = '%d of %d INFO fields have data' %(len(info_field_with_data), len(recognized_info_fields))
+    msg = '%d of %d INFO fields have data' %(len(info_field_with_data), len(list(info_fields)))
     msg = msg.ljust(80,'.')
     print(msg, end="")
     if len(info_field_with_data) == len(recognized_info_fields):

@@ -140,8 +140,51 @@ def CHROM_parser(input_string):
 def gwasCatalog_parser(input_string):
     return input_string.replace('|', ' ')
 
-def CLINSIG_parser(input_string):
-    return re.split(',|\|',input_string)
+def clinvar_parser(input_dict):
+    output = []
+    size = len(re.split(',|\|', input_dict['CLNDBN']))
+    CLINSIG_split = re.split(',|\|', input_dict['CLINSIG'])
+    CLNDBN_split = re.split(',|\|', input_dict['CLNDBN'])
+    CLNACC_split = re.split(',|\|', input_dict['CLNACC'])
+
+    if input_dict.get('CLNDSDB'):
+        CLNDSDB_split = re.split(',|\|', input_dict['CLNDSDB'])
+    else:
+        CLNDSDB_split = None
+
+    if input_dict.get('CLNDSDBID'):
+        CLNDSDBID_split = re.split(',|\|', input_dict['CLNDSDBID'])
+    else:
+        CLNDSDBID_split = None
+
+    for i in range(size):
+        CLINSIG = CLINSIG_split[i]
+        CLNDBN = CLNDBN_split[i]
+        CLNACC = CLNACC_split[i]
+
+        if CLNDSDB_split:
+            CLNDSDB = CLNDSDB_split[i]
+        else:
+            CLNDSDB = None
+
+        if CLNDSDBID_split:
+            CLNDSDBID = CLNDSDBID_split[i]
+        else:
+            CLNDSDBID = None
+
+        output_dict = {'clinvar_CLINSIG': CLINSIG,
+                        'clinvar_CLNDBN': CLNDBN,
+                        'clinvar_CLNACC': CLNACC,
+                        }
+        if CLNDSDB:
+            output_dict['clinvar_CLNDSDB'] = CLNDSDB
+        if CLNDSDBID:
+            output_dict['clinvar_CLNDSDBID'] = CLNDSDBID
+
+        output.append(output_dict)
+
+    return output
+
 
 def GTEx_V6_tissue_parser(input_string):
     return input_string.replace('|', ' ')
@@ -303,10 +346,3 @@ def AAChange_ensGene_parser(AAChange_ensGene):
     return tmp_content_array
 
 
-
-def convert_escaped_chars(input_string):
-    input_string = input_string.replace("\\x3b", ";")
-    input_string = input_string.replace("\\x2c", ",")
-    input_string = input_string.replace("\\x3d", "=")
-
-    return input_string
