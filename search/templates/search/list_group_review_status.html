@@ -44,7 +44,7 @@
                                 <td>{{ row.dataset }}</td>
                                 <td>
                                     {% for ele in row.variantreviewstatushistory_set.all  reversed %}
-                                        ({{ele.user}}, {{ele.status}}, {{ele.modified|localtime}}) <br>
+                                        ({{ele.user}}, {{ele.status}}, {{ele.modified|timezone:"America/New_York"}} EST) <br>
                                     {% endfor %}
                                 </td>
                             </tr>
