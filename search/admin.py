@@ -27,7 +27,7 @@ class FilterSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FilterSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].filter_panel.name,
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
                                                                                dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
 
@@ -69,7 +69,7 @@ class AttributeSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributeSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].attribute_panel.name,
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
                                                                                      dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
     class Meta:

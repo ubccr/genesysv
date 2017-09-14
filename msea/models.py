@@ -13,6 +13,7 @@ class Study(TimeStampedModel):
 
     class Meta:
         unique_together = ('short_name', 'es_index_name',)
+        verbose_name_plural = 'studies'
 
     def __str__(self):
         return self.display_name

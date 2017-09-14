@@ -546,7 +546,7 @@ class SubjectReportForm1(forms.Form):
             user_group_ids = []
         super(SubjectReportForm1, self).__init__(*args, **kwargs)
 
-        user_dataset = Dataset.objects.all()
+        user_dataset = Dataset.objects.filter(has_report=True)
         user_dataset = user_dataset.filter(Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
         STUDY_CHOICES = [(ele.name, '%s (%s)' %(ele.description, ele.study.name)) for ele in user_dataset]
         STUDY_CHOICES.insert(0, ('','---'))
@@ -559,7 +559,7 @@ class SubjectReportForm2(forms.Form):
         super(SubjectReportForm2, self).__init__(*args, **kwargs)
 
         dataset_object = Dataset.objects.get(name=database_name)
-        SUBJECT_CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field__display_text='sample_ID',
+        SUBJECT_CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field__es_name='sample_ID',
                                                         filter_field__dataset=dataset_object)]
         SUBJECT_CHOICES.insert(0, ('','---'))
         self.fields['subject'] = forms.ChoiceField(label='Subject', choices=SUBJECT_CHOICES)

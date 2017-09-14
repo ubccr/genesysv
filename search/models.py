@@ -52,6 +52,7 @@ class Dataset(TimeStampedModel):
     es_host = models.CharField(max_length=255)
     es_port = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
+    has_report = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, blank=True)
 
     class Meta:
@@ -68,6 +69,9 @@ class SearchOptions(TimeStampedModel):
     es_terminate = models.BooleanField(default=True)
     es_terminate_size_per_shard = models.IntegerField(default=80)
     maximum_table_size = models.IntegerField(default=400)
+
+    class Meta:
+        verbose_name_plural = 'Search Options'
 
 
 class SampleReadDepth(TimeStampedModel):
@@ -338,6 +342,7 @@ class SavedSearch(TimeStampedModel):
 
     class Meta:
         unique_together = ('dataset', 'user', 'filters_used', 'attributes_selected')
+        verbose_name_plural = 'Searches'
 
 REVIEW_STATUS_CHOICES = (
     ('approved', 'Approved'),
@@ -363,6 +368,9 @@ class VariantReviewStatus(TimeStampedModel):
         from django.urls import reverse
         return reverse('list-variant-status', kwargs={'review_status': self.variant_review_status})
 
+    class Meta:
+        verbose_name_plural = 'Variant review status'
+
     def __str__(self):
         return self.variant
 
@@ -377,3 +385,7 @@ class VariantReviewStatusHistory(models.Model):
     )
     status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
     modified = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        verbose_name_plural = 'Variant review status history'
