@@ -1102,8 +1102,11 @@ def download_result(request):
     writer = csv.writer(pseudo_buffer, delimiter='\t')
 
 
-    if request.user.groups.count() != 1:
+    if request.user.groups.count() != 1 and not request.user.is_anonymous():
             return HttpResponse(status=400)
+    elif request.user.is_anonymous():
+        request.user.is_anonymous()
+        group = 'anonymous'
     else:
         group = request.user.groups.all()[:1].get()
 

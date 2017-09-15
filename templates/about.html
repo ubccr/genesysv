@@ -48,6 +48,27 @@ Data under this release (V2) are based on hg19/GRCh37 coordinates. A demo datase
     <hr>
 </div>
 
+<h4>15 September 2017 - v2.5</h4>
+<ul>
+    <li>Update Django to 1.11.5</li>
+    <li>Update Elasticsearch to 5.5.2</li>
+    <li>Add Structural Variation dataset for Statin Induced Myopathy (SIM)</li>
+    <li>Re-annotate variants with the most up-to-date annotation databases</li>
+    <li>Implement post-query editing for search results. This can be used
+to flag if a variant is likely true positive or false positive and can
+be used to output a "clean" list of variants for downloading or
+downstream analysis. To use this feature, start from the button on the
+top (Show Review Status, Select Post Query Filter)</li>
+    <li>Enable pumping of gene sets returned from search results (with or
+without post-query editing) to GeneMANIA for gene interaction and
+pathway analysis (To use this feature, you need to select Gene from
+the attribute page, and then click the "Send selected genes to
+GeneMANIA" button at the bottom of the result page).</li>
+    <li>Mutation Set Enrichment Analysis is now available under the "Tools"
+menu in two ways: MSEA Plot and MSEA Pvalue</li>
+    <li>Integrate igv.js for variant visualization</li>
+</ul>
+
 <h4>19 December 2016 - v2.0</h4>
 <ul>
     <li>Switch to <a href="https://www.elastic.co/">Elasticsearch</a> for storing and searching data</li>

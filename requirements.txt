@@ -12,7 +12,7 @@ chardet==3.0.4
 Cython==0.26
 dbgp==1.1
 decorator==4.1.2
-Django==1.11.3
+Django==1.11.5
 django-crispy-forms==1.6.1
 django-formtools==2.0
 django-htmlmin==0.10.0
