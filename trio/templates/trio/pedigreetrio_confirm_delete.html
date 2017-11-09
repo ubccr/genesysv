@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Trio Status
+{% endblock %}
+
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Search-Home").addClass("active")
+</script>
+
+
+
+  <div class="panel panel-default">
+      <div class="panel-body">
+           <form action="" method="post">{% csrf_token %}
+        <p>Are you sure you want to cancel this pedigree analysis request?</p>
+        <input type="submit" value="Confirm" class="btn btn-danger"/>
+        <a class="btn btn-default" href="{% url 'trio-status' %}" role="button">Cancel</a>
+    </form>
+      </div>
+    </div>
+
+
+<script>
+
+</script>
+{% endblock %}
