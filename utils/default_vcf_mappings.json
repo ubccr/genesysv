@@ -1667,6 +1667,292 @@
     "PBP": {
       "es_field_datatype": "float",
       "es_field_name": "PBP"
+    },
+    "CSQ_AA_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AA_AF"
+    },
+    "CSQ_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AF"
+    },
+    "CSQ_AFR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AFR_AF"
+    },
+    "CSQ_AMR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AMR_AF"
+    },
+    "CSQ_Allele": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_Allele"
+    },
+    "CSQ_CANONICAL": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_CANONICAL"
+    },
+    "CSQ_CLIN_SIG": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_CLIN_SIG"
+    },
+    "CSQ_EAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EAS_AF"
+    },
+    "CSQ_EA_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EA_AF"
+    },
+    "CSQ_EUR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EUR_AF"
+    },
+    "CSQ_Existing_variation": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_Existing_variation"
+    },
+    "CSQ_GENE_PHENO": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_GENE_PHENO"
+    },
+    "CSQ_MAX_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_MAX_AF"
+    },
+    "CSQ_MAX_AF_POPS": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_MAX_AF_POPS"
+    },
+    "CSQ_PHENO": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_PHENO"
+    },
+    "CSQ_PUBMED": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_PUBMED"
+    },
+    "CSQ_SAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_SAS_AF"
+    },
+    "CSQ_SOMATIC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_SOMATIC"
+    },
+    "CSQ_VARIANT_CLASS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_VARIANT_CLASS"
+    },
+    "CSQ_gnomAD_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AF"
+    },
+    "CSQ_gnomAD_AFR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AFR_AF"
+    },
+    "CSQ_gnomAD_AMR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AMR_AF"
+    },
+    "CSQ_gnomAD_ASJ_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_ASJ_AF"
+    },
+    "CSQ_gnomAD_EAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_EAS_AF"
+    },
+    "CSQ_gnomAD_FIN_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_FIN_AF"
+    },
+    "CSQ_gnomAD_NFE_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_NFE_AF"
+    },
+    "CSQ_gnomAD_OTH_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_OTH_AF"
+    },
+    "CSQ_gnomAD_SAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_SAS_AF"
+    },
+    "CSQ_nested": {
+      "is_nested_label_field": false,
+      "es_nested_path": "CSQ_nested",
+      "nested_fields": {
+        "CSQ_nested_APPRIS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_APPRIS"
+        },
+        "CSQ_nested_Amino_acids": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Amino_acids"
+        },
+        "CSQ_nested_BIOTYPE": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_BIOTYPE"
+        },
+        "CSQ_nested_CCDS": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_CCDS"
+        },
+        "CSQ_nested_Codons": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Codons"
+        },
+        "CSQ_nested_Consequence": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Consequence"
+        },
+        "CSQ_nested_DISTANCE": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_DISTANCE"
+        },
+        "CSQ_nested_Consequence": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Consequence"
+        },
+        "CSQ_nested_DOMAINS": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_DOMAINS"
+        },
+        "CSQ_nested_ENSP": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_ENSP"
+        },
+        "CSQ_nested_EXON": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_EXON"
+        },
+        "CSQ_nested_FLAGS": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_FLAGS"
+        },
+        "CSQ_nested_Feature": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Feature"
+        },
+        "CSQ_nested_Feature_type": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Feature_type"
+        },
+        "CSQ_nested_Gene": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Gene"
+        },
+        "CSQ_nested_HGNC_ID": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_HGNC_ID"
+        },
+        "CSQ_nested_HGVS_OFFSET": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_HGVS_OFFSET"
+        },
+        "CSQ_nested_HGVSc": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_HGVSc"
+        },
+        "CSQ_nested_HGVSp": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_HGVSp"
+        },
+        "CSQ_nested_HIGH_INF_POS": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_HIGH_INF_POS"
+        },
+        "CSQ_nested_IMPACT": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_IMPACT"
+        },
+        "CSQ_nested_INTRON": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_INTRON"
+        },
+        "CSQ_nested_MOTIF_NAME": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_MOTIF_NAME"
+        },
+        "CSQ_nested_MOTIF_POS": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_MOTIF_POS"
+        },
+        "CSQ_nested_MOTIF_SCORE_CHANGE": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_MOTIF_SCORE_CHANGE"
+        },
+        "CSQ_nested_STRANDDISTANCE": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_STRANDDISTANCE"
+        },
+        "CSQ_nested_SWISSPROT": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SWISSPROT"
+        },
+        "CSQ_nested_SYMBOL": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SYMBOL"
+        },
+        "CSQ_nested_SYMBOL_SOURCE": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SYMBOL_SOURCE"
+        },
+        "CSQ_nested_TREMBL": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_TREMBL"
+        },
+        "CSQ_nested_TSL": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_TSL"
+        },
+        "CSQ_nested_UNIPARC": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_UNIPARC"
+        },
+        "CSQ_nested_CDS_position_start": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_CDS_position_start"
+        },
+        "CSQ_nested_CDS_position_end": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_CDS_position_end"
+        },
+        "CSQ_nested_cDNA_position_start": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_cDNA_position_start"
+        },
+        "CSQ_nested_cDNA_position_end": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_cDNA_position_end"
+        },
+        "CSQ_nested_Protein_position_start": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Protein_position_start"
+        },
+        "CSQ_nested_Protein_position_end": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_Protein_position_end"
+        },
+        "CSQ_nested_SIFT_prediction": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SIFT_prediction"
+        },
+        "CSQ_nested_SIFT_score": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SIFT_score"
+        },
+        "CSQ_nested_PolyPhen_prediction": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_PolyPhen_prediction"
+        },
+        "CSQ_nested_PolyPhen_score": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_PolyPhen_score"
+        }
+      }
     }
   },
   "FORMAT_FIELDS": {

@@ -6,6 +6,7 @@ import json
 import sys
 import copy
 import os
+import gzip
 
 ### Global STATIC Variables
 HEADER = '\033[95m'
@@ -23,7 +24,6 @@ ONE = OKGREEN + '[1]' + ENDC
 TWO = OKGREEN + '[2]' + ENDC
 WARNING = WARNING + '[WARNING]' + ENDC
 ERROR = FAIL + 'ERROR:' + ENDC
-
 
 def main():
     """
@@ -71,6 +71,29 @@ def main():
         print(msg, end="")
         print(OK)
 
+    if 'CSQ' in unrecognized_info_fields:
+        CSQ_present = True
+        unrecognized_info_fields.remove('CSQ')
+    else:
+        CSQ_present = False
+
+    if 'ANN' in unrecognized_info_fields:
+        ANN_present = True
+        unrecognized_info_fields.remove('ANN')
+    else:
+        ANN_present = False
+
+    if 'LOF' in unrecognized_info_fields:
+        LOF_present = True
+        unrecognized_info_fields.remove('LOF')
+    else:
+        LOF_present = False
+
+    if 'NMD' in unrecognized_info_fields:
+        NMD_present = True
+        unrecognized_info_fields.remove('NMD')
+    else:
+        NMD_present = False
 
     # Parse format (sample) fields
     msg = '\nParsing VCF file for available FORMAT (sample) fields'.ljust(80,'.')
@@ -86,6 +109,7 @@ def main():
 
 
     unrecognized_format_fields = sorted(list(set(format_fields.keys()) - set(recognized_format_fields)))
+
     if unrecognized_format_fields:
         print('The following FORMAT fields were not recognized: \n%s' %('\n'.join(unrecognized_format_fields)))
         msg = 'This script will try to determine their data type.'.ljust(80,'.')
@@ -103,97 +127,98 @@ def main():
     unrecognized_format_field_type = {}
     info_field_with_data = deque()
 
-    with open(vcf_filename, 'r') as fp:
-        for line in tqdm(fp, total=no_lines):
-            if line.startswith('##'):
+    # with open(vcf_filename, 'r') as fp:
+    fp = get_file_handle(vcf_filename)
+    for line in tqdm(fp, total=no_lines):
+        if line.startswith('##'):
+            continue
+
+        if line.startswith('#CHROM'):
+            line = line[1:]
+            header = line.strip().split('\t')
+            format_column_idx = header.index('FORMAT')
+            continue
+
+        if line_no > no_lines:
+            break
+
+        data = dict(zip(header, line.strip().split('\t')))
+        info =  data['INFO']
+
+        for ele in info.split(';'):
+
+            if '=' not in ele:
+                # maybe a exist only field?
+                if ele in unrecognized_info_fields and not unrecognized_info_field_type.get(ele):
+                    unrecognized_info_field_type[ele] = {
+                        "es_field_datatype": "boolean",
+                        "es_field_name": ele,
+                        "is_exists_only": True,
+                        "is_parsed" : True
+                    }
+                    info_field_with_data.append(ele)
+                elif ele not in info_field_with_data and default_vcf_mapping['INFO_FIELDS'].get(ele) and default_vcf_mapping['INFO_FIELDS'][ele].get('is_exists_only'):
+                    info_field_with_data.append(ele)
+
                 continue
 
-            if line.startswith('#CHROM'):
-                line = line[1:]
-                header = line.strip().split('\t')
-                format_column_idx = header.index('FORMAT')
+            key, value = ele.split('=')
+
+            if value == '.':
                 continue
 
-            if line_no > no_lines:
-                break
+            if key not in info_field_with_data:
+                info_field_with_data.append(key)
 
-            data = dict(zip(header, line.strip().split('\t')))
-            info =  data['INFO']
+            # if key == 'VARB':
+            #     print(key, value)
 
-            for ele in info.split(';'):
+            if key in unrecognized_info_fields and not unrecognized_info_field_type.get(key):
+                value_type = determine_es_datatype(value)
+                unrecognized_info_field_type[key] = {
+                        "es_field_datatype": value_type,
+                        "es_field_name": key.replace('.','_'),
+                        "is_parsed" : True
+                    }
 
-                if '=' not in ele:
-                    # maybe a exist only field?
-                    if ele in unrecognized_info_fields and not unrecognized_info_field_type.get(ele):
-                        unrecognized_info_field_type[ele] = {
-                            "es_field_datatype": "boolean",
-                            "es_field_name": ele,
-                            "is_exists_only": True,
-                            "is_parsed" : True
-                        }
-                        info_field_with_data.append(ele)
-                    elif ele not in info_field_with_data and default_vcf_mapping['INFO_FIELDS'].get(ele) and default_vcf_mapping['INFO_FIELDS'][ele].get('is_exists_only'):
-                        info_field_with_data.append(ele)
+            if unrecognized_info_field_type.get(key) and unrecognized_info_field_type[key].get('es_field_datatype') == 'integer':
+                value_type = determine_es_datatype(value)
 
-                    continue
-
-                key, value = ele.split('=')
-
-                if value == '.':
-                    continue
-
-                if key not in info_field_with_data:
-                    info_field_with_data.append(key)
-
-                # if key == 'VARB':
-                #     print(key, value)
-
-                if key in unrecognized_info_fields and not unrecognized_info_field_type.get(key):
-                    value_type = determine_es_datatype(value)
+                if value_type == 'float':
                     unrecognized_info_field_type[key] = {
-                            "es_field_datatype": value_type,
-                            "es_field_name": key.replace('.','_'),
-                            "is_parsed" : True
-                        }
-
-                if unrecognized_info_field_type.get(key) and unrecognized_info_field_type[key].get('es_field_datatype') == 'integer':
-                    value_type = determine_es_datatype(value)
-
-                    if value_type == 'float':
-                        unrecognized_info_field_type[key] = {
-                            "es_field_datatype": value_type,
-                            "es_field_name": key.replace('.','_'),
-                            "is_parsed" : True
-                        }
+                        "es_field_datatype": value_type,
+                        "es_field_name": key.replace('.','_'),
+                        "is_parsed" : True
+                    }
 
 
-            if unrecognized_format_fields:
-                format_fields_in_line = data['FORMAT']
-                samples = line.strip().split('\t')[format_column_idx+1:]
-                for sample in samples:
-                    sample_dict = dict(zip(format_fields_in_line.split(':'), sample.split(':')))
-                    for sample_key, sample_val in sample_dict.items():
-                        if sample_key not in unrecognized_format_fields:
-                            continue
-                        if sample_val == '.':
-                            continue
-                        for s_val in sample_val.split(','):
-                            if sample_key in unrecognized_format_fields and not unrecognized_format_field_type.get(sample_key):
-                                s_val_type = determine_es_datatype(s_val)
+        if unrecognized_format_fields:
+            format_fields_in_line = data['FORMAT']
+            samples = line.strip().split('\t')[format_column_idx+1:]
+            for sample in samples:
+                sample_dict = dict(zip(format_fields_in_line.split(':'), sample.split(':')))
+                for sample_key, sample_val in sample_dict.items():
+                    if sample_key not in unrecognized_format_fields:
+                        continue
+                    if sample_val == '.':
+                        continue
+                    for s_val in sample_val.split(','):
+                        if sample_key in unrecognized_format_fields and not unrecognized_format_field_type.get(sample_key):
+                            s_val_type = determine_es_datatype(s_val)
+                            unrecognized_format_field_type[sample_key] = {
+                                        "es_field_datatype": s_val_type,
+                                        "es_field_name": sample_key.replace('.','_'),
+                                    }
+
+                        if unrecognized_format_field_type.get(sample_key) and unrecognized_format_field_type[sample_key].get('es_field_datatype') == 'integer':
+                            s_val_type = determine_es_datatype(s_val)
+                            if s_val_type == 'float':
                                 unrecognized_format_field_type[sample_key] = {
-                                            "es_field_datatype": s_val_type,
-                                            "es_field_name": sample_key.replace('.','_'),
-                                        }
+                                        "es_field_datatype": s_val_type,
+                                        "es_field_name": sample_key.replace('.','_'),
+                                    }
 
-                            if unrecognized_format_field_type.get(sample_key) and unrecognized_format_field_type[sample_key].get('es_field_datatype') == 'integer':
-                                s_val_type = determine_es_datatype(s_val)
-                                if s_val_type == 'float':
-                                    unrecognized_format_field_type[sample_key] = {
-                                            "es_field_datatype": s_val_type,
-                                            "es_field_name": sample_key.replace('.','_'),
-                                        }
-
-            line_no += 1
+        line_no += 1
 
     msg = '%d of %d INFO fields have data' %(len(info_field_with_data), len(list(info_fields)))
     msg = msg.ljust(80,'.')

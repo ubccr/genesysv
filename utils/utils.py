@@ -4,6 +4,8 @@ import hashlib
 import sys
 import os
 import statistics
+import binascii
+import gzip
 
 def convert_escaped_chars(input_string):
     input_string = input_string.replace("\\x3b", ";")
@@ -39,18 +41,36 @@ def determine_es_datatype(value):
     else:
         return "keyword"
 
+def is_gz_file(filepath):
+    """
+    Source: https://stackoverflow.com/questions/3703276/how-to-tell-if-a-file-is-gzip-compressed
+    """
+    with open(filepath, 'rb') as test_f:
+        return binascii.hexlify(test_f.read(2)) == b'1f8b'
+
+
+def get_file_handle(filepath):
+
+    if is_gz_file(filepath):
+        fh = gzip.open(filepath,'rt')
+    else:
+        fh = open(filepath,'r')
+
+    return fh
+
 def parse_fields(name, vcf_filename):
     fields = {}
-    with open(vcf_filename, "r") as fp:
-        for line_no, line in enumerate(fp , 1):
-            if line.startswith("#CHROM"):
-                break
-            if not line.startswith("##%s" %(name)):
-                continue
+    fp = get_file_handle(vcf_filename)
+    for line_no, line in enumerate(fp , 1):
+        if line.startswith("#CHROM"):
+            break
+        if not line.startswith("##%s" %(name)):
+            continue
 
-            field_id, description = parse_field_id_and_description(line.strip())
-            fields[field_id] = description
+        field_id, description = parse_field_id_and_description(line.strip())
+        fields[field_id] = description
 
+    fp.close()
     return fields
 
 def parse_field_id_and_description(input_str):
