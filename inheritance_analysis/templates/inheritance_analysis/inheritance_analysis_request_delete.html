@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Inheritance Analysis Home
+{% endblock %}
+
+{% block content %}
+<h3>Delete Inheritance Analysis Request</h1>
+
+<p>Are you sure you want to cancel the inheritance analysis request for dataset: {{ inheritance_analysis_request.dataset.description }}?</p>
+
+<form action="{% url "inheritance-analysis-request-delete" pk=inheritance_analysis_request.id %}" method="POST">
+  {% csrf_token %}
+
+    <input type="submit" value="Confirm" class="btn btn-danger"/>
+    <a class="btn btn-default" href="{% url "inheritance-analysis-request-list" %}" role="button">Cancel</a>
+</form>
+
+{% endblock %}
