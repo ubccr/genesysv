@@ -428,7 +428,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     sample_values = data.get(sample)
                     sample_values = sample_values.split(':')
 
-                    if sample_values[gt_location] in ['./.', '0/0', '0|0']:
+                    if sample_values[gt_location] in ['./.']: #, '0/0', '0|0']:
                         continue
 
                     sample_content['sample_ID'] = sample

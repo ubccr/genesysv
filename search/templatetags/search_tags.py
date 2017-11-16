@@ -72,7 +72,10 @@ def format_gatkfilter_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['FILTER_label'].title(), ele['FILTER_value']))
+                if ele.get('FILTER_label'):
+                    tmp.append('%s: %s' %(ele['FILTER_label'].title(), ele['FILTER_value']))
+                else:
+                    tmp.append('%s' %(ele['FILTER_value']))
             return '; '.join(tmp)
 
 
@@ -89,7 +92,10 @@ def format_gatkqs_array(input_array):
         else:
             tmp = []
             for ele in input_array:
-                tmp.append('%s: %s' %(ele['QUAL_label'].title(), ele['QUAL_value']))
+                if ele.get('QUAL_label'):
+                    tmp.append('%s: %s' %(ele['QUAL_label'].title(), ele['QUAL_value']))
+                else:
+                    tmp.append('%s' %(ele['QUAL_value']))
             return '; '.join(tmp)
 
 

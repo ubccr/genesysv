@@ -7,16 +7,16 @@ from search.models import Dataset
 class InheritanceAnalysisRequest(TimeStampedModel):
 
     ANALYSIS_STATUS_CHOICES = (
-        ('submitted', 'Submitted'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
+        ('Submitted', 'Submitted'),
+        ('Processing', 'Processing'),
+        ('Completed', 'Completed'),
+        ('Failed', 'Failed'),
     )
 
     upload_user = models.ForeignKey(User,on_delete=models.CASCADE)
     dataset = models.OneToOneField(Dataset,on_delete=models.CASCADE)
     ped_json = models.TextField()
-    analysis_status = models.CharField(max_length=16, choices=ANALYSIS_STATUS_CHOICES, default='submitted')
+    analysis_status = models.CharField(max_length=16, choices=ANALYSIS_STATUS_CHOICES, default='Submitted')
 
     def __str__(self):
         return('PED file for %s'  %(self.dataset.description))

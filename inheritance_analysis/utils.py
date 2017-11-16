@@ -155,10 +155,10 @@ def validate_ped(ped, dataset):
 
 # discover the denovo, homozygous recessive, and compound heterozygous variants in a gene,
 # per family provided in fr. store results in an overcomplicated data structure.
-def analyse_gene(fr,res):
+def analyse_gene(family_pedigree,res):
     not_exonic = ['splicing','ncRNA','UTR5','UTR3','intronic','upstream','downstream',
                   'intergenic','upstream;downstream','exonic;splicing','UTR5;UTR3',]
-    comp_het = { fid:{'mom':[],'dad':[],'child':[]} for fid in fr.keys() }
+    comp_het = { family_id:{'mom':[],'dad':[],'child':[]} for family_id in family_pedigree.keys() }
     results = {}
     variant_id_map = {}
 
@@ -169,8 +169,8 @@ def analyse_gene(fr,res):
         variant_id_map[doc['_source']['Variant']] = doc['_id']
         samples = doc['_source']['sample']
         sam_list = [sample['sample_ID'] for sample in samples]
-        sid_gt = {d['sample_ID']: d['sample_GT'] for d in samples}
-        for fid,family in fr.items():
+        sid_gt = {sample['sample_ID']: sample['sample_GT'] for sample in samples}
+        for family_id, family in family_pedigree.items():
             try:
                 momgt = sid_gt[family[0]]
                 dadgt = sid_gt[family[1]]
@@ -178,32 +178,34 @@ def analyse_gene(fr,res):
             except Exception as e: # at least one gt is not present
                 continue
 
-            if momgt == '0/0' and dadgt == '0/0' and '1' in childgt:
-                if doc['_id'] in results:
-                    results[doc['_id']].setdefault('denovo',[]).append(fid)
-                else:
-                    results[doc['_id']] = {'denovo':[fid]}
-                #continue
-            elif momgt == '0/1' and dadgt == '0/1' and childgt == '1/1':
-                if doc['_id'] in results:
-                    results[doc['_id']].setdefault('hom_recess',[]).append(fid)
-                else:
-                    results[doc['_id']] = {'hom_recess':[fid]}
-                #continue
 
+            if momgt.count('0') == 2 and dadgt.count('0') == 2 and '1' in childgt:
+                # if doc['_id'] in results:
+                results[doc['_id']].setdefault('denovo',[]).append(family_id)
+                # else:
+                    # results[doc['_id']] = {'denovo':[family_id]}
+            elif momgt.count('0') == 1 and dadgt.count('0') == 1 and childgt.count('1') == 2:
+                # if doc['_id'] in results:
+                results[doc['_id']].setdefault('hom_recess',[]).append(family_id)
+                # else:
+                    # results[doc['_id']] = {'hom_recess':[family_id]}
+
+            ## Complex heterozygous
             if momgt == '0/1':
-                comp_het[fid]['mom'].append(doc['_source']['Variant'])
+                comp_het[family_id]['mom'].append(doc['_source']['Variant'])
             if dadgt == '0/1':
-                comp_het[fid]['dad'].append(doc['_source']['Variant'])
+                comp_het[family_id]['dad'].append(doc['_source']['Variant'])
             if childgt == '0/1':
-                comp_het[fid]['child'].append(doc['_source']['Variant'])
+                comp_het[family_id]['child'].append(doc['_source']['Variant'])
             #gene = doc['_source']['refGene'][0]['refGene_symbol']
 
 
-    for fid,family in comp_het.items():
+    for family_id,family in comp_het.items():
         #print(family)
         if len(set(family['mom'] + family['dad'])) <= 2:
             continue
+
+        # for variant in list(set(family['mom']).symmetric_difference(family['dad']))
         for var1 in family['mom']:
             if var1 in family['dad']:
                 continue
@@ -212,14 +214,14 @@ def analyse_gene(fr,res):
                     continue
                 if var1 in family['child'] and var2 in family['child']:
                     #print(var1,var2)
-                    if variant_id_map[var1] in results:
-                        results[variant_id_map[var1]].setdefault('comp_het',[]).append({fid:var2})
-                    else:
-                        results[variant_id_map[var1]] = {'comp_het':[{fid:var2}]}
-                    if variant_id_map[var2] in results:
-                        results[variant_id_map[var2]].setdefault('comp_het',[]).append({fid:var1})
-                    else:
-                        results[variant_id_map[var2]] = {'comp_het':[{fid:var1}]}
+                    # if variant_id_map[var1] in results:
+                    results[variant_id_map[var1]].setdefault('comp_het',[]).append({family_id:var2})
+                    # else:
+                        # results[variant_id_map[var1]] = {'comp_het':[{family_id:var2}]}
+                    # if variant_id_map[var2] in results:
+                    results[variant_id_map[var2]].setdefault('comp_het',[]).append({family_id:var1})
+                    # else:
+                        # results[variant_id_map[var2]] = {'comp_het':[{family_id:var1}]}
 
     #pp(results)
     #print()
