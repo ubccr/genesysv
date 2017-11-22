@@ -41,7 +41,7 @@ def main():
     args = parser.parse_args()
 
 
-    no_lines = 200000
+    no_lines = 20000
     vcf_filename = args.vcf
 
     default_vcf_mapping = json.load(open('default_vcf_mappings.json', 'r'))
@@ -74,26 +74,17 @@ def main():
     if 'CSQ' in unrecognized_info_fields:
         CSQ_present = True
         unrecognized_info_fields.remove('CSQ')
+        CSQ_fields = {field for field in recognized_info_fields if field.startswith('CSQ')}
     else:
         CSQ_present = False
 
     if 'ANN' in unrecognized_info_fields:
         ANN_present = True
         unrecognized_info_fields.remove('ANN')
+        ANN_fields = {field for field in recognized_info_fields if field.startswith('ANN')}
     else:
         ANN_present = False
 
-    if 'LOF' in unrecognized_info_fields:
-        LOF_present = True
-        unrecognized_info_fields.remove('LOF')
-    else:
-        LOF_present = False
-
-    if 'NMD' in unrecognized_info_fields:
-        NMD_present = True
-        unrecognized_info_fields.remove('NMD')
-    else:
-        NMD_present = False
 
     # Parse format (sample) fields
     msg = '\nParsing VCF file for available FORMAT (sample) fields'.ljust(80,'.')
@@ -231,6 +222,11 @@ def main():
     else:
         print(WARNING)
 
+    if CSQ_present:
+        info_field_with_data.extend(CSQ_fields)
+
+    if ANN_present:
+        info_field_with_data.extend(ANN_fields)
 
     info_fields_to_skip = list(set(recognized_info_fields)-set(info_field_with_data))
 

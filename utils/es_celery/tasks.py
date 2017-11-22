@@ -9,7 +9,8 @@ import elasticsearch
 def post_data(hostname, port, index, type, filename):
     with open(filename,'rb') as payload:
         # headers = {'content-type': 'application/x-www-form-urlencoded'}
-        url = f'http://{hostname}:{port}/{index}/{type}/_bulk?refresh=false&pretty'
+        # print((hostname, port, index, type))
+        url = 'http://%s:%s/%s/%s/_bulk?refresh=false&pretty' %(hostname, port, index, type)
         r = requests.post(url, data=payload, verify=False)
 
     output_dict = {}

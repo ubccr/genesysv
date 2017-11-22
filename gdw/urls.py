@@ -23,7 +23,7 @@ import visualization.urls as visualization_urls
 import beacon.urls as beacon_urls
 import msea.urls as msea_urls
 import igv.urls as igv_urls
-import trio.urls as trio_urls
+# import trio.urls as trio_urls
 from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
@@ -46,7 +46,7 @@ urlpatterns = [
     url(r'^beacon/', include(beacon_urls)),
     url(r'^msea/', include(msea_urls)),
     url(r'^igv/', include(igv_urls)),
-    url(r'^trio/', include(trio_urls)),
+    # url(r'^trio/', include(trio_urls)),
     url(r'^about/$', TemplateView.as_view(template_name="about.html"), name='about'),
     url(r'^help/$', TemplateView.as_view(template_name="help.html"), name='help'),
     url(r'^faq/$', TemplateView.as_view(template_name="faq.html"), name='faq'),
