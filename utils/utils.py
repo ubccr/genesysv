@@ -153,12 +153,6 @@ class VCFException(Exception):
         # allow users initialize misc. arguments as any other builtin Error
         super(VCFException, self).__init__(message, *args)
 
-def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = '%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, index_name, type_name)
-    es_id = es_id.encode('utf-8')
-    es_id = hashlib.sha224(es_id).hexdigest()
-
-    return es_id
 
 def prune_array(key, input_array):
     key_count = Counter([ele[key] for ele in input_array])
@@ -412,7 +406,6 @@ CSQ_NON_NESTED_FIELDS = ['AA_AF',
                      'AF',
                      'AFR_AF',
                      'AMR_AF',
-                     'Allele',
                      'CANONICAL',
                      'CLIN_SIG',
                      'EAS_AF',
@@ -437,7 +430,8 @@ CSQ_NON_NESTED_FIELDS = ['AA_AF',
                      'gnomAD_OTH_AF',
                      'gnomAD_SAS_AF',]
 
-CSQ_NESTED_FIELDS = ['APPRIS',
+CSQ_NESTED_FIELDS = ['Allele',
+                     'APPRIS',
                      'Amino_acids',
                      'BIOTYPE',
                      'CCDS',
@@ -626,6 +620,7 @@ def CSQ_parser(fields, input_string):
             output_dict[field_name] = values[0]
         else:
             print('ERROR: ', field, values)
+            print(input_string)
 
     nested_dicts = []
     for ele in annotations_array:
@@ -642,7 +637,7 @@ ANN_INTEGER_FIELDS = [  'cDNA_pos',
                         'AA_length',
                         'Distance',]
 
-ANN_MODIFIED_NESTED_FIELDS = [
+ANN_MODIFIED_NESTED_FIELDS = [  'Allele',
                                 'AA_pos',
                                 'AA_length',
                                 'Annotation',
@@ -664,7 +659,7 @@ ANN_MODIFIED_NESTED_FIELDS = [
                                 ]
 
 
-ANN_NON_NESTED_FIELDS = ['Allele']
+ANN_NON_NESTED_FIELDS = []
 ANN_FIELDS_TO_SPLIT = ['cDNA_pos/cDNA_length', 'CDS_pos/CDS_length', 'AA_pos/AA_length']
 
 ANN_FIELDS_TO_SPLIT_BY_AMPERSAND = ['ERRORS/WARNINGS/INFO',]
@@ -797,8 +792,8 @@ class VCFException(Exception):
         # allow users initialize misc. arguments as any other builtin Error
         super(VCFException, self).__init__(message, *args)
 
-def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = '%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, index_name, type_name)
+def get_es_id(CHROM, POS, REF, ALT, ID, index_name, type_name):
+    es_id = '%s%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, ID, index_name, type_name)
     es_id = es_id.encode('utf-8')
     es_id = hashlib.sha224(es_id).hexdigest()
 
@@ -1055,3 +1050,10 @@ def is_int(string):
         return int(string)
     except:
         return None
+
+
+
+def write_benchmark_results(filename, vcf_file, import_time, es_index_time, total_time):
+    with open(filename, 'a') as fh:
+        fh.write('\t'.join((vcf_file, import_time, es_index_time, total_time)))
+        fh.write('\n')

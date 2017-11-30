@@ -583,17 +583,17 @@ def main():
     es.indices.put_settings(index=index_name, body={"refresh_interval": "1s"})
 
     # if update:
-    #     print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
-    #     previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
+    # print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
+    # previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
 
-    #     pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
-    #     while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
-    #         current_count = int(es.count(index_name, doc_type=type_name)['count'])
-    #         difference = current_count-previous_count
-    #         previous_count = current_count
-    #         pbar.update(difference)
-    #         time.sleep(1)
-    #     pbar.close()
+    # pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
+    # while current_count < GLOBAL_NO_VARIANTS_PROCESSED:
+    #     current_count = int(es.count(index_name, doc_type=type_name)['count'])
+    #     difference = current_count-previous_count
+    #     previous_count = current_count
+    #     pbar.update(difference)
+    #     time.sleep(1)
+    # pbar.close()
 
 
 
