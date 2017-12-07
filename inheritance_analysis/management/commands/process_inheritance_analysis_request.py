@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from pprint import pprint
 from inheritance_analysis.models import InheritanceAnalysisRequest
 from msea.models import Gene
+from collections import defaultdict
 import json
 import elasticsearch
 from tqdm import tqdm
@@ -30,16 +31,18 @@ def analyse_gene(family_pedigree,res):
     not_exonic = ['splicing','ncRNA','UTR5','UTR3','intronic','upstream','downstream',
                   'intergenic','upstream;downstream','exonic;splicing','UTR5;UTR3',]
     comp_het = { family_id:{'mom':[],'dad':[],'child':[]} for family_id in family_pedigree.keys() }
-    results = {}
+    child_sample_IDs_by_family = {family_ID:str(sampleIDs[2]) for family_ID,sampleIDs in family_pedigree.items()}
+    results = defaultdict(dict)
     variant_id_map = {}
 
     for doc in res['hits']['hits']:
         if doc['_source']['Func_refGene'] in not_exonic:
             continue
 
-        variant_id_map[doc['_source']['Variant']] = doc['_id']
+        variant_id_map[doc['_source']['Variant']] = doc['_id'] # used to link complex het variants
+        esid = doc['_id']
         samples = doc['_source']['sample']
-        # pprint(samples)
+        #print(doc['_id'])
         sid_gt = {sample['sample_ID']: sample['sample_GT'] for sample in samples}
         # pprint(sid_gt)
         for family_id, family in family_pedigree.items():
@@ -53,19 +56,11 @@ def analyse_gene(family_pedigree,res):
                 continue
 
 
-            if momgt.count('0') == 2 and dadgt.count('0') == 2 and '1' in childgt:
-                if doc['_id'] in results:
-                    results[doc['_id']].setdefault('denovo',[]).append(family_id)
-                    # results[doc['_id']]['denovo'].append(family_id)
-                else:
-                    results[doc['_id']] = {'denovo':[family_id]}
-            elif momgt.count('0') == 1 and dadgt.count('0') == 1 and childgt.count('1') == 2:
-                if doc['_id'] in results:
-                    results[doc['_id']].setdefault('hom_recess',[]).append(family_id)
-                    # results[doc['_id']]['hom_recess'].append(family_id)
-                else:
-                    results[doc['_id']] = {'hom_recess':[family_id]}
-
+            if momgt.count('0') == 2 and dadgt.count('0') == 2 and childgt.count('0') != 2:
+                results[esid][child_sample_IDs_by_family[family_id]] = ['sample_denovo',family_id]
+            elif momgt.count('0') == 1 and dadgt.count('0') == 1 and childgt.count('0') == 0:
+                results[esid][child_sample_IDs_by_family[family_id]] = ['sample_hom-recess',family_id]
+                
             # else:
             #     print('What is this?', momgt, dadgt, childgt)
 
@@ -80,12 +75,11 @@ def analyse_gene(family_pedigree,res):
             #gene = doc['_source']['refGene'][0]['refGene_symbol']
 
 
-    for family_id,family in comp_het.items():
-        #print(family)
+    for family_id,family in comp_het.items(): 
+        #print(family_id,family)
         if len(set(family['mom'] + family['dad'])) <= 2:
             continue
 
-        # for variant in list(set(family['mom']).symmetric_difference(family['dad']))
         for var1 in family['mom']:
             if var1 in family['dad']:
                 continue
@@ -93,60 +87,38 @@ def analyse_gene(family_pedigree,res):
                 if var2 in family['mom']:
                     continue
                 if var1 in family['child'] and var2 in family['child']:
-                    #print(var1,var2)
-                    if variant_id_map[var1] in results:
-                        results[variant_id_map[var1]].setdefault('comp_het',[]).append({family_id:var2})
-                        results[variant_id_map[var1]]['comp_het'].append({family_id:var2})
-#
-                    else:
-                        results[variant_id_map[var1]] = {'comp_het':[{family_id:var2}]}
-
-                    if variant_id_map[var2] in results:
-                        results[variant_id_map[var2]].setdefault('comp_het',[]).append({family_id:var1})
-                        # results[variant_id_map[var2]]['comp_het'].append({family_id:var1})
-                    else:
-                        results[variant_id_map[var2]] = {'comp_het':[{family_id:var1}]}
-
+                    results[variant_id_map[var1]][child_sample_IDs_by_family[family_id]] = ['sample_comp-het',family_id]
+                    results[variant_id_map[var2]][child_sample_IDs_by_family[family_id]] = ['sample_comp-het',family_id]
+                    
+                    # this code for adding sample_assoc-var currently overwrites any associated variants that are already there
+                    # need to check if sample_assoc-var exists and if so, append to list;
+                    # otherwise create it and populate the list with the associated variant
+                    #results[variant_id_map[var1]][child_sample_IDs_by_family[family_id]] = [{'sample_comp-het':family_id},{'sample_assoc-var':var2}]
+                    #results[variant_id_map[var2]][child_sample_IDs_by_family[family_id]] = [{'sample_comp-het':family_id},{'sample_assoc-var':var1}]
+                
     #pp(results)
     #print()
     return(results)
 
 
-# form the body of the ES update. Executed once per elasticsearch id returned by analyse_gene,
+# Form the body of the ES update. Executed once per elasticsearch id returned by analyse_gene,
 # so could conceivably update every record in an index if enough families existed per variant.
-# It's very likely this is overcomplicated due to the format of analyse_gene's output, which itself
-# is a mess.
-def create_update_body(trio_output):
-    comphet_string = ''
-    denovo_string = ''
-    homrecess_string = ''
-    for var_type,var_info in trio_output.items():
-        if var_type == 'comp_het':
-            comphet_string = '"comp_het" : ['
-            for e in var_info:
-                for family_id,assoc_var in e.items():
-                    comphet_string += '{{"family" : "{}",\n"assocvar" : "{}"}}'.format(family_id,assoc_var)
-
-            comphet_string = comphet_string.replace('}{','},{')
-            comphet_string += ']'
-
-        elif var_type == 'denovo':
-            denovo_string = '"denovo" : {}'.format(str(var_info).replace("'",'"'))
-
-        elif var_type == 'hom_recess':
-            homrecess_string = '"hom_recess" : {}'.format(str(var_info).replace("'",'"'))
-
-    update_string = ','.join(filter(None,[comphet_string,denovo_string,homrecess_string]))
-
-    body = """
-        {
-            "doc" : {
-                %s
-            }
-        }"""%(update_string)
-    #print(body)
-    #print(json.loads(body))
-    return(json.loads(body))
+def create_update_body(es,esid,dataset,trio_output):
+    update_body = defaultdict(dict)
+    
+    record = es.get(index=dataset.es_index_name,doc_type=dataset.es_type_name,id=esid)
+    sample_data = record['_source']['sample']
+    
+    for sample in sample_data:
+        if sample['sample_ID'] in trio_output.keys():
+            temp_sample = sample
+            field_to_insert = trio_output[sample['sample_ID']]
+            temp_sample[field_to_insert[0]] = field_to_insert[1]
+            sample_data.pop(sample_data.index(sample))
+            sample_data.append(temp_sample)
+    
+    update_body['doc']['sample'] = sample_data
+    return(json.loads(json.dumps(update_body))) # the loads + dumps lets me work with defaultdict
 
 class Command(BaseCommand):
 
@@ -168,31 +140,26 @@ class Command(BaseCommand):
 
         request_obj = InheritanceAnalysisRequest.objects.get(id=options['request_id'])
         dataset = request_obj.dataset
-        print(request_obj)
+        #print(request_obj)
 
         # # gl = ['ADAMTSL1','VAV3','SYNE2'] # test gene set that has complex hets
         es = elasticsearch.Elasticsearch(host=dataset.es_host, port=dataset.es_port)
 
         family_pedigree = json.loads(request_obj.ped_json)
 
-        pprint(family_pedigree)
-
-
+        #pprint(family_pedigree)
         gene_list = [gene.gene_name for gene in Gene.objects.all()]
         no_line = 1
         for gene in tqdm(gene_list, total=len(gene_list)):
+        #for gene in gene_list:
 
             gene_query = query_by_gene(gene)
             results = es.search(index=dataset.es_index_name,doc_type=dataset.es_type_name,body=gene_query)
-            # print(gene_count, gene, results['hits']['total'])
             if int(results['hits']['total']) > 0:
                 results = analyse_gene(family_pedigree,results)
                 if results:
-                    #pp('final results')
-                    pass
-                    # pprint(results)
                     for esid in results:
                         # print(esid)
-                        es.update(index=dataset.es_index_name, doc_type=dataset.es_type_name, id=esid, body=create_update_body(results[esid]))
-                        # print(create_update_body(results[esid]))
+                        es.update(index=dataset.es_index_name, doc_type=dataset.es_type_name, id=esid, body=create_update_body(es,esid,dataset,results[esid]))
+                        #print(esid,'\n',create_update_body(es,esid,dataset,results[esid]),'\n')
             no_line += 1
