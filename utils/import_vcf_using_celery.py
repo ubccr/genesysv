@@ -79,8 +79,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exception_filename = 'import_exceptions_for_%s' %(os.path.basename(vcf_filename))
     exception_divider = '-'*120+'\n\n'
     with open(vcf_filename, 'r') as fp:
-        for line in tqdm(fp, total=no_lines):
-        # for no_line, line in enumerate(fp, 1):
+        #for line in tqdm(fp, total=no_lines):
+        for no_line, line in enumerate(fp, 1):
             line = line.strip()
 
             if "Consequence annotations from Ensembl VEP. Format:" in line and 'CSQ' in line:
@@ -553,7 +553,7 @@ def main():
     index_name = args.index
     type_name = args.type
     es.cluster.health(wait_for_status='yellow')
-    es.indices.put_settings(index=index_name, body={"refresh_interval": "-1"})
+    es.indices.put_settings(index=index_name, body={"refresh_interval": "60s"})
 
 
     file_count = 1
