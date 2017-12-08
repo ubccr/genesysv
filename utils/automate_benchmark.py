@@ -36,7 +36,6 @@ files = [
     (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_5000000.vcf'),
     (command_500_samples, 'ALL.1kg.everythingVEP.500sample_5000000.vcf'),
 
-
 ]
 subprocess.run("curl -XDELETE '172.17.39.0:9200/_all?pretty'", shell=True)
 start = datetime.now()
@@ -44,7 +43,6 @@ for command, file in files:
     print(file)
     full_command = command %(file)
     for no in range(5):
-        subprocess.run("curl -XDELETE '172.17.39.0:9200/_all?pretty'", shell=True)
         subprocess.run(full_command, shell=True)
 
 end = datetime.now()

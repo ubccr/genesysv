@@ -553,9 +553,6 @@ def main():
     es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port, request_timeout=180)
     index_name = args.index
     type_name = args.type
-    # es.cluster.health(wait_for_status='yellow')
-    # es.indices.put_settings(index=index_name, body={"refresh_interval": "60s"})
-
 
     file_count = 1
     file_size_total = 0
