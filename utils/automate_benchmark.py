@@ -10,33 +10,35 @@ command_1000_samples = "bash es_scripts/delete_index_thousand_samples.sh; bash e
 
 
 files = [
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_10000.vcf'),
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_50000.vcf'),
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_100000.vcf'),
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_500000.vcf'),
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_1000000.vcf'),
-    (command_10_samples, 'ALL.1kg.everythingVEP.10sample_5000000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_10000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_50000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_100000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_500000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_1000000.vcf'),
-    (command_100_samples, 'ALL.1kg.everythingVEP.100sample_5000000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_10000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_50000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_100000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_500000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_1000000.vcf'),
-    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_5000000.vcf'),
-    (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_10000.vcf'),
-    (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_50000.vcf'),
-    (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_100000.vcf'),
-    (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_500000.vcf'),
-    (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_1000000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_10000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_50000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_100000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_500000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_1000000.vcf'),
+    # (command_10_samples, 'ALL.1kg.everythingVEP.10sample_5000000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_10000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_50000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_100000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_500000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_1000000.vcf'),
+    # (command_100_samples, 'ALL.1kg.everythingVEP.100sample_5000000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_10000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_50000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_100000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_500000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_1000000.vcf'),
+    # (command_500_samples, 'ALL.1kg.everythingVEP.500sample_5000000.vcf'),
+    # (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_10000.vcf'),
+    # (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_50000.vcf'),
+    # (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_100000.vcf'),
+    # (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_500000.vcf'),
+    # (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_1000000.vcf'),
     (command_1000_samples, 'ALL.1kg.everythingVEP.1000sample_5000000.vcf'),
+    (command_500_samples, 'ALL.1kg.everythingVEP.500sample_5000000.vcf'),
+
 
 ]
-
+subprocess.run("curl -XDELETE '172.17.39.0:9200/_all?pretty'", shell=True)
 start = datetime.now()
 for command, file in files:
     print(file)

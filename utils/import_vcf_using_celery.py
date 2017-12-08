@@ -1,5 +1,3 @@
-
-
 import argparse
 from collections import deque, Counter
 from datetime import datetime
@@ -19,6 +17,9 @@ import tempfile
 import time
 from tqdm import tqdm
 from utils import *
+import sys
+sys.stdout = open('stdout.txt', 'w')
+sys.stderr = open('stderr.txt', 'w')
 
 # Global Variables
 
@@ -79,8 +80,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exception_filename = 'import_exceptions_for_%s' %(os.path.basename(vcf_filename))
     exception_divider = '-'*120+'\n\n'
     with open(vcf_filename, 'r') as fp:
-        for line in tqdm(fp, total=no_lines):
-        # for no_line, line in enumerate(fp, 1):
+        #for line in tqdm(fp, total=no_lines):
+        for no_line, line in enumerate(fp, 1):
             line = line.strip()
 
             if "Consequence annotations from Ensembl VEP. Format:" in line and 'CSQ' in line:
@@ -549,11 +550,11 @@ def main():
     elif update == 'False':
         update = False
 
-    es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port)
+    es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port, request_timeout=180)
     index_name = args.index
     type_name = args.type
-    es.cluster.health(wait_for_status='yellow')
-    es.indices.put_settings(index=index_name, body={"refresh_interval": "-1"})
+    # es.cluster.health(wait_for_status='yellow')
+    # es.indices.put_settings(index=index_name, body={"refresh_interval": "60s"})
 
 
     file_count = 1
@@ -607,16 +608,19 @@ def main():
     pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
     pbar.update(current_count)
     while current_count < GLOBAL_NO_VARIANTS_PROCESSED and checks_after_probably_finished < 3:
-        current_count = int(es.count(index_name, doc_type=type_name)['count'])
-        difference = current_count-previous_count
-        previous_count = current_count
-        if difference > 0:
-            pbar.update(difference)
+        try:
+            current_count = int(es.count(index_name, doc_type=type_name)['count'])
+            difference = current_count-previous_count
+            previous_count = current_count
+            if difference > 0:
+                pbar.update(difference)
 
-        time.sleep(1)
+            time.sleep(1)
 
-        if (current_count/GLOBAL_NO_VARIANTS_PROCESSED) > 0.999:
-            checks_after_probably_finished += 1
+            if (current_count/GLOBAL_NO_VARIANTS_PROCESSED) > 0.999:
+                checks_after_probably_finished += 1
+        except:
+            pass
     pbar.close()
 
     end_time = datetime.now()
