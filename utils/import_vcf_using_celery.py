@@ -18,8 +18,8 @@ import time
 from tqdm import tqdm
 from utils import *
 import sys
-sys.stdout = open('stdout.txt', 'w')
-sys.stderr = open('stderr.txt', 'w')
+sys.stdout = open('stdout_import_vcf_using_celery.txt', 'a')
+sys.stderr = open('stderr_import_vcf_using_celery.txt', 'a')
 
 # Global Variables
 
@@ -600,8 +600,14 @@ def main():
     vcf_import_end_time = datetime.now()
 
     print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
-    previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
-    checks_after_probably_finished = 0
+    while 1:
+        try:
+            previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
+            checks_after_probably_finished = 0
+            break
+        except:
+            continue
+
     pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
     pbar.update(current_count)
     while current_count < GLOBAL_NO_VARIANTS_PROCESSED and checks_after_probably_finished < 3:
@@ -617,7 +623,7 @@ def main():
             if (current_count/GLOBAL_NO_VARIANTS_PROCESSED) > 0.999:
                 checks_after_probably_finished += 1
         except:
-            pass
+            continue
     pbar.close()
 
     end_time = datetime.now()
