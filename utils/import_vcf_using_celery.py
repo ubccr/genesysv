@@ -602,7 +602,7 @@ def main():
     print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
     while 1:
         try:
-            previous_count = current_count = es.count(index_name, doc_type=type_name)['count']
+            previous_count = current_count = es.count(index_name, doc_type=type_name, request_timeout=300)['count']
             checks_after_probably_finished = 0
             break
         except:
@@ -612,7 +612,7 @@ def main():
     pbar.update(current_count)
     while current_count < GLOBAL_NO_VARIANTS_PROCESSED and checks_after_probably_finished < 3:
         try:
-            current_count = int(es.count(index_name, doc_type=type_name)['count'])
+            current_count = int(es.count(index_name, doc_type=type_name, request_timeout=300)['count'])
             difference = current_count-previous_count
             previous_count = current_count
             if difference > 0:
