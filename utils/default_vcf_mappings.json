@@ -717,6 +717,10 @@
       "es_field_name": "ExonicFunc_refGene",
       "overwrites": "Func.refGene"
     },
+    "ExcessHet": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExcessHet"
+    },
     "FATHMM_converted_rankscore": {
       "es_field_datatype": "float",
       "es_field_name": "FATHMM_converted_rankscore"
@@ -774,6 +778,10 @@
     "GERP++_RS_rankscore": {
       "es_field_datatype": "float",
       "es_field_name": "GERPplusplus_RS_rankscore"
+    },
+    "gerp++gt2": {
+      "es_field_datatype": "float",
+      "es_field_name": "GERPplusplus_gt2"
     },
     "GQ_MEAN": {
       "es_field_datatype": "float",
@@ -858,6 +866,32 @@
       "es_field_datatype": "text",
       "es_field_name": "Interpro_domain",
       "es_field_text_analyzer": "simple"
+    },
+    "ICGC_Id": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ICGC Id"
+    },
+    "ICGC_Occurrence": {
+      "parse_function": "ICGC_Occurrence_parser",
+      "es_nested_path": "ICGC_Occurrence",
+      "nested_fields": {
+        "cancer_name": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ICGC_Occurrence_cancer_name"
+        },
+        "mutation_allele_count": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ICGC_Occurrence_mutation_allele_count"
+        },
+        "total_allele_count": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ICGC_Occurrence_total_allele_count"
+        },
+        "total_allele_frequency": {
+          "es_field_datatype": "float",
+          "es_field_name": "ICGC_Occurrence_total_allele_frequency"
+        }
+      }
     },
     "LRT_converted_rankscore": {
       "es_field_datatype": "float",
@@ -1268,6 +1302,10 @@
         }
       }
     },
+    "RAW_MQ": {
+      "es_field_datatype": "float",
+      "es_field_name": "RAW_MQ"
+    },
     "REVEL": {
       "es_field_datatype": "float",
       "es_field_name": "REVEL",
@@ -1386,6 +1424,10 @@
     "avsnp147": {
       "es_field_datatype": "keyword",
       "es_field_name": "avsnp147"
+    },
+    "avsnp150": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "avsnp150"
     },
     "culprit": {
       "is_nested_label_field": true,
@@ -1657,8 +1699,19 @@
       "es_field_name": "VARB"
     },
     "cosmic70": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "cosmic70"
+      "parse_function": "cosmic70_parser",
+      "es_nested_path": "cosmic70",
+      "nested_fields": {
+        "ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "cosmic70_ID"
+        },
+        "OCCURENCE": {
+          "es_field_datatype": "text",
+          "es_field_name": "cosmic70_OCCURENCE",
+          "es_field_text_analyzer": "simple"
+        }
+      }
     },
     "PB": {
       "es_field_datatype": "float",
@@ -2120,6 +2173,10 @@
       "PL": {
         "es_field_datatype": "integer",
         "es_field_name": "sample_PL"
+      },
+      "RGQ": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_RGQ"
       },
       "SB": {
         "es_field_datatype": "integer",

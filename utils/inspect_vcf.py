@@ -41,7 +41,7 @@ def main():
     args = parser.parse_args()
 
 
-    no_lines = 20000
+    no_lines = 200000
     vcf_filename = args.vcf
 
     default_vcf_mapping = json.load(open('default_vcf_mappings.json', 'r'))
