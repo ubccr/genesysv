@@ -1,3 +1,5 @@
+from natsort import natsorted
+import elasticsearch
 class ElasticSearchFilter():
     def __init__(self):
         self.query_string = {}
@@ -357,3 +359,61 @@ class ElasticSearchFilter():
 def get_es_result(es, index_name, type_name, es_id):
     result = es.get(index=index_name, doc_type=type_name, id=es_id)
     return result["_source"]
+
+
+def get_from_es(dataset_es_index_name,
+                dataset_es_type_name,
+                dataset_es_host,
+                dataset_es_port,
+                field_es_name,
+                field_path):
+
+
+    es = elasticsearch.Elasticsearch(host=dataset_es_host, port=dataset_es_port)
+
+    if not field_path:
+        body_non_nested_template = """
+            {
+                "size": 0,
+                "aggs" : {
+                    "values" : {
+                        "terms" : { "field" : "%s", "size" : 3000 }
+                    }
+                }
+            }
+        """
+        body = body_non_nested_template %(field_es_name)
+        results = es.search(index=dataset_es_index_name,
+                            doc_type=dataset_es_type_name,
+                            body=body, request_timeout=120)
+        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["buckets"]])
+
+
+    elif field_path:
+        body_nested_template = """
+            {
+                "size": 0,
+                "aggs" : {
+                    "values" : {
+                        "nested" : {
+                            "path" : "%s"
+                        },
+                        "aggs" : {
+                            "values" : {"terms" : {"field" : "%s.%s", "size" : 3000}}
+                        }
+                    }
+                }
+            }
+        """
+        body = body_nested_template %(field_path,
+                                      field_path,
+                                      field_es_name)
+
+
+        results = es.search(index=dataset_es_index_name,
+                            doc_type=dataset_es_type_name,
+                            body=body, request_timeout=120)
+        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"]])
+
+
+
