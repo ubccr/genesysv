@@ -140,10 +140,10 @@ def CHROM_parser(input_string):
 
 def clinvar_parser(input_dict):
     output = []
-    size = len(re.split('\|', input_dict['CLNDBN']))
-    CLINSIG_split = re.split('\|', input_dict['CLINSIG'])
-    CLNDBN_split = re.split('\|', input_dict['CLNDBN'])
-    CLNACC_split = re.split('\|', input_dict['CLNACC'])
+    CLINSIG_split = input_dict['CLINSIG'].split(',')
+    CLNDBN_split = input_dict['CLNDBN'].split(',')
+    CLNACC_split = input_dict['CLNACC'].split(',')
+
 
     # if input_dict.get('CLNDSDB'):
     #     CLNDSDB_split = re.split('\|', input_dict['CLNDSDB'])
@@ -155,7 +155,7 @@ def clinvar_parser(input_dict):
     # else:
     #     CLNDSDBID_split = None
 
-    for i in range(size):
+    for i in len(CLINSIG_split):
         CLINSIG = CLINSIG_split[i]
         CLNDBN = CLNDBN_split[i]
         CLNACC = CLNACC_split[i]
@@ -195,14 +195,17 @@ def convert_escaped_chars(input_string):
     return input_string
 
 def cosmic70_parser(input_string):
-    output_dict = {}
+    output_array = []
+    tmp_dict = {}
     for ele in input_string.split(';'):
         key, value = ele.split('=')
         value = value.split(',')
+        key = "cosmic70_%s" %(key)
 
-        output_dict[key] = value
+        tmp_dict[key] = value
 
-    return output_dict
+    output_array.append(tmp_dict)
+    return output_array
 
 
 def CSQ_parser(fields, input_string):
@@ -418,7 +421,7 @@ def Gene_refGene_parser(relevant_info_fields):
     return tmp_content_array
 
 def get_es_id(CHROM, POS, REF, ALT, ID, index_name, type_name):
-    es_id = '%s%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, ID, index_name, type_name)
+    es_id = '%s-%s-%s-%s-%s-%s-%s' %(CHROM, POS, REF, ALT, ID, index_name, type_name)
     es_id = es_id.encode('utf-8')
     es_id = hashlib.sha224(es_id).hexdigest()
 
@@ -433,16 +436,14 @@ def get_file_handle(filepath):
 
     return fh
 
-
-
 def GTEx_V6_gene_parser(input_string):
-    return input_string.replace('|', ' ')
+    return input_string.split('|')
 
 def GTEx_V6_tissue_parser(input_string):
-    return input_string.replace('|', ' ')
+    return input_string.split('|')
 
 def gwasCatalog_parser(input_string):
-    return input_string.replace('|', ' ')
+    return input_string.split('=')[1].split(',')
 
 def ICGC_Occurrence_parser(input_string):
     output= []

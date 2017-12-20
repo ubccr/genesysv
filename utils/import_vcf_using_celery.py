@@ -564,7 +564,6 @@ def main():
                         vcf_mapping,
                         vcf_label,
                         update=update), 1):
-
         file_size_total += sys.getsizeof(data)
 
         if line_count == 1:

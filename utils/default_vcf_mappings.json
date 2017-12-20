@@ -792,13 +792,13 @@
       "es_field_name": "GQ_STDDEV"
     },
     "GTEx_V6_gene": {
-      "es_field_datatype": "text",
+      "es_field_datatype": "keyword",
       "es_field_name": "GTEx_V6_gene",
-      "es_field_text_analyzer": "whitespace",
       "parse_function": "GTEx_V6_gene_parser"
     },
     "GTEx_V6_tissue": {
       "es_field_datatype": "text",
+      "es_field_text_analyzer": "simple",
       "es_field_name": "GTEx_V6_tissue",
       "parse_function": "GTEx_V6_tissue_parser"
     },
@@ -869,14 +869,15 @@
     },
     "ICGC_Id": {
       "es_field_datatype": "keyword",
-      "es_field_name": "ICGC Id"
+      "es_field_name": "ICGC_Id"
     },
     "ICGC_Occurrence": {
       "parse_function": "ICGC_Occurrence_parser",
       "es_nested_path": "ICGC_Occurrence",
       "nested_fields": {
         "cancer_name": {
-          "es_field_datatype": "keyword",
+          "es_field_datatype": "text",
+          "es_field_text_analyzer": "simple",
           "es_field_name": "ICGC_Occurrence_cancer_name"
         },
         "mutation_allele_count": {

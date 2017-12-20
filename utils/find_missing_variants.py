@@ -56,7 +56,7 @@ def main():
     variant_ids = deque()
     variant_information = deque([], maxlen=10)
     with open(vcf_pathname, 'r') as fh:
-        for line in tqdm(fh, total=no_lines):
+        for line in tqdm(fh, total=no_lines, mininterval=60):
             line = line.strip()
 
             if line.startswith('##'):
@@ -97,7 +97,8 @@ def main():
             variant_information.append((str(es_id), str(CHROM), str(POS), str(REF), str(ALT), index_name, type_name, line))
 
             if es_id in variant_information:
-                print(es_id, line)
+                print("###", 'Duplicate Variant', es_id)
+                print(line)
 
             variant_information.append(es_id)
 
@@ -108,7 +109,8 @@ def main():
                 variants_found += 1
             else:
                 varaints_missing += 1
-                print(line_count, line)
+                print("###", 'Missing Variant', es_id)
+                print(line)
 
             line_count += 1
 
