@@ -8,9 +8,10 @@ import elasticsearch
 @app.task()
 def post_data(hostname, port, index, type, filename):
     with open(filename,'rb') as payload:
-        # headers = {'content-type': 'application/x-www-form-urlencoded'}
-        url = f'http://{hostname}:{port}/{index}/{type}/_bulk?refresh=false&pretty'
-        r = requests.post(url, data=payload, verify=False)
+        headers = {'Content-type': 'application/json'}
+        # print((hostname, port, index, type))
+        url = 'http://%s:%s/%s/%s/_bulk' %(hostname, port, index, type)
+        r = requests.post(url, data=payload, headers=headers)
 
     output_dict = {}
     json_data = r.json()

@@ -434,7 +434,7 @@
         "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-	"in_line_tooltip": "(bp)",
+        "in_line_tooltip": "(bp)",
         "widget_type": "TextInput",
         "path": "refGene"
       }
@@ -524,7 +524,7 @@
         "display_text": "Distance to nearby gene",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
-	"in_line_tooltip": "(bp)",
+        "in_line_tooltip": "(bp)",
         "widget_type": "TextInput",
         "path": "ensGene"
       }
@@ -608,7 +608,6 @@
     "sub_panel": "Coding Region",
     "tab": "Basic"
   },
-
   "fathmm-MKL_coding_pred": {
     "filters": [
       {
@@ -1538,7 +1537,7 @@
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
         "in_line_tooltip": "(<)",
-	"tooltip": "All available population",
+        "tooltip": "All available population",
         "widget_type": "TextInput"
       }
     ],
@@ -1552,7 +1551,7 @@
         "display_text": "ExAC AFR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "African population",
+        "tooltip": "African population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1567,7 +1566,7 @@
         "display_text": "ExAC AMR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Admixed American",
+        "tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1582,7 +1581,7 @@
         "display_text": "ExAC EAS",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "East Asian population",
+        "tooltip": "East Asian population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1597,7 +1596,7 @@
         "display_text": "ExAC FIN",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Finnish population",
+        "tooltip": "Finnish population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1612,7 +1611,7 @@
         "display_text": "ExAC NFE",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Non-Finnish European population",
+        "tooltip": "Non-Finnish European population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1627,7 +1626,7 @@
         "display_text": "ExAC OTH",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Other population",
+        "tooltip": "Other population",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       }
@@ -1642,7 +1641,7 @@
         "display_text": "ExAC SAS",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "South Asian population",
+        "tooltip": "South Asian population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1657,7 +1656,7 @@
         "display_text": "ExAC ALL non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "All available population",
+        "tooltip": "All available population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1666,14 +1665,13 @@
     "sub_panel": "The Exome Aggregation Consortium (ExAC)",
     "tab": "Basic"
   },
-
   "ExAC_nonpsych_AFR": {
     "filters": [
       {
         "display_text": "ExAC AFR non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "African population",
+        "tooltip": "African population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1688,7 +1686,7 @@
         "display_text": "ExAC AMR non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Admixed American",
+        "tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1703,7 +1701,7 @@
         "display_text": "ExAC EAS non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "East Asian",
+        "tooltip": "East Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1718,7 +1716,7 @@
         "display_text": "ExAC FIN non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Finnish population",
+        "tooltip": "Finnish population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1733,7 +1731,7 @@
         "display_text": "ExAC NFE non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Non-Finnish European",
+        "tooltip": "Non-Finnish European",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1748,7 +1746,7 @@
         "display_text": "ExAC OTH non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Other population",
+        "tooltip": "Other population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1763,7 +1761,7 @@
         "display_text": "ExAC SAS non-psych",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "South Asian",
+        "tooltip": "South Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1778,7 +1776,7 @@
         "display_text": "ExAC ALL nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "All available population",
+        "tooltip": "All available population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1793,7 +1791,7 @@
         "display_text": "ExAC AFR nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "African",
+        "tooltip": "African",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1808,7 +1806,7 @@
         "display_text": "ExAC AMR nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Admixed American",
+        "tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1823,7 +1821,7 @@
         "display_text": "ExAC EAS nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "East Asian",
+        "tooltip": "East Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1838,7 +1836,7 @@
         "display_text": "ExAC FIN nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Finnish",
+        "tooltip": "Finnish",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1853,7 +1851,7 @@
         "display_text": "ExAC NFE nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Non-Finnish European",
+        "tooltip": "Non-Finnish European",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1868,7 +1866,7 @@
         "display_text": "ExAC OTH nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Other population",
+        "tooltip": "Other population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1883,7 +1881,7 @@
         "display_text": "ExAC SAS nonTCGA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "South Asian",
+        "tooltip": "South Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1898,7 +1896,7 @@
         "display_text": "1KGP ALL",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "All available population",
+        "tooltip": "All available population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1913,7 +1911,7 @@
         "display_text": "1KGP AFR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "African",
+        "tooltip": "African",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1928,7 +1926,7 @@
         "display_text": "1KGP AMR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "Admixed American",
+        "tooltip": "Admixed American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1943,7 +1941,7 @@
         "display_text": "1KGP EUR",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "European",
+        "tooltip": "European",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1958,7 +1956,7 @@
         "display_text": "1KGP SAS",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "South Asian",
+        "tooltip": "South Asian",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1973,7 +1971,7 @@
         "display_text": "ESP6500 ALL",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "All available population",
+        "tooltip": "All available population",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -1988,7 +1986,7 @@
         "display_text": "ESP6500 AA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "African American",
+        "tooltip": "African American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2003,7 +2001,7 @@
         "display_text": "ESP6500 EA",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-	"tooltip": "European American",
+        "tooltip": "European American",
         "in_line_tooltip": "(<)",
         "widget_type": "TextInput"
       }
@@ -2102,7 +2100,7 @@
         "display_text": "Case/Control",
         "es_filter_type": "nested_filter_terms",
         "form_type": "MultipleChoiceField",
-	"tootip": "Sample source, i.e. case or control",
+        "tootip": "Sample source, i.e. case or control",
         "widget_type": "SelectMultiple",
         "values": "get_from_es()",
         "path": "sample"
@@ -2148,6 +2146,1331 @@
       }
     ],
     "panel": "microRNA/snoRNA",
+    "tab": "Basic"
+  },
+  "CSQ_AA_AF": {
+    "filters": [
+      {
+        "display_text": "African American Population (NHLBI-ESP)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in NHLBI-ESP African American population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_AF": {
+    "filters": [
+      {
+        "display_text": "Frequency of existing variant in 1000 Genomes",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_AFR_AF": {
+    "filters": [
+      {
+        "display_text": "African American Population (1000 Genomes)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes combined African population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_AMR_AF": {
+    "filters": [
+      {
+        "display_text": "American Population (1000 Genomes)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes combined American population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_Allele": {
+    "filters": [
+      {
+        "display_text": "Alternate Allele",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "tooltip": "the variant allele used to calculate the consequence",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_CANONICAL": {
+    "filters": [
+      {
+        "display_text": "CANONICAL",
+        "es_filter_type": "filter_term",
+        "form_type": "ChoiceField",
+        "tooltip": "A flag indicating if the transcript is denoted as the canonical transcript for this gene",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_CLIN_SIG": {
+    "filters": [
+      {
+        "display_text": "Clinical Significance",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": " ClinVar clinical significance of the dbSNP variant",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_EAS_AF": {
+    "filters": [
+      {
+        "display_text": "East Asian Population (1000 Genomes)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes combined East Asian population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_EA_AF": {
+    "filters": [
+      {
+        "display_text": "European American Population (NHLBI-ESP)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in NHLBI-ESP European American population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_EUR_AF": {
+    "filters": [
+      {
+        "display_text": "European Population (1000 Genomes)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes combined European population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_Existing_variation": {
+    "filters": [
+      {
+        "display_text": "Existing Variation",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "tooltip": "Existing variation -- Identifier(s) of co-located known variants",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_GENE_PHENO": {
+    "filters": [
+      {
+        "display_text": "GENE PHENO",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Indicates if overlapped gene is associated with a phenotype, disease or trait",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_MAX_AF": {
+    "filters": [
+      {
+        "display_text": "Maximum observed allele frequency (1000 Genomes, ESP, gnomAD)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Maximum observed allele frequency in 1000 Genomes, ESP and gnomAD",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_MAX_AF_POPS": {
+    "filters": [
+      {
+        "display_text": "Maximum Population",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Populations in which maximum allele frequency was observed",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_PHENO": {
+    "filters": [
+      {
+        "display_text": "Phenotype",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Indicates if existing variant is associated with a phenotype, disease or trait; multiple values correspond to multiple values in the Existing_variation field",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "PUBMED": {
+    "filters": [
+      {
+        "display_text": "PUBMED",
+        "in_line_tooltip": "Pubmed ID(s) of publications that cite existing variant",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_SAS_AF": {
+    "filters": [
+      {
+        "display_text": "South Asian Population (1000 Genomes)",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in 1000 Genomes combined South Asian population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_SOMATIC": {
+    "filters": [
+      {
+        "display_text": "SOMATIC",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Somatic status of existing variant(s); multiple values correspond to multiple values in the Existing_variation field",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_VARIANT_CLASS": {
+    "filters": [
+      {
+        "display_text": "VARIANT CLASS",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Sequence Ontology variant class",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_AF": {
+    "filters": [
+      {
+        "display_text": "gnomAD exomes combined population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes combined population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_AFR_AF": {
+    "filters": [
+      {
+        "display_text": "African/American Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes African/American population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_AMR_AF": {
+    "filters": [
+      {
+        "display_text": "American Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes American population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_ASJ_AF": {
+    "filters": [
+      {
+        "display_text": "Ashkenazi Jewish Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes Ashkenazi Jewish population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_EAS_AF": {
+    "filters": [
+      {
+        "display_text": "East Asian Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes East Asian population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_FIN_AF": {
+    "filters": [
+      {
+        "display_text": "Finnish Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes Finnish population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_NFE_AF": {
+    "filters": [
+      {
+        "display_text": "Non-Finnish European Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes Non-Finnish European population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_OTH_AF": {
+    "filters": [
+      {
+        "display_text": "Other Combined Populations",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes combined other combined populations",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_SAS_AF": {
+    "filters": [
+      {
+        "display_text": "South Asian Populations",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "tooltip": "Frequency of existing variant in gnomAD exomes South Asian population",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_APPRIS": {
+    "filters": [
+      {
+        "display_text": "APPRIS",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Amino_acids": {
+    "filters": [
+      {
+        "display_text": "Amino_acids",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Amino_acids : Reference and variant amino acids",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_BIOTYPE": {
+    "filters": [
+      {
+        "display_text": "BIOTYPE",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Biotype of transcript or regulatory feature",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CDS_position_start": {
+    "filters": [
+      {
+        "display_text": "CDS_position_start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Start relative position of base pair in coding sequence",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CDS_position_end": {
+    "filters": [
+      {
+        "display_text": "CDS_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "End relative position of base pair in coding sequence",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Codons": {
+    "filters": [
+      {
+        "display_text": "Codons",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Reference and variant codon sequence",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Consequence": {
+    "filters": [
+      {
+        "display_text": "Consequence",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "Consequence type",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_DISTANCE": {
+    "filters": [
+      {
+        "display_text": "DISTANCE",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Shortest distance from variant to transcript",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_DOMAINS": {
+    "filters": [
+      {
+        "display_text": "DOMAINS",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The source and identifer of any overlapping protein domains",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_ENSP": {
+    "filters": [
+      {
+        "display_text": "ENSP",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The Ensembl protein identifier of the affected transcript",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_EXON": {
+    "filters": [
+      {
+        "display_text": "EXON",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The exon number (out of total number)",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_FLAGS": {
+    "filters": [
+      {
+        "display_text": "FLAGS",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "Transcript quality flags",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Feature": {
+    "filters": [
+      {
+        "display_text": "Feature",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Stable ID of feature",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Feature_type": {
+    "filters": [
+      {
+        "display_text": "Feature_type",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "Type of feature - Transcript, RegulatoryFeature or MotifFeature",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Gene": {
+    "filters": [
+      {
+        "display_text": "Gene",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Ensembl stable ID of affected gene",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGNC_ID": {
+    "filters": [
+      {
+        "display_text": "HGNC_ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "HGNC_ID",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVS_OFFSET": {
+    "filters": [
+      {
+        "display_text": "HGVS_OFFSET",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "HGVS_OFFSET",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVSc": {
+    "filters": [
+      {
+        "display_text": "HGVSc",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The HGVS coding sequence name",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVSp": {
+    "filters": [
+      {
+        "display_text": "HGVSp",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The HGVS protein sequence name",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HIGH_INF_POS": {
+    "filters": [
+      {
+        "display_text": "HIGH_INF_POS",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "A flag indicating if the variant falls in a high information position of a transcription factor binding profile (TFBP)",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_IMPACT": {
+    "filters": [
+      {
+        "display_text": "IMPACT",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "The impact modifier for the consequence type",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_INTRON": {
+    "filters": [
+      {
+        "display_text": "INTRON",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The intron number (out of total number)",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_MOTIF_NAME": {
+    "filters": [
+      {
+        "display_text": "MOTIF_NAME",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The source and identifier of a transcription factor binding profile aligned at this position",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_MOTIF_POS": {
+    "filters": [
+      {
+        "display_text": "MOTIF_POS",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The relative position of the variation in the aligned TFBP",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_MOTIF_SCORE_CHANGE": {
+    "filters": [
+      {
+        "display_text": "MOTIF_SCORE_CHANGE",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The difference in motif score of the reference and variant sequences for the TFBP",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_PolyPhen_prediction": {
+    "filters": [
+      {
+        "display_text": "PolyPhen Prediction",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "The PolyPhen prediction",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_PolyPhen_score": {
+    "filters": [
+      {
+        "display_text": "PolyPhen Score",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The PolyPhen Score",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Protein_position_start": {
+    "filters": [
+      {
+        "display_text": "Protein position start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Protein_position_start",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Protein_position_end": {
+    "filters": [
+      {
+        "display_text": "Protein_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Protein_position_end",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SIFT_prediction": {
+    "filters": [
+      {
+        "display_text": "SIFT_prediction",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "SIFT_prediction",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SIFT_score": {
+    "filters": [
+      {
+        "display_text": "SIFT score",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "SIFT_prediction",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_STRAND": {
+    "filters": [
+      {
+        "display_text": "STRAND",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "The DNA strand (1 or -1) on which the transcript/feature lies",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SWISSPROT": {
+    "filters": [
+      {
+        "display_text": "SWISSPROT",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Best match UniProtKB/Swiss-Prot accession of protein product",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SYMBOL": {
+    "filters": [
+      {
+        "display_text": "SYMBOL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The gene symbol",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SYMBOL_SOURCE": {
+    "filters": [
+      {
+        "display_text": "SYMBOL_SOURCE",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "The gene symbol",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_TREMBL": {
+    "filters": [
+      {
+        "display_text": "TREMBL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "The gene symbol",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_TSL": {
+    "filters": [
+      {
+        "display_text": "TSL",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "Transcript support level. NB: not available for GRCh37",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_UNIPARC": {
+    "filters": [
+      {
+        "display_text": "UNIPARC",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Best match UniParc accession of protein product",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_cDNA_position_start": {
+    "filters": [
+      {
+        "display_text": "Protein position start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "cDNA_position_start",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "CSQ_nested_cDNA_position_end": {
+    "filters": [
+      {
+        "display_text": "cDNA_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "cDNA_position_end",
+        "path": "CSQ_nested"
+      }
+    ],
+    "panel": "VEP Annotations",
+    "tab": "Basic"
+  },
+  "ANN_Allele": {
+    "filters": [
+      {
+        "display_text": "ANN_Allele",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "UploadField"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_AA_pos": {
+    "filters": [
+      {
+        "display_text": "AA_pos",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "AA_pos",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_AA_length": {
+    "filters": [
+      {
+        "display_text": "AA_length",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "AA_pos",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Annotation": {
+    "filters": [
+      {
+        "display_text": "Annotation",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "Annotation",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Annotation_Impact": {
+    "filters": [
+      {
+        "display_text": "Annotation Impact",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "ANN_nested_Annotation_Impact",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_CDS_pos": {
+    "filters": [
+      {
+        "display_text": "CDS_pos",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "CDS_pos",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_CDS_length": {
+    "filters": [
+      {
+        "display_text": "CDS_length",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "CDS_length",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Distance": {
+    "filters": [
+      {
+        "display_text": "Protein position start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "cDNA_position_start",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_ERRORS/WARNINGS/INFO": {
+    "filters": [
+      {
+        "display_text": "ERRORS/WARNINGS/INFO",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "ANN_nested_ERRORS/WARNINGS/INFO",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Feature_ID": {
+    "filters": [
+      {
+        "display_text": "Feature_ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "tooltip": "Feature ID",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Feature_Type": {
+    "filters": [
+      {
+        "display_text": "Feature_Type",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "tooltip": "ANN_nested_Feature_Type",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Gene_ID": {
+    "filters": [
+      {
+        "display_text": "Gene_ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Gene_Name": {
+    "filters": [
+      {
+        "display_text": "Gene_Name",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_HGVS_c": {
+    "filters": [
+      {
+        "display_text": "HGVS_c",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_HGVS_p": {
+    "filters": [
+      {
+        "display_text": "HGVS_p",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Rank": {
+    "filters": [
+      {
+        "display_text": "Rank",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_Transcript_BioType": {
+    "filters": [
+      {
+        "display_text": "Transcript_BioType",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "widget_type": "SelectMultiple",
+        "values": "get_from_es()",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_cDNA_pos": {
+    "filters": [
+      {
+        "display_text": "cDNA_pos",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "ANN_nested_cDNA_length": {
+    "filters": [
+      {
+        "display_text": "cDNA_length",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "ANN_nested"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "LOF_Gene_ID": {
+    "filters": [
+      {
+        "display_text": "Gene ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "LOF"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "LOF_Gene_Name": {
+    "filters": [
+      {
+        "display_text": "Gene Name",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "LOF"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "LOF_Number_of_transcripts_in_gene": {
+    "filters": [
+      {
+        "display_text": "Number_of_transcripts_in_gene",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "LOF"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "LOF_Percent_of_transcripts_affected": {
+    "filters": [
+      {
+        "display_text": "Percent_of_transcripts_affected",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "LOF"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "NMD_Gene_ID": {
+    "filters": [
+      {
+        "display_text": "Gene ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "NMD"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "NMD_Gene_Name": {
+    "filters": [
+      {
+        "display_text": "Gene Name",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "NMD"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "NMD_Number_of_transcripts_in_gene": {
+    "filters": [
+      {
+        "display_text": "Number_of_transcripts_in_gene",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "NMD"
+      }
+    ],
+    "panel": "SnpEff",
+    "tab": "Basic"
+  },
+  "NMD_Percent_of_transcripts_affected": {
+    "filters": [
+      {
+        "display_text": "Percent_of_transcripts_affected",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "widget_type": "TextInput",
+        "path": "NMD"
+      }
+    ],
+    "panel": "SnpEff",
     "tab": "Basic"
   }
 }
