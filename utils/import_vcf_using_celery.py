@@ -16,6 +16,10 @@ import sys
 import tempfile
 import time
 from tqdm import tqdm
+from utils import *
+import sys
+sys.stdout = open('stdout_import_vcf_using_celery.txt', 'a')
+sys.stderr = open('stderr_import_vcf_using_celery.txt', 'a')
 
 # Global Variables
 
@@ -25,278 +29,6 @@ GLOBAL_NO_VARIANTS_UPDATED = 0
 GLOBAL_NO_VARIANTS_FAILED = 0
 GLOBAL_NO_VARIANTS_SKIPPED = 0
 
-class VCFException(Exception):
-    """Raise for my specific kind of exception"""
-    def __init__(self, message, *args):
-        self.message = message # without this you may get DeprecationWarning
-        # Special attribute you desire with your Error,
-        # perhaps the value that caused the error?:
-        # allow users initialize misc. arguments as any other builtin Error
-        super(VCFException, self).__init__(message, *args)
-
-def get_es_id(CHROM, POS, REF, ALT, index_name, type_name):
-    es_id = '%s%s%s%s%s%s' %(CHROM, POS, REF, ALT, index_name, type_name)
-    es_id = es_id.encode('utf-8')
-    es_id = hashlib.sha224(es_id).hexdigest()
-
-    return es_id
-
-def prune_array(key, input_array):
-    key_count = Counter([ele[key] for ele in input_array])
-
-    output_array = []
-    for ele in input_array:
-        tmp_key = ele[key]
-        if key_count[tmp_key] == 1:
-            output_array.append(ele)
-        elif key_count[tmp_key] > 1:
-            if len(ele) > 1:
-                output_array.append(ele)
-
-    return output_array
-
-def estimate_no_variants_in_file(filename, no_lines_for_estimating):
-    no_lines = 0
-    size_list = deque()
-
-    with open(filename, 'r') as fp:
-        for line in fp:
-            if line.startswith('#'):
-                continue
-
-            if no_lines_for_estimating < no_lines:
-                break
-
-            size_list.appendleft(sys.getsizeof(line))
-
-            no_lines += 1
-
-    filesize = os.path.getsize(filename)
-
-    no_variants = int(filesize/statistics.median(size_list))
-
-    return no_variants
-
-def CHROM_parser(input_string):
-    return input_string.lower().replace('chr','').strip()
-
-def gwasCatalog_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def clinvar_parser(input_dict):
-    output = []
-    size = len(re.split(',|\|', input_dict['CLNDBN']))
-    CLINSIG_split = re.split(',|\|', input_dict['CLINSIG'])
-    CLNDBN_split = re.split(',|\|', input_dict['CLNDBN'])
-    CLNACC_split = re.split(',|\|', input_dict['CLNACC'])
-
-    if input_dict.get('CLNDSDB'):
-        CLNDSDB_split = re.split(',|\|', input_dict['CLNDSDB'])
-    else:
-        CLNDSDB_split = None
-
-    if input_dict.get('CLNDSDBID'):
-        CLNDSDBID_split = re.split(',|\|', input_dict['CLNDSDBID'])
-    else:
-        CLNDSDBID_split = None
-
-    for i in range(size):
-        CLINSIG = CLINSIG_split[i]
-        CLNDBN = CLNDBN_split[i]
-        CLNACC = CLNACC_split[i]
-
-        if CLNDSDB_split:
-            CLNDSDB = CLNDSDB_split[i]
-        else:
-            CLNDSDB = None
-
-        if CLNDSDBID_split:
-            CLNDSDBID = CLNDSDBID_split[i]
-        else:
-            CLNDSDBID = None
-
-        output_dict = {'clinvar_CLINSIG': CLINSIG,
-                        'clinvar_CLNDBN': CLNDBN,
-                        'clinvar_CLNACC': CLNACC,
-                        }
-        if CLNDSDB:
-            output_dict['clinvar_CLNDSDB'] = CLNDSDB
-        if CLNDSDBID:
-            output_dict['clinvar_CLNDSDBID'] = CLNDSDBID
-
-        output.append(output_dict)
-
-    return output
-
-def GTEx_V6_tissue_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def GTEx_V6_gene_parser(input_string):
-    return input_string.replace('|', ' ')
-
-def Gene_refGene_parser(relevant_info_fields):
-
-    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$'
-
-    Gene_refGene = relevant_info_fields['Gene.refGene']
-    symbol = ' '.join(re.split('[;,]', Gene_refGene))
-
-    tmp_content_array = []
-
-    if relevant_info_fields.get('GeneDetail.refGene'):
-
-        GeneDetail_refGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.refGene'))
-
-        if re.match(pattern, GeneDetail_refGene):
-            tmp_content = {}
-            tmp_content['refGene_symbol'] = symbol
-            tmp_content['refGene_distance_to_gene'] = GeneDetail_refGene
-            tmp_content_array.append(tmp_content)
-
-        elif ':' in GeneDetail_refGene:
-            for record in GeneDetail_refGene.split(','):
-                # print(record)
-                tmp_content = {}
-                for ele in record.split(':'):
-                    if ele.startswith('N'):
-                        tmp_content['refGene_refgene_id'] = ele
-                    elif ele.startswith('exon'):
-                        tmp_content['refGene_location'] = ele
-                    elif ele.startswith('c.'):
-                        tmp_content['refGene_cDNA_change'] = ele
-
-                tmp_content['refGene_symbol'] = symbol
-                # print(tmp_content)
-                tmp_content_array.append(tmp_content)
-
-    else:
-        tmp_content = {}
-        tmp_content['refGene_symbol'] = symbol
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-
-def Gene_ensGene_parser(relevant_info_fields):
-
-    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$' # pattern to detect dist
-    Gene_ensGene = relevant_info_fields["Gene.ensGene"]
-
-    gene_id = ' '.join(re.split('[;,]', Gene_ensGene))
-
-    tmp_content_array = []
-
-    if relevant_info_fields.get('GeneDetail.ensGene'):
-
-        GeneDetail_ensGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.ensGene'))
-
-
-        if re.match(pattern, GeneDetail_ensGene):
-            tmp_content = {}
-            tmp_content['ensGene_gene_id'] = gene_id
-            tmp_content['ensGene_distance_to_gene'] = GeneDetail_ensGene
-            tmp_content_array.append(tmp_content)
-
-        elif ':' in GeneDetail_ensGene:
-            for record in GeneDetail_ensGene.split(','):
-                tmp_content = {}
-                for ele in record.split(':'):
-                    if ele.startswith('ENST'):
-                        tmp_content['ensGene_transcript_id'] = ele
-                    elif ele.startswith('exon'):
-                        tmp_content['ensGene_location'] = ele
-                    elif ele.startswith('c.'):
-                        tmp_content['ensGene_cDNA_change'] = ele
-
-                tmp_content['ensGene_gene_id'] = gene_id
-
-                tmp_content_array.append(tmp_content)
-
-    else:
-        tmp_content = {}
-        tmp_content['ensGene_gene_id'] = gene_id
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-def AAChange_refGene_parser(AAChange_refGene):
-
-    tmp_content_array = []
-    AAChange_refGene = AAChange_refGene.split(',')
-
-    for ele in AAChange_refGene:
-        if not ele:
-            continue
-        if ele.lower() == 'unknown':
-            continue
-        tmp_content = {}
-        tmp_tmp = ele.split(':')
-        if len(tmp_tmp) == 5:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-            tmp_content['refGene_cDNA_change'] = tmp_tmp[3]
-            tmp_content['refGene_aa_change'] = tmp_tmp[4]
-        elif len(tmp_tmp) == 4:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-            tmp_content['refGene_cDNA_change'] = tmp_tmp[3]
-        elif len(tmp_tmp) == 3:
-            tmp_content['refGene_symbol'] = tmp_tmp[0]
-            tmp_content['refGene_refgene_id'] = tmp_tmp[1]
-            tmp_content['refGene_location'] = tmp_tmp[2]
-        else:
-            print(ele)
-            raise VCFException('Length of refGene is not 3, 4, or 5')
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-def AAChange_ensGene_parser(AAChange_ensGene):
-
-    tmp_content_array = []
-    AAChange_ensGene = AAChange_ensGene.split(',')
-
-    for ele in AAChange_ensGene:
-        if not ele:
-            continue
-        if ele.lower() == 'unknown':
-            continue
-        tmp_content = {}
-        tmp_tmp = ele.split(':')
-        if len(tmp_tmp) == 5:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-            tmp_content['ensGene_cDNA_change'] = tmp_tmp[3]
-            tmp_content['ensGene_aa_change'] = tmp_tmp[4]
-        elif len(tmp_tmp) == 4:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-            tmp_content['ensGene_cDNA_change'] = tmp_tmp[3]
-        elif len(tmp_tmp) == 3:
-            tmp_content['ensGene_gene_id'] = tmp_tmp[0]
-            tmp_content['ensGene_transcript_id'] = tmp_tmp[1]
-            tmp_content['ensGene_location'] = tmp_tmp[2]
-        else:
-            print(ele)
-            raise VCFException('Length of ensGene is not 3, 4, or 5')
-        tmp_content_array.append(tmp_content)
-
-    return tmp_content_array
-
-
-def convert_escaped_chars(input_string):
-    input_string = input_string.replace("\\x3b", ";")
-    input_string = input_string.replace("\\x2c", ",")
-    input_string = input_string.replace("\\x3d", "=")
-    input_string = input_string.replace(',_','_')
-
-    return input_string
-
-#@profile
 def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **kwargs):
 
     update = kwargs.get('update')
@@ -306,7 +38,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     global GLOBAL_NO_VARIANTS_UPDATED
     global GLOBAL_NO_VARIANTS_FAILED
     global GLOBAL_NO_VARIANTS_SKIPPED
-
 
     format_fields = vcf_mapping.get('FORMAT_FIELDS').get('nested_fields')
     fixed_fields = vcf_mapping.get('FIXED_FIELDS')
@@ -349,12 +80,32 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     exception_filename = 'import_exceptions_for_%s' %(os.path.basename(vcf_filename))
     exception_divider = '-'*120+'\n\n'
     with open(vcf_filename, 'r') as fp:
-        for line in tqdm(fp, total=no_lines):
-        # for no_line, line in enumerate(fp, 1):
+        #for line in tqdm(fp, total=no_lines):
+        for no_line, line in enumerate(fp, 1):
             line = line.strip()
 
-            if GLOBAL_NO_VARIANTS_PROCESSED > no_lines:
-                break
+            if "Consequence annotations from Ensembl VEP. Format:" in line and 'CSQ' in line:
+                _, CSQ_fields = line.strip().split('Consequence annotations from Ensembl VEP. Format:')
+                CSQ_fields = CSQ_fields[:-1].strip()
+                CSQ_fields = CSQ_fields.split('|')
+
+            if "Functional annotations:" in line and 'ANN' in line:
+                _, ANN_fields = line.strip().split('Functional annotations:')
+                str_ANN_fields = re.match(r"##INFO=<?(.+)>", line).groups()[0].strip().split(':')[1].replace('\'','').replace('\"', '').strip()
+                ANN_fields = [ele.strip() for ele in str_ANN_fields.split('|')]
+
+            if "Predicted loss of function effects for this variant. Format:" in line and 'LOF' in line:
+                _, LOF_fields = line.strip().split('Predicted loss of function effects for this variant. Format:')
+                str_LOF_fields = re.match(r"##INFO=<?(.+)>", line).groups()[0].strip().split(':')[1].replace('\'','').replace('\"', '').strip()
+                LOF_fields = [ele.strip() for ele in str_LOF_fields.split('|')]
+
+            if "Predicted nonsense mediated decay effects for this variant. Format:" in line and 'NMD' in line:
+                _, NMD_fields = line.strip().split('Predicted nonsense mediated decay effects for this variant. Format:')
+                str_NMD_fields = re.match(r"##INFO=<?(.+)>", line).groups()[0].strip().split(':')[1].replace('\'','').replace('\"', '').strip()
+                NMD_fields = [ele.strip() for ele in str_NMD_fields.split('|')]
+
+            # if GLOBAL_NO_VARIANTS_PROCESSED > no_lines:
+            #     break
 
             if line.startswith('##'):
                 continue
@@ -410,7 +161,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     content['AN_control'] = 0
 
 
-                es_id = get_es_id(CHROM, POS, REF, ALT, index_name, type_name)
+                es_id = get_es_id(CHROM, POS, REF, ALT, ID, index_name, type_name)
 
                 fields_to_update = None
                 if update:
@@ -429,7 +180,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     sample_values = data.get(sample)
                     sample_values = sample_values.split(':')
 
-                    if sample_values[gt_location] in ['./.']#, '0/0', '0|0']:
+                    if sample_values[gt_location] in ['./.']:
+                      
                         continue
 
                     sample_content['sample_ID'] = sample
@@ -585,6 +337,18 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
 
                 for info_key in info_fields.keys():
 
+                    if info_key.startswith('CSQ'):
+                        continue
+
+                    if info_key.startswith('ANN'):
+                        continue
+
+                    if info_key.startswith('LOF'):
+                        continue
+
+                    if info_key.startswith('NMD'):
+                        continue
+
                     if info_key in fields_to_skip:
                         continue
 
@@ -694,6 +458,26 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                             content[es_field_name] = val
                             continue
 
+                if info_dict.get('CSQ'):
+                    CSQ_info = CSQ_parser(CSQ_fields, info_dict.get('CSQ'))
+                    info_dict.pop('CSQ')
+                    content.update(CSQ_info)
+
+                if info_dict.get('ANN'):
+                    ANN_info = ANN_parser(ANN_fields, info_dict.get('ANN'))
+                    info_dict.pop('ANN')
+                    content.update(ANN_info)
+
+                if info_dict.get('LOF'):
+                    LOF_info = LOF_parser(LOF_fields, info_dict.get('LOF'))
+                    info_dict.pop('LOF')
+                    content.update(LOF_info)
+
+
+                if info_dict.get('NMD'):
+                    NMD_info = NMD_parser(NMD_fields, info_dict.get('NMD'))
+                    info_dict.pop('NMD')
+                    content.update(NMD_info)
 
                 for overwrite_key, orig_key in overwrite_fields:
                     es_overwrite_key = info_fields[overwrite_key].get('es_field_name')
@@ -701,9 +485,10 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     if es_overwrite_key in content:
                         content[es_orig_key] = content[es_overwrite_key]
 
-
-                content['refGene'] = prune_array('refGene_symbol', content['refGene'])
-                content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
+                if content.get('refGene'):
+                    content['refGene'] = prune_array('refGene_symbol', content['refGene'])
+                if content.get('ensGene'):
+                    content['ensGene'] = prune_array('ensGene_gene_id', content['ensGene'])
 
                 GLOBAL_NO_VARIANTS_CREATED += 1
                 GLOBAL_NO_VARIANTS_PROCESSED += 1
@@ -735,8 +520,6 @@ def main():
     global GLOBAL_NO_VARIANTS_FAILED
     global GLOBAL_NO_VARIANTS_SKIPPED
 
-
-
     start_time = datetime.now()
 
     parser = argparse.ArgumentParser()
@@ -759,14 +542,6 @@ def main():
     if not os.path.exists(args.mapping):
         raise IOError("VCF information file does not exist at location: %s" %(args.mapping))
 
-    # --hostname 199.109.192.65
-    # --port 9200
-    # --index sim
-    # --type wes
-    # --label None
-    # --vcf 20170419_SIM_WES_CASE.hg19_multianno.vcf
-    # --mapping inspect_output_for_sim_wes.txt
-
     vcf_label = args.label
     vcf_filename = args.vcf
     vcf_mapping = json.load(open(args.mapping, 'r'))
@@ -776,13 +551,9 @@ def main():
     elif update == 'False':
         update = False
 
-    es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port)
+    es = elasticsearch.Elasticsearch(host=args.hostname, port=args.port, request_timeout=180)
     index_name = args.index
     type_name = args.type
-    es.cluster.health(wait_for_status='yellow')
-    es.indices.put_settings(index=index_name, body={"refresh_interval": "-1"})
-
-
 
     file_count = 1
     file_size_total = 0
@@ -794,43 +565,66 @@ def main():
                         vcf_mapping,
                         vcf_label,
                         update=update), 1):
-
         file_size_total += sys.getsizeof(data)
 
         if line_count == 1:
-            filename = os.path.join(directory_name, f'output_{file_count}.json')
+            filename = os.path.join(directory_name, 'output_%s.json' %(file_count))
             output_file = open(filename, 'w')
 
 
-        output_file.write(f'{data}\n')
+        output_file.write('%s\n' %(data))
         data_available = True
 
         if file_size_total > 83886080 and ((line_count % 2) == 0):
             output_file.close()
+            # print(args.hostname, args.port, index_name, type_name, filename)
             post_data.delay(args.hostname, args.port, index_name, type_name, filename)
             #
             file_count += 1
-            filename = os.path.join(directory_name, f'output_{file_count}.json')
+            filename = os.path.join(directory_name, 'output_%s.json' %(file_count))
             output_file = open(filename, 'w')
             file_size_total = 0
             data_available = False
-
-
 
     #finally:
     if data_available:
         output_file.close()
         post_data.delay(args.hostname, args.port, index_name, type_name, filename)
 
-    time.sleep(60)
-    update_refresh_interval.delay(args.hostname, args.port, index_name, '30s')
+    # time.sleep(30)
+    # es.indices.put_settings(index=index_name, body={"refresh_interval": "1s"})
+    update_refresh_interval.delay(args.hostname, args.port, index_name, '1s')
         # pprint(data)
         # es.index(index=index_name, doc_type=type_name, body=data)
 
-
-
-
     vcf_import_end_time = datetime.now()
+
+    print('\nIndexing %d variants in Elasticsearch' %(GLOBAL_NO_VARIANTS_PROCESSED))
+    while 1:
+        try:
+            previous_count = current_count = es.count(index_name, doc_type=type_name, request_timeout=300)['count']
+            checks_after_probably_finished = 0
+            break
+        except:
+            continue
+
+    pbar = tqdm(total=GLOBAL_NO_VARIANTS_PROCESSED)
+    pbar.update(current_count)
+    while current_count < GLOBAL_NO_VARIANTS_PROCESSED and checks_after_probably_finished < 3:
+        try:
+            current_count = int(es.count(index_name, doc_type=type_name, request_timeout=300)['count'])
+            difference = current_count-previous_count
+            previous_count = current_count
+            if difference > 0:
+                pbar.update(difference)
+
+            time.sleep(1)
+
+            if (current_count/GLOBAL_NO_VARIANTS_PROCESSED) > 0.999:
+                checks_after_probably_finished += 1
+        except:
+            continue
+    pbar.close()
 
     end_time = datetime.now()
     sys.stdout.flush()
@@ -838,7 +632,7 @@ def main():
     print('VCF import ended at %s' %(vcf_import_end_time))
     print('VCF importing took %s' %(vcf_import_end_time-start_time))
     # if update:
-    #     print('Elasticsearch indexing took %s' %(end_time-vcf_import_end_time))
+    print('Elasticsearch indexing took %s' %(end_time-vcf_import_end_time))
     print('Importing and indexing VCF took %s' %(end_time-start_time))
     print("Number of variants processed:", GLOBAL_NO_VARIANTS_PROCESSED)
     print("Number of variants created:", GLOBAL_NO_VARIANTS_CREATED)
@@ -846,14 +640,7 @@ def main():
     print("Number of variants failed indexing:", GLOBAL_NO_VARIANTS_FAILED)
     print("Number of variants skipped:", GLOBAL_NO_VARIANTS_SKIPPED)
 
-
-
-
+    write_benchmark_results('benchmark.txt', vcf_filename, str((vcf_import_end_time-start_time).total_seconds()), str((end_time-vcf_import_end_time).total_seconds()), str((end_time-start_time).total_seconds()))
 
 if __name__ == "__main__":
     main()
-
-
-
-
-

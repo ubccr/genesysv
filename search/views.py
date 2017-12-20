@@ -648,24 +648,8 @@ def search(request):
             pprint(content)
 
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
+            headers = {'Content-type': 'application/json'}
 
-            if search_options.es_terminate:
-                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
-                                                                        dataset_obj.es_port,
-                                                                        dataset_obj.es_index_name,
-                                                                        dataset_obj.es_type_name,
-                                                                        search_options.es_terminate_size_per_shard)
-            else:
-                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
-            response = requests.get(uri, data=query)
-            results = json.loads(response.text)
-            # pprint(results)
-
-            start_after_results_time = datetime.now()
-            total = results['hits']['total']
-            took = results['took']
-            context = {}
-            headers = []
 
             nested_attributes_selected = defaultdict(list)
             for key, val in attribute_order.items():
@@ -681,6 +665,27 @@ def search(request):
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers  = zip(*headers)
+
+
+            if search_options.es_terminate:
+                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
+                                                                        dataset_obj.es_port,
+                                                                        dataset_obj.es_index_name,
+                                                                        dataset_obj.es_type_name,
+                                                                        search_options.es_terminate_size_per_shard)
+            else:
+                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
+            response = requests.get(uri, data=query, headers=headers)
+            results = json.loads(response.text)
+            # print(uri)
+            # pprint(results)
+
+            start_after_results_time = datetime.now()
+            total = results['hits']['total']
+            took = results['took']
+            context = {}
+            headers = []
+
 
             attributes_selected = []
             for ele in headers:

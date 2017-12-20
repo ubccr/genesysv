@@ -5,3 +5,6 @@ app = Celery('es_celery',
              broker='amqp://jimmy:jimmy123@localhost/jimmy_vhost',
              backend='rpc://',
              include=['es_celery.tasks'])
+
+
+# https://tests4geeks.com/python-celery-rabbitmq-tutorial/
