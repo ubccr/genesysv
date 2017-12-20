@@ -40,6 +40,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 from collections import defaultdict
+import multiprocessing
+from functools import partial
 
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
@@ -181,6 +183,8 @@ def filter_array_dicts(array, key, values, comparison_type):
                     if val.lower() in ele_tmp.lower():
                         output.append(ele)
                         break
+            elif comparison_type == "nested_filter_exists":
+                output.append(ele)
             else:
                 if val in tmp:
                     output.append(ele)
@@ -380,6 +384,26 @@ def search_home2(request):
     context['es_form'] = es_form
     return render(request, 'search/search_home.html', context)
 
+def remove_nested_attributes_not_selected(results, nested_attributes_selected):
+    for result in results:
+        for path, nested_attributes in nested_attributes_selected.items():
+            if path in ['FILTER', 'QUAL']:
+                continue
+            if result.get(path):
+                old_data = result[path]
+            else:
+                continue
+            new_data = []
+            for ele in old_data:
+                tmp_dict = {}
+                for nested_attribute in nested_attributes:
+                    if ele.get(nested_attribute):
+                        tmp_dict[nested_attribute] = ele[nested_attribute]
+                if tmp_dict and tmp_dict not in new_data:
+                    new_data.append(tmp_dict)
+            result[path] = new_data
+    return results
+
 
 @gzip_page
 def search(request):
@@ -473,8 +497,6 @@ def search(request):
 
             filters_used = {}
 
-
-
             FILTER_value = None
             QUAL_value = None
 
@@ -530,10 +552,12 @@ def search(request):
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
                     for ele in data.splitlines():
                         if filter_field_obj.es_data_type == 'text':
-                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                            if filter_field_obj.es_text_analyzer == 'whitespace':
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                            elif filter_field_obj.es_text_analyzer == 'simple':
                                 es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
 
@@ -542,10 +566,12 @@ def search(request):
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
                         if filter_field_obj.es_data_type == 'text':
-                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                            if filter_field_obj.es_text_analyzer == 'whitespace':
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                            elif filter_field_obj.es_text_analyzer == 'simple':
                                 es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
 
@@ -712,6 +738,7 @@ def search(request):
             ### Remove nested attributes that were not selected
             if nested_attributes_selected:
                 for result in results:
+                    pprint(result)
                     for path, nested_attributes in nested_attributes_selected.items():
                         if path in ['FILTER', 'QUAL']:
                             continue
@@ -720,15 +747,27 @@ def search(request):
                         else:
                             continue
                         new_data = []
+                        print(old_data)
                         for ele in old_data:
                             tmp_dict = {}
                             for nested_attribute in nested_attributes:
+                                print(nested_attribute)
+                                print(type(ele))
                                 if ele.get(nested_attribute):
                                     tmp_dict[nested_attribute] = ele[nested_attribute]
-                            if tmp_dict not in new_data:
+                            if tmp_dict and tmp_dict not in new_data:
                                 new_data.append(tmp_dict)
                         result[path] = new_data
+                results = remove_nested_attributes_not_selected(results, nested_attributes_selected)
+                # Run this with a pool of 5 agents having a chunksize of 3 until finished
+                # agents = 5
+                # chunksize = 3
+                # pool = multiprocessing.Pool(processes=4)
+                # remove_nested_attributes_not_selected_results=partial(remove_nested_attributes_not_selected, nested_attributes_selected=nested_attributes_selected) # prod_x has only one argument x (y is fixed to 10)
+                # results = pool.map(remove_nested_attributes_not_selected_results, results)
 
+                # # with Pool(processes=agents) as pool:
+                # #     results = pool.map(remove_nested_attributes_not_selected, results, chunksize)
 
             ### Remove results that don't match input
             tmp_results = []
@@ -756,12 +795,14 @@ def search(request):
                                     comparison_type = filter_field_obj.es_data_type
                                 elif filter_field_obj.es_data_type in ['integer', 'float']:
                                     comparison_type = 'number_equal'
+                        elif key_es_filter_type in ["nested_filter_exists",]:
+                                comparison_type = 'nested_filter_exists'
                         else:
                             comparison_type = 'val_in'
 
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                        # print(filtered_results)
+
                         if filtered_results:
                             result[key_path] = filtered_results
                         else:

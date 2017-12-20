@@ -151,13 +151,14 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     continue
 
                 sample_content['sample_ID'] = sample
-
+                
                 for idx, key_format_field in enumerate(format_fields_for_current_line):
                     key_format_field_sample = 'sample_%s' %(key_format_field)
                     key_value = sample_values[idx]
                     if key_format_field in int_format_fields:
                         if ',' in key_value:
                             sample_content[key_format_field_sample] = [int(s_val) for s_val in key_value.split(',')]
+
                         else:
                             if key_value not in ['.']:
                                 sample_content[key_format_field_sample] = int(key_value)

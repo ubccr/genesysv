@@ -73,6 +73,8 @@ class ESFilterFormPart(forms.Form):
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
                 if field.es_filter_type.name == 'filter_exists':
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
+                elif field.es_filter_type.name == 'nested_filter_exists':
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
                 else:
                     CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                     CHOICES.insert(0,('', '----'))
@@ -118,6 +120,8 @@ class ESFilterForm(forms.Form):
 
             elif field.form_type.name == "ChoiceField" and field.widget_type.name == "Select":
                 if field.es_filter_type.name == 'filter_exists':
+                    self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
+                elif field.es_filter_type.name == 'nested_filter_exists':
                     self.fields[field_name] = forms.ChoiceField(label=label, required=False, choices=EXIST_CHOICES)
                 else:
                     CHOICES =[(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]

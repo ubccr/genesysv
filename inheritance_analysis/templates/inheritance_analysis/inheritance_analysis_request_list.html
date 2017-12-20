@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block title %}
+    Inheritance Analysis Home
+{% endblock %}
+
+
+{% block content %}
+<script>
+    $("#main-nav-bar > ul > li.active").removeClass("active")
+    $("#navbarId-Tools").addClass("active")
+    $("#navbarId-inheritance-analysis-request-list").addClass("active")
+</script>
+
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">Request New Inheritance Analysis</div>
+      <div class="panel-body">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <form role="form"  method="POST" enctype="multipart/form-data" action="{% url 'inheritance-analysis-request-create' %}">
+            {% csrf_token %}
+            {{form|crispy}}
+            <input class="btn btn-success" type="submit" value="Submit">
+        </form>
+      </div>
+    </div>
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">Inheritance Analysis Request List</div>
+      <div class="panel-body">
+            <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Dataset</th>
+                <th>Upload User</th>
+                <th>Uploaded</th>
+                <th>Analysis Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in inheritance_analysis_requests %}
+            <tr>
+                <td>{{request.dataset.description}}</td>
+                <td>{{request.upload_user}}</td>
+                <td>{{request.created}}</td>
+                <td>{{request.analysis_status}}</td>
+                <td><a href="{% url 'inheritance-analysis-request-delete' request.id %}"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        </div>
+    </div>
+
+
+
+{% endblock %}
