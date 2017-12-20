@@ -155,7 +155,7 @@ def clinvar_parser(input_dict):
     # else:
     #     CLNDSDBID_split = None
 
-    for i in len(CLINSIG_split):
+    for i in range(len(CLINSIG_split)):
         CLINSIG = CLINSIG_split[i]
         CLNDBN = CLNDBN_split[i]
         CLNACC = CLNACC_split[i]
