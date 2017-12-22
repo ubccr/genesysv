@@ -174,9 +174,16 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
             elif comparison_type == "text":
-                if val.lower() in tmp.lower():
-                    output.append(ele)
-                    break
+                print(val, tmp)
+                if isinstance(tmp, list):
+                    for ele_tmp in tmp:
+                        if val.lower() in ele_tmp.lower():
+                            output.append(ele)
+                            break
+                else:
+                    if val.lower() in ele_tmp.lower():
+                        output.append(ele)
+                        break
 
             elif comparison_type == "val_in":
                 for ele_tmp in tmp.split('_'):
@@ -480,7 +487,7 @@ def search(request):
                     attribute_field_obj = AttributeField.objects.get(id=key)
                     es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
                     if path:
-                        source_fields.append(path)
+                        source_fields.append('%s.%s' %(path, es_name))
                         if path not in nested_attribute_fields:
                             nested_attribute_fields.append(path)
                     else:
@@ -496,6 +503,8 @@ def search(request):
             dict_filter_fields = {}
 
             filters_used = {}
+
+
 
             FILTER_value = None
             QUAL_value = None
@@ -523,10 +532,14 @@ def search(request):
 
 
                 ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
-                if path and path not in source_fields:
-                    source_fields.append(path)
-                elif not path and es_name not in source_fields:
-                    source_fields.append(es_name)
+                if path:
+                    source_name = '%s.%s' %(path, es_name)
+                else:
+                    source_name = es_name
+
+                if source_name not in source_fields:
+                    source_fields.append(source_name)
+
 
                 ### Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
                 ### are returned for a recored even if only one field match the search criteria
@@ -552,12 +565,10 @@ def search(request):
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
                     for ele in data.splitlines():
                         if filter_field_obj.es_data_type == 'text':
-                            if filter_field_obj.es_text_analyzer == 'whitespace':
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
-                            elif filter_field_obj.es_text_analyzer == 'simple':
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
                                 es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
 
@@ -566,12 +577,10 @@ def search(request):
                 elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
                     for ele in data:
                         if filter_field_obj.es_data_type == 'text':
-                            if filter_field_obj.es_text_analyzer == 'whitespace':
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
-                            elif filter_field_obj.es_text_analyzer == 'simple':
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
                                 es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
                         else:
                             es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
 
@@ -648,8 +657,24 @@ def search(request):
             pprint(content)
 
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
-            headers = {'Content-type': 'application/json'}
 
+            if search_options.es_terminate:
+                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
+                                                                        dataset_obj.es_port,
+                                                                        dataset_obj.es_index_name,
+                                                                        dataset_obj.es_type_name,
+                                                                        search_options.es_terminate_size_per_shard)
+            else:
+                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
+            response = requests.get(uri, data=query, headers={'Content-type': 'application/json'})
+            results = json.loads(response.text)
+            # pprint(results)
+
+            start_after_results_time = datetime.now()
+            total = results['hits']['total']
+            took = results['took']
+            context = {}
+            headers = []
 
             nested_attributes_selected = defaultdict(list)
             for key, val in attribute_order.items():
@@ -665,27 +690,6 @@ def search(request):
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers  = zip(*headers)
-
-
-            if search_options.es_terminate:
-                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
-                                                                        dataset_obj.es_port,
-                                                                        dataset_obj.es_index_name,
-                                                                        dataset_obj.es_type_name,
-                                                                        search_options.es_terminate_size_per_shard)
-            else:
-                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
-            response = requests.get(uri, data=query, headers=headers)
-            results = json.loads(response.text)
-            # print(uri)
-            # pprint(results)
-
-            start_after_results_time = datetime.now()
-            total = results['hits']['total']
-            took = results['took']
-            context = {}
-            headers = []
-
 
             attributes_selected = []
             for ele in headers:
@@ -735,39 +739,26 @@ def search(request):
 
                 results = filtered_results
 
-            ### Remove nested attributes that were not selected
-            if nested_attributes_selected:
-                for result in results:
-                    pprint(result)
-                    for path, nested_attributes in nested_attributes_selected.items():
-                        if path in ['FILTER', 'QUAL']:
-                            continue
-                        if result.get(path):
-                            old_data = result[path]
-                        else:
-                            continue
-                        new_data = []
-                        print(old_data)
-                        for ele in old_data:
-                            tmp_dict = {}
-                            for nested_attribute in nested_attributes:
-                                print(nested_attribute)
-                                print(type(ele))
-                                if ele.get(nested_attribute):
-                                    tmp_dict[nested_attribute] = ele[nested_attribute]
-                            if tmp_dict and tmp_dict not in new_data:
-                                new_data.append(tmp_dict)
-                        result[path] = new_data
-                results = remove_nested_attributes_not_selected(results, nested_attributes_selected)
-                # Run this with a pool of 5 agents having a chunksize of 3 until finished
-                # agents = 5
-                # chunksize = 3
-                # pool = multiprocessing.Pool(processes=4)
-                # remove_nested_attributes_not_selected_results=partial(remove_nested_attributes_not_selected, nested_attributes_selected=nested_attributes_selected) # prod_x has only one argument x (y is fixed to 10)
-                # results = pool.map(remove_nested_attributes_not_selected_results, results)
+            # ### Remove nested attributes that were not selected
+            # if nested_attributes_selected:
+            #     for result in results:
+            #         for path, nested_attributes in nested_attributes_selected.items():
+            #             if path in ['FILTER', 'QUAL']:
+            #                 continue
+            #             if result.get(path):
+            #                 old_data = result[path]
+            #             else:
+            #                 continue
+            #             new_data = []
+            #             for ele in old_data:
+            #                 tmp_dict = {}
+            #                 for nested_attribute in nested_attributes:
+            #                     if ele.get(nested_attribute):
+            #                         tmp_dict[nested_attribute] = ele[nested_attribute]
+            #                 if tmp_dict not in new_data:
+            #                     new_data.append(tmp_dict)
+            #             result[path] = new_data
 
-                # # with Pool(processes=agents) as pool:
-                # #     results = pool.map(remove_nested_attributes_not_selected, results, chunksize)
 
             ### Remove results that don't match input
             tmp_results = []
@@ -795,14 +786,12 @@ def search(request):
                                     comparison_type = filter_field_obj.es_data_type
                                 elif filter_field_obj.es_data_type in ['integer', 'float']:
                                     comparison_type = 'number_equal'
-                        elif key_es_filter_type in ["nested_filter_exists",]:
-                                comparison_type = 'nested_filter_exists'
                         else:
                             comparison_type = 'val_in'
 
 
                         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-
+                        # print(filtered_results)
                         if filtered_results:
                             result[key_path] = filtered_results
                         else:
