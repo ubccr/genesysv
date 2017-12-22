@@ -86,7 +86,7 @@ for command, file in files:
     print(file)
     full_command = command %(hostname, file)
     inner_start = datetime.now()
-    for no in range(1):
+    for no in range(5):
         subprocess.run(full_command, shell=True)
     inner_end = datetime.now()
     print('Total Time for:', file, inner_end-inner_start)
