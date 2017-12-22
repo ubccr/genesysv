@@ -181,7 +181,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     sample_values = sample_values.split(':')
 
                     if sample_values[gt_location] in ['./.']:
-                      
                         continue
 
                     sample_content['sample_ID'] = sample
@@ -451,6 +450,8 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         parse_function = eval(info_fields[info_key].get('parse_function'))
                         es_field_name = info_fields[info_key].get('es_nested_path')
                         val = parse_function(val)
+                        if not val:
+                            continue
                         if es_field_name in content:
                             content[es_field_name].extend(val)
                             continue

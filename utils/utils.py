@@ -7,6 +7,25 @@ import statistics
 import binascii
 import gzip
 
+def AA_parser(input_string):
+    output_array = []
+    tmp_dict = {}
+    AA, REF, ALT, IndelType = input_string.split('|')
+    if AA and AA != '.':
+        tmp_dict["AA"] = AA
+    if REF and REF != '.':
+        tmp_dict["REF"] = REF
+    if ALT and ALT != '.':
+        tmp_dict["ALT"] = ALT
+    if IndelType and IndelType != '.':
+        tmp_dict["IndelType"] = IndelType
+
+    if tmp_dict:
+        output_array.append(tmp_dict)
+
+    return output_array
+
+
 def AAChange_ensGene_parser(AAChange_ensGene):
 
     tmp_content_array = []
@@ -140,9 +159,9 @@ def CHROM_parser(input_string):
 
 def clinvar_parser(input_dict):
     output = []
-    CLINSIG_split = input_dict['CLINSIG'].split(',')
-    CLNDBN_split = input_dict['CLNDBN'].split(',')
-    CLNACC_split = input_dict['CLNACC'].split(',')
+    CLINSIG_split = re.split(',+|\|+', input_dict['CLINSIG'])
+    CLNDBN_split = re.split(',+|\|+', input_dict['CLNDBN'])
+    CLNACC_split = re.split(',+|\|+', input_dict['CLNACC'])
 
 
     # if input_dict.get('CLNDSDB'):

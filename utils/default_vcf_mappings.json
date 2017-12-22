@@ -60,18 +60,117 @@
       "es_field_name": "REF"
     }
   },
+  "FORMAT_FIELDS": {
+    "es_nested_path": "sample",
+    "nested_fields": {
+      "AD": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_AD"
+      },
+      "AF": {
+        "es_field_datatype": "float",
+        "es_field_name": "sample_AF"
+      },
+      "AO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_AO"
+      },
+      "DP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_DP"
+      },
+      "FAO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FAO"
+      },
+      "FDP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FDP"
+      },
+      "FRO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FRO"
+      },
+      "FSAF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSAF"
+      },
+      "FSAR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSAR"
+      },
+      "FSRF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSRF"
+      },
+      "FSRR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_FSRR"
+      },
+      "GQ": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_GQ"
+      },
+      "GT": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_GT"
+      },
+      "MIN_DP": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_MIN_DP"
+      },
+      "PGT": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_PGT"
+      },
+      "PID": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_PID"
+      },
+      "PL": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_PL"
+      },
+      "RGQ": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_RGQ"
+      },
+      "RO": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_RO"
+      },
+      "SAF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SAF"
+      },
+      "sample_ID": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_ID"
+      },
+      "sample_label": {
+        "es_field_datatype": "keyword",
+        "es_field_name": "sample_label"
+      },
+      "SAR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SAR"
+      },
+      "SB": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SB"
+      },
+      "SRF": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SRF"
+      },
+      "SRR": {
+        "es_field_datatype": "integer",
+        "es_field_name": "sample_SRR"
+      }
+    },
+    "parse_function": "sample_information_parser"
+  },
   "INFO_FIELDS": {
-    "ALLELE_END": {
-      "is_parsed": false
-    },
-    "ANNOVAR_DATE": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "ANNOVAR_DATE",
-      "is_parsed": true
-    },
-    "END": {
-      "is_parsed": false
-    },
     "1000g2015aug_afr": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_afr",
@@ -97,67 +196,27 @@
       "es_field_name": "1000g2015aug_sas",
       "null_value": 0
     },
-    "AAChange.ensGene": {
-      "es_nested_path": "ensGene",
-      "parse_function": "AAChange_ensGene_parser",
+    "AA": {
+      "es_nested_path": "AA",
       "nested_fields": {
-        "ensGene_gene_id": {
-          "es_field_name": "ensGene_gene_id",
-          "es_field_datatype": "text",
-          "es_field_text_analyzer": "whitespace"
+        "AA_AA": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "AA_AA"
         },
-        "ensGene_transcript_id": {
-          "es_field_name": "ensGene_transcript_id",
-          "es_field_datatype": "keyword"
+        "AA_ALT": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "AA_ALT"
         },
-        "ensGene_location": {
-          "es_field_name": "ensGene_location",
-          "es_field_datatype": "keyword"
+        "AA_IndelType": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "AA_IndelType"
         },
-        "ensGene_cDNA_change": {
-          "es_field_name": "ensGene_cDNA_change",
-          "es_field_datatype": "keyword"
-        },
-        "ensGene_aa_change": {
-          "es_field_name": "ensGene_aa_change",
-          "es_field_datatype": "keyword"
-        },
-        "ensGene_distance_to_gene": {
-          "es_field_name": "ensGene_distance_to_gene",
-          "es_field_datatype": "keyword"
+        "AA_REF": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "AA_REF"
         }
-      }
-    },
-    "AAChange.refGene": {
-      "es_nested_path": "refGene",
-      "parse_function": "AAChange_refGene_parser",
-      "nested_fields": {
-        "refGene_symbol": {
-          "es_field_name": "refGene_symbol",
-          "es_field_datatype": "text",
-          "es_field_text_analyzer": "whitespace"
-        },
-        "refGene_refgene_id": {
-          "es_field_name": "refGene_refgene_id",
-          "es_field_datatype": "keyword"
-        },
-        "refGene_location": {
-          "es_field_name": "refGene_location",
-          "es_field_datatype": "keyword"
-        },
-        "refGene_cDNA_change": {
-          "es_field_name": "refGene_cDNA_change",
-          "es_field_datatype": "keyword"
-        },
-        "refGene_aa_change": {
-          "es_field_name": "refGene_aa_change",
-          "es_field_datatype": "keyword"
-        },
-        "refGene_distance_to_gene": {
-          "es_field_name": "refGene_distance_to_gene",
-          "es_field_datatype": "keyword"
-        }
-      }
+      },
+      "parse_function": "AA_parser"
     },
     "AA_pos": {
       "es_field_datatype": "keyword",
@@ -167,37 +226,79 @@
       "es_field_datatype": "keyword",
       "es_field_name": "AA_sub"
     },
+    "AAChange.ensGene": {
+      "es_nested_path": "ensGene",
+      "nested_fields": {
+        "ensGene_aa_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_aa_change"
+        },
+        "ensGene_cDNA_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_cDNA_change"
+        },
+        "ensGene_distance_to_gene": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_distance_to_gene"
+        },
+        "ensGene_gene_id": {
+          "es_field_datatype": "text",
+          "es_field_name": "ensGene_gene_id",
+          "es_field_text_analyzer": "whitespace"
+        },
+        "ensGene_location": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_location"
+        },
+        "ensGene_transcript_id": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_transcript_id"
+        }
+      },
+      "parse_function": "AAChange_ensGene_parser"
+    },
+    "AAChange.refGene": {
+      "es_nested_path": "refGene",
+      "nested_fields": {
+        "refGene_aa_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_aa_change"
+        },
+        "refGene_cDNA_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_cDNA_change"
+        },
+        "refGene_distance_to_gene": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_distance_to_gene"
+        },
+        "refGene_location": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_location"
+        },
+        "refGene_refgene_id": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_refgene_id"
+        },
+        "refGene_symbol": {
+          "es_field_datatype": "text",
+          "es_field_name": "refGene_symbol",
+          "es_field_text_analyzer": "whitespace"
+        }
+      },
+      "parse_function": "AAChange_refGene_parser"
+    },
+    "AC": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AC",
+      "is_non_nested_label_field": true
+    },
     "AC_case": {
       "es_field_datatype": "integer",
       "es_field_name": "AC",
       "is_non_nested_label_field": true
     },
-    "AF_case": {
-      "es_field_datatype": "float",
-      "es_field_name": "AF",
-      "is_non_nested_label_field": true
-    },
-    "AN_case": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AN",
-      "is_non_nested_label_field": true
-    },
     "AC_control": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AC",
-      "is_non_nested_label_field": true
-    },
-    "AF_control": {
-      "es_field_datatype": "float",
-      "es_field_name": "AF",
-      "is_non_nested_label_field": true
-    },
-    "AN_control": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AN",
-      "is_non_nested_label_field": true
-    },
-    "AC": {
       "es_field_datatype": "integer",
       "es_field_name": "AC",
       "is_non_nested_label_field": true
@@ -207,18 +308,162 @@
       "es_field_name": "AF",
       "is_non_nested_label_field": true
     },
+    "AF_case": {
+      "es_field_datatype": "float",
+      "es_field_name": "AF",
+      "is_non_nested_label_field": true
+    },
+    "AF_control": {
+      "es_field_datatype": "float",
+      "es_field_name": "AF",
+      "is_non_nested_label_field": true
+    },
+    "AFR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "AFR_AF"
+    },
+    "ALLELE_END": {
+      "is_parsed": false
+    },
+    "AMR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "AMR_AF"
+    },
     "AN": {
       "es_field_datatype": "integer",
       "es_field_name": "AN",
       "is_non_nested_label_field": true
     },
+    "AN_case": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AN",
+      "is_non_nested_label_field": true
+    },
+    "AN_control": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AN",
+      "is_non_nested_label_field": true
+    },
+    "ANN_Allele": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ANN_Allele"
+    },
+    "ANN_nested": {
+      "es_nested_path": "ANN_nested",
+      "is_nested_label_field": false,
+      "nested_fields": {
+        "ANN_nested_AA_length": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_AA_length"
+        },
+        "ANN_nested_AA_pos": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_AA_pos"
+        },
+        "ANN_nested_Annotation": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Annotation"
+        },
+        "ANN_nested_Annotation_Impact": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Annotation_Impact"
+        },
+        "ANN_nested_cDNA_length": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_cDNA_length"
+        },
+        "ANN_nested_cDNA_pos": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_cDNA_pos"
+        },
+        "ANN_nested_CDS_length": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_CDS_length"
+        },
+        "ANN_nested_CDS_pos": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_CDS_pos"
+        },
+        "ANN_nested_Distance": {
+          "es_field_datatype": "integer",
+          "es_field_name": "ANN_nested_Distance"
+        },
+        "ANN_nested_ERRORS/WARNINGS/INFO": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_ERRORS/WARNINGS/INFO"
+        },
+        "ANN_nested_Feature_ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Feature_ID"
+        },
+        "ANN_nested_Feature_Type": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Feature_Type"
+        },
+        "ANN_nested_Gene_ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Gene_ID"
+        },
+        "ANN_nested_Gene_Name": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Gene_Name"
+        },
+        "ANN_nested_HGVS_c": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_HGVS_c"
+        },
+        "ANN_nested_HGVS_p": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_HGVS_p"
+        },
+        "ANN_nested_Rank": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Rank"
+        },
+        "ANN_nested_Transcript_BioType": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ANN_nested_Transcript_BioType"
+        }
+      }
+    },
+    "ANNOVAR_DATE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "ANNOVAR_DATE",
+      "is_parsed": true
+    },
+    "AO": {
+      "es_field_datatype": "integer",
+      "es_field_name": "AO"
+    },
     "Associated_disease": {
       "es_field_datatype": "keyword",
       "es_field_name": "Associated_disease"
     },
+    "avsnp147": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "avsnp147"
+    },
+    "avsnp150": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "avsnp150"
+    },
     "BA1": {
       "es_field_datatype": "integer",
       "es_field_name": "BA1"
+    },
+    "BaseQRankSum": {
+      "es_nested_path": "BaseQRankSum",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "BaseQRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "BaseQRankSum_label"
+        },
+        "BaseQRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "BaseQRankSum_value"
+        }
+      }
     },
     "BP1": {
       "es_field_datatype": "integer",
@@ -264,20 +509,6 @@
       "es_field_datatype": "integer",
       "es_field_name": "BS4"
     },
-    "BaseQRankSum": {
-      "is_nested_label_field": true,
-      "es_nested_path": "BaseQRankSum",
-      "nested_fields": {
-        "BaseQRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "BaseQRankSum_label"
-        },
-        "BaseQRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "BaseQRankSum_value"
-        }
-      }
-    },
     "CADD": {
       "es_field_datatype": "float",
       "es_field_name": "CADD"
@@ -290,6 +521,10 @@
       "es_field_datatype": "float",
       "es_field_name": "CADD13_RawScore"
     },
+    "CADD_phred": {
+      "es_field_datatype": "float",
+      "es_field_name": "CADD_phred"
+    },
     "CADD_Phred": {
       "es_field_datatype": "float",
       "es_field_name": "CADD_Phred"
@@ -297,10 +532,6 @@
     "CADD_Phred_score": {
       "es_field_datatype": "float",
       "es_field_name": "CADD_Phred_score"
-    },
-    "CADD_phred": {
-      "es_field_datatype": "float",
-      "es_field_name": "CADD_phred"
     },
     "CADD_prediction": {
       "es_field_datatype": "keyword",
@@ -318,9 +549,29 @@
       "es_field_datatype": "float",
       "es_field_name": "CADD_score"
     },
+    "Carol_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Carol_prediction"
+    },
+    "Carol_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Carol_score"
+    },
     "CCC": {
       "es_field_datatype": "integer",
       "es_field_name": "CCC"
+    },
+    "CIEND": {
+      "es_field_datatype": "float",
+      "es_field_name": "CIEND"
+    },
+    "CIPOS": {
+      "es_field_datatype": "float",
+      "es_field_name": "CIPOS"
+    },
+    "Class_predicted": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Class_predicted"
     },
     "CLINSIG": {
       "es_nested_path": "clinvar",
@@ -346,6 +597,20 @@
         "CLNDSDBID": {
           "es_field_datatype": "keyword",
           "es_field_name": "clinvar_CLNDSDBID"
+        }
+      }
+    },
+    "ClippingRankSum": {
+      "es_nested_path": "ClippingRankSum",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "ClippingRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ClippingRankSum_label"
+        },
+        "ClippingRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "ClippingRankSum_value"
         }
       }
     },
@@ -457,6 +722,33 @@
         }
       }
     },
+    "Codon_sub": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Codon_sub"
+    },
+    "Condel_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Condel_pred"
+    },
+    "Condel_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Condel_score"
+    },
+    "cosmic70": {
+      "es_nested_path": "cosmic70",
+      "nested_fields": {
+        "ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "cosmic70_ID"
+        },
+        "OCCURENCE": {
+          "es_field_datatype": "text",
+          "es_field_name": "cosmic70_OCCURENCE",
+          "es_field_text_analyzer": "simple"
+        }
+      },
+      "parse_function": "cosmic70_parser"
+    },
     "COSMIC_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "COSMIC_ID"
@@ -469,43 +761,309 @@
       "es_field_datatype": "keyword",
       "es_field_name": "COVEC_WMV_prediction"
     },
-    "Carol_prediction": {
+    "CS": {
       "es_field_datatype": "keyword",
-      "es_field_name": "Carol_prediction"
+      "es_field_name": "CS"
     },
-    "Carol_score": {
+    "CSQ_AA_AF": {
       "es_field_datatype": "float",
-      "es_field_name": "Carol_score"
+      "es_field_name": "CSQ_AA_AF"
     },
-    "Class_predicted": {
+    "CSQ_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AF"
+    },
+    "CSQ_AFR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AFR_AF"
+    },
+    "CSQ_Allele": {
       "es_field_datatype": "keyword",
-      "es_field_name": "Class_predicted"
+      "es_field_name": "CSQ_Allele"
     },
-    "ClippingRankSum": {
-      "is_nested_label_field": true,
-      "es_nested_path": "ClippingRankSum",
+    "CSQ_AMR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_AMR_AF"
+    },
+    "CSQ_CANONICAL": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_CANONICAL"
+    },
+    "CSQ_CLIN_SIG": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_CLIN_SIG"
+    },
+    "CSQ_EA_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EA_AF"
+    },
+    "CSQ_EAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EAS_AF"
+    },
+    "CSQ_EUR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_EUR_AF"
+    },
+    "CSQ_Existing_variation": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_Existing_variation"
+    },
+    "CSQ_GENE_PHENO": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_GENE_PHENO"
+    },
+    "CSQ_gnomAD_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AF"
+    },
+    "CSQ_gnomAD_AFR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AFR_AF"
+    },
+    "CSQ_gnomAD_AMR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_AMR_AF"
+    },
+    "CSQ_gnomAD_ASJ_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_ASJ_AF"
+    },
+    "CSQ_gnomAD_EAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_EAS_AF"
+    },
+    "CSQ_gnomAD_FIN_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_FIN_AF"
+    },
+    "CSQ_gnomAD_NFE_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_NFE_AF"
+    },
+    "CSQ_gnomAD_OTH_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_OTH_AF"
+    },
+    "CSQ_gnomAD_SAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_gnomAD_SAS_AF"
+    },
+    "CSQ_MAX_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "CSQ_MAX_AF"
+    },
+    "CSQ_MAX_AF_POPS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_MAX_AF_POPS"
+    },
+    "CSQ_nested": {
+      "es_nested_path": "CSQ_nested",
+      "is_nested_label_field": false,
       "nested_fields": {
-        "ClippingRankSum_label": {
+        "CSQ_nested_Amino_acids": {
           "es_field_datatype": "keyword",
-          "es_field_name": "ClippingRankSum_label"
+          "es_field_name": "CSQ_nested_Amino_acids"
         },
-        "ClippingRankSum_value": {
+        "CSQ_nested_APPRIS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_APPRIS"
+        },
+        "CSQ_nested_BIOTYPE": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_BIOTYPE"
+        },
+        "CSQ_nested_CCDS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_CCDS"
+        },
+        "CSQ_nested_cDNA_position_end": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_cDNA_position_end"
+        },
+        "CSQ_nested_cDNA_position_start": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_cDNA_position_start"
+        },
+        "CSQ_nested_CDS_position_end": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_CDS_position_end"
+        },
+        "CSQ_nested_CDS_position_start": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_CDS_position_start"
+        },
+        "CSQ_nested_Codons": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Codons"
+        },
+        "CSQ_nested_Consequence": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Consequence"
+        },
+        "CSQ_nested_DISTANCE": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_DISTANCE"
+        },
+        "CSQ_nested_DOMAINS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_DOMAINS"
+        },
+        "CSQ_nested_ENSP": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_ENSP"
+        },
+        "CSQ_nested_EXON": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_EXON"
+        },
+        "CSQ_nested_Feature": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Feature"
+        },
+        "CSQ_nested_Feature_type": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Feature_type"
+        },
+        "CSQ_nested_FLAGS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_FLAGS"
+        },
+        "CSQ_nested_Gene": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_Gene"
+        },
+        "CSQ_nested_HGNC_ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_HGNC_ID"
+        },
+        "CSQ_nested_HGVS_OFFSET": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_HGVS_OFFSET"
+        },
+        "CSQ_nested_HGVSc": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_HGVSc"
+        },
+        "CSQ_nested_HGVSp": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_HGVSp"
+        },
+        "CSQ_nested_HIGH_INF_POS": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_HIGH_INF_POS"
+        },
+        "CSQ_nested_IMPACT": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_IMPACT"
+        },
+        "CSQ_nested_INTRON": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_INTRON"
+        },
+        "CSQ_nested_MOTIF_NAME": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_MOTIF_NAME"
+        },
+        "CSQ_nested_MOTIF_POS": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_MOTIF_POS"
+        },
+        "CSQ_nested_MOTIF_SCORE_CHANGE": {
           "es_field_datatype": "float",
-          "es_field_name": "ClippingRankSum_value"
+          "es_field_name": "CSQ_nested_MOTIF_SCORE_CHANGE"
+        },
+        "CSQ_nested_PolyPhen_prediction": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_PolyPhen_prediction"
+        },
+        "CSQ_nested_PolyPhen_score": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_PolyPhen_score"
+        },
+        "CSQ_nested_Protein_position_end": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_Protein_position_end"
+        },
+        "CSQ_nested_Protein_position_start": {
+          "es_field_datatype": "integer",
+          "es_field_name": "CSQ_nested_Protein_position_start"
+        },
+        "CSQ_nested_SIFT_prediction": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_SIFT_prediction"
+        },
+        "CSQ_nested_SIFT_score": {
+          "es_field_datatype": "float",
+          "es_field_name": "CSQ_nested_SIFT_score"
+        },
+        "CSQ_nested_STRAND": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_STRAND"
+        },
+        "CSQ_nested_SWISSPROT": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_SWISSPROT"
+        },
+        "CSQ_nested_SYMBOL": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_SYMBOL"
+        },
+        "CSQ_nested_SYMBOL_SOURCE": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_SYMBOL_SOURCE"
+        },
+        "CSQ_nested_TREMBL": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_TREMBL"
+        },
+        "CSQ_nested_TSL": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_TSL"
+        },
+        "CSQ_nested_UNIPARC": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_UNIPARC"
         }
       }
     },
-    "Codon_sub": {
+    "CSQ_PHENO": {
       "es_field_datatype": "keyword",
-      "es_field_name": "Codon_sub"
+      "es_field_name": "CSQ_PHENO"
     },
-    "Condel_pred": {
+    "CSQ_PUBMED": {
       "es_field_datatype": "keyword",
-      "es_field_name": "Condel_pred"
+      "es_field_name": "CSQ_PUBMED"
     },
-    "Condel_score": {
+    "CSQ_SAS_AF": {
       "es_field_datatype": "float",
-      "es_field_name": "Condel_score"
+      "es_field_name": "CSQ_SAS_AF"
+    },
+    "CSQ_SOMATIC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_SOMATIC"
+    },
+    "CSQ_VARIANT_CLASS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "CSQ_VARIANT_CLASS"
+    },
+    "culprit": {
+      "es_nested_path": "culprit",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "culprit_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "culprit_label"
+        },
+        "culprit_value": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "culprit_value"
+        }
+      }
+    },
+    "cytoBand": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "cytoBand"
     },
     "DANN_rankscore": {
       "es_field_datatype": "float",
@@ -520,9 +1078,21 @@
       "es_field_name": "DB",
       "is_exists_only": true
     },
+    "dbscSNV_ADA_SCORE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbscSNV_ADA_SCORE"
+    },
+    "dbscSNV_RF_SCORE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbscSNV_RF_SCORE"
+    },
+    "dbSNP_ID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "dbSNP_ID"
+    },
     "DP": {
-      "is_nested_label_field": true,
       "es_nested_path": "DP",
+      "is_nested_label_field": true,
       "nested_fields": {
         "DP_label": {
           "es_field_datatype": "keyword",
@@ -538,6 +1108,10 @@
       "es_field_datatype": "boolean",
       "es_field_name": "DS",
       "is_exists_only": true
+    },
+    "EAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "EAS_AF"
     },
     "EFIN_HumDiv_Prediction": {
       "es_field_datatype": "keyword",
@@ -575,6 +1149,9 @@
         "n": "Noncoding"
       }
     },
+    "END": {
+      "is_parsed": false
+    },
     "Ensembl_Gene_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "Ensembl_Gene_ID"
@@ -582,6 +1159,27 @@
     "Ensembl_Protein_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "Ensembl_Protein_ID"
+    },
+    "esp6500siv2_aa": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_aa"
+    },
+    "esp6500siv2_all": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_all"
+    },
+    "esp6500siv2_ea": {
+      "es_field_datatype": "float",
+      "es_field_name": "esp6500siv2_ea"
+    },
+    "EUR_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "EUR_AF"
+    },
+    "EX_TARGET": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "EX_TARGET",
+      "is_exists_only": true
     },
     "ExAC_AFR": {
       "es_field_datatype": "float",
@@ -611,16 +1209,6 @@
     "ExAC_NFE": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_NFE",
-      "null_value": 0
-    },
-    "ExAC_OTH": {
-      "es_field_datatype": "float",
-      "es_field_name": "ExAC_OTH",
-      "null_value": 0
-    },
-    "ExAC_SAS": {
-      "es_field_datatype": "float",
-      "es_field_name": "ExAC_SAS",
       "null_value": 0
     },
     "ExAC_nonpsych_AFR": {
@@ -703,9 +1291,23 @@
       "es_field_name": "ExAC_nontcga_SAS",
       "null_value": 0
     },
+    "ExAC_OTH": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_OTH",
+      "null_value": 0
+    },
+    "ExAC_SAS": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExAC_SAS",
+      "null_value": 0
+    },
     "Examined_samples": {
       "es_field_datatype": "keyword",
       "es_field_name": "Examined_samples"
+    },
+    "ExcessHet": {
+      "es_field_datatype": "float",
+      "es_field_name": "ExcessHet"
     },
     "ExonicFunc.ensGene": {
       "es_field_datatype": "keyword",
@@ -717,9 +1319,26 @@
       "es_field_name": "ExonicFunc_refGene",
       "overwrites": "Func.refGene"
     },
-    "ExcessHet": {
+    "FAO": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FAO"
+    },
+    "fathmm-MKL_coding_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "fathmm-MKL_coding_pred",
+      "value_mapping": {
+        "D": "Deleterious",
+        "N": "Neutral",
+        "T": "Tolerated"
+      }
+    },
+    "fathmm-MKL_coding_rankscore": {
       "es_field_datatype": "float",
-      "es_field_name": "ExcessHet"
+      "es_field_name": "fathmm-MKL_coding_rankscore"
+    },
+    "fathmm-MKL_coding_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "fathmm-MKL_coding_score"
     },
     "FATHMM_converted_rankscore": {
       "es_field_datatype": "float",
@@ -729,17 +1348,41 @@
       "es_field_datatype": "keyword",
       "es_field_name": "FATHMM_pred",
       "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "T": "Tolerated"
       }
+    },
+    "FatHmm_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "FatHmm_prediction",
+      "value_mapping": {
+        "D": "Deleterious",
+        "T": "Tolerated"
+      }
+    },
+    "FatHmm_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "FatHmm_score"
     },
     "FATHMM_score": {
       "es_field_datatype": "float",
       "es_field_name": "FATHMM_score"
     },
+    "FDP": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FDP"
+    },
+    "FR": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "FR"
+    },
+    "FRO": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FRO"
+    },
     "FS": {
-      "is_nested_label_field": true,
       "es_nested_path": "FS",
+      "is_nested_label_field": true,
       "nested_fields": {
         "FS_label": {
           "es_field_datatype": "keyword",
@@ -751,17 +1394,21 @@
         }
       }
     },
-    "FatHmm_prediction": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "FatHmm_prediction",
-      "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
-      }
+    "FSAF": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSAF"
     },
-    "FatHmm_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "FatHmm_score"
+    "FSAR": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSAR"
+    },
+    "FSRF": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSRF"
+    },
+    "FSRR": {
+      "es_field_datatype": "integer",
+      "es_field_name": "FSRR"
     },
     "Func.ensGene": {
       "es_field_datatype": "keyword",
@@ -770,6 +1417,48 @@
     "Func.refGene": {
       "es_field_datatype": "keyword",
       "es_field_name": "Func_refGene"
+    },
+    "FWDB": {
+      "es_field_datatype": "float",
+      "es_field_name": "FWDB"
+    },
+    "FXX": {
+      "es_field_datatype": "float",
+      "es_field_name": "FXX"
+    },
+    "Gene.ensGene": {
+      "comment": "It is possible that Gene.ensGene is present and GeneDetail.ensGene is not.",
+      "parse_function": "Gene_ensGene_parser",
+      "shares_nested_path": "AAChange.ensGene"
+    },
+    "Gene.refGene": {
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not.",
+      "parse_function": "Gene_refGene_parser",
+      "shares_nested_path": "AAChange.refGene"
+    },
+    "Gene_pos": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Gene_pos"
+    },
+    "Gene_symbol": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Gene_symbol"
+    },
+    "GeneDetail.ensGene": {
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not.",
+      "parse_with": "Gene.ensGene"
+    },
+    "GeneDetail.refGene": {
+      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not.",
+      "parse_with": "Gene.refGene"
+    },
+    "GenoCanyon_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "GenoCanyon_score"
+    },
+    "GenoCanyon_score_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "GenoCanyon_score_rankscore"
     },
     "GERP++_RS": {
       "es_field_datatype": "float",
@@ -798,87 +1487,43 @@
     },
     "GTEx_V6_tissue": {
       "es_field_datatype": "text",
-      "es_field_text_analyzer": "simple",
       "es_field_name": "GTEx_V6_tissue",
+      "es_field_text_analyzer": "simple",
       "parse_function": "GTEx_V6_tissue_parser"
     },
-    "Gene.ensGene": {
-      "shares_nested_path": "AAChange.ensGene",
-      "parse_function": "Gene_ensGene_parser",
-      "comment": "It is possible that Gene.ensGene is present and GeneDetail.ensGene is not."
-    },
-    "Gene.refGene": {
-      "shares_nested_path": "AAChange.refGene",
-      "parse_function": "Gene_refGene_parser",
-      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
-    },
-    "GeneDetail.ensGene": {
-      "parse_with": "Gene.ensGene",
-      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
-    },
-    "GeneDetail.refGene": {
-      "parse_with": "Gene.refGene",
-      "comment": "It is possible that Gene.refGene is present and GeneDetail.refGene is not."
-    },
-    "Gene_pos": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Gene_pos"
-    },
-    "Gene_symbol": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Gene_symbol"
-    },
-    "GenoCanyon_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "GenoCanyon_score"
-    },
-    "GenoCanyon_score_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "GenoCanyon_score_rankscore"
-    },
-    "HWP": {
-      "es_field_datatype": "float",
-      "es_field_name": "HWP"
+    "gwasCatalog": {
+      "es_field_datatype": "text",
+      "es_field_name": "gwasCatalog",
+      "es_field_text_analyzer": "simple",
+      "parse_function": "gwasCatalog_parser"
     },
     "HaplotypeScore": {
       "es_field_datatype": "float",
       "es_field_name": "HaplotypeScore"
     },
-    "InbreedingCoeff": {
-      "is_nested_label_field": true,
-      "es_nested_path": "InbreedingCoeff",
-      "nested_fields": {
-        "InbreedingCoeff_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "InbreedingCoeff_label"
-        },
-        "InbreedingCoeff_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "InbreedingCoeff_value"
-        }
-      }
+    "HRUN": {
+      "es_field_datatype": "integer",
+      "es_field_name": "HRUN"
     },
-    "InterVar(automated)": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "InterVar(automated)"
+    "HS": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "HS"
     },
-    "Interpro_domain": {
-      "es_field_datatype": "text",
-      "es_field_name": "Interpro_domain",
-      "es_field_text_analyzer": "simple"
+    "HWP": {
+      "es_field_datatype": "float",
+      "es_field_name": "HWP"
     },
     "ICGC_Id": {
       "es_field_datatype": "keyword",
       "es_field_name": "ICGC_Id"
     },
     "ICGC_Occurrence": {
-      "parse_function": "ICGC_Occurrence_parser",
       "es_nested_path": "ICGC_Occurrence",
       "nested_fields": {
         "cancer_name": {
           "es_field_datatype": "text",
-          "es_field_text_analyzer": "simple",
-          "es_field_name": "ICGC_Occurrence_cancer_name"
+          "es_field_name": "ICGC_Occurrence_cancer_name",
+          "es_field_text_analyzer": "simple"
         },
         "mutation_allele_count": {
           "es_field_datatype": "integer",
@@ -892,6 +1537,73 @@
           "es_field_datatype": "float",
           "es_field_name": "ICGC_Occurrence_total_allele_frequency"
         }
+      },
+      "parse_function": "ICGC_Occurrence_parser"
+    },
+    "IMPRECISE": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "IMPRECISE",
+      "is_exists_only": true
+    },
+    "InbreedingCoeff": {
+      "es_nested_path": "InbreedingCoeff",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "InbreedingCoeff_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "InbreedingCoeff_label"
+        },
+        "InbreedingCoeff_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "InbreedingCoeff_value"
+        }
+      }
+    },
+    "integrated_confidence_value": {
+      "es_field_datatype": "integer",
+      "es_field_name": "integrated_confidence_value"
+    },
+    "integrated_fitCons_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "integrated_fitCons_score"
+    },
+    "integrated_fitCons_score_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "integrated_fitCons_score_rankscore"
+    },
+    "Interpro_domain": {
+      "es_field_datatype": "text",
+      "es_field_name": "Interpro_domain",
+      "es_field_text_analyzer": "simple"
+    },
+    "InterVar(automated)": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "InterVar(automated)"
+    },
+    "LEN": {
+      "es_field_datatype": "integer",
+      "es_field_name": "LEN"
+    },
+    "LOF": {
+      "es_nested_path": "LOF",
+      "is_nested_label_field": false,
+      "nested_fields": {
+        "LOF_Gene_ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "LOF_Gene_ID"
+        },
+        "LOF_Gene_Name": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "LOF_Gene_Name"
+        },
+        "LOF_Number_of_transcripts_in_gene": {
+          "es_field_datatype": "integer",
+          "es_field_name": "LOF_Number_of_transcripts_in_gene"
+        },
+        "LOF_Percent_of_transcripts_affected": {
+          "es_field_datatype": "float",
+          "es_field_name": "LOF_Percent_of_transcripts_affected"
+        }
       }
     },
     "LRT_converted_rankscore": {
@@ -902,8 +1614,8 @@
       "es_field_datatype": "keyword",
       "es_field_name": "LRT_pred",
       "value_mapping": {
-        "N": "Neutral",
         "D": "Deleterious",
+        "N": "Neutral",
         "U": "Unknown"
       }
     },
@@ -915,8 +1627,8 @@
       "es_field_datatype": "keyword",
       "es_field_name": "M-CAP_pred",
       "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "T": "Tolerated"
       }
     },
     "M-CAP_rankscore": {
@@ -927,90 +1639,32 @@
       "es_field_datatype": "float",
       "es_field_name": "M-CAP_score"
     },
+    "MC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MC"
+    },
     "MCAP": {
       "es_field_datatype": "float",
       "es_field_name": "MCAP"
-    },
-    "MLEAC": {
-      "is_nested_label_field": true,
-      "es_nested_path": "MLEAC",
-      "nested_fields": {
-        "MLEAC_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MLEAC_label"
-        },
-        "MLEAC_value": {
-          "es_field_datatype": "integer",
-          "es_field_name": "MLEAC_value"
-        }
-      }
-    },
-    "MLEAF": {
-      "is_nested_label_field": true,
-      "es_nested_path": "MLEAF",
-      "nested_fields": {
-        "MLEAF_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MLEAF_label"
-        },
-        "MLEAF_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MLEAF_value"
-        }
-      }
-    },
-    "MQ": {
-      "is_nested_label_field": true,
-      "es_nested_path": "MQ",
-      "nested_fields": {
-        "MQ_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQ_label"
-        },
-        "MQ_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQ_value"
-        }
-      }
-    },
-    "MQ0": {
-      "is_nested_label_field": true,
-      "es_nested_path": "MQ0",
-      "nested_fields": {
-        "MQ0_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQ0_label"
-        },
-        "MQ0_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQ0_value"
-        }
-      }
-    },
-    "MQRankSum": {
-      "is_nested_label_field": true,
-      "es_nested_path": "MQRankSum",
-      "nested_fields": {
-        "MQRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQRankSum_label"
-        },
-        "MQRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQRankSum_value"
-        }
-      }
     },
     "Mean_MI_score": {
       "es_field_datatype": "float",
       "es_field_name": "Mean_MI_score"
     },
+    "MEINFO": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "MEINFO"
+    },
+    "MEND": {
+      "es_field_datatype": "integer",
+      "es_field_name": "MEND"
+    },
     "MetaLR_pred": {
       "es_field_datatype": "keyword",
       "es_field_name": "MetaLR_pred",
       "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "T": "Tolerated"
       }
     },
     "MetaLR_rankscore": {
@@ -1025,8 +1679,8 @@
       "es_field_datatype": "keyword",
       "es_field_name": "MetaSVM_pred",
       "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "T": "Tolerated"
       }
     },
     "MetaSVM_rankscore": {
@@ -1036,6 +1690,97 @@
     "MetaSVM_score": {
       "es_field_datatype": "float",
       "es_field_name": "MetaSVM_score"
+    },
+    "mitimpact2": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "mitimpact2"
+    },
+    "MLEAC": {
+      "es_nested_path": "MLEAC",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "MLEAC_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MLEAC_label"
+        },
+        "MLEAC_value": {
+          "es_field_datatype": "integer",
+          "es_field_name": "MLEAC_value"
+        }
+      }
+    },
+    "MLEAF": {
+      "es_nested_path": "MLEAF",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "MLEAF_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MLEAF_label"
+        },
+        "MLEAF_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MLEAF_value"
+        }
+      }
+    },
+    "MLEN": {
+      "es_field_datatype": "integer",
+      "es_field_name": "MLEN"
+    },
+    "MLLD": {
+      "es_field_datatype": "float",
+      "es_field_name": "MLLD"
+    },
+    "MQ": {
+      "es_nested_path": "MQ",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "MQ_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQ_label"
+        },
+        "MQ_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQ_value"
+        }
+      }
+    },
+    "MQ0": {
+      "es_nested_path": "MQ0",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "MQ0_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQ0_label"
+        },
+        "MQ0_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQ0_value"
+        }
+      }
+    },
+    "MQRankSum": {
+      "es_nested_path": "MQRankSum",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "MQRankSum_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "MQRankSum_label"
+        },
+        "MQRankSum_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "MQRankSum_value"
+        }
+      }
+    },
+    "MSTART": {
+      "es_field_datatype": "integer",
+      "es_field_name": "MSTART"
+    },
+    "MULTI_ALLELIC": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "MULTI_ALLELIC",
+      "is_exists_only": true
     },
     "MutAss_pred_transf": {
       "es_field_datatype": "keyword",
@@ -1053,13 +1798,17 @@
       "es_field_datatype": "float",
       "es_field_name": "MutAss_score_transf"
     },
+    "Mutation_frequency": {
+      "es_field_datatype": "float",
+      "es_field_name": "Mutation_frequency"
+    },
     "MutationAssessor_pred": {
       "es_field_datatype": "keyword",
       "es_field_name": "MutationAssessor_pred",
       "value_mapping": {
         "H": "High",
-        "M": "Medium",
         "L": "Low",
+        "M": "Medium",
         "N": "Neutral"
       }
     },
@@ -1089,10 +1838,6 @@
       "es_field_datatype": "float",
       "es_field_name": "MutationTaster_score"
     },
-    "Mutation_frequency": {
-      "es_field_datatype": "float",
-      "es_field_name": "Mutation_frequency"
-    },
     "NCBI_Gene_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "NCBI_Gene_ID"
@@ -1110,9 +1855,123 @@
       "es_field_name": "NEGATIVE_TRAIN_SITE",
       "is_exists_only": true
     },
+    "NMD": {
+      "es_nested_path": "NMD",
+      "is_nested_label_field": false,
+      "nested_fields": {
+        "NMD_Gene_ID": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "NMD_Gene_ID"
+        },
+        "NMD_Gene_Name": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "NMD_Gene_Name"
+        },
+        "NMD_Number_of_transcripts_in_gene": {
+          "es_field_datatype": "integer",
+          "es_field_name": "NMD_Number_of_transcripts_in_gene"
+        },
+        "NMD_Percent_of_transcripts_affected": {
+          "es_field_datatype": "float",
+          "es_field_name": "NMD_Percent_of_transcripts_affected"
+        }
+      }
+    },
+    "NS": {
+      "es_field_datatype": "integer",
+      "es_field_name": "NS"
+    },
+    "OALT": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OALT"
+    },
+    "OID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OID"
+    },
+    "OLD_MULTIALLELIC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OLD_MULTIALLELIC"
+    },
+    "OLD_VARIANT": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OLD_VARIANT"
+    },
+    "OMAPALT": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OMAPALT"
+    },
+    "OPOS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OPOS"
+    },
+    "OREF": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "OREF"
+    },
     "OXPHOS_Complex": {
       "es_field_datatype": "keyword",
       "es_field_name": "OXPHOS_Complex"
+    },
+    "PB": {
+      "es_field_datatype": "float",
+      "es_field_name": "PB"
+    },
+    "PBP": {
+      "es_field_datatype": "float",
+      "es_field_name": "PBP"
+    },
+    "Perc_coevo_Sites": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Perc_coevo_Sites"
+    },
+    "phastCons100way_vertebrate": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons100way_vertebrate"
+    },
+    "phastCons100way_vertebrate_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons100way_vertebrate_rankscore"
+    },
+    "phastCons20way_mammalian": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons20way_mammalian"
+    },
+    "phastCons20way_mammalian_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phastCons20way_mammalian_rankscore"
+    },
+    "PhastCons_100V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhastCons_100V"
+    },
+    "PhastCons_46V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhastCons_46V"
+    },
+    "phyloP100way_vertebrate": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP100way_vertebrate"
+    },
+    "phyloP100way_vertebrate_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP100way_vertebrate_rankscore"
+    },
+    "phyloP20way_mammalian": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP20way_mammalian"
+    },
+    "phyloP20way_mammalian_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "phyloP20way_mammalian_rankscore"
+    },
+    "PhyloP_100V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhyloP_100V"
+    },
+    "PhyloP_46V": {
+      "es_field_datatype": "float",
+      "es_field_name": "PhyloP_46V"
     },
     "PM1": {
       "es_field_datatype": "integer",
@@ -1137,6 +1996,56 @@
     "PM6": {
       "es_field_datatype": "integer",
       "es_field_name": "PM6"
+    },
+    "Polyphen2_HDIV_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Polyphen2_HDIV_pred",
+      "value_mapping": {
+        "B": "benign",
+        "D": "probably_damaging",
+        "P": "possibly_damaging"
+      }
+    },
+    "Polyphen2_HDIV_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HDIV_rankscore"
+    },
+    "Polyphen2_HDIV_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HDIV_score"
+    },
+    "Polyphen2_HVAR_pred": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Polyphen2_HVAR_pred",
+      "value_mapping": {
+        "B": "benign",
+        "D": "probably_damaging",
+        "P": "possibly_damaging"
+      }
+    },
+    "Polyphen2_HVAR_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HVAR_rankscore"
+    },
+    "Polyphen2_HVAR_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "Polyphen2_HVAR_score"
+    },
+    "PolyPhen2_pred_transf": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PolyPhen2_pred_transf"
+    },
+    "PolyPhen2_prediction": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "PolyPhen2_prediction"
+    },
+    "PolyPhen2_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "PolyPhen2_score"
+    },
+    "PolyPhen2_score_transf": {
+      "es_field_datatype": "float",
+      "es_field_name": "PolyPhen2_score_transf"
     },
     "POSITIVE_TRAIN_SITE": {
       "es_field_datatype": "boolean",
@@ -1163,6 +2072,18 @@
       "es_field_datatype": "integer",
       "es_field_name": "PP5"
     },
+    "Presence_in_TD": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Presence_in_TD"
+    },
+    "Prob_N": {
+      "es_field_datatype": "float",
+      "es_field_name": "Prob_N"
+    },
+    "Prob_P": {
+      "es_field_datatype": "float",
+      "es_field_name": "Prob_P"
+    },
     "PROVEAN_converted_rankscore": {
       "es_field_datatype": "float",
       "es_field_name": "PROVEAN_converted_rankscore"
@@ -1171,16 +2092,16 @@
       "es_field_datatype": "keyword",
       "es_field_name": "PROVEAN_pred",
       "value_mapping": {
-        "N": "Neutral",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "N": "Neutral"
       }
     },
     "PROVEAN_prediction": {
       "es_field_datatype": "keyword",
       "es_field_name": "PROVEAN_prediction",
       "value_mapping": {
-        "N": "Neutral",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "N": "Neutral"
       }
     },
     "PROVEAN_score": {
@@ -1207,91 +2128,9 @@
       "es_field_datatype": "integer",
       "es_field_name": "PVS1"
     },
-    "Perc_coevo_Sites": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Perc_coevo_Sites"
-    },
-    "PhastCons_100V": {
-      "es_field_datatype": "float",
-      "es_field_name": "PhastCons_100V"
-    },
-    "PhastCons_46V": {
-      "es_field_datatype": "float",
-      "es_field_name": "PhastCons_46V"
-    },
-    "PhyloP_100V": {
-      "es_field_datatype": "float",
-      "es_field_name": "PhyloP_100V"
-    },
-    "PhyloP_46V": {
-      "es_field_datatype": "float",
-      "es_field_name": "PhyloP_46V"
-    },
-    "PolyPhen2_pred_transf": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "PolyPhen2_pred_transf"
-    },
-    "PolyPhen2_prediction": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "PolyPhen2_prediction"
-    },
-    "PolyPhen2_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "PolyPhen2_score"
-    },
-    "PolyPhen2_score_transf": {
-      "es_field_datatype": "float",
-      "es_field_name": "PolyPhen2_score_transf"
-    },
-    "Polyphen2_HDIV_pred": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Polyphen2_HDIV_pred",
-      "value_mapping": {
-        "D": "probably_damaging",
-        "P": "possibly_damaging",
-        "B": "benign"
-      }
-    },
-    "Polyphen2_HDIV_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "Polyphen2_HDIV_rankscore"
-    },
-    "Polyphen2_HDIV_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "Polyphen2_HDIV_score"
-    },
-    "Polyphen2_HVAR_pred": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Polyphen2_HVAR_pred",
-      "value_mapping": {
-        "D": "probably_damaging",
-        "P": "possibly_damaging",
-        "B": "benign"
-      }
-    },
-    "Polyphen2_HVAR_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "Polyphen2_HVAR_rankscore"
-    },
-    "Polyphen2_HVAR_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "Polyphen2_HVAR_score"
-    },
-    "Presence_in_TD": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Presence_in_TD"
-    },
-    "Prob_N": {
-      "es_field_datatype": "float",
-      "es_field_name": "Prob_N"
-    },
-    "Prob_P": {
-      "es_field_datatype": "float",
-      "es_field_name": "Prob_P"
-    },
     "QD": {
-      "is_nested_label_field": true,
       "es_nested_path": "QD",
+      "is_nested_label_field": true,
       "nested_fields": {
         "QD_label": {
           "es_field_datatype": "keyword",
@@ -1307,14 +2146,13 @@
       "es_field_datatype": "float",
       "es_field_name": "RAW_MQ"
     },
-    "REVEL": {
+    "RBI": {
       "es_field_datatype": "float",
-      "es_field_name": "REVEL",
-      "null_value": 0
+      "es_field_name": "RBI"
     },
     "ReadPosRankSum": {
-      "is_nested_label_field": true,
       "es_nested_path": "ReadPosRankSum",
+      "is_nested_label_field": true,
       "nested_fields": {
         "ReadPosRankSum_label": {
           "es_field_datatype": "keyword",
@@ -1326,6 +2164,35 @@
         }
       }
     },
+    "REFB": {
+      "es_field_datatype": "float",
+      "es_field_name": "REFB"
+    },
+    "REVB": {
+      "es_field_datatype": "float",
+      "es_field_name": "REVB"
+    },
+    "REVEL": {
+      "es_field_datatype": "float",
+      "es_field_name": "REVEL",
+      "null_value": 0
+    },
+    "RO": {
+      "es_field_datatype": "integer",
+      "es_field_name": "RO"
+    },
+    "SAF": {
+      "es_field_datatype": "integer",
+      "es_field_name": "SAF"
+    },
+    "SAR": {
+      "es_field_datatype": "integer",
+      "es_field_name": "SAR"
+    },
+    "SAS_AF": {
+      "es_field_datatype": "float",
+      "es_field_name": "SAS_AF"
+    },
     "SIFT_converted_rankscore": {
       "es_field_datatype": "float",
       "es_field_name": "SIFT_converted_rankscore"
@@ -1334,8 +2201,8 @@
       "es_field_datatype": "keyword",
       "es_field_name": "SIFT_pred",
       "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious"
+        "D": "Deleterious",
+        "T": "Tolerated"
       }
     },
     "SIFT_pred_transf": {
@@ -1354,20 +2221,6 @@
       "es_field_datatype": "float",
       "es_field_name": "SIFT_score_transf"
     },
-    "SOR": {
-      "is_nested_label_field": true,
-      "es_nested_path": "SOR",
-      "nested_fields": {
-        "SOR_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "SOR_label"
-        },
-        "SOR_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "SOR_value"
-        }
-      }
-    },
     "SiPhy_29way_logOdds": {
       "es_field_datatype": "float",
       "es_field_name": "SiPhy_29way_logOdds"
@@ -1380,288 +2233,23 @@
       "es_field_datatype": "keyword",
       "es_field_name": "SiteVar"
     },
-    "Status": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Status"
-    },
-    "Tumor_site": {
-      "es_field_datatype": "text",
-      "es_field_name": "Tumor_site"
-    },
-    "US": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "US"
-    },
-    "Uniprot_ID": {
-      "es_field_datatype": "keywords",
-      "es_field_name": "Uniprot_ID"
-    },
-    "Uniprot_Name": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "Uniprot_Name"
-    },
-    "VEST3_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "VEST3_rankscore"
-    },
-    "VEST3_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "VEST3_score"
-    },
-    "VQSLOD": {
-      "is_nested_label_field": true,
-      "es_nested_path": "VQSLOD",
-      "nested_fields": {
-        "VQSLOD_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "VQSLOD_label"
-        },
-        "VQSLOD_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "VQSLOD_value"
-        }
-      }
-    },
-    "avsnp147": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "avsnp147"
-    },
-    "avsnp150": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "avsnp150"
-    },
-    "culprit": {
-      "is_nested_label_field": true,
-      "es_nested_path": "culprit",
-      "nested_fields": {
-        "culprit_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "culprit_label"
-        },
-        "culprit_value": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "culprit_value"
-        }
-      }
-    },
-    "cytoBand": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "cytoBand"
-    },
-    "dbSNP_ID": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "dbSNP_ID"
-    },
-    "dbscSNV_ADA_SCORE": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "dbscSNV_ADA_SCORE"
-    },
-    "dbscSNV_RF_SCORE": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "dbscSNV_RF_SCORE"
-    },
-    "esp6500siv2_aa": {
-      "es_field_datatype": "float",
-      "es_field_name": "esp6500siv2_aa"
-    },
-    "esp6500siv2_all": {
-      "es_field_datatype": "float",
-      "es_field_name": "esp6500siv2_all"
-    },
-    "esp6500siv2_ea": {
-      "es_field_datatype": "float",
-      "es_field_name": "esp6500siv2_ea"
-    },
-    "fathmm-MKL_coding_pred": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "fathmm-MKL_coding_pred",
-      "value_mapping": {
-        "T": "Tolerated",
-        "D": "Deleterious",
-        "N": "Neutral"
-      }
-    },
-    "fathmm-MKL_coding_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "fathmm-MKL_coding_rankscore"
-    },
-    "fathmm-MKL_coding_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "fathmm-MKL_coding_score"
-    },
-    "gwasCatalog": {
-      "es_field_datatype": "text",
-      "es_field_name": "gwasCatalog",
-      "es_field_text_analyzer": "simple",
-      "parse_function": "gwasCatalog_parser"
-    },
-    "integrated_confidence_value": {
-      "es_field_datatype": "integer",
-      "es_field_name": "integrated_confidence_value"
-    },
-    "integrated_fitCons_score": {
-      "es_field_datatype": "float",
-      "es_field_name": "integrated_fitCons_score"
-    },
-    "integrated_fitCons_score_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "integrated_fitCons_score_rankscore"
-    },
-    "phastCons100way_vertebrate": {
-      "es_field_datatype": "float",
-      "es_field_name": "phastCons100way_vertebrate"
-    },
-    "phastCons100way_vertebrate_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "phastCons100way_vertebrate_rankscore"
-    },
-    "phastCons20way_mammalian": {
-      "es_field_datatype": "float",
-      "es_field_name": "phastCons20way_mammalian"
-    },
-    "phastCons20way_mammalian_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "phastCons20way_mammalian_rankscore"
-    },
-    "phyloP100way_vertebrate": {
-      "es_field_datatype": "float",
-      "es_field_name": "phyloP100way_vertebrate"
-    },
-    "phyloP100way_vertebrate_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "phyloP100way_vertebrate_rankscore"
-    },
-    "phyloP20way_mammalian": {
-      "es_field_datatype": "float",
-      "es_field_name": "phyloP20way_mammalian"
-    },
-    "phyloP20way_mammalian_rankscore": {
-      "es_field_datatype": "float",
-      "es_field_name": "phyloP20way_mammalian_rankscore"
-    },
     "snp138NonFlagged": {
       "es_field_datatype": "keyword",
       "es_field_name": "snp138NonFlagged"
     },
-    "targetScanS": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "targetScanS"
-    },
-    "tfbsConsSites": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "tfbsConsSites"
-    },
-    "wgRna": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "wgRna"
-    },
-    "NS": {
-      "es_field_datatype": "integer",
-      "es_field_name": "NS"
-    },
-    "AO": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AO"
-    },
-    "FAO": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FAO"
-    },
-    "FDP": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FDP"
-    },
-    "FR": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "FR"
-    },
-    "FRO": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FRO"
-    },
-    "FSAF": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FSAF"
-    },
-    "FSAR": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FSAR"
-    },
-    "FSRF": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FSRF"
-    },
-    "FSRR": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FSRR"
-    },
-    "FWDB": {
-      "es_field_datatype": "float",
-      "es_field_name": "FWDB"
-    },
-    "FXX": {
-      "es_field_datatype": "float",
-      "es_field_name": "FXX"
-    },
-    "HRUN": {
-      "es_field_datatype": "integer",
-      "es_field_name": "HRUN"
-    },
-    "HS": {
-      "es_field_datatype": "boolean",
-      "es_field_name": "HS"
-    },
-    "LEN": {
-      "es_field_datatype": "integer",
-      "es_field_name": "LEN"
-    },
-    "MLLD": {
-      "es_field_datatype": "float",
-      "es_field_name": "MLLD"
-    },
-    "OALT": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "OALT"
-    },
-    "OID": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "OID"
-    },
-    "OMAPALT": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "OMAPALT"
-    },
-    "OPOS": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "OPOS"
-    },
-    "OREF": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "OREF"
-    },
-    "RBI": {
-      "es_field_datatype": "float",
-      "es_field_name": "RBI"
-    },
-    "REFB": {
-      "es_field_datatype": "float",
-      "es_field_name": "REFB"
-    },
-    "REVB": {
-      "es_field_datatype": "float",
-      "es_field_name": "REVB"
-    },
-    "RO": {
-      "es_field_datatype": "integer",
-      "es_field_name": "RO"
-    },
-    "SAF": {
-      "es_field_datatype": "integer",
-      "es_field_name": "SAF"
-    },
-    "SAR": {
-      "es_field_datatype": "integer",
-      "es_field_name": "SAR"
+    "SOR": {
+      "es_nested_path": "SOR",
+      "is_nested_label_field": true,
+      "nested_fields": {
+        "SOR_label": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "SOR_label"
+        },
+        "SOR_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "SOR_value"
+        }
+      }
     },
     "SRF": {
       "es_field_datatype": "integer",
@@ -1683,6 +2271,10 @@
       "es_field_datatype": "float",
       "es_field_name": "SSSB"
     },
+    "Status": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Status"
+    },
     "STB": {
       "es_field_datatype": "float",
       "es_field_name": "STB"
@@ -1691,554 +2283,79 @@
       "es_field_datatype": "float",
       "es_field_name": "STBP"
     },
+    "SVLEN": {
+      "es_field_datatype": "integer",
+      "es_field_name": "SVLEN"
+    },
+    "SVTYPE": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "SVTYPE"
+    },
+    "targetScanS": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "targetScanS"
+    },
+    "tfbsConsSites": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "tfbsConsSites"
+    },
+    "TSD": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "TSD"
+    },
+    "Tumor_site": {
+      "es_field_datatype": "text",
+      "es_field_name": "Tumor_site"
+    },
     "TYPE": {
       "es_field_datatype": "keyword",
       "es_field_name": "TYPE"
+    },
+    "Uniprot_ID": {
+      "es_field_datatype": "keywords",
+      "es_field_name": "Uniprot_ID"
+    },
+    "Uniprot_Name": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "Uniprot_Name"
+    },
+    "US": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "US"
     },
     "VARB": {
       "es_field_datatype": "float",
       "es_field_name": "VARB"
     },
-    "cosmic70": {
-      "parse_function": "cosmic70_parser",
-      "es_nested_path": "cosmic70",
+    "VEST3_rankscore": {
+      "es_field_datatype": "float",
+      "es_field_name": "VEST3_rankscore"
+    },
+    "VEST3_score": {
+      "es_field_datatype": "float",
+      "es_field_name": "VEST3_score"
+    },
+    "VQSLOD": {
+      "es_nested_path": "VQSLOD",
+      "is_nested_label_field": true,
       "nested_fields": {
-        "ID": {
+        "VQSLOD_label": {
           "es_field_datatype": "keyword",
-          "es_field_name": "cosmic70_ID"
+          "es_field_name": "VQSLOD_label"
         },
-        "OCCURENCE": {
-          "es_field_datatype": "text",
-          "es_field_name": "cosmic70_OCCURENCE",
-          "es_field_text_analyzer": "simple"
+        "VQSLOD_value": {
+          "es_field_datatype": "float",
+          "es_field_name": "VQSLOD_value"
         }
       }
     },
-    "PB": {
-      "es_field_datatype": "float",
-      "es_field_name": "PB"
-    },
-    "PBP": {
-      "es_field_datatype": "float",
-      "es_field_name": "PBP"
-    },
-    "CSQ_AA_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_AA_AF"
-    },
-    "CSQ_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_AF"
-    },
-    "CSQ_AFR_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_AFR_AF"
-    },
-    "CSQ_AMR_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_AMR_AF"
-    },
-    "CSQ_Allele": {
+    "VT": {
       "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_Allele"
+      "es_field_name": "VT"
     },
-    "CSQ_CANONICAL": {
+    "wgRna": {
       "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_CANONICAL"
-    },
-    "CSQ_CLIN_SIG": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_CLIN_SIG"
-    },
-    "CSQ_EAS_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_EAS_AF"
-    },
-    "CSQ_EA_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_EA_AF"
-    },
-    "CSQ_EUR_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_EUR_AF"
-    },
-    "CSQ_Existing_variation": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_Existing_variation"
-    },
-    "CSQ_GENE_PHENO": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_GENE_PHENO"
-    },
-    "CSQ_MAX_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_MAX_AF"
-    },
-    "CSQ_MAX_AF_POPS": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_MAX_AF_POPS"
-    },
-    "CSQ_PHENO": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_PHENO"
-    },
-    "CSQ_PUBMED": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_PUBMED"
-    },
-    "CSQ_SAS_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_SAS_AF"
-    },
-    "CSQ_SOMATIC": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_SOMATIC"
-    },
-    "CSQ_VARIANT_CLASS": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_VARIANT_CLASS"
-    },
-    "CSQ_gnomAD_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_AF"
-    },
-    "CSQ_gnomAD_AFR_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_AFR_AF"
-    },
-    "CSQ_gnomAD_AMR_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_AMR_AF"
-    },
-    "CSQ_gnomAD_ASJ_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_ASJ_AF"
-    },
-    "CSQ_gnomAD_EAS_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_EAS_AF"
-    },
-    "CSQ_gnomAD_FIN_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_FIN_AF"
-    },
-    "CSQ_gnomAD_NFE_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_NFE_AF"
-    },
-    "CSQ_gnomAD_OTH_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_OTH_AF"
-    },
-    "CSQ_gnomAD_SAS_AF": {
-      "es_field_datatype": "float",
-      "es_field_name": "CSQ_gnomAD_SAS_AF"
-    },
-    "CSQ_nested": {
-      "is_nested_label_field": false,
-      "es_nested_path": "CSQ_nested",
-      "nested_fields": {
-        "CSQ_nested_APPRIS": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_APPRIS"
-        },
-        "CSQ_nested_Amino_acids": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Amino_acids"
-        },
-        "CSQ_nested_BIOTYPE": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_BIOTYPE"
-        },
-        "CSQ_nested_CCDS": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_CCDS"
-        },
-        "CSQ_nested_CDS_position_start": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_CDS_position_start"
-        },
-        "CSQ_nested_CDS_position_end": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_CDS_position_end"
-        },
-        "CSQ_nested_Codons": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Codons"
-        },
-        "CSQ_nested_Consequence": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Consequence"
-        },
-        "CSQ_nested_DISTANCE": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_DISTANCE"
-        },
-        "CSQ_nested_DOMAINS": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_DOMAINS"
-        },
-        "CSQ_nested_ENSP": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_ENSP"
-        },
-        "CSQ_nested_EXON": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_EXON"
-        },
-        "CSQ_nested_FLAGS": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_FLAGS"
-        },
-        "CSQ_nested_Feature": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Feature"
-        },
-        "CSQ_nested_Feature_type": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Feature_type"
-        },
-        "CSQ_nested_Gene": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_Gene"
-        },
-        "CSQ_nested_HGNC_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_HGNC_ID"
-        },
-        "CSQ_nested_HGVS_OFFSET": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_HGVS_OFFSET"
-        },
-        "CSQ_nested_HGVSc": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_HGVSc"
-        },
-        "CSQ_nested_HGVSp": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_HGVSp"
-        },
-        "CSQ_nested_HIGH_INF_POS": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_HIGH_INF_POS"
-        },
-        "CSQ_nested_IMPACT": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_IMPACT"
-        },
-        "CSQ_nested_INTRON": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_INTRON"
-        },
-        "CSQ_nested_MOTIF_NAME": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_MOTIF_NAME"
-        },
-        "CSQ_nested_MOTIF_POS": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_MOTIF_POS"
-        },
-        "CSQ_nested_MOTIF_SCORE_CHANGE": {
-          "es_field_datatype": "float",
-          "es_field_name": "CSQ_nested_MOTIF_SCORE_CHANGE"
-        },
-        "CSQ_nested_PolyPhen_prediction": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_PolyPhen_prediction"
-        },
-        "CSQ_nested_PolyPhen_score": {
-          "es_field_datatype": "float",
-          "es_field_name": "CSQ_nested_PolyPhen_score"
-        },
-        "CSQ_nested_Protein_position_start": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_Protein_position_start"
-        },
-        "CSQ_nested_Protein_position_end": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_Protein_position_end"
-        },
-        "CSQ_nested_SIFT_prediction": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_SIFT_prediction"
-        },
-        "CSQ_nested_SIFT_score": {
-          "es_field_datatype": "float",
-          "es_field_name": "CSQ_nested_SIFT_score"
-        },
-        "CSQ_nested_STRAND": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_STRAND"
-        },
-        "CSQ_nested_SWISSPROT": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_SWISSPROT"
-        },
-        "CSQ_nested_SYMBOL": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_SYMBOL"
-        },
-        "CSQ_nested_SYMBOL_SOURCE": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_SYMBOL_SOURCE"
-        },
-        "CSQ_nested_TREMBL": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_TREMBL"
-        },
-        "CSQ_nested_TSL": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_TSL"
-        },
-        "CSQ_nested_UNIPARC": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "CSQ_nested_UNIPARC"
-        },
-        "CSQ_nested_cDNA_position_start": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_cDNA_position_start"
-        },
-        "CSQ_nested_cDNA_position_end": {
-          "es_field_datatype": "integer",
-          "es_field_name": "CSQ_nested_cDNA_position_end"
-        }
-      }
-    },
-    "ANN_Allele": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "ANN_Allele"
-    },
-    "ANN_nested": {
-      "is_nested_label_field": false,
-      "es_nested_path": "ANN_nested",
-      "nested_fields": {
-        "ANN_nested_AA_pos": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_AA_pos"
-        },
-        "ANN_nested_AA_length": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_AA_length"
-        },
-        "ANN_nested_Annotation": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Annotation"
-        },
-        "ANN_nested_Annotation_Impact": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Annotation_Impact"
-        },
-        "ANN_nested_CDS_pos": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_CDS_pos"
-        },
-        "ANN_nested_CDS_length": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_CDS_length"
-        },
-        "ANN_nested_Distance": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_Distance"
-        },
-        "ANN_nested_ERRORS/WARNINGS/INFO": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_ERRORS/WARNINGS/INFO"
-        },
-        "ANN_nested_Feature_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Feature_ID"
-        },
-        "ANN_nested_Feature_Type": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Feature_Type"
-        },
-        "ANN_nested_Gene_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Gene_ID"
-        },
-        "ANN_nested_Gene_Name": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Gene_Name"
-        },
-        "ANN_nested_HGVS_c": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_HGVS_c"
-        },
-        "ANN_nested_HGVS_p": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_HGVS_p"
-        },
-        "ANN_nested_Rank": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Rank"
-        },
-        "ANN_nested_Transcript_BioType": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ANN_nested_Transcript_BioType"
-        },
-        "ANN_nested_cDNA_pos": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_cDNA_pos"
-        },
-        "ANN_nested_cDNA_length": {
-          "es_field_datatype": "integer",
-          "es_field_name": "ANN_nested_cDNA_length"
-        }
-      }
-    },
-    "LOF": {
-      "is_nested_label_field": false,
-      "es_nested_path": "LOF",
-      "nested_fields": {
-        "LOF_Gene_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "LOF_Gene_ID"
-        },
-        "LOF_Gene_Name": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "LOF_Gene_Name"
-        },
-        "LOF_Number_of_transcripts_in_gene": {
-          "es_field_datatype": "integer",
-          "es_field_name": "LOF_Number_of_transcripts_in_gene"
-        },
-        "LOF_Percent_of_transcripts_affected": {
-          "es_field_datatype": "float",
-          "es_field_name": "LOF_Percent_of_transcripts_affected"
-        }
-      }
-    },
-    "NMD": {
-      "is_nested_label_field": false,
-      "es_nested_path": "NMD",
-      "nested_fields": {
-        "NMD_Gene_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "NMD_Gene_ID"
-        },
-        "NMD_Gene_Name": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "NMD_Gene_Name"
-        },
-        "NMD_Number_of_transcripts_in_gene": {
-          "es_field_datatype": "integer",
-          "es_field_name": "NMD_Number_of_transcripts_in_gene"
-        },
-        "NMD_Percent_of_transcripts_affected": {
-          "es_field_datatype": "float",
-          "es_field_name": "NMD_Percent_of_transcripts_affected"
-        }
-      }
-    }
-  },
-  "FORMAT_FIELDS": {
-    "es_nested_path": "sample",
-    "parse_function": "sample_information_parser",
-    "nested_fields": {
-      "sample_ID": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_ID"
-      },
-      "sample_label": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_label"
-      },
-      "AD": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_AD"
-      },
-      "DP": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_DP"
-      },
-      "GQ": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_GQ"
-      },
-      "GT": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_GT"
-      },
-      "MIN_DP": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_MIN_DP"
-      },
-      "PGT": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_PGT"
-      },
-      "PID": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_PID"
-      },
-      "PL": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_PL"
-      },
-      "RGQ": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_RGQ"
-      },
-      "SB": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_SB"
-      },
-      "RO": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_RO"
-      },
-      "AO": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_AO"
-      },
-      "SRF": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_SRF"
-      },
-      "SRR": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_SRR"
-      },
-      "SAF": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_SAF"
-      },
-      "SAR": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_SAR"
-      },
-      "FDP": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FDP"
-      },
-      "FRO": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FRO"
-      },
-      "FAO": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FAO"
-      },
-      "AF": {
-        "es_field_datatype": "float",
-        "es_field_name": "sample_AF"
-      },
-      "FSRF": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FSRF"
-      },
-      "FSRR": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FSRR"
-      },
-      "FSAF": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FSAF"
-      },
-      "FSAR": {
-        "es_field_datatype": "integer",
-        "es_field_name": "sample_FSAR"
-      }
+      "es_field_name": "wgRna"
     }
   }
 }
