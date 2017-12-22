@@ -1,7 +1,7 @@
 source /home/mkzia/GDW/env/bin/activate
 export PATH=/home/mkzia/GDW/env/bin/python:$PATH
 
-IPADDRESS=172.17.39.0
+IPADDRESS=$(hostname --ip-address)
 
 /home/mkzia/GDW/env/bin/python inspect_vcf.py --index ten_samples_annovar --type ten_samples_annovar --vcf ~/annovar_annotation/ALL.1kg.annovar.10sample_5000000.vcf --labels None;
 
