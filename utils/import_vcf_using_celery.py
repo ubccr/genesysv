@@ -72,8 +72,9 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
     run_dependent_fields = run_dependent_fixed_fields + run_dependent_info_fields + ['sample']
 
     no_lines = estimate_no_variants_in_file(vcf_filename, 200000)
-    # no_lines = 10000
+    # no_lines = 5000
     time_now = datetime.now()
+    print('Importing from VCF file: ', vcf_filename)
     print('Importing an estimated %d variants into Elasticsearch' %(no_lines))
     header_found = False
     exception_vcf_line_io_mode = 'w'

@@ -61,15 +61,6 @@ def main():
     print(OK)
 
     unrecognized_info_fields = sorted(list(set(info_fields.keys()) - set(recognized_info_fields)))
-    if unrecognized_info_fields:
-        print('The following INFO fields were not recognized: \n%s' %('\n'.join(unrecognized_info_fields)))
-        msg = 'This script will try to determine their data type.'.ljust(80,'.')
-        print(msg, end="")
-        print(WARNING)
-    else:
-        msg = 'All parsed INFO fields are recognized.'.ljust(80,'.')
-        print(msg, end="")
-        print(OK)
 
     if 'CSQ' in unrecognized_info_fields:
         CSQ_present = True
@@ -84,6 +75,18 @@ def main():
         ANN_fields = {field for field in recognized_info_fields if field.startswith('ANN')}
     else:
         ANN_present = False
+
+
+    if unrecognized_info_fields:
+        print('The following INFO fields were not recognized: \n%s' %('\n'.join(unrecognized_info_fields)))
+        msg = 'This script will try to determine their data type.'.ljust(80,'.')
+        print(msg, end="")
+        print(WARNING)
+    else:
+        msg = 'All parsed INFO fields are recognized.'.ljust(80,'.')
+        print(msg, end="")
+        print(OK)
+
 
 
     # Parse format (sample) fields
@@ -314,4 +317,5 @@ if __name__ == '__main__':
 
 
 # python inspect_vcf.py --n 100000 --index sim --type wes --vcf 20170419_SIM_WES_CASE.hg19_multianno.vcf --labels None
+
 
