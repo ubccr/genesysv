@@ -566,6 +566,21 @@
     "sub_panel": "Ensembl Identifier",
     "tab": "Basic"
   },
+  "ensGene_location": {
+    "filters": [
+      {
+        "display_text": "Exon ID",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "ensGene",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Gene/Transcript",
+    "sub_panel": "Ensembl Identifier",
+    "tab": "Basic"
+  },
   "ensGene_cDNA_change": {
     "filters": [
       {
@@ -590,21 +605,6 @@
         "in_line_tooltip": "(e.g. p.T243A)",
         "path": "ensGene",
         "widget_type": "TextInput"
-      }
-    ],
-    "panel": "Gene/Transcript",
-    "sub_panel": "Ensembl Identifier",
-    "tab": "Basic"
-  },
-  "ensGene_location": {
-    "filters": [
-      {
-        "display_text": "Exon ID",
-        "es_filter_type": "nested_filter_terms",
-        "form_type": "MultipleChoiceField",
-        "path": "ensGene",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "Gene/Transcript",
@@ -2169,7 +2169,8 @@
       }
     ],
     "panel": "Disease Association",
-    "sub_panel": "International Cancer Genome Consortium (ICGC)"
+    "sub_panel": "International Cancer Genome Consortium (ICGC)",
+    "tab": "Basic"
   },
   "ICGC_Occurrence_cancer_name": {
     "filters": [
@@ -2182,7 +2183,8 @@
       }
     ],
     "panel": "Disease Association",
-    "sub_panel": "International Cancer Genome Consortium (ICGC)"
+    "sub_panel": "International Cancer Genome Consortium (ICGC)",
+    "tab": "Basic"
   },
   "ICGC_Occurrence_mutation_allele_count": {
     "filters": [
@@ -2196,7 +2198,8 @@
       }
     ],
     "panel": "Disease Association",
-    "sub_panel": "International Cancer Genome Consortium (ICGC)"
+    "sub_panel": "International Cancer Genome Consortium (ICGC)",
+    "tab": "Basic"
   },
   "ICGC_Occurrence_total_allele_count": {
     "filters": [
@@ -2210,7 +2213,8 @@
       }
     ],
     "panel": "Disease Association",
-    "sub_panel": "International Cancer Genome Consortium (ICGC)"
+    "sub_panel": "International Cancer Genome Consortium (ICGC)",
+    "tab": "Basic"
   },
   "ICGC_Occurrence_total_allele_frequency": {
     "filters": [
@@ -2224,7 +2228,8 @@
       }
     ],
     "panel": "Disease Association",
-    "sub_panel": "International Cancer Genome Consortium (ICGC)"
+    "sub_panel": "International Cancer Genome Consortium (ICGC)",
+    "tab": "Basic"
   },
   "targetScanS": {
     "filters": [
