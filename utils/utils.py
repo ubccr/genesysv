@@ -12,13 +12,13 @@ def AA_parser(input_string):
     tmp_dict = {}
     AA, REF, ALT, IndelType = input_string.split('|')
     if AA and AA != '.':
-        tmp_dict["AA"] = AA
+        tmp_dict["AA_AA"] = AA
     if REF and REF != '.':
-        tmp_dict["REF"] = REF
+        tmp_dict["AA_REF"] = REF
     if ALT and ALT != '.':
-        tmp_dict["ALT"] = ALT
+        tmp_dict["AA_ALT"] = ALT
     if IndelType and IndelType != '.':
-        tmp_dict["IndelType"] = IndelType
+        tmp_dict["AA_IndelType"] = IndelType
 
     if tmp_dict:
         output_array.append(tmp_dict)
@@ -99,7 +99,7 @@ def add_prefix_to_keys_in_dictionary(annotations_array, prefix):
     for ele in annotations_array:
         output_dict = {}
         for key, value in ele.items():
-            new_key = prefix + '_' + key
+            new_key = prefix + '_' + key.strip()
             output_dict[new_key] = value
         if output_dict:
             output.append(output_dict)
