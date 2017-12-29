@@ -416,7 +416,9 @@ def remove_nested_attributes_not_selected(results, nested_attributes_selected):
 def search(request):
 
     if request.POST:
-        # print(request.user.groups.count())
+        start_time = datetime.now()
+
+        # Ensure logged in users belong to a group so that Variant annotation works!
         if not request.user.is_anonymous():
             if request.user.groups.count() > 1:
                 print('More than one group')
@@ -435,7 +437,7 @@ def search(request):
         else:
             show_review_status = True
 
-        start_time = datetime.now()
+
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
 
@@ -473,45 +475,48 @@ def search(request):
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
 
+            non_nested_attributes_selected = []
+            nested_attributes_selected = {}
+
+            non_nested_filters_applied = []
+            nested_filters_applied = {}
+
             source_fields = []
-            non_nested_attribute_fields = []
+            inner_hits_source_fields = {}
+
+
             nested_attribute_fields = []
-
-
+            non_nested_attribute_fields = []
             ### I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
             ### not put on a separate line; Maybe better to add some attribute to the field in model instead.
-
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
                     attribute_field_obj = AttributeField.objects.get(id=key)
                     es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
                     if path:
-                        source_fields.append('%s.%s' %(path, es_name))
+                        if path not in nested_attributes_selected:
+                            nested_attributes_selected[path] = []
+                        nested_attributes_selected[path].append('%s.%s' %(path, es_name))
                         if path not in nested_attribute_fields:
                             nested_attribute_fields.append(path)
                     else:
-                        source_fields.append(es_name)
+                        non_nested_attributes_selected.append(es_name)
                         non_nested_attribute_fields.append(es_name)
 
             keys = es_filter_form_data.keys()
             used_keys = []
 
-            # print(non_nested_attribute_fields)
-            # print(nested_attribute_fields)
+
             nested_attribute_fields = list(set(nested_attribute_fields))
             dict_filter_fields = {}
 
             filters_used = {}
 
-
-
             FILTER_value = None
             QUAL_value = None
 
             for key, filter_field_obj in [(key, FilterField.objects.get(id=key)) for key in keys]:
-
-            # for key, es_name, es_filter_type, path in [ (ele, ele.split('-')[0], ele.split('-')[1], ele.split('-')[2]) for ele in keys ]:
 
                 data = es_filter_form_data[key]
 
@@ -524,7 +529,6 @@ def search(request):
                 path = filter_field_obj.path
                 es_filter_type = filter_field_obj.es_filter_type.name
 
-
                 if path == 'FILTER':
                     FILTER_value = data
                 if path == 'QUAL':
@@ -534,11 +538,14 @@ def search(request):
                 ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
                 if path:
                     source_name = '%s.%s' %(path, es_name)
+                    if path not in nested_filters_applied:
+                        nested_filters_applied[path] = []
+                    if source_name not in nested_filters_applied[path]:
+                        nested_filters_applied[path].append('%s.%s' %(path, es_name))
                 else:
-                    source_name = es_name
+                    non_nested_filters_applied.append(es_name)
 
-                if source_name not in source_fields:
-                    source_fields.append(source_name)
+                ### Figure out which fields will be in the document source fields and which will be in the inner hits fields
 
 
                 ### Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
@@ -643,12 +650,31 @@ def search(request):
                 elif es_filter_type == 'nested_filter_exists':
                     es_filter.add_nested_filter_exists(es_name, data, path)
 
+            attributes_paths = nested_attributes_selected.keys()
+            filter_paths = nested_filters_applied.keys()
 
+            possible_paths = [ele for ele in attributes_paths if ele in filter_paths]
+
+            if nested_filters_applied:
+                inner_hits_source_fields = nested_filters_applied
+                for pp_ele in possible_paths:
+                    if pp_ele not in inner_hits_source_fields[pp_ele]:
+                        for ele in nested_attributes_selected[pp_ele]:
+                            if ele not in inner_hits_source_fields[pp_ele]:
+                                inner_hits_source_fields[pp_ele].extend(nested_attributes_selected[pp_ele])
+                        nested_attributes_selected.pop(pp_ele)
+
+            source_fields.extend(non_nested_attributes_selected)
+
+            if nested_attributes_selected:
+                for nested_attribute_selected_key, nested_attribute_selected_value in nested_attributes_selected.items():
+                    source_fields.extend(nested_attribute_selected_value)
 
             for field in source_fields:
-                # if field:
                 es_filter.add_source(field)
 
+            if inner_hits_source_fields:
+                es_filter.update_inner_hits_source(inner_hits_source_fields)
 
             content =  es_filter.generate_query_string()
 
@@ -713,6 +739,7 @@ def search(request):
             for ele in tmp_results:
                 tmp_source = ele['_source']
                 es_id = ele['_id']
+                inner_hits = ele.get('inner_hits')
 
 
                 if show_review_status and not request.user.is_anonymous():
@@ -723,21 +750,33 @@ def search(request):
                     tmp_source['variant_review_status'] = variant_review_status
 
                 tmp_source['es_id'] = es_id
+                if inner_hits:
+                    for key, value in inner_hits.items():
+                        if key not in tmp_source:
+                            tmp_source[key] = []
+                        hits_hits_array = inner_hits[key]['hits']['hits']
+                        for hit in hits_hits_array:
+                            tmp_hit_dict = {}
+                            for hit_key, hit_value in hit['_source'][key].items():
+                                    tmp_hit_dict[hit_key] = hit_value
+                            if tmp_hit_dict:
+                                tmp_source[key].append(tmp_hit_dict)
                 results.append(tmp_source)
 
 
-            ### Deal with FILTER and QUAL fields -- if both are
-            if FILTER_value and QUAL_value and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
-                filtered_results = []
-                for result in results:
-                    new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
-                    if new_filter_data and new_qual_data:
-                        result['FILTER'] = new_filter_data
-                        result['QUAL'] = new_qual_data
-                        filtered_results.append(result)
+
+            # ### Deal with FILTER and QUAL fields -- if both are
+            # if FILTER_value and QUAL_value and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
+            #     filtered_results = []
+            #     for result in results:
+            #         new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
+            #         if new_filter_data and new_qual_data:
+            #             result['FILTER'] = new_filter_data
+            #             result['QUAL'] = new_qual_data
+            #             filtered_results.append(result)
 
 
-                results = filtered_results
+            #     results = filtered_results
 
             # ### Remove nested attributes that were not selected
             # if nested_attributes_selected:
@@ -760,45 +799,45 @@ def search(request):
             #             result[path] = new_data
 
 
-            ### Remove results that don't match input
-            tmp_results = []
-            if dict_filter_fields:
-                for idx, result in enumerate(results):
-                    add_results = True
-                    for key, val in dict_filter_fields.items():
+            # ### Remove results that don't match input
+            # tmp_results = []
+            # if dict_filter_fields:
+            #     for idx, result in enumerate(results):
+            #         add_results = True
+            #         for key, val in dict_filter_fields.items():
 
-                        filter_field_obj = FilterField.objects.get(id=key)
-                        key_path = filter_field_obj.path
-                        key_es_name = filter_field_obj.es_name
-                        key_es_filter_type = filter_field_obj.es_filter_type.name
-                        if not result.get(key_path):
-                            continue
+            #             filter_field_obj = FilterField.objects.get(id=key)
+            #             key_path = filter_field_obj.path
+            #             key_es_name = filter_field_obj.es_name
+            #             key_es_filter_type = filter_field_obj.es_filter_type.name
+            #             if not result.get(key_path):
+            #                 continue
 
-                        if key_es_filter_type in ["filter_range_gte",
-                                                  "filter_range_lte",
-                                                  "filter_range_lt",
-                                                  "nested_filter_range_gte",
-                                                  "nested_filter_range_lte"]:
-                            comparison_type = key_es_filter_type.split('_')[-1]
-                        elif key_es_filter_type in ["nested_filter_term",
-                                                    "nested_filter_terms",]:
-                                if filter_field_obj.es_data_type in ['keyword', 'text']:
-                                    comparison_type = filter_field_obj.es_data_type
-                                elif filter_field_obj.es_data_type in ['integer', 'float']:
-                                    comparison_type = 'number_equal'
-                        else:
-                            comparison_type = 'val_in'
+            #             if key_es_filter_type in ["filter_range_gte",
+            #                                       "filter_range_lte",
+            #                                       "filter_range_lt",
+            #                                       "nested_filter_range_gte",
+            #                                       "nested_filter_range_lte"]:
+            #                 comparison_type = key_es_filter_type.split('_')[-1]
+            #             elif key_es_filter_type in ["nested_filter_term",
+            #                                         "nested_filter_terms",]:
+            #                     if filter_field_obj.es_data_type in ['keyword', 'text']:
+            #                         comparison_type = filter_field_obj.es_data_type
+            #                     elif filter_field_obj.es_data_type in ['integer', 'float']:
+            #                         comparison_type = 'number_equal'
+            #             else:
+            #                 comparison_type = 'val_in'
 
 
-                        filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                        # print(filtered_results)
-                        if filtered_results:
-                            result[key_path] = filtered_results
-                        else:
-                            add_results = False
+            #             filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+            #             # print(filtered_results)
+            #             if filtered_results:
+            #                 result[key_path] = filtered_results
+            #             else:
+            #                 add_results = False
 
-                    if add_results:
-                        tmp_results.append(result)
+            #         if add_results:
+            #             tmp_results.append(result)
 
 
             ## gene_names
@@ -836,7 +875,6 @@ def search(request):
                     tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
                     if combined_nested:
                         tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
-                        # pprint(tmp_output)
 
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
@@ -861,13 +899,13 @@ def search(request):
                 final_results = results
 
 
-            ### remove duplicates
-            tmp_results = []
-            hash_list = deque()
-            for result in final_results:
-                if result not in tmp_results:
-                    tmp_results.append(result)
-            final_results = tmp_results
+            # ## remove duplicates
+            # tmp_results = []
+            # hash_list = deque()
+            # for result in final_results:
+            #     if result not in tmp_results:
+            #         tmp_results.append(result)
+            # final_results = tmp_results
 
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)

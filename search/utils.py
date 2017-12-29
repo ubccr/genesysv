@@ -1,10 +1,13 @@
 from natsort import natsorted
 import elasticsearch
+from pprint import pprint
+
 class ElasticSearchFilter():
     def __init__(self):
         self.query_string = {}
         self.size = 1000
         self.source = []
+        self.inner_hits_source = {}
 
         self.filter_term = []
         self.filter_terms = []
@@ -31,6 +34,15 @@ class ElasticSearchFilter():
 
     def get_source(self):
         return self.source
+
+    def update_inner_hits_source(self, update_dict):
+        self.inner_hits_source.update(update_dict)
+
+    def get_inner_hits_source(self):
+        return self.inner_hits_source
+
+    def get_inner_hits_source_path(self, path):
+        return self.inner_hits_source[path]
 
     def add_filter_term(self, field_name, value):
         self.filter_term.append((field_name, value))
@@ -141,6 +153,36 @@ class ElasticSearchFilter():
         if list(self.nested_filter_exists):
             return self.nested_filter_exists
 
+    def nested_path_exists(self, query_string, path):
+        for ele in query_string["query"]["bool"]["filter"]:
+            if not ele.get("nested"):
+                continue
+            if ele["nested"]["path"] == path:
+                return True
+        return False
+
+
+    def get_nested_dict(self, query_string, path):
+        for ele in query_string["query"]["bool"]["filter"]:
+            if not ele.get("nested"):
+                continue
+            if ele["nested"]["path"] == path:
+                return ele
+        nested = {
+            "nested" : {
+                "path": path,
+                "query": {
+                    "bool": {
+                        "filter": []
+                    }
+                },
+                "inner_hits": {
+                    "_source" : []
+                }
+            }
+        }
+        return nested
+
     def generate_query_string(self):
         query_string = {
             "size" : self.size,
@@ -175,20 +217,19 @@ class ElasticSearchFilter():
 
 
             for path in list(nested_filter_term):
-                nested = {
-                    "nested" : {
-                        "path": path,
-                        "query": {
-                            "bool": {
-                                "filter": []
-                            }
-                        }
-                    }
-                }
+
+                nested = self.get_nested_dict(query_string, path)
+                nested_path_exists = self.nested_path_exists(query_string, path)
+
+                if nested_path_exists:
+                    query_string["query"]["bool"]["filter"].remove(nested)
 
                 for field_name, value in nested_filter_term[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
                     nested["nested"]["query"]["bool"]["filter"].append({"term" : {path_fieldname: value}})
+                    for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
 
                 query_string["query"]["bool"]["filter"].append(nested)
 
@@ -200,17 +241,11 @@ class ElasticSearchFilter():
 
 
             for path in list(nested_filter_terms):
-                nested = {
-                    "nested" : {
-                        "path": path,
-                        "query": {
-                            "bool": {
-                                "filter": []
-                            }
-                        }
-                    }
-                }
+                nested = self.get_nested_dict(query_string, path)
+                nested_path_exists = self.nested_path_exists(query_string, path)
 
+                if nested_path_exists:
+                    query_string["query"]["bool"]["filter"].remove(nested)
 
                 for field_name, value in nested_filter_terms[path]:
                     tmp = []
@@ -218,7 +253,12 @@ class ElasticSearchFilter():
                         tmp.extend(ele.split())
                     value = tmp
                     path_fieldname = "%s.%s" %(path, field_name)
+
                     nested["nested"]["query"]["bool"]["filter"].append({"terms" : {path_fieldname: value}})
+                    for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
+
 
                 query_string["query"]["bool"]["filter"].append(nested)
 
@@ -232,8 +272,13 @@ class ElasticSearchFilter():
                 nested = {"nested" : {"path": path,
                             "query": {"bool": {"must": []}}}
                         }
+
+
                 path_fieldname = "%s.%s" %(path, field_name)
                 nested["nested"]["query"]["bool"]["must"].append({"wildcard" : {path_fieldname: "%s" %(value)}})
+                for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
             query_string["query"]["bool"]["must"].append(nested)
 
 
@@ -287,21 +332,20 @@ class ElasticSearchFilter():
 
 
             for path in list(nested_filter_range_gte):
-                nested = {
-                    "nested" : {
-                        "path": path,
-                        "query": {
-                            "bool": {
-                                "filter": []
-                            }
-                        }
-                    }
-                }
+
+                nested = self.get_nested_dict(query_string, path)
+                nested_path_exists = self.nested_path_exists(query_string, path)
+
+                if nested_path_exists:
+                    query_string["query"]["bool"]["filter"].remove(nested)
 
 
                 for field_name, value in nested_filter_range_gte[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
                     nested["nested"]["query"]["bool"]["filter"].append({"range" : {path_fieldname: {"gte": value}}})
+                    for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
 
                     query_string["query"]["bool"]["filter"].append(nested)
 
@@ -330,21 +374,18 @@ class ElasticSearchFilter():
 
 
             for path in list(nested_filter_exists):
-                nested = {
-                    "nested" : {
-                        "path": path,
-                        "query": {
-                            "bool": {
-                                "filter": []
-                            }
-                        }
-                    }
-                }
+                nested = self.get_nested_dict(query_string, path)
+                nested_path_exists = self.nested_path_exists(query_string, path)
 
+                if nested_path_exists:
+                    query_string["query"]["bool"]["filter"].remove(nested)
 
                 for field_name, value in nested_filter_exists[path]:
                     path_fieldname = "%s.%s" %(path, field_name)
                     nested["nested"]["query"]["bool"]["filter"].append({"exists" : {"field" : path_fieldname}})
+                    for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
 
                     query_string["query"]["bool"]["filter"].append(nested)
 
