@@ -99,7 +99,7 @@ def add_prefix_to_keys_in_dictionary(annotations_array, prefix):
     for ele in annotations_array:
         output_dict = {}
         for key, value in ele.items():
-            new_key = prefix + '_' + key.strip()
+            new_key = prefix + '_' + key
             output_dict[new_key] = value
         if output_dict:
             output.append(output_dict)
