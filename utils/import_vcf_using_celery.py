@@ -86,9 +86,11 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
             line = line.strip()
 
             if "Consequence annotations from Ensembl VEP. Format:" in line and 'CSQ' in line:
+                line = line.replace('\"', '')
                 _, CSQ_fields = line.strip().split('Consequence annotations from Ensembl VEP. Format:')
                 CSQ_fields = CSQ_fields[:-1].strip()
                 CSQ_fields = CSQ_fields.split('|')
+                pprint(CSQ_fields)
 
             if "Functional annotations:" in line and 'ANN' in line:
                 _, ANN_fields = line.strip().split('Functional annotations:')
