@@ -757,8 +757,15 @@ def search(request):
                         hits_hits_array = inner_hits[key]['hits']['hits']
                         for hit in hits_hits_array:
                             tmp_hit_dict = {}
-                            for hit_key, hit_value in hit['_source'][key].items():
+                            if hit['_source'].get(key):
+                                # for Elasticsearch 5
+                                for hit_key, hit_value in hit['_source'][key].items():
                                     tmp_hit_dict[hit_key] = hit_value
+                            else:
+                                # for Elasticsearch 6
+                                for hit_key, hit_value in hit['_source'].items():
+                                    tmp_hit_dict[hit_key] = hit_value
+
                             if tmp_hit_dict:
                                 tmp_source[key].append(tmp_hit_dict)
                 results.append(tmp_source)

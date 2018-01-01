@@ -33,6 +33,7 @@ class Command(BaseCommand):
 
         request_obj = InheritanceAnalysisRequest.objects.get(id=request_id)
         dataset_obj = request_obj.dataset
+        tab_name = 'Basic'
         #print(request_obj)
 
         # # gl = ['ADAMTSL1','VAV3','SYNE2'] # test gene set that has complex hets
@@ -100,7 +101,7 @@ class Command(BaseCommand):
 
         form_type_obj = FormType.objects.get(name='MultipleChoiceField')
         widget_type_obj = WidgetType.objects.get(name='SelectMultiple')
-        es_filter_type_obj = ESFilterType.objects.get(name='filter_terms')
+        es_filter_type_obj = ESFilterType.objects.get(name='nested_filter_terms')
 
 
         family_filter_fields = (
