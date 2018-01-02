@@ -3076,5 +3076,1259 @@
     ],
     "panel": "Other",
     "tab": "Basic"
+  },
+  "AA_AA": {
+    "filters": [
+      {
+        "display_text": "Ancestral Allele",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "AA",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Ancestral Allele",
+    "tab": "Basic"
+  },
+  "AA_REF": {
+    "filters": [
+      {
+        "display_text": "Reference Allele",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "AA",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Ancestral Allele",
+    "tab": "Basic"
+  },
+  "AA_ALT": {
+    "filters": [
+      {
+        "display_text": "Alternate Allele",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "AA",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Ancestral Allele",
+    "tab": "Basic"
+  },
+  "AA_IndelType": {
+    "filters": [
+      {
+        "display_text": "Type of Indel",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "ChoiceField",
+        "path": "AA",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Ancestral Allele",
+    "tab": "Basic"
+  },
+  "AFR_AF": {
+    "filters": [
+      {
+        "display_text": "African Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "tooltip": "Allele frequency in the AFR populations calculated from AC and AN, in the range (0,1)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Frequency Calculation",
+    "tab": "Basic"
+  },
+  "AMR_AF": {
+    "filters": [
+      {
+        "display_text": "American Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "tooltip": "Allele frequency in the AMR populations calculated from AC and AN, in the range (0,1)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Frequency Calculation",
+    "tab": "Basic"
+  },
+  "EAS_AF": {
+    "filters": [
+      {
+        "display_text": "East Asian Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "tooltip": "Allele frequency in the EAS populations calculated from AC and AN, in the range (0,1)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Frequency Calculation",
+    "tab": "Basic"
+  },
+  "EUR_AF": {
+    "filters": [
+      {
+        "display_text": "Europe Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "tooltip": "Allele frequency in the EUR populations calculated from AC and AN, in the range (0,1)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Frequency Calculation",
+    "tab": "Basic"
+  },
+  "SAS_AF": {
+    "filters": [
+      {
+        "display_text": "South Asian Population",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "tooltip": "Allele frequency in the SAS populations calculated from AC and AN, in the range (0,1)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Allele Frequency Calculation",
+    "tab": "Basic"
+  },
+  "CIPOS": {
+    "filters": [
+      {
+        "display_text": "Confidence interval around POS",
+        "es_filter_type": "filter_range_gt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>)",
+        "tooltip": "Confidence interval around POS for imprecise variants",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Confidence Interval",
+    "tab": "Basic"
+  },
+  "CIEND": {
+    "filters": [
+      {
+        "display_text": "Confidence interval around END",
+        "es_filter_type": "filter_range_gt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>)",
+        "tooltip": "Confidence interval around END for imprecise variants",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Confidence Interval",
+    "tab": "Basic"
+  },
+  "CS": {
+    "filters": [
+      {
+        "display_text": "Source call set",
+        "es_filter_type": "filter_terms",
+        "form_type": "ChoiceField",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Source Call Set",
+    "tab": "Basic"
+  },
+  "CS": {
+    "filters": [
+      {
+        "display_text": "Source call set",
+        "es_filter_type": "filter_terms",
+        "form_type": "ChoiceField",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Source Call Set",
+    "tab": "Basic"
+  },     
+  "CSQ_AA_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_AA_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_AFR_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_AFR_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_AMR_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_AMR_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_Allele": {
+    "filters": [
+      {
+        "display_text": "CSQ_Allele",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_EAS_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_EAS_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_EA_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_EA_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_EUR_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_EUR_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_SAS_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_SAS_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_gnomAD_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_gnomAD_AFR_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_AFR_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_gnomAD_AMR_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_AMR_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_gnomAD_ASJ_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_ASJ_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },  
+  "CSQ_gnomAD_EAS_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_EAS_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  }, 
+  "CSQ_gnomAD_FIN_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_FIN_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_NFE_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_NFE_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_OTH_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_OTH_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },
+  "CSQ_gnomAD_SAS_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_gnomAD_SAS_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Allele Statistics",
+    "tab": "Basic"
+  },
+  "CSQ_CANONICAL": {
+    "filters": [
+      {
+        "display_text": "CSQ_CANONICAL",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_CLIN_SIG": {
+    "filters": [
+      {
+        "display_text": "Clinical Significance",
+        "es_filter_type": "filter_terms",
+        "form_type": "ChoiceField",
+        "values": "get_from_es()",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_Existing_variation": {
+    "filters": [
+      {
+        "display_text": "CSQ_Existing_variation",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },  
+  "CSQ_GENE_PHENO": {
+    "filters": [
+      {
+        "display_text": "CSQ_GENE_PHENO",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },  
+  "CSQ_MAX_AF": {
+    "filters": [
+      {
+        "display_text": "CSQ_MAX_AF",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_MAX_AF_POPS": {
+    "filters": [
+      {
+        "display_text": "CSQ_MAX_AF_POPS",
+        "es_filter_type": "filter_range_lt",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_PHENO": {
+    "filters": [
+      {
+        "display_text": "CSQ_PHENO",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_PUBMED": {
+    "filters": [
+      {
+        "display_text": "CSQ_PUBMED",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_SOMATIC": {
+    "filters": [
+      {
+        "display_text": "CSQ_SOMATIC",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_VARIANT_CLASS": {
+    "filters": [
+      {
+        "display_text": "CSQ_VARIANT_CLASS",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other",
+    "tab": "Basic"
+  },
+  "CSQ_nested_APPRIS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_APPRIS",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Amino_acids": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Amino_acids",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_BIOTYPE": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_BIOTYPE",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CCDS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_CCDS",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CDS_position_start": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_CDS_position_start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CDS_position_end": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_CDS_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Codons": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Codons",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Consequence": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Consequence",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_DISTANCE": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_DISTANCE",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "CSQ_nested_DISTANCE",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_DOMAINS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_DOMAINS",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_ENSP": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_ENSP",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_EXON": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_EXON",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_FLAGS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_FLAGS",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Feature": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Feature",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Feature_type": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Feature_type",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_Gene": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Gene",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGNC_ID": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_HGNC_ID",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVS_OFFSET": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_HGVS_OFFSET",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVSc": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_HGVSc",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HGVSp": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_HGVSp",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_HIGH_INF_POS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_HIGH_INF_POS",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_IMPACT": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_IMPACT",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_INTRON": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_INTRON",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_MOTIF_NAME": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_MOTIF_NAME",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_MOTIF_POS": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_MOTIF_POS",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_MOTIF_SCORE_CHANGE": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_MOTIF_SCORE_CHANGE",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  }, 
+   "CSQ_nested_PolyPhen_prediction": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_PolyPhen_prediction",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  }, 
+   "CSQ_nested_PolyPhen_score": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_PolyPhen_score",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_Protein_position_start": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Protein_position_start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_Protein_position_end": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_Protein_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_SIFT_prediction": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_SIFT_prediction",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  }, 
+   "CSQ_nested_SIFT_score": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_SIFT_score",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_STRAND": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_STRAND",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SWISSPROT": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_SWISSPROT",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SYMBOL": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_SYMBOL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_SYMBOL_SOURCE": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_SYMBOL_SOURCE",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_TREMBL": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_TREMBL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_TSL": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_TSL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_UNIPARC": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_UNIPARC",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_cDNA_position_start": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_cDNA_position_start",
+        "es_filter_type": "nested_filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "CSQ_nested_cDNA_position_end": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_cDNA_position_end",
+        "es_filter_type": "nested_filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "EX_TARGET": {
+    "filters": [
+      {
+        "display_text": "EX_TARGET",
+        "es_filter_type": "filter_exists",
+        "form_type": "ChoiceField",
+        "tooltip": "Indicates whether a variant is within the exon pull down target boundaries",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "IMPRECISE": {
+    "filters": [
+      {
+        "display_text": "IMPRECISE",
+        "es_filter_type": "filter_exists",
+        "form_type": "ChoiceField",
+        "tooltip": "Imprecise structural variation",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "MC": {
+    "filters": [
+      {
+        "display_text": "MC",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "MEINFO": {
+    "filters": [
+      {
+        "display_text": "MEINFO",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "MULTI_ALLELIC": {
+    "filters": [
+      {
+        "display_text": "MULTI_ALLELIC",
+        "es_filter_type": "filter_exists",
+        "form_type": "ChoiceField",
+        "tooltip": "Indicates whether a site is multi-allelic",
+        "widget_type": "Select"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "NS": {
+    "filters": [
+      {
+        "display_text": "NS",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "Number of samples with data",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "OLD_MULTIALLELIC": {
+    "filters": [
+      {
+        "display_text": "OLD_MULTIALLELIC",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "OLD_VARIANT": {
+    "filters": [
+      {
+        "display_text": "OLD_VARIANT",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+  "SVLEN": {
+    "filters": [
+      {
+        "display_text": "SVLEN",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "tooltip": "SV length. It is only calculated for structural variation MEIs. For other types of SVs; one may calculate the SV length by INFO:END-START+1, or by finding the difference between lengthes of REF and ALT alleles",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+   "SVTYPE": {
+    "filters": [
+      {
+        "display_text": "SVTYPE",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Type of structural variant",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "TSD": {
+    "filters": [
+      {
+        "display_text": "TSD",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Other 2",
+    "tab": "Basic"
+  },
+   "VT": {
+    "filters": [
+      {
+        "display_text": "VT",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "tooltip": "Type of structural variant",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
   }
 }
