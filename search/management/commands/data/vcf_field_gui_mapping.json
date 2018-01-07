@@ -130,6 +130,12 @@
         "es_filter_type": "filter_exists",
         "form_type": "ChoiceField",
         "widget_type": "Select"
+      },
+      {
+        "display_text": "ID",
+        "es_filter_type": "filter_term",
+        "form_type": "CharField",
+        "widget_type": "TextInput"
       }
     ],
     "panel": "Variant Related Information",
@@ -3233,27 +3239,14 @@
       {
         "display_text": "Source call set",
         "es_filter_type": "filter_terms",
-        "form_type": "ChoiceField",
+        "form_type": "MultipleChoiceField",
         "values": "get_from_es()",
-        "widget_type": "Select"
+        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "Source Call Set",
     "tab": "Basic"
   },
-  "CS": {
-    "filters": [
-      {
-        "display_text": "Source call set",
-        "es_filter_type": "filter_terms",
-        "form_type": "ChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "Select"
-      }
-    ],
-    "panel": "Source Call Set",
-    "tab": "Basic"
-  },     
   "CSQ_AA_AF": {
     "filters": [
       {
@@ -3266,7 +3259,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_AF": {
     "filters": [
       {
@@ -3279,7 +3272,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_AFR_AF": {
     "filters": [
       {
@@ -3292,7 +3285,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_AMR_AF": {
     "filters": [
       {
@@ -3305,7 +3298,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_Allele": {
     "filters": [
       {
@@ -3318,7 +3311,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_EAS_AF": {
     "filters": [
       {
@@ -3331,7 +3324,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_EA_AF": {
     "filters": [
       {
@@ -3344,7 +3337,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_EUR_AF": {
     "filters": [
       {
@@ -3357,7 +3350,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_SAS_AF": {
     "filters": [
       {
@@ -3370,7 +3363,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_gnomAD_AF": {
     "filters": [
       {
@@ -3383,7 +3376,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_gnomAD_AFR_AF": {
     "filters": [
       {
@@ -3396,7 +3389,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_gnomAD_AMR_AF": {
     "filters": [
       {
@@ -3409,7 +3402,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_gnomAD_ASJ_AF": {
     "filters": [
       {
@@ -3422,7 +3415,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  },  
+  },
   "CSQ_gnomAD_EAS_AF": {
     "filters": [
       {
@@ -3435,7 +3428,7 @@
     ],
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
-  }, 
+  },
   "CSQ_gnomAD_FIN_AF": {
     "filters": [
       {
@@ -3505,9 +3498,9 @@
       {
         "display_text": "Clinical Significance",
         "es_filter_type": "filter_terms",
-        "form_type": "ChoiceField",
+        "form_type": "MultipleChoiceField",
         "values": "get_from_es()",
-        "widget_type": "Select"
+        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "VEP Other",
@@ -3524,7 +3517,7 @@
     ],
     "panel": "VEP Other",
     "tab": "Basic"
-  },  
+  },
   "CSQ_GENE_PHENO": {
     "filters": [
       {
@@ -3536,7 +3529,7 @@
     ],
     "panel": "VEP Other",
     "tab": "Basic"
-  },  
+  },
   "CSQ_MAX_AF": {
     "filters": [
       {
@@ -3953,7 +3946,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_MOTIF_SCORE_CHANGE": {
+  "CSQ_nested_MOTIF_SCORE_CHANGE": {
     "filters": [
       {
         "display_text": "CSQ_nested_MOTIF_SCORE_CHANGE",
@@ -3966,8 +3959,8 @@
     ],
     "panel": "VEP Other Nested",
     "tab": "Basic"
-  }, 
-   "CSQ_nested_PolyPhen_prediction": {
+  },
+  "CSQ_nested_PolyPhen_prediction": {
     "filters": [
       {
         "display_text": "CSQ_nested_PolyPhen_prediction",
@@ -3980,8 +3973,8 @@
     ],
     "panel": "VEP Other Nested",
     "tab": "Basic"
-  }, 
-   "CSQ_nested_PolyPhen_score": {
+  },
+  "CSQ_nested_PolyPhen_score": {
     "filters": [
       {
         "display_text": "CSQ_nested_PolyPhen_score",
@@ -3995,7 +3988,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_Protein_position_start": {
+  "CSQ_nested_Protein_position_start": {
     "filters": [
       {
         "display_text": "CSQ_nested_Protein_position_start",
@@ -4009,7 +4002,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_Protein_position_end": {
+  "CSQ_nested_Protein_position_end": {
     "filters": [
       {
         "display_text": "CSQ_nested_Protein_position_end",
@@ -4023,7 +4016,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_SIFT_prediction": {
+  "CSQ_nested_SIFT_prediction": {
     "filters": [
       {
         "display_text": "CSQ_nested_SIFT_prediction",
@@ -4036,8 +4029,8 @@
     ],
     "panel": "VEP Other Nested",
     "tab": "Basic"
-  }, 
-   "CSQ_nested_SIFT_score": {
+  },
+  "CSQ_nested_SIFT_score": {
     "filters": [
       {
         "display_text": "CSQ_nested_SIFT_score",
@@ -4143,7 +4136,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_cDNA_position_start": {
+  "CSQ_nested_cDNA_position_start": {
     "filters": [
       {
         "display_text": "CSQ_nested_cDNA_position_start",
@@ -4157,7 +4150,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "CSQ_nested_cDNA_position_end": {
+  "CSQ_nested_cDNA_position_end": {
     "filters": [
       {
         "display_text": "CSQ_nested_cDNA_position_end",
@@ -4290,7 +4283,7 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
-   "SVTYPE": {
+  "SVTYPE": {
     "filters": [
       {
         "display_text": "SVTYPE",
@@ -4317,7 +4310,7 @@
     "panel": "Other 2",
     "tab": "Basic"
   },
-   "VT": {
+  "VT": {
     "filters": [
       {
         "display_text": "VT",

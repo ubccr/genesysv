@@ -982,7 +982,7 @@ def search(request):
             context['used_keys'] = used_keys
             context['took'] = took
             context['total'] = total
-            context['results'] = final_results
+            context['results'] = final_results[:400]
             context['content_generate_time'] = content_generate_time
             context['after_results_time'] = datetime.now() - start_after_results_time
             context['total_time'] = datetime.now() - start_time
@@ -1019,50 +1019,72 @@ def yield_results(dataset_obj,
                             doc_type=dataset_obj.es_type_name):
         result = ele['_source']
         es_id = ele['_id']
+        inner_hits = ele.get('inner_hits')
         variant_review_status = get_variant_review_status(es_id, group)
         if review_status_to_filter and variant_review_status not in review_status_to_filter:
             continue
 
-        #
-        if FILTER_value and QUAL_value:
-            new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
-            if new_filter_data and new_qual_data:
-                result['FILTER'] = new_filter_data
-                result['QUAL'] = new_qual_data
-            else:
-                continue
 
-        ### Remove results that don't match input
-        yield_results = True
-        if dict_filter_fields:
-            for key, val in dict_filter_fields.items():
-                filter_field_obj = FilterField.objects.get(id=key)
-                key_path = filter_field_obj.path
-                key_es_name = filter_field_obj.es_name
-                key_es_filter_type = filter_field_obj.es_filter_type.name
+        if inner_hits:
+            for key, value in inner_hits.items():
+                if key not in result:
+                    result[key] = []
+                hits_hits_array = inner_hits[key]['hits']['hits']
+                for hit in hits_hits_array:
+                    tmp_hit_dict = {}
+                    if hit['_source'].get(key):
+                        # for Elasticsearch 5
+                        for hit_key, hit_value in hit['_source'][key].items():
+                            tmp_hit_dict[hit_key] = hit_value
+                    else:
+                        # for Elasticsearch 6
+                        for hit_key, hit_value in hit['_source'].items():
+                            tmp_hit_dict[hit_key] = hit_value
 
-                if key_es_filter_type in ["filter_range_gte",
-                                          "filter_range_lte",
-                                          "filter_range_lt",
-                                          "nested_filter_range_gte",]:
-                    comparison_type = key_es_filter_type.split('_')[-1]
-                elif key_es_filter_type in ["nested_filter_term",
-                                                    "nested_filter_terms",]:
-                    if filter_field_obj.es_data_type in ['keyword', 'text']:
-                        comparison_type = filter_field_obj.es_data_type
-                    elif filter_field_obj.es_data_type in ['integer', 'float']:
-                        comparison_type = 'number_equal'
+                    if tmp_hit_dict:
+                        result[key].append(tmp_hit_dict)
 
-                else:
-                    comparison_type = 'val_in'
-                filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-                if filtered_results:
-                    result[key_path] = filtered_results
-                else:
-                    yield_results = False
 
-            if not yield_results:
-                continue
+        # #
+        # if FILTER_value and QUAL_value:
+        #     new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
+        #     if new_filter_data and new_qual_data:
+        #         result['FILTER'] = new_filter_data
+        #         result['QUAL'] = new_qual_data
+        #     else:
+        #         continue
+
+        # ### Remove results that don't match input
+        # yield_results = True
+        # if dict_filter_fields:
+        #     for key, val in dict_filter_fields.items():
+        #         filter_field_obj = FilterField.objects.get(id=key)
+        #         key_path = filter_field_obj.path
+        #         key_es_name = filter_field_obj.es_name
+        #         key_es_filter_type = filter_field_obj.es_filter_type.name
+
+        #         if key_es_filter_type in ["filter_range_gte",
+        #                                   "filter_range_lte",
+        #                                   "filter_range_lt",
+        #                                   "nested_filter_range_gte",]:
+        #             comparison_type = key_es_filter_type.split('_')[-1]
+        #         elif key_es_filter_type in ["nested_filter_term",
+        #                                             "nested_filter_terms",]:
+        #             if filter_field_obj.es_data_type in ['keyword', 'text']:
+        #                 comparison_type = filter_field_obj.es_data_type
+        #             elif filter_field_obj.es_data_type in ['integer', 'float']:
+        #                 comparison_type = 'number_equal'
+
+        #         else:
+        #             comparison_type = 'val_in'
+        #         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
+        #         if filtered_results:
+        #             result[key_path] = filtered_results
+        #         else:
+        #             yield_results = False
+
+        #     if not yield_results:
+        #         continue
 
         final_results = []
         if nested_attribute_fields:
