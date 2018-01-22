@@ -127,8 +127,8 @@ class ElasticSearchFilter():
         self.nested_filter_range_lte[path].append((field_name, float(value)))
 
     def get_nested_filter_range_lte(self):
-        if list(self.nested_filter_range_gte):
-            return self.nested_filter_range_gte
+        if list(self.nested_filter_range_lte):
+            return self.nested_filter_range_lte
 
 
 
@@ -322,6 +322,31 @@ class ElasticSearchFilter():
                     if "filter" not in query_string["query"]["bool"]:
                         query_string["query"]["bool"]["filter"] = []
                     query_string["query"]["bool"]["filter"].append({"range" : {field_name: {"lte": value}}})
+
+        if self.get_nested_filter_range_lte():
+            nested_filter_range_lte = self.get_nested_filter_range_lte()
+
+            if "filter" not in query_string["query"]["bool"]:
+                query_string["query"]["bool"]["filter"] = []
+
+
+            for path in list(nested_filter_range_lte):
+
+                nested = self.get_nested_dict(query_string, path)
+                nested_path_exists = self.nested_path_exists(query_string, path)
+
+                if nested_path_exists:
+                    query_string["query"]["bool"]["filter"].remove(nested)
+
+
+                for field_name, value in nested_filter_range_lte[path]:
+                    path_fieldname = "%s.%s" %(path, field_name)
+                    nested["nested"]["query"]["bool"]["filter"].append({"range" : {path_fieldname: {"lte": value}}})
+                    for ele in self.get_inner_hits_source_path(path):
+                        if ele not in nested["nested"]["inner_hits"]["_source"]:
+                            nested["nested"]["inner_hits"]["_source"].append(ele)
+
+                    query_string["query"]["bool"]["filter"].append(nested)
 
 
         if self.get_nested_filter_range_gte():
