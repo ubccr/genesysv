@@ -785,14 +785,6 @@
       "es_field_datatype": "float",
       "es_field_name": "CSQ_AMR_AF"
     },
-    "CSQ_CANONICAL": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_CANONICAL"
-    },
-    "CSQ_CLIN_SIG": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_CLIN_SIG"
-    },
     "CSQ_EA_AF": {
       "es_field_datatype": "float",
       "es_field_name": "CSQ_EA_AF"
@@ -808,10 +800,6 @@
     "CSQ_Existing_variation": {
       "es_field_datatype": "keyword",
       "es_field_name": "CSQ_Existing_variation"
-    },
-    "CSQ_GENE_PHENO": {
-      "es_field_datatype": "keyword",
-      "es_field_name": "CSQ_GENE_PHENO"
     },
     "CSQ_gnomAD_AF": {
       "es_field_datatype": "float",
@@ -873,9 +861,17 @@
           "es_field_datatype": "keyword",
           "es_field_name": "CSQ_nested_BIOTYPE"
         },
+        "CSQ_nested_CANONICAL": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_CANONICAL"
+        },
         "CSQ_nested_CCDS": {
           "es_field_datatype": "keyword",
           "es_field_name": "CSQ_nested_CCDS"
+        },
+        "CSQ_nested_CLIN_SIG": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_CLIN_SIG"
         },
         "CSQ_nested_cDNA_position_end": {
           "es_field_datatype": "integer",
@@ -932,6 +928,10 @@
         "CSQ_nested_Gene": {
           "es_field_datatype": "keyword",
           "es_field_name": "CSQ_nested_Gene"
+        },
+        "CSQ_nested_GENE_PHENO": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "CSQ_nested_GENE_PHENO"
         },
         "CSQ_nested_HGNC_ID": {
           "es_field_datatype": "keyword",
