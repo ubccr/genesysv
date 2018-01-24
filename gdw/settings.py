@@ -20,13 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'w8w^)v%^mm_7m(m6rgc0d(xn+!71ui^6rl5q13s9pdf@t20t#8'
+from django.utils.crypto import get_random_string
+
+chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+SECRET_KEY = get_random_string(50, chars)
+# SECRET_KEY = 'w8w^)v%^mm_7m(m6rgc0d(xn+!71ui^6rl5q13s9pdf@t20t#8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
-ALLOWED_HOSTS = ['199.109.194.169']
+ALLOWED_HOSTS = ['gdwdev.ccr.buffalo.edu']
 
 
 
@@ -45,7 +49,6 @@ INSTALLED_APPS = [
     'pybamview',
     'subject_report',
     'tinymce',
-    # 'visualization',
     'beacon',
     'msea',
     'igv',

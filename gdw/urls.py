@@ -19,7 +19,6 @@ import search.urls as search_urls
 import pybamview.urls as  pybamview_urls
 from .views import home, change_password_done
 import subject_report.urls as subject_report_urls
-import visualization.urls as visualization_urls
 import beacon.urls as beacon_urls
 import msea.urls as msea_urls
 import igv.urls as igv_urls
@@ -42,7 +41,6 @@ urlpatterns = [
     url(r'^search/', include(search_urls)),
     url(r'^pybamview/', include(pybamview_urls)),
     url(r'^subject-report/', include(subject_report_urls)),
-    url(r'^visualization/', include(visualization_urls)),
     url(r'^beacon/', include(beacon_urls)),
     url(r'^msea/', include(msea_urls)),
     url(r'^igv/', include(igv_urls)),

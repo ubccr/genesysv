@@ -243,10 +243,7 @@
         // var options = get_options(form_data);
         $("#download_review_status_to_filter").val(form_data)
         var options = get_options(form_data);
-        console.log(options)
-        console.log('test2')
         if (localStorage.getItem("gdw_show_download_message") === "false") {
-            console.log('test')
             $("#download-result-form").submit();
 
         } else {
@@ -305,7 +302,6 @@
                         variant_review_status: variant_review_status,
                 },
                 success:function(data) {
-                    console.log(data)
                 }
             }
         );

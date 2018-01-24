@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.gzip import gzip_page
@@ -419,7 +419,7 @@ def search(request):
         start_time = datetime.now()
 
         # Ensure logged in users belong to a group so that Variant annotation works!
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             if request.user.groups.count() > 1:
                 print('More than one group')
                 return HttpResponse(status=400)
@@ -621,21 +621,21 @@ def search(request):
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'filter_range_gte':
-                    es_filter.add_filter_range_gte(es_name, data)
+                    es_filter.add_filter_range_gte(es_name, float(data.strip()))
 
                 elif es_filter_type == 'filter_range_lte':
-                    es_filter.add_filter_range_lte(es_name, data)
+                    es_filter.add_filter_range_lte(es_name, float(data.strip()))
 
                 elif es_filter_type == 'filter_range_lt':
-                    es_filter.add_filter_range_lt(es_name, data)
+                    es_filter.add_filter_range_lt(es_name, float(data.strip()))
 
                 elif es_filter_type == 'nested_filter_range_gte':
                     es_filter.add_nested_filter_range_gte(es_name, data, path)
-                    dict_filter_fields[filter_field_pk].append(int(data.strip()))
+                    dict_filter_fields[filter_field_pk].append(float(data.strip()))
 
                 elif es_filter_type == 'nested_filter_range_lte':
                     es_filter.add_nested_filter_range_lte(es_name, data, path)
-                    dict_filter_fields[filter_field_pk].append(int(data.strip()))
+                    dict_filter_fields[filter_field_pk].append(float(data.strip()))
 
 
                 elif es_filter_type == 'filter_exists':
@@ -694,7 +694,7 @@ def search(request):
                 uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
             response = requests.get(uri, data=query, headers={'Content-type': 'application/json'})
             results = json.loads(response.text)
-            # pprint(results)
+
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
@@ -729,12 +729,6 @@ def search(request):
             except:
                 variant_field_exist = False
 
-
-            # if not request.user.is_anonymous():
-            #     variants_to_exclude = VariantReviewStatus.objects.filter(
-            #         Q(user=request.user)| Q(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True))).filter(variant_review_status='rejected').values_list('variant_es_id', flat=True)
-            # else:
-            #     variants_to_exclude = []
             variants_excluded = []
             for ele in tmp_results:
                 tmp_source = ele['_source']
@@ -742,7 +736,7 @@ def search(request):
                 inner_hits = ele.get('inner_hits')
 
 
-                if show_review_status and not request.user.is_anonymous():
+                if show_review_status and not request.user.is_anonymous:
                     variant_review_status = get_variant_review_status(es_id, group)
                     if review_status_to_filter and variant_review_status not in review_status_to_filter:
                         variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
@@ -769,84 +763,6 @@ def search(request):
                             if tmp_hit_dict:
                                 tmp_source[key].append(tmp_hit_dict)
                 results.append(tmp_source)
-
-
-
-            # ### Deal with FILTER and QUAL fields -- if both are
-            # if FILTER_value and QUAL_value and 'FILTER' in nested_attribute_fields and 'QUAL' in nested_attribute_fields:
-            #     filtered_results = []
-            #     for result in results:
-            #         new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
-            #         if new_filter_data and new_qual_data:
-            #             result['FILTER'] = new_filter_data
-            #             result['QUAL'] = new_qual_data
-            #             filtered_results.append(result)
-
-
-            #     results = filtered_results
-
-            # ### Remove nested attributes that were not selected
-            # if nested_attributes_selected:
-            #     for result in results:
-            #         for path, nested_attributes in nested_attributes_selected.items():
-            #             if path in ['FILTER', 'QUAL']:
-            #                 continue
-            #             if result.get(path):
-            #                 old_data = result[path]
-            #             else:
-            #                 continue
-            #             new_data = []
-            #             for ele in old_data:
-            #                 tmp_dict = {}
-            #                 for nested_attribute in nested_attributes:
-            #                     if ele.get(nested_attribute):
-            #                         tmp_dict[nested_attribute] = ele[nested_attribute]
-            #                 if tmp_dict not in new_data:
-            #                     new_data.append(tmp_dict)
-            #             result[path] = new_data
-
-
-            # ### Remove results that don't match input
-            # tmp_results = []
-            # if dict_filter_fields:
-            #     for idx, result in enumerate(results):
-            #         add_results = True
-            #         for key, val in dict_filter_fields.items():
-
-            #             filter_field_obj = FilterField.objects.get(id=key)
-            #             key_path = filter_field_obj.path
-            #             key_es_name = filter_field_obj.es_name
-            #             key_es_filter_type = filter_field_obj.es_filter_type.name
-            #             if not result.get(key_path):
-            #                 continue
-
-            #             if key_es_filter_type in ["filter_range_gte",
-            #                                       "filter_range_lte",
-            #                                       "filter_range_lt",
-            #                                       "nested_filter_range_gte",
-            #                                       "nested_filter_range_lte"]:
-            #                 comparison_type = key_es_filter_type.split('_')[-1]
-            #             elif key_es_filter_type in ["nested_filter_term",
-            #                                         "nested_filter_terms",]:
-            #                     if filter_field_obj.es_data_type in ['keyword', 'text']:
-            #                         comparison_type = filter_field_obj.es_data_type
-            #                     elif filter_field_obj.es_data_type in ['integer', 'float']:
-            #                         comparison_type = 'number_equal'
-            #             else:
-            #                 comparison_type = 'val_in'
-
-
-            #             filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-            #             # print(filtered_results)
-            #             if filtered_results:
-            #                 result[key_path] = filtered_results
-            #             else:
-            #                 add_results = False
-
-            #         if add_results:
-            #             tmp_results.append(result)
-
-
             ## gene_names
             result_hash_list = deque()
             all_genes = []
@@ -886,7 +802,7 @@ def search(request):
                         for x,y in tmp_output:
                             tmp = merge_two_dicts(x,y)
                             tmp["es_id"] = result["es_id"]
-                            if show_review_status and not request.user.is_anonymous():
+                            if show_review_status and not request.user.is_anonymous:
                                 tmp['variant_review_status'] = result['variant_review_status']
 
                             if result.get('FILTER'):
@@ -905,14 +821,6 @@ def search(request):
             else:
                 final_results = results
 
-
-            # ## remove duplicates
-            # tmp_results = []
-            # hash_list = deque()
-            # for result in final_results:
-            #     if result not in tmp_results:
-            #         tmp_results.append(result)
-            # final_results = tmp_results
 
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)
@@ -937,30 +845,32 @@ def search(request):
                 used_keys_json = None
 
 
-
             filters_used = json.dumps(filters_used)
             attributes_selected = json.dumps(attributes_selected)
 
+            print('851')
+            try:
+                search_log_obj = SearchLog.objects.create(
+                                                    dataset=dataset_obj,
+                                                    headers=header_json,
+                                                    query=query_json,
+                                                    nested_attribute_fields=nested_attribute_fields_json,
+                                                    non_nested_attribute_fields=non_nested_attribute_fields_json,
+                                                    dict_filter_fields=dict_filter_fields_json,
+                                                    used_keys=used_keys_json,
+                                                    filters_used=filters_used,
+                                                    attributes_selected=attributes_selected,
+                                                )
 
-            search_log_obj = SearchLog.objects.create(
-                                                dataset=dataset_obj,
-                                                headers=header_json,
-                                                query=query_json,
-                                                nested_attribute_fields=nested_attribute_fields_json,
-                                                non_nested_attribute_fields=non_nested_attribute_fields_json,
-                                                dict_filter_fields=dict_filter_fields_json,
-                                                used_keys=used_keys_json,
-                                                filters_used=filters_used,
-                                                attributes_selected=attributes_selected,
-                                            )
-
-
-            if request.user.is_authenticated():
+            except Exception as e:
+                print(e)
+            print('864')
+            if request.user.is_authenticated:
                 search_log_obj.user=request.user
                 search_log_obj.save()
 
 
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 save_search_form = SaveSearchForm(request.user, dataset_obj, filters_used or 'None', attributes_selected)
                 context['save_search_form'] = save_search_form
             else:
@@ -973,6 +883,7 @@ def search(request):
                     all_genes.remove('NONE')
                 gene_mania_link =  "http://genemania.org/#/search/9606/%s" % ('|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link
+
 
             context['review_status_form'] = review_status_form
             context['debug'] = settings.DEBUG
@@ -1043,48 +954,6 @@ def yield_results(dataset_obj,
 
                     if tmp_hit_dict:
                         result[key].append(tmp_hit_dict)
-
-
-        # #
-        # if FILTER_value and QUAL_value:
-        #     new_filter_data, new_qual_data = filter_FILTER_QUAL(result, FILTER_value, QUAL_value)
-        #     if new_filter_data and new_qual_data:
-        #         result['FILTER'] = new_filter_data
-        #         result['QUAL'] = new_qual_data
-        #     else:
-        #         continue
-
-        # ### Remove results that don't match input
-        # yield_results = True
-        # if dict_filter_fields:
-        #     for key, val in dict_filter_fields.items():
-        #         filter_field_obj = FilterField.objects.get(id=key)
-        #         key_path = filter_field_obj.path
-        #         key_es_name = filter_field_obj.es_name
-        #         key_es_filter_type = filter_field_obj.es_filter_type.name
-
-        #         if key_es_filter_type in ["filter_range_gte",
-        #                                   "filter_range_lte",
-        #                                   "filter_range_lt",
-        #                                   "nested_filter_range_gte",]:
-        #             comparison_type = key_es_filter_type.split('_')[-1]
-        #         elif key_es_filter_type in ["nested_filter_term",
-        #                                             "nested_filter_terms",]:
-        #             if filter_field_obj.es_data_type in ['keyword', 'text']:
-        #                 comparison_type = filter_field_obj.es_data_type
-        #             elif filter_field_obj.es_data_type in ['integer', 'float']:
-        #                 comparison_type = 'number_equal'
-
-        #         else:
-        #             comparison_type = 'val_in'
-        #         filtered_results = filter_array_dicts(result[key_path], key_es_name, val, comparison_type)
-        #         if filtered_results:
-        #             result[key_path] = filtered_results
-        #         else:
-        #             yield_results = False
-
-        #     if not yield_results:
-        #         continue
 
         final_results = []
         if nested_attribute_fields:
@@ -1204,10 +1073,9 @@ def download_result(request):
     writer = csv.writer(pseudo_buffer, delimiter='\t')
 
 
-    if request.user.groups.count() != 1 and not request.user.is_anonymous():
+    if request.user.groups.count() != 1 and not request.user.is_anonymous:
             return HttpResponse(status=400)
-    elif request.user.is_anonymous():
-        request.user.is_anonymous()
+    elif request.user.is_anonymous:
         group = 'anonymous'
     else:
         group = request.user.groups.all()[:1].get()
