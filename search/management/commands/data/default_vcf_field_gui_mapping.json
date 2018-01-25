@@ -243,14 +243,14 @@
   "AC": {
     "filters": [
       {
-        "display_text": "Allele Count Case",
+        "display_text": "Allele Count",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Allele Count Case",
+        "display_text": "Allele Count",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -305,14 +305,14 @@
   "AF": {
     "filters": [
       {
-        "display_text": "Allele Frequency Case",
+        "display_text": "Allele Frequency",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Allele Frequency Case",
+        "display_text": "Allele Frequency",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
@@ -367,14 +367,14 @@
   "AN": {
     "filters": [
       {
-        "display_text": "Allele Number Case",
+        "display_text": "Allele Number",
         "es_filter_type": "filter_range_gte",
         "form_type": "CharField",
         "in_line_tooltip": "(>=)",
         "widget_type": "TextInput"
       },
       {
-        "display_text": "Allele Number Case",
+        "display_text": "Allele Number",
         "es_filter_type": "filter_range_lte",
         "form_type": "CharField",
         "in_line_tooltip": "(<=)",
