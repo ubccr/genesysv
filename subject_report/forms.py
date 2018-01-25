@@ -539,7 +539,7 @@ def group_by_variant_id_key(input_array):
 class SubjectReportForm1(forms.Form):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', [])
-        if not user.is_anonymous():
+        if not user.is_anonymous:
             user = User.objects.get(username=user)
             user_group_ids = [group.id for group in user.groups.all()]
         else:
