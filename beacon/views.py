@@ -31,7 +31,7 @@ def beacon_query(request):
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": {"CHROM": "%s"}},
+                                {"terms": {"CHROM": ["%s", "chr%s"]}},
                                 {"term": {"ALT": "%s"}},
                                 {"term": {"POS": "%s"}}
                             ]
@@ -39,7 +39,7 @@ def beacon_query(request):
                     }
                 }
             """
-            body = beacon_query_template %(data['chromosome'], data['alternate_allele'], data['coordinate'])
+            body = beacon_query_template %(data['chromosome'], data['chromosome'], data['alternate_allele'], data['coordinate'])
             results = es.search(index='_all', body=body)
 
             if results['hits']['total'] >= 1:
