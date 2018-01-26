@@ -129,10 +129,10 @@
     "filters": [
       {
         "display_text": "Max Overhang",
-        "es_filter_type": "nested_filter_range_lte",
+        "es_filter_type": "nested_filter_range_gte",
         "form_type": "CharField",
         "path": "sample",
-        "in_line_tooltip": "(<=)",
+        "in_line_tooltip": "(>=)",
         "tooltip": "maximum spliced alignment overhang",
         "widget_type": "TextInput"
       }
