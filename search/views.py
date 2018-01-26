@@ -848,7 +848,6 @@ def search(request):
             filters_used = json.dumps(filters_used)
             attributes_selected = json.dumps(attributes_selected)
 
-            print('851')
             try:
                 search_log_obj = SearchLog.objects.create(
                                                     dataset=dataset_obj,
@@ -864,7 +863,7 @@ def search(request):
 
             except Exception as e:
                 print(e)
-            print('864')
+
             if request.user.is_authenticated:
                 search_log_obj.user=request.user
                 search_log_obj.save()
