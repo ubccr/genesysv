@@ -6,9 +6,11 @@ from django.conf import settings
 import elasticsearch
 from search.models import Dataset
 
+
 def beacon(request):
     context = {}
     return render(request, "beacon/beacon.html", context)
+
 
 def get_beacon_form(request):
     context = {}
@@ -21,7 +23,6 @@ def beacon_query(request):
     form = BeaconQueryForm(request.GET or None)
     if request.method == 'GET' and form.is_valid():
         data = form.cleaned_data
-
 
         ips = list(set([ele.es_host for ele in Dataset.objects.all()]))
         for ip in ips:
@@ -39,7 +40,8 @@ def beacon_query(request):
                     }
                 }
             """
-            body = beacon_query_template %(data['chromosome'], data['chromosome'], data['alternate_allele'], data['coordinate'])
+            body = beacon_query_template % (data['chromosome'], data['chromosome'], data[
+                                            'alternate_allele'], data['coordinate'])
             results = es.search(index='_all', body=body)
 
             if results['hits']['total'] >= 1:
@@ -57,4 +59,3 @@ def beacon_query(request):
         context = {}
         context['beacon_query_form'] = form
         return render(request, "beacon/get_beacon_form_snippet.html", context, status=400)
-

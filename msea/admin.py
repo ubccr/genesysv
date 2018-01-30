@@ -1,11 +1,14 @@
 from django.contrib import admin
 from .models import *
 
+
 class StudyAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'display_name', 'es_index_name', 'es_host', 'es_port', 'is_public')
+    list_display = ('short_name', 'display_name')
+
 
 class DatasetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'display_name')
+    list_display = ('short_name', 'display_name',
+                    'es_index_name', 'es_host', 'es_port', 'is_public')
 
 
 class ReferenceSequenceAdmin(admin.ModelAdmin):

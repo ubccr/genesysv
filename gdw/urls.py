@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 import search.urls as search_urls
-import pybamview.urls as  pybamview_urls
+import pybamview.urls as pybamview_urls
 from .views import home, change_password_done
 import subject_report.urls as subject_report_urls
 import beacon.urls as beacon_urls
@@ -48,7 +48,9 @@ urlpatterns = [
     url(r'^about/$', TemplateView.as_view(template_name="about.html"), name='about'),
     url(r'^help/$', TemplateView.as_view(template_name="help.html"), name='help'),
     url(r'^faq/$', TemplateView.as_view(template_name="faq.html"), name='faq'),
-    url(r'^dataset-summary/$', TemplateView.as_view(template_name="dataset_summary.html"), name='dataset-summary'),
-    url(r'^tutorial/$', TemplateView.as_view(template_name="tutorial.html"), name='tutorial'),
+    url(r'^dataset-summary/$',
+        TemplateView.as_view(template_name="dataset_summary.html"), name='dataset-summary'),
+    url(r'^tutorial/$',
+        TemplateView.as_view(template_name="tutorial.html"), name='tutorial'),
     url(r'^tinymce/', include('tinymce.urls')),
 ]

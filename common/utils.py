@@ -38,6 +38,7 @@ def filter_array_dicts(array, key, values, comparison_type):
 
     return output
 
+
 def must_not_array_dicts(array, key, values, comparison_type):
     output = []
     # print(values)
@@ -55,4 +56,3 @@ def must_not_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
 
     return output
-

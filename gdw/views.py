@@ -4,6 +4,7 @@ from django.views.decorators.gzip import gzip_page
 from datetime import datetime
 from news.models import News
 
+
 @gzip_page
 def home(request):
     context = {}

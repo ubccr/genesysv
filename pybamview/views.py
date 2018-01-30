@@ -7,8 +7,10 @@ from .forms import SampleSelectForm
 from .models import SampleBamInfo
 from django.conf import settings
 
+
 def get_sample_ids(result):
     return sorted([(ele['sample_ID']) for ele in result['sample'] if ele['sample_GT'] not in ['0/0', './.']])
+
 
 def pybamview(request):
     if request.POST:
@@ -20,18 +22,18 @@ def pybamview(request):
 
             url_string = settings.PYBAMVIEW_URI
             try:
-                for sample in (key for key,val in request.POST.items() if 'on' in val):
-                    sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
+                for sample in (key for key, val in request.POST.items() if 'on' in val):
+                    sample_bam_info_obj = SampleBamInfo.objects.get(
+                        dataset=dataset, sample_id=sample)
                     url_string += 'samplebams={sample_name}:{sample_file}&'.format(sample_name=sample_bam_info_obj.sample_id,
                                                                                    sample_file=sample_bam_info_obj.file_path)
 
                 url_string += 'zoomlevel=1'
-                url_string += '&region=%d:%d' %(Chr,Start)
+                url_string += '&region=%d:%d' % (Chr, Start)
                 return redirect(url_string)
                 # return redirect(url_string)
             except:
-                return HttpResponse('Missing BAM file for: %s' %(sample))
-
+                return HttpResponse('Missing BAM file for: %s' % (sample))
 
         else:
             dataset_id = request.POST.get('dataset_id')

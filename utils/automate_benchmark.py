@@ -14,7 +14,6 @@ command_500_vep_samples = "bash es_scripts/delete_index_five_hundred_samples_vep
 command_1000_vep_samples = "bash es_scripts/delete_index_thousand_samples_vep.sh; bash es_scripts/create_index_thousand_samples_vep_and_put_mapping_thousand_samples_vep.sh; python import_vcf_using_celery.py --hostname %s --port 9200 --index thousand_samples_vep --type thousand_samples_vep --label None --update False --vcf ~/vep_annotation/%s --mapping es_scripts/inspect_output_for_thousand_samples_vep_thousand_samples_vep.txt;"
 
 
-
 command_10_annovar_samples = "bash es_scripts/delete_index_ten_samples_annovar.sh; bash es_scripts/create_index_ten_samples_annovar_and_put_mapping_ten_samples_annovar.sh; python import_vcf_using_celery.py --hostname %s --port 9200 --index ten_samples_annovar --type ten_samples_annovar --label None --update False --vcf ~/annovar_annotation/%s --mapping es_scripts/inspect_output_for_ten_samples_annovar_ten_samples_annovar.txt;"
 command_100_annovar_samples = "bash es_scripts/delete_index_hundred_samples_annovar.sh; bash es_scripts/create_index_hundred_samples_annovar_and_put_mapping_hundred_samples_annovar.sh; python import_vcf_using_celery.py --hostname %s --port 9200 --index hundred_samples_annovar --type hundred_samples_annovar --label None --update False --vcf ~/annovar_annotation/%s --mapping es_scripts/inspect_output_for_hundred_samples_annovar_hundred_samples_annovar.txt;"
 command_500_annovar_samples = "bash es_scripts/delete_index_five_hundred_samples_annovar.sh; bash es_scripts/create_index_five_hundred_samples_annovar_and_put_mapping_five_hundred_samples_annovar.sh; python import_vcf_using_celery.py --hostname %s --port 9200 --index five_hundred_samples_annovar --type five_hundred_samples_annovar --label None --update False --vcf ~/annovar_annotation/%s --mapping es_scripts/inspect_output_for_five_hundred_samples_annovar_five_hundred_samples_annovar.txt;"
@@ -80,24 +79,28 @@ files = [
 ]
 
 
-subprocess.run("curl -XDELETE '%s:9200/_all?pretty'" %(hostname), shell=True)
+subprocess.run("curl -XDELETE '%s:9200/_all?pretty'" % (hostname), shell=True)
 start = datetime.now()
 for command, file in files:
     print(file)
-    full_command = command %(hostname, file)
+    full_command = command % (hostname, file)
     inner_start = datetime.now()
     for no in range(5):
-        subprocess.run("curl -XDELETE '%s:9200/_all?pretty'" %(hostname), shell=True)
+        subprocess.run("curl -XDELETE '%s:9200/_all?pretty'" %
+                       (hostname), shell=True)
         subprocess.run(full_command, shell=True)
     inner_end = datetime.now()
-    print('Total Time for:', file, inner_end-inner_start)
+    print('Total Time for:', file, inner_end - inner_start)
 
 end = datetime.now()
 
-print('Total time: %s' %(end-start))
+print('Total time: %s' % (end - start))
 
 
-# python prepare_elasticsearch_for_import.py --hostname 172.17.39.0 --port 9200 --index thousand_samples_annovar --type thousand_samples_annovar --info es_scripts/inspect_output_for_thousand_samples_annovar_thousand_samples_annovar.txt
+# python prepare_elasticsearch_for_import.py --hostname 172.17.39.0 --port
+# 9200 --index thousand_samples_annovar --type thousand_samples_annovar
+# --info
+# es_scripts/inspect_output_for_thousand_samples_annovar_thousand_samples_annovar.txt
 
 
 #

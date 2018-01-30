@@ -1,15 +1,16 @@
 python inspect_vcf.py --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --vcf ~/20170222_SIM_WGS.hg19_multianno.vcf --labels "case, control"
 
-python prepare_elasticsearch_for_import.py --hostname 199.109.193.214 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --info es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt
+python prepare_elasticsearch_for_import.py --hostname 199.109.195.2 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --info es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt
 
-bash es_scripts/delete_index_sim_wgs_case_wes_control.sh; bash es_scripts/create_index_sim_wgs_case_wes_control_and_put_mapping_sim_wgs_case_wes_control.sh; python import_vcf_using_celery.py --hostname 199.109.193.214 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --label case --update False --vcf ~/20170222_SIM_WGS.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt; sleep 60m; curl http://199.109.193.214:9200/sim_wgs_case_wes_control/_count?pretty; python import_vcf_using_celery.py --hostname 199.109.193.214 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --label control --update True --vcf ~/20170307_SIM_Control.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt
+bash es_scripts/delete_index_sim_wgs_case_wes_control.sh; bash es_scripts/create_index_sim_wgs_case_wes_control_and_put_mapping_sim_wgs_case_wes_control.sh; python import_vcf_using_celery.py --hostname 199.109.195.2 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --label case --update False --vcf ~/20170222_SIM_WGS.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt; sleep 60m; curl http://199.109.195.2:9200/sim_wgs_case_wes_control/_count?pretty; python import_vcf_using_celery.py --hostname 199.109.195.2 --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --label control --update True --vcf ~/20170307_SIM_Control.hg19_multianno.vcf --mapping es_scripts/inspect_output_for_sim_wgs_case_wes_control_sim_wgs_case_wes_control.txt
 
 
 python inspect_vcf.py --index sim_wes_case --type sim_wes_case --vcf ~/20170419_SIM_WES_CASE.hg19_multianno.vcf --labels "case"
 
-python prepare_elasticsearch_for_import.py --hostname 199.109.193.214 --port 9200 --index sim_wes_case --type sim_wes_case --info es_scripts/inspect_output_for_sim_wes_case_sim_wes_case.txt
+python prepare_elasticsearch_for_import.py --hostname 199.109.195.2
+ --port 9200 --index sim_wes_case --type sim_wes_case --info es_scripts/inspect_output_for_sim_wes_case_sim_wes_case.txt
 
-bash es_scripts/delete_index_sim_wes_case.sh; bash es_scripts/create_index_sim_wes_case_and_put_mapping_sim_wes_case.sh; python import_vcf_using_celery.py --hostname 172.17.39.0 --port 9200 --index sim_wes_case --type sim_wes_case --label case --update False --vcf ~/sim_wes_case_ann.vcf --mapping es_scripts/inspect_output_for_sim_wes_case_sim_wes_case.txt;
+bash es_scripts/delete_index_sim_wes_case.sh; bash es_scripts/create_index_sim_wes_case_and_put_mapping_sim_wes_case.sh; python import_vcf_using_celery.py --hostname 199.109.195.2 --port 9200 --index sim_wes_case --type sim_wes_case --label case --update False --vcf ~/sim_wes_case_ann.vcf --mapping es_scripts/inspect_output_for_sim_wes_case_sim_wes_case.txt;
 
 
 python inspect_vcf.py --index thousand_samples --type thousand_samples --vcf ~/ALL.1kg.everythingVEP.1000sample_1000000.vcf --labels None

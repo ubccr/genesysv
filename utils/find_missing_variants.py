@@ -6,7 +6,7 @@ import elasticsearch
 from collections import deque
 
 
-### Global STATIC Variables
+# Global STATIC Variables
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
 OKGREEN = '\033[92m'
@@ -23,6 +23,7 @@ TWO = OKGREEN + '[2]' + ENDC
 WARNING = WARNING + '[WARNING]' + ENDC
 ERROR = FAIL + 'ERROR:' + ENDC
 
+
 def main():
     """
     This script inspects a VCF file for all available INFO and FORMAT fields. It then checks those fields against
@@ -32,10 +33,14 @@ def main():
     """
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required named arguments')
-    required.add_argument("--hostname", help="Elasticsearch hostname", required=True)
-    required.add_argument("--port", type=int, help="Elasticsearch port", required=True)
-    required.add_argument("--index", help="Elasticsearch index name", required=True)
-    required.add_argument("--type", help="Elasticsearch doc type name", required=True)
+    required.add_argument(
+        "--hostname", help="Elasticsearch hostname", required=True)
+    required.add_argument("--port", type=int,
+                          help="Elasticsearch port", required=True)
+    required.add_argument(
+        "--index", help="Elasticsearch index name", required=True)
+    required.add_argument(
+        "--type", help="Elasticsearch doc type name", required=True)
     required.add_argument("--vcf", help="VCF file to check", required=True)
     args = parser.parse_args()
 
@@ -78,7 +83,6 @@ def main():
 
             content = {}
 
-
             CHROM = data['CHROM']
             POS = int(data['POS'])
             REF = data['REF']
@@ -94,7 +98,8 @@ def main():
 
             es_id = get_es_id(CHROM, POS, REF, ALT, ID, index_name, type_name)
 
-            variant_information.append((str(es_id), str(CHROM), str(POS), str(REF), str(ALT), index_name, type_name, line))
+            variant_information.append((str(es_id), str(CHROM), str(
+                POS), str(REF), str(ALT), index_name, type_name, line))
 
             if es_id in variant_information:
                 print("###", 'Duplicate Variant', es_id)
@@ -104,7 +109,8 @@ def main():
 
             variant_ids.append(es_id)
 
-            es_id_exists = es.exists(index=index_name, doc_type=type_name, id=es_id)
+            es_id_exists = es.exists(
+                index=index_name, doc_type=type_name, id=es_id)
             if es_id_exists:
                 variants_found += 1
             else:
@@ -115,7 +121,8 @@ def main():
             line_count += 1
 
     print(variants_found, varaints_missing)
-    print(variants_found, varaints_missing, len(variant_ids), len(set(variant_ids)))
+    print(variants_found, varaints_missing, len(
+        variant_ids), len(set(variant_ids)))
 
     # duplicate = set([variant for variant in variant_ids if variant_ids.count(variant) > 1])
 

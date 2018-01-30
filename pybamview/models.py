@@ -15,4 +15,4 @@ class SampleBamInfo(TimeStampedModel):
         verbose_name_plural = 'Sample BAM info'
 
     def __str__(self):
-        return "%s: %s" %(self.sample_id, self.file_path)
+        return "%s: %s" % (self.sample_id, self.file_path)

@@ -135,7 +135,8 @@ def ANN_parser(fields, input_string):
     output_dict = {}
     for field in ANN_NON_NESTED_FIELDS:
         field_name = "ANN_" + field
-        values = [ele.get(field) for ele in annotations_array if ele.get(field)]
+        values = [ele.get(field)
+                  for ele in annotations_array if ele.get(field)]
         if not values:
             continue
         if type(values[0]) is list and values.count(values[0]) > 1 and values.count(values[0]) == len(values):
@@ -149,9 +150,11 @@ def ANN_parser(fields, input_string):
 
     nested_dicts = []
     for ele in annotations_array:
-        nested_dicts.append({key: ele.get(key) for key in ANN_MODIFIED_NESTED_FIELDS if ele.get(key)})
+        nested_dicts.append({key: ele.get(key)
+                             for key in ANN_MODIFIED_NESTED_FIELDS if ele.get(key)})
 
-    output_dict['ANN_nested'] = add_prefix_to_keys_in_dictionary(nested_dicts, 'ANN_nested')
+    output_dict['ANN_nested'] = add_prefix_to_keys_in_dictionary(
+        nested_dicts, 'ANN_nested')
     return output_dict
 
 
@@ -193,10 +196,10 @@ def clinvar_parser(input_dict):
         #     CLNDSDBID = None
 
         output_dict = {
-                        'clinvar_CLINSIG': CLINSIG,
-                        'clinvar_CLNDBN': CLNDBN,
-                        'clinvar_CLNACC': CLNACC,
-                    }
+            'clinvar_CLINSIG': CLINSIG,
+            'clinvar_CLNDBN': CLNDBN,
+            'clinvar_CLNACC': CLNACC,
+        }
         # if CLNDSDB:
         #     output_dict['clinvar_CLNDSDB'] = CLNDSDB
         # if CLNDSDBID:
@@ -232,9 +235,11 @@ def cosmic70_parser(input_string):
 
 def CSQ_parser(fields, input_string):
 
-    # treat the following fields as non-nested and shared between comma separated annotations.
+    # treat the following fields as non-nested and shared between comma
+    # separated annotations.
 
-    CSQ_FIELDS_TO_SPLIT_BY_AMPERSAND = sorted(list(set(fields) - set(CSQ_FLOAT_FIELDS + CSQ_INTEGER_FIELDS + CSQ_FIELDS_TO_SKIP_SPLITTING_BY_AMPERSAND)))
+    CSQ_FIELDS_TO_SPLIT_BY_AMPERSAND = sorted(list(set(
+        fields) - set(CSQ_FLOAT_FIELDS + CSQ_INTEGER_FIELDS + CSQ_FIELDS_TO_SKIP_SPLITTING_BY_AMPERSAND)))
 
     annotations_array = extract_piped_fields(fields, input_string)
 
@@ -266,16 +271,16 @@ def CSQ_parser(fields, input_string):
                     int_end = is_int(end)
 
                     if int_start:
-                        ele[field+'_start'] = int_start
+                        ele[field + '_start'] = int_start
 
                     if int_end:
-                        ele[field+'_end'] = int_end
+                        ele[field + '_end'] = int_end
                 else:
                     int_value = is_int(value)
                     if int_value:
-                        ele[field+'_start'] = int_value
+                        ele[field + '_start'] = int_value
                     if int_value:
-                        ele[field+'_end'] = int_value
+                        ele[field + '_end'] = int_value
 
                 ele.pop(field)
 
@@ -284,14 +289,15 @@ def CSQ_parser(fields, input_string):
                 results = re.match(CSQ_REGEX, ele.get(field))
                 prediction = results.group(1)
                 score = float(results.group(2))
-                ele[field+'_prediction'] = prediction
-                ele[field+'_score'] = score
+                ele[field + '_prediction'] = prediction
+                ele[field + '_score'] = score
                 ele.pop(field)
 
     output_dict = {}
     for field in CSQ_NON_NESTED_FIELDS:
         field_name = "CSQ_" + field
-        values = [ele.get(field) for ele in annotations_array if ele.get(field)]
+        values = [ele.get(field)
+                  for ele in annotations_array if ele.get(field)]
         if not values:
             continue
         if type(values[0]) is list and values.count(values[0]) > 1 and values.count(values[0]) == len(values):
@@ -306,9 +312,11 @@ def CSQ_parser(fields, input_string):
 
     nested_dicts = []
     for ele in annotations_array:
-        nested_dicts.append({key: ele.get(key) for key in CSQ_MODIFIED_NESTED_FIELDS if ele.get(key)})
+        nested_dicts.append({key: ele.get(key)
+                             for key in CSQ_MODIFIED_NESTED_FIELDS if ele.get(key)})
 
-    output_dict['CSQ_nested'] = add_prefix_to_keys_in_dictionary(nested_dicts, 'CSQ_nested')
+    output_dict['CSQ_nested'] = add_prefix_to_keys_in_dictionary(
+        nested_dicts, 'CSQ_nested')
     return output_dict
 
 
@@ -340,7 +348,7 @@ def estimate_no_variants_in_file(filename, no_lines_for_estimating):
 
     filesize = os.path.getsize(filename)
 
-    no_variants = int(filesize/statistics.median(size_list))
+    no_variants = int(filesize / statistics.median(size_list))
     fp.close()
     return no_variants
 
@@ -362,7 +370,8 @@ def extract_piped_fields(fields, input_string, strip_parentheses=False):
 
 def Gene_ensGene_parser(relevant_info_fields):
 
-    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$'  # pattern to detect dist
+    # pattern to detect dist
+    pattern = r'^dist=[a-zA-Z0-9]+;dist=[a-zA-Z0-9]+$'
     Gene_ensGene = relevant_info_fields["Gene.ensGene"]
 
     gene_id = ' '.join(re.split('[;,]', Gene_ensGene))
@@ -371,7 +380,8 @@ def Gene_ensGene_parser(relevant_info_fields):
 
     if relevant_info_fields.get('GeneDetail.ensGene'):
 
-        GeneDetail_ensGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.ensGene'))
+        GeneDetail_ensGene = convert_escaped_chars(
+            relevant_info_fields.get('GeneDetail.ensGene'))
 
         if re.match(pattern, GeneDetail_ensGene):
             tmp_content = {}
@@ -413,7 +423,8 @@ def Gene_refGene_parser(relevant_info_fields):
 
     if relevant_info_fields.get('GeneDetail.refGene'):
 
-        GeneDetail_refGene = convert_escaped_chars(relevant_info_fields.get('GeneDetail.refGene'))
+        GeneDetail_refGene = convert_escaped_chars(
+            relevant_info_fields.get('GeneDetail.refGene'))
 
         if re.match(pattern, GeneDetail_refGene):
             tmp_content = {}
@@ -446,7 +457,8 @@ def Gene_refGene_parser(relevant_info_fields):
 
 
 def get_es_id(CHROM, POS, REF, ALT, ID, index_name, type_name):
-    es_id = '%s-%s-%s-%s-%s-%s-%s' % (CHROM, POS, REF, ALT, ID, index_name, type_name)
+    es_id = '%s-%s-%s-%s-%s-%s-%s' % (CHROM,
+                                      POS, REF, ALT, ID, index_name, type_name)
     es_id = es_id.encode('utf-8')
     es_id = hashlib.sha224(es_id).hexdigest()
 
@@ -479,11 +491,15 @@ def ICGC_Occurrence_parser(input_string):
     output = []
     for occurance in input_string.split(','):
         tmp_dict = {}
-        ICGC_Occurrence_cancer_name, ICGC_Occurrence_mutation_allele_count, ICGC_Occurrence_total_allele_count, ICGC_Occurrence_total_allele_frequency = occurance.split('|')
+        ICGC_Occurrence_cancer_name, ICGC_Occurrence_mutation_allele_count, ICGC_Occurrence_total_allele_count, ICGC_Occurrence_total_allele_frequency = occurance.split(
+            '|')
         tmp_dict['ICGC_Occurrence_cancer_name'] = ICGC_Occurrence_cancer_name
-        tmp_dict['ICGC_Occurrence_mutation_allele_count'] = int(ICGC_Occurrence_mutation_allele_count)
-        tmp_dict['ICGC_Occurrence_total_allele_count'] = int(ICGC_Occurrence_total_allele_count)
-        tmp_dict['ICGC_Occurrence_total_allele_frequency'] = float(ICGC_Occurrence_total_allele_frequency)
+        tmp_dict['ICGC_Occurrence_mutation_allele_count'] = int(
+            ICGC_Occurrence_mutation_allele_count)
+        tmp_dict['ICGC_Occurrence_total_allele_count'] = int(
+            ICGC_Occurrence_total_allele_count)
+        tmp_dict['ICGC_Occurrence_total_allele_frequency'] = float(
+            ICGC_Occurrence_total_allele_frequency)
 
         output.append(tmp_dict)
     return output
@@ -526,7 +542,8 @@ def is_gz_file(filepath):
 
 
 def LOF_parser(fields, input_string):
-    annotations_array = extract_piped_fields(fields, input_string, strip_parentheses=True)
+    annotations_array = extract_piped_fields(
+        fields, input_string, strip_parentheses=True)
 
     for ele in annotations_array:
         for field in LOF_FLOAT_FIELDS:
@@ -543,12 +560,14 @@ def LOF_parser(fields, input_string):
                 else:
                     ele[field] = int(ele[field])
 
-    output_dict = {'LOF': add_prefix_to_keys_in_dictionary(annotations_array, 'LOF')}
+    output_dict = {'LOF': add_prefix_to_keys_in_dictionary(
+        annotations_array, 'LOF')}
     return output_dict
 
 
 def NMD_parser(fields, input_string):
-    annotations_array = extract_piped_fields(fields, input_string, strip_parentheses=True)
+    annotations_array = extract_piped_fields(
+        fields, input_string, strip_parentheses=True)
 
     for ele in annotations_array:
         for field in NMD_FLOAT_FIELDS:
@@ -565,7 +584,8 @@ def NMD_parser(fields, input_string):
                 else:
                     ele[field] = int(ele[field])
 
-    output_dict = {'NMD': add_prefix_to_keys_in_dictionary(annotations_array, 'NMD')}
+    output_dict = {'NMD': add_prefix_to_keys_in_dictionary(
+        annotations_array, 'NMD')}
     return output_dict
 
 
@@ -623,7 +643,8 @@ def parse_field_id_and_description(input_str):
     try:
         fields = re.search(regexp_get_between_brackets, input_str).groups()[0]
     except ValueError:
-        raise ValueError('Could not find anything between brackets for input:\n%s' % (input_str))
+        raise ValueError(
+            'Could not find anything between brackets for input:\n%s' % (input_str))
 
     try:
         field_id = re.search(regexp_get_id, fields).groups()[0]
@@ -761,9 +782,11 @@ CSQ_INTEGER_FIELDS = ['DISTANCE', 'MOTIF_POS', ]
 
 CSQ_FIELDS_TO_SKIP_SPLITTING_BY_AMPERSAND = ['PHENO', 'SOMATIC']
 
-CSQ_FIELDS_TO_SPLIT_INTO_START_END_BY_DASH = ['CDS_position', 'Protein_position', 'cDNA_position']
+CSQ_FIELDS_TO_SPLIT_INTO_START_END_BY_DASH = [
+    'CDS_position', 'Protein_position', 'cDNA_position']
 
-CSQ_FIELDS_TO_PARSE_INTO_PREDICTION_AND_SCORE = ['PolyPhen', 'SIFT']  # assume -- prediction(score) -- format
+CSQ_FIELDS_TO_PARSE_INTO_PREDICTION_AND_SCORE = [
+    'PolyPhen', 'SIFT']  # assume -- prediction(score) -- format
 
 CSQ_MODIFIED_NESTED_FIELDS = [
     'APPRIS',
@@ -852,7 +875,8 @@ ANN_MODIFIED_NESTED_FIELDS = [
 
 ANN_NON_NESTED_FIELDS = []
 
-ANN_FIELDS_TO_SPLIT = ['cDNA_pos/cDNA_length', 'CDS_pos/CDS_length', 'AA_pos/AA_length']
+ANN_FIELDS_TO_SPLIT = ['cDNA_pos/cDNA_length',
+                       'CDS_pos/CDS_length', 'AA_pos/AA_length']
 
 ANN_FIELDS_TO_SPLIT_BY_AMPERSAND = ['ERRORS/WARNINGS/INFO', ]
 
@@ -885,4 +909,5 @@ RUN_DEPENDENT_INFO_FIELDS = [
     'culprit'
 ]
 
-RUN_DEPENDENT_FIELDS = RUN_DEPENDENT_FIXED_FIELDS + RUN_DEPENDENT_INFO_FIELDS + ['sample']
+RUN_DEPENDENT_FIELDS = RUN_DEPENDENT_FIXED_FIELDS + \
+    RUN_DEPENDENT_INFO_FIELDS + ['sample']

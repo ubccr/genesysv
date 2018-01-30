@@ -10,23 +10,24 @@ from django.conf import settings
 import os
 #from bokeh.models import HoverTool
 
+
 def format_domain_for_R(results):
     # print(results)
     formatted_results = {}
     for ele in results:
-        for key,val in ele.items():
+        for key, val in ele.items():
             # print(key,val)
             if key not in formatted_results:
                 formatted_results[key] = []
             formatted_results[key].append(val)
-
-
 
     formatted_results['refseq.ID'] = formatted_results['refseq.ID'][0]
     formatted_results['symbol'] = formatted_results['symbol'][0]
     return formatted_results
 
 import elasticsearch
+
+
 def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
 
     es = elasticsearch.Elasticsearch(host=es_host, port=es_port)
@@ -39,7 +40,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
         domain_es_index_name = "protein"
         domain_es_type_name = "protein"
 
-    ############## Gene START
+    # Gene START
     query_string_template = """
         {
             "query": {
@@ -54,30 +55,31 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
         }
     """
 
-    body = query_string_template %(rs_id,vset)
+    body = query_string_template % (rs_id, vset)
     index_name = "msea"
     response = es.search(index=index_name, doc_type=msea_type_name, body=body)
     total = response['hits']['total']
     gene_results = response['hits']['hits'][0]['_source']
 
-    gene_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_gene.json' %(rs_id, vset))
+    gene_json_output = os.path.join(
+        settings.BASE_DIR, 'msea/output_json/%s_%s_gene.json' % (rs_id, vset))
     with open(gene_json_output, 'w') as outfile:
         json.dump(gene_results, outfile, indent=4, sort_keys=True)
 
-    vset_map = {'ans':'All nonsilent SNVs',
-                'ansi':'All nonsilent SNVs and Indels',
-                'dns':'Deleterious nonsilent SNVs',
-                'dnsi':'Deleterious nonsilent SNVs and Indels',
-                'ass':'All silent SNVs',
-                'asbns':'All silent SNVs plus benign nonsilent SNVs',
-                'prom':'Promoter',
-                'lof':'Loss of Function',
-                'miss':'Missense'}
+    vset_map = {'ans': 'All nonsilent SNVs',
+                'ansi': 'All nonsilent SNVs and Indels',
+                'dns': 'Deleterious nonsilent SNVs',
+                'dnsi': 'Deleterious nonsilent SNVs and Indels',
+                'ass': 'All silent SNVs',
+                'asbns': 'All silent SNVs plus benign nonsilent SNVs',
+                'prom': 'Promoter',
+                'lof': 'Loss of Function',
+                'miss': 'Missense'}
 
     vset = gene_results['vset']
     gene_length = gene_results['length']
     mas = gene_results['mutation_accumulation_score']
-    title = '%s (%s), %s -- P-Value: %s -- NES: %s' %(
+    title = '%s (%s), %s -- P-Value: %s -- NES: %s' % (
         gene_results['gene_name'],
         gene_results['refgene_id'],
         vset_map[gene_results['vset']],
@@ -90,24 +92,23 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
     y = [float(ele) for ele in y]
 
     mutation_types_x = gene_results['mutations']['mutation_types'][0::2]
-    mutation_types_x = [int(ele)-1 for ele in mutation_types_x]
+    mutation_types_x = [int(ele) - 1 for ele in mutation_types_x]
     mutation_types = gene_results['mutations']['mutation_types'][1::2]
 
     exonic_functions_x = gene_results['mutations']['exonic_functions'][0::2]
-    exonic_functions_x = [int(ele)-1 for ele in exonic_functions_x]
+    exonic_functions_x = [int(ele) - 1 for ele in exonic_functions_x]
     exonic_functions = gene_results['mutations']['exonic_functions'][1::2]
 
     frequencies_x = gene_results['mutations']['frequencies'][0::2]
-    frequencies_x = [int(ele)-1 for ele in frequencies_x]
+    frequencies_x = [int(ele) - 1 for ele in frequencies_x]
     frequencies = gene_results['mutations']['frequencies'][1::2]
 
     deleterious_x = gene_results['mutations']['deleterious'][0::2]
-    deleterious_x = [int(ele)-1 for ele in deleterious_x]
+    deleterious_x = [int(ele) - 1 for ele in deleterious_x]
     deleterious = gene_results['mutations']['deleterious'][1::2]
-    ############## Gene END
+    # Gene END
 
-
-    ############## DOMAIN START
+    # DOMAIN START
     domain_query_template = """
         {
             "query": {
@@ -120,32 +121,32 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
             "size": 1000
         }
     """
-    body = domain_query_template %(domain_rs_id)
-    response = es.search(index=domain_es_index_name, doc_type=domain_es_type_name, body=body)
+    body = domain_query_template % (domain_rs_id)
+    response = es.search(index=domain_es_index_name,
+                         doc_type=domain_es_type_name, body=body)
     total = response['hits']['total']
     tmp_results = response['hits']['hits']
     domain_results = [ele["_source"] for ele in tmp_results]
 
-
     if domain_results:
         domain_data = format_domain_for_R(domain_results)
-        domain_json_output =  os.path.join(settings.BASE_DIR, 'msea/output_json/%s_%s_domain.json' %(rs_id, vset))
+        domain_json_output = os.path.join(
+            settings.BASE_DIR, 'msea/output_json/%s_%s_domain.json' % (rs_id, vset))
         with open(domain_json_output, 'w') as outfile:
             json.dump(domain_data, outfile, indent=4, sort_keys=True)
 
+    # DOMAIN END
 
-    ############## DOMAIN END
+    # Constants
+    # Domains
 
-
-    ############# Constants
-    ### Domains
-
-    y_range = max(y)-min(y)
-    gray_height = y_range *.02
-    gray_y_value = min(y)-(y_range*0.1) #seq.line.y
-    gray_top = gray_y_value+gray_height/2
-    gray_bot = gray_y_value-gray_height/2
-    palette = ('#CC79A7','#D55E00','#0072B2','#F0E442','#009E73','#56B4E9','#E69F00','#999999')
+    y_range = max(y) - min(y)
+    gray_height = y_range * .02
+    gray_y_value = min(y) - (y_range * 0.1)  # seq.line.y
+    gray_top = gray_y_value + gray_height / 2
+    gray_bot = gray_y_value - gray_height / 2
+    palette = ('#CC79A7', '#D55E00', '#0072B2', '#F0E442',
+               '#009E73', '#56B4E9', '#E69F00', '#999999')
 
     domain_types = []
     for domain in domain_results:
@@ -154,32 +155,30 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
     domain_type_count_val = len(set(domain_types))
 
     if domain_type_count_val <= 1:
-        color_height = y_range *.04
-        color_top = gray_y_value+color_height/2
-        color_bot = gray_y_value-color_height/2
+        color_height = y_range * .04
+        color_top = gray_y_value + color_height / 2
+        color_bot = gray_y_value - color_height / 2
     elif domain_type_count_val > 1:
-        color_height = y_range *.02
-        color_base = y_range *.0025;
+        color_height = y_range * .02
+        color_base = y_range * .0025
 
-        color_specific_top = gray_y_value+color_height
-        color_specific_bot = gray_y_value+color_base
+        color_specific_top = gray_y_value + color_height
+        color_specific_bot = gray_y_value + color_base
 
-        color_multi_dom_top = gray_y_value-color_base
-        color_multi_dom_bot = gray_y_value-color_height
-
+        color_multi_dom_top = gray_y_value - color_base
+        color_multi_dom_bot = gray_y_value - color_height
 
     #############
 
-
-    ### Variants
+    # Variants
     try:
-        variant_y_value = color_top*0.97
+        variant_y_value = color_top * 0.97
     except:
-        variant_y_value = color_specific_top*0.97
+        variant_y_value = color_specific_top * 0.97
 
     TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
-    ### Domain Rectangles
+    # Domain Rectangles
     top = []
     bottom = []
     left = []
@@ -209,111 +208,113 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
 
     if vset in "prom":
         alphas = []
-        alphanorms = [] # fill with normalized zscores between 0 and 1
+        alphanorms = []  # fill with normalized zscores between 0 and 1
         for domain in domain_results:
             alpha = float(domain['zscore'])
             alphas.append(str(alpha))
-            alphanorm = (alpha-1.64)/(6.38-1.64) # 1.64,6.38 = min,max of all zscores
+            # 1.64,6.38 = min,max of all zscores
+            alphanorm = (alpha - 1.64) / (6.38 - 1.64)
             if alphanorm < 0.1:
-                alphanorm = 0.1 # alpha < 0.1 is not visible
+                alphanorm = 0.1  # alpha < 0.1 is not visible
             alphanorms.append(alphanorm)
         domain_source = ColumnDataSource(data=dict(
-            top=top,bottom=bottom,left=left,right=right,legend=legend,zscore=alphas))
-        domain_tooltips = [("(Start,End)","(@left, @right)"),
+            top=top, bottom=bottom, left=left, right=right, legend=legend, zscore=alphas))
+        domain_tooltips = [("(Start,End)", "(@left, @right)"),
                            ("Name", "@legend"),
-                           ("Zscore", "@zscore"),]
+                           ("Zscore", "@zscore"), ]
 
     else:
         colors = brewer["Set1"][9]
         colors_dicts = {}
 
         for idx, name in enumerate(unique_legend):
-            colors_dicts[name] = colors[idx%9]
+            colors_dicts[name] = colors[idx % 9]
 
         colors = []
         for ele in legend:
             colors.append(colors_dicts[ele])
 
         domain_source = ColumnDataSource(data=dict(
-                top=top,bottom=bottom,left=left,right=right,legend=legend,colors=colors,))
-        domain_tooltips = [("(Start,End)","(@left, @right)"),
-                               ("Name", "@legend"),]
+            top=top, bottom=bottom, left=left, right=right, legend=legend, colors=colors,))
+        domain_tooltips = [("(Start,End)", "(@left, @right)"),
+                           ("Name", "@legend"), ]
 
-    ### Figure
+    # Figure
     p = figure(plot_width=1000, plot_height=600, title=title)
     ###
 
     # Find proper MES line and created related components accordingly
     mas_min = y.index(min(y))
     mas_max = y.index(max(y))
-    mes_max_backwards = abs(max(y)-min(y[1:mas_max]))
-    mes_min_forwards = abs((max(y[mas_min: ])) - min(y))
+    mes_max_backwards = abs(max(y) - min(y[1:mas_max]))
+    mes_min_forwards = abs((max(y[mas_min:])) - min(y))
 
     # Largest MES starts at global minimum but does not end at global max
     if (mes_min_forwards > mes_max_backwards):
-        z = y[mas_min: ]
+        z = y[mas_min:]
         dashed_lines = p.multi_line(
-        xs=[[mas_min*1.01,gene_length*1.01],[(z.index(max(z))+mas_min)*1.01,gene_length*1.01]],
-        ys=[[min(y)*1.005,min(y)*1.005],[max(y[mas_min: ]),max(y[mas_min: ])]],
-        line_width=[1,1],
-        line_color=['black','black'],
-        line_dash='dashed',
-        line_dash_offset=5)
+            xs=[[mas_min * 1.01, gene_length * 1.01],
+                [(z.index(max(z)) + mas_min) * 1.01, gene_length * 1.01]],
+            ys=[[min(y) * 1.005, min(y) * 1.005],
+                [max(y[mas_min:]), max(y[mas_min:])]],
+            line_width=[1, 1],
+            line_color=['black', 'black'],
+            line_dash='dashed',
+            line_dash_offset=5)
 
         mes_line = p.add_layout(Arrow(
-        start=VeeHead(fill_color='black',size=10),
-        end=VeeHead(fill_color='black',size=10),
-        line_width=1,
-        x_start=gene_length*1.01,
-        x_end=gene_length*1.01,
-        #y_start=(min(y)+max(y[mas_min:]))/2,
-        #y_end=max(y)))
-        y_start=min(y),
-        y_end=max(y[mas_min: ])))
+            start=VeeHead(fill_color='black', size=10),
+            end=VeeHead(fill_color='black', size=10),
+            line_width=1,
+            x_start=gene_length * 1.01,
+            x_end=gene_length * 1.01,
+            # y_start=(min(y)+max(y[mas_min:]))/2,
+            # y_end=max(y)))
+            y_start=min(y),
+            y_end=max(y[mas_min:])))
 
         mes_text = p.add_layout(Label(
-        text='MES',
-        #text_font_size='10',
-        x=gene_length*1.01,
-        #y=max(y)-y_range/2,
-        y=(min(y)+max(y[mas_min: ]))/2,
-        angle=90,
-        angle_units='deg',
-        render_mode='css'))
+            text='MES',
+            # text_font_size='10',
+            x=gene_length * 1.01,
+            # y=max(y)-y_range/2,
+            y=(min(y) + max(y[mas_min:])) / 2,
+            angle=90,
+            angle_units='deg',
+            render_mode='css'))
 
     # Largest MES ends at global maximum
     else:
         dashed_lines = p.multi_line(
-        xs=[[y.index(min(y[:mas_max]))*1.01,gene_length*1.01],[mas_max*1.01,gene_length*1.01]],
-        ys=[[min(y[:mas_max]),min(y[:mas_max])],[max(y),max(y)]],
-        line_width=[1,1],
-        line_color=['black','black'],
-        line_dash='dashed',
-        line_dash_offset=5)
+            xs=[[y.index(min(y[:mas_max])) * 1.01, gene_length *
+                 1.01], [mas_max * 1.01, gene_length * 1.01]],
+            ys=[[min(y[:mas_max]), min(y[:mas_max])], [max(y), max(y)]],
+            line_width=[1, 1],
+            line_color=['black', 'black'],
+            line_dash='dashed',
+            line_dash_offset=5)
 
         mes_line = p.add_layout(Arrow(
-        start=VeeHead(fill_color='black',size=10),
-        end=VeeHead(fill_color='black',size=10),
-        line_width=1,
-        x_start=gene_length*1.01,
-        x_end=gene_length*1.01,
-        y_start=min(y[:mas_max]),
-        y_end=max(y)))
+            start=VeeHead(fill_color='black', size=10),
+            end=VeeHead(fill_color='black', size=10),
+            line_width=1,
+            x_start=gene_length * 1.01,
+            x_end=gene_length * 1.01,
+            y_start=min(y[:mas_max]),
+            y_end=max(y)))
 
         mes_text = p.add_layout(Label(
-        text='MES',
-        #text_font_size='10',
-        x=gene_length*1.01,
-        y=(max(y)+min(y[:mas_max]))/2,
-        angle=90,
-        angle_units='deg',
-        render_mode='css'))
+            text='MES',
+            # text_font_size='10',
+            x=gene_length * 1.01,
+            y=(max(y) + min(y[:mas_max])) / 2,
+            angle=90,
+            angle_units='deg',
+            render_mode='css'))
 
-
-    ### MAS PLOT
-    mas_line = p.line(x, y,line_width=1)
+    # MAS PLOT
+    mas_line = p.line(x, y, line_width=1)
     ###
-
 
     gene_quad = p.quad(top=gray_top, bottom=gray_bot, left=0, right=gene_length,
                        color='gray')
@@ -350,7 +351,7 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
 
     variant_tooltips = [("Location", "@x"),
                         ("Annotation", "@function"),
-                        ("Frequency", "@frequency"),]
+                        ("Frequency", "@frequency"), ]
 
     hover_tools = []
     variant_rects = p.rect(x='x', y='y', width=1.0, height=7, color='mutation_types',
@@ -369,13 +370,14 @@ def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):
         p.xaxis.axis_label = 'Amino Acid Sequence'
         p.xaxis.axis_label_text_font_style = "normal"
 
-
     if settings.DEBUG:
         output_folder = os.path.join(settings.BASE_DIR, 'static/bokeh_outputs')
     else:
-        output_folder = os.path.join(settings.BASE_DIR, 'static_root/bokeh_outputs')
+        output_folder = os.path.join(
+            settings.BASE_DIR, 'static_root/bokeh_outputs')
 
-    output_name = os.path.join(output_folder,"%s_%s_%s_%s.html" %(gene, rs_id, msea_type_name, vset))
+    output_name = os.path.join(output_folder, "%s_%s_%s_%s.html" % (
+        gene, rs_id, msea_type_name, vset))
     # print('*'*20, output_name)
     save(p, output_name)
 

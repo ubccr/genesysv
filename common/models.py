@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class TimeStampedModel(models.Model):
     """
     An abstract base class model that provides self-

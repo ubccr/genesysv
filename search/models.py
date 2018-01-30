@@ -6,6 +6,7 @@ import memcache
 from django.contrib.auth.models import User, Group
 import json
 
+
 def flush_memcache():
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     mc.flush_all()
@@ -17,17 +18,20 @@ class FormType(TimeStampedModel):
     def __str__(self):
         return self.name
 
+
 class WidgetType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
+
 class ESFilterType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
+
 
 class Study(TimeStampedModel):
     name = models.CharField(max_length=255)
@@ -39,6 +43,7 @@ class Study(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
 
 class Dataset(TimeStampedModel):
     study = models.ForeignKey(
@@ -60,6 +65,7 @@ class Dataset(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
 
 class SearchOptions(TimeStampedModel):
     dataset = models.OneToOneField(
@@ -113,21 +119,24 @@ class FilterField(TimeStampedModel):
         'ESFilterType',
         on_delete=models.CASCADE,
     )
-    place_in_panel = models.CharField(max_length=255) # Did not make this a foreign key because that would lead to a circular relationship.
-                                                      # But I still need the panel name to get the admin interface to filter correctly.
+    # Did not make this a foreign key because that would lead to a circular
+    # relationship.
+    place_in_panel = models.CharField(max_length=255)
+    # But I still need the panel name to get the admin interface to filter
+    # correctly.
     is_visible = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('dataset', 'es_name', 'es_filter_type', 'form_type', 'widget_type')
+        unique_together = ('dataset', 'es_name',
+                           'es_filter_type', 'form_type', 'widget_type')
 
     def save(self, *args, **kwargs):
         flush_memcache()
         super(FilterField, self).save(*args, **kwargs)
 
-
-
     def __str__(self):
-        return "%s %s" %(self.display_text, self.in_line_tooltip)
+        return "%s %s" % (self.display_text, self.in_line_tooltip)
+
 
 class FilterFieldChoice(TimeStampedModel):
     filter_field = models.ForeignKey(
@@ -143,11 +152,8 @@ class FilterFieldChoice(TimeStampedModel):
         flush_memcache()
         super(FilterFieldChoice, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.value
-
-
 
 
 class AttributeField(TimeStampedModel):
@@ -168,9 +174,8 @@ class AttributeField(TimeStampedModel):
         flush_memcache()
         super(AttributeField, self).save(*args, **kwargs)
 
-
     def __str__(self):
-        return "%s" %(self.display_text)
+        return "%s" % (self.display_text)
 
 
 class FilterPanel(TimeStampedModel):
@@ -187,9 +192,9 @@ class FilterPanel(TimeStampedModel):
         flush_memcache()
         super(FilterPanel, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class FilterSubPanel(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -208,9 +213,9 @@ class FilterSubPanel(TimeStampedModel):
         flush_memcache()
         super(FilterSubPanel, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class FilterTab(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -224,9 +229,9 @@ class FilterTab(TimeStampedModel):
         flush_memcache()
         super(FilterTab, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class AttributePanel(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -242,9 +247,9 @@ class AttributePanel(TimeStampedModel):
         flush_memcache()
         super(AttributePanel, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class AttributeSubPanel(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -263,9 +268,9 @@ class AttributeSubPanel(TimeStampedModel):
         flush_memcache()
         super(AttributeSubPanel, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class AttributeTab(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -279,9 +284,9 @@ class AttributeTab(TimeStampedModel):
         flush_memcache()
         super(AttributeTab, self).save(*args, **kwargs)
 
-
     def __str__(self):
         return self.name
+
 
 class SearchLog(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -302,10 +307,9 @@ class SearchLog(TimeStampedModel):
     filters_used = models.TextField(null=True, blank=True)
     attributes_selected = models.TextField()
 
-
-
     def __str__(self):
         return self.query
+
 
 class SavedSearch(TimeStampedModel):
     dataset = models.ForeignKey(
@@ -341,7 +345,8 @@ class SavedSearch(TimeStampedModel):
     get_attributes_selected = property(_get_attributes_selected)
 
     class Meta:
-        unique_together = ('dataset', 'user', 'filters_used', 'attributes_selected')
+        unique_together = ('dataset', 'user', 'filters_used',
+                           'attributes_selected')
         verbose_name_plural = 'Searches'
 
 REVIEW_STATUS_CHOICES = (
@@ -350,6 +355,7 @@ REVIEW_STATUS_CHOICES = (
     ('pending', 'Pending'),
     ('not_reviewed', 'Not Reviewed'),
 )
+
 
 class VariantReviewStatus(TimeStampedModel):
     group = models.ForeignKey(
@@ -374,6 +380,7 @@ class VariantReviewStatus(TimeStampedModel):
     def __str__(self):
         return self.variant
 
+
 class VariantReviewStatusHistory(models.Model):
     variant_review_status = models.ForeignKey(
         'VariantReviewStatus',
@@ -385,7 +392,6 @@ class VariantReviewStatusHistory(models.Model):
     )
     status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
     modified = models.DateTimeField(auto_now_add=True)
-
 
     class Meta:
         verbose_name_plural = 'Variant review status history'

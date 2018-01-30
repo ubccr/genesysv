@@ -8,8 +8,10 @@ from pybamview.models import SampleBamInfo
 from django.conf import settings
 from .utils import generate_url
 
+
 def get_sample_ids(result):
     return sorted([(ele['sample_ID']) for ele in result['sample'] if ele['sample_GT'] not in ['0/0', './.']])
+
 
 def igvview(request):
     if request.POST:
@@ -20,15 +22,17 @@ def igvview(request):
             dataset = Dataset.objects.get(id=dataset_id)
 
             try:
-                locus = '"chr%s:%d-%d"' %(Chr, Start-50, Start+50)
+                locus = '"chr%s:%d-%d"' % (Chr, Start - 50, Start + 50)
                 bam_files = []
-                for sample in (key for key,val in request.POST.items() if 'on' in val):
-                    sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
-                    path = sample_file=sample_bam_info_obj.file_path.replace('/gpfs/projects/academic/big','' )
+                for sample in (key for key, val in request.POST.items() if 'on' in val):
+                    sample_bam_info_obj = SampleBamInfo.objects.get(
+                        dataset=dataset, sample_id=sample)
+                    path = sample_file = sample_bam_info_obj.file_path.replace(
+                        '/gpfs/projects/academic/big', '')
                     url = generate_url(path)
-                    url = "https://bam.ccr.buffalo.edu"+url
-                    bai = generate_url(path+'.bai')
-                    bai = "https://bam.ccr.buffalo.edu"+bai
+                    url = "https://bam.ccr.buffalo.edu" + url
+                    bai = generate_url(path + '.bai')
+                    bai = "https://bam.ccr.buffalo.edu" + bai
                     name = sample
                     tmp = {'url': url, 'name': name, 'bai': bai}
                     bam_files.append(tmp)
@@ -39,7 +43,7 @@ def igvview(request):
                 # for sample in (key for key,val in request.POST.items() if 'on' in val):
                 #     sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
                 #     url_string += 'samplebams={sample_name}:{sample_file}&'.format(sample_name=sample_bam_info_obj.sample_id,
-                #                                                                    sample_file=sample_bam_info_obj.file_path)
+                # sample_file=sample_bam_info_obj.file_path)
 
                 # url_string += 'zoomlevel=1'
                 # url_string += '&region=%d:%d' %(Chr,Start)
@@ -47,8 +51,7 @@ def igvview(request):
                 # # return redirect(url_string)
             except Exception as e:
                 print(e)
-                return HttpResponse('Missing BAM file for: %s' %(sample))
-
+                return HttpResponse('Missing BAM file for: %s' % (sample))
 
         else:
             dataset_id = request.POST.get('dataset_id')

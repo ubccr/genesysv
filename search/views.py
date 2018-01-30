@@ -24,7 +24,7 @@ from .utils import get_es_result
 import elasticsearch
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-    )
+)
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
 from django.conf import settings
@@ -46,7 +46,7 @@ from functools import partial
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
 
-### CONSTANTS
+# CONSTANTS
 REVIEW_STATUS_CHOICES = (
     ('approved', '<i class="fa fa-check" aria-hidden="true"></i>'),
     ('rejected', '<i class="fa fa-times" aria-hidden="true"></i>'),
@@ -56,67 +56,72 @@ REVIEW_STATUS_CHOICES = (
 
 
 def filter_FILTER_QUAL(result, FILTER_value, QUAL_value):
-        case_filter_status = None
-        control_filter_status = None
-        case_qual_score = None
-        control_qual_score = None
-        for ele in result.get('FILTER'):
-            if ele.get('FILTER_label'):
-                if ele.get('FILTER_label') == "case":
-                    case_filter_status = ele.get('FILTER_value')
-                elif ele.get('FILTER_label') == "control":
-                    control_filter_status = ele.get('FILTER_value')
+    case_filter_status = None
+    control_filter_status = None
+    case_qual_score = None
+    control_qual_score = None
+    for ele in result.get('FILTER'):
+        if ele.get('FILTER_label'):
+            if ele.get('FILTER_label') == "case":
+                case_filter_status = ele.get('FILTER_value')
+            elif ele.get('FILTER_label') == "control":
+                control_filter_status = ele.get('FILTER_value')
 
-        for ele in result.get('QUAL'):
-            if ele.get('QUAL_label'):
-                if ele.get('QUAL_label') == "case":
-                    case_qual_score = ele.get('QUAL_value')
-                elif ele.get('QUAL_label') == "control":
-                    control_qual_score = ele.get('QUAL_value')
+    for ele in result.get('QUAL'):
+        if ele.get('QUAL_label'):
+            if ele.get('QUAL_label') == "case":
+                case_qual_score = ele.get('QUAL_value')
+            elif ele.get('QUAL_label') == "control":
+                control_qual_score = ele.get('QUAL_value')
 
-        keep_label = {}
+    keep_label = {}
 
-        if case_filter_status == FILTER_value and case_qual_score >= QUAL_value:
-            keep_label["case"] = True
-        else:
-            keep_label["case"] = False
+    if case_filter_status == FILTER_value and case_qual_score >= QUAL_value:
+        keep_label["case"] = True
+    else:
+        keep_label["case"] = False
 
-        if control_filter_status == FILTER_value and control_qual_score >= QUAL_value:
-            keep_label["control"] = True
-        else:
-            keep_label["control"] = False
+    if control_filter_status == FILTER_value and control_qual_score >= QUAL_value:
+        keep_label["control"] = True
+    else:
+        keep_label["control"] = False
 
-        old_filter_data = result['FILTER']
-        new_filter_data = []
-        for ele in old_filter_data:
-            label = ele['FILTER_label']
-            if keep_label.get(label):
-                new_filter_data.append(ele)
+    old_filter_data = result['FILTER']
+    new_filter_data = []
+    for ele in old_filter_data:
+        label = ele['FILTER_label']
+        if keep_label.get(label):
+            new_filter_data.append(ele)
 
-        old_qual_data = result['QUAL']
-        new_qual_data = []
-        for ele in old_qual_data:
-            label = ele['QUAL_label']
-            if keep_label.get(label):
-                new_qual_data.append(ele)
+    old_qual_data = result['QUAL']
+    new_qual_data = []
+    for ele in old_qual_data:
+        label = ele['QUAL_label']
+        if keep_label.get(label):
+            new_qual_data.append(ele)
 
-        return (new_filter_data, new_qual_data)
+    return (new_filter_data, new_qual_data)
+
 
 def get_variant_review_status(variant_es_id, group):
 
     try:
-        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, group=group)
+        variant_review_status_obj = VariantReviewStatus.objects.get(
+            variant_es_id=variant_es_id, group=group)
         return variant_review_status_obj.status
     except Exception as e:
         return 'not_reviewed'
 
+
 def get_variant_review_status_obj(variant_es_id, group):
 
     try:
-        variant_review_status_obj = VariantReviewStatus.objects.get(variant_es_id=variant_es_id, group=group)
+        variant_review_status_obj = VariantReviewStatus.objects.get(
+            variant_es_id=variant_es_id, group=group)
         return variant_review_status_obj
     except:
         return None
+
 
 def compare_array_dictionaries(array_dict1, array_dict2):
     if len(array_dict1) != len(array_dict2):
@@ -131,8 +136,8 @@ def compare_array_dictionaries(array_dict1, array_dict2):
                 break
         compare_results.append(status)
 
-
     return True if all(compare_results) else False
+
 
 def filter_dicts(array, key, values):
     output = []
@@ -140,6 +145,7 @@ def filter_dicts(array, key, values):
         tmp = ele.get(key)
         if tmp in values:
             output.append(ele)
+
 
 def filter_array_dicts(array, key, values, comparison_type):
     output = []
@@ -197,12 +203,14 @@ def filter_array_dicts(array, key, values, comparison_type):
                     output.append(ele)
     return output
 
+
 def merge_two_dicts_array(input):
     output = []
     for x, y in input:
         output.append(merge_two_dicts(x, y))
 
     return output
+
 
 def merge_two_dicts(x, y):
     '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -214,23 +222,27 @@ def merge_two_dicts(x, y):
 
 def subset_dict(input, keys):
 
-    return {key:input[key] for key in keys if input.get(key) != None}
+    return {key: input[key] for key in keys if input.get(key) != None}
+
 
 @gzip_page
 def get_study_form(request):
     form = StudyForm(request.user)
-    context = {'form':form}
+    context = {'form': form}
     return render(request, "search/get_study_snippet.html", context)
+
 
 def get_dataset_form_cached(selected_study, user):
     return DatasetForm(selected_study, user)
+
 
 @gzip_page
 def get_dataset_form(request):
     selected_study = request.GET['selected_study']
     form = get_dataset_form_cached(selected_study, request.user)
-    context = {'form':form}
+    context = {'form': form}
     return render(request, "search/get_dataset_snippet.html", context)
+
 
 def get_filter_form_cached(dataset_object):
     tabs = deque()
@@ -239,29 +251,33 @@ def get_filter_form_cached(dataset_object):
         tmp_dict['name'] = tab.name
         tmp_dict['panels'] = deque()
         for panel in tab.filter_panels.filter(is_visible=True):
-            es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), prefix='filter_')
+            es_form = ESFilterFormPart(panel.filter_fields.filter(is_visible=True).select_related(
+                'widget_type', 'form_type', 'es_filter_type'), prefix='filter_')
             sub_panels = deque()
 
             for sub_panel in panel.filtersubpanel_set.filter(is_visible=True):
                 if panel.are_sub_panels_mutually_exclusive:
-                    MEgroup = "MEgroup_%d_%d" %(panel.id, sub_panel.id)
+                    MEgroup = "MEgroup_%d_%d" % (panel.id, sub_panel.id)
                 else:
                     MEgroup = None
                 tmp_sub_panel_dict = {}
                 tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.filter(is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), MEgroup, prefix='filter_')
+                tmp_sub_panel_dict['name'] = ''.join(
+                    sub_panel.name.split()).lower()
+                tmp_sub_panel_dict['form'] = ESFilterFormPart(sub_panel.filter_fields.filter(
+                    is_visible=True).select_related('widget_type', 'form_type', 'es_filter_type'), MEgroup, prefix='filter_')
                 sub_panels.append(tmp_sub_panel_dict)
 
             tmp_dict['panels'].append({'display_name': panel.name,
-                                      'name': ''.join(panel.name.split()).lower(),
-                                      'form': es_form,
-                                      'sub_panels': sub_panels })
+                                       'name': ''.join(panel.name.split()).lower(),
+                                       'form': es_form,
+                                       'sub_panels': sub_panels})
         tabs.append(tmp_dict)
 
     context = {}
     context['tabs'] = tabs
     return context
+
 
 @gzip_page
 def get_filter_form(request):
@@ -271,11 +287,13 @@ def get_filter_form(request):
         cache_name = 'context_filter_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_filter_form_cached(dataset)
-            response = render(request, "search/get_filter_snippet.html", context)
-            cache.set(cache_name, response, None) # 10 minutes
+            response = render(
+                request, "search/get_filter_snippet.html", context)
+            cache.set(cache_name, response, None)  # 10 minutes
             return response
         else:
             return cache.get(cache_name)
+
 
 def get_attribute_form_cached(dataset_object):
     tabs = deque()
@@ -285,7 +303,8 @@ def get_attribute_form_cached(dataset_object):
         tmp_dict['panels'] = deque()
         for idx_panel, panel in enumerate(tab.attribute_panels.filter(is_visible=True), start=1):
             if panel.attribute_fields.filter(is_visible=True):
-                es_form = ESAttributeFormPart(panel.attribute_fields.filter(is_visible=True), prefix='%d___attribute_group' %(idx_panel))
+                es_form = ESAttributeFormPart(panel.attribute_fields.filter(
+                    is_visible=True), prefix='%d___attribute_group' % (idx_panel))
             else:
                 es_form = None
 
@@ -293,25 +312,29 @@ def get_attribute_form_cached(dataset_object):
             for idx_sub_panel, sub_panel in enumerate(panel.attributesubpanel_set.filter(is_visible=True), start=1):
                 tmp_sub_panel_dict = {}
                 tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
+                tmp_sub_panel_dict['name'] = ''.join(
+                    sub_panel.name.split()).lower()
                 if sub_panel.attribute_fields.filter(is_visible=True):
-                    tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.filter(is_visible=True), prefix='%d_%d___attribute_group' %(idx_panel, idx_sub_panel))
+                    tmp_sub_panel_dict['form'] = ESAttributeFormPart(sub_panel.attribute_fields.filter(
+                        is_visible=True), prefix='%d_%d___attribute_group' % (idx_panel, idx_sub_panel))
                 else:
                     tmp_sub_panel_dict['form'] = None
-                tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' %(idx_panel, idx_sub_panel)
+                tmp_sub_panel_dict['attribute_group_id'] = '%d_%d___attribute_group' % (
+                    idx_panel, idx_sub_panel)
 
                 sub_panels.append(tmp_sub_panel_dict)
 
             tmp_dict['panels'].append({'display_name': panel.name,
-                                      'name': ''.join(panel.name.split()).lower(),
-                                      'form': es_form,
-                                      'attribute_group_id': '%d___attribute_group' %(idx_panel),
-                                      'sub_panels': sub_panels })
+                                       'name': ''.join(panel.name.split()).lower(),
+                                       'form': es_form,
+                                       'attribute_group_id': '%d___attribute_group' % (idx_panel),
+                                       'sub_panels': sub_panels})
         tabs.append(tmp_dict)
 
     context = {}
     context['tabs'] = tabs
     return context
+
 
 @gzip_page
 def get_attribute_form(request):
@@ -321,8 +344,9 @@ def get_attribute_form(request):
         cache_name = 'context_attribute_{}'.format(dataset.name)
         if not cache.get(cache_name):
             context = get_attribute_form_cached(dataset)
-            response =  render(request, "search/get_attribute_snippet.html", context)
-            cache.set(cache_name, response, None) # 10 minutes
+            response = render(
+                request, "search/get_attribute_snippet.html", context)
+            cache.set(cache_name, response, None)  # 10 minutes
             return response
         else:
             return cache.get(cache_name)
@@ -334,7 +358,6 @@ def search_home(request):
     context['load_search'] = 'false'
     context['information_json'] = 'false'
     return render(request, 'search/search.html', context)
-
 
 
 @gzip_page
@@ -370,14 +393,16 @@ def search_old_home(request):
             for sub_panel in panel.subpanel_set.all():
                 tmp_sub_panel_dict = {}
                 tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESFormPart(sub_panel.filter_fields.all())
+                tmp_sub_panel_dict['name'] = ''.join(
+                    sub_panel.name.split()).lower()
+                tmp_sub_panel_dict['form'] = ESFormPart(
+                    sub_panel.filter_fields.all())
                 sub_form.append(tmp_sub_panel_dict)
 
             tmp_dict['panels'].append({'display_name': panel.name,
-                                      'name': ''.join(panel.name.split()).lower(),
-                                      'form': es_form,
-                                      'sub_form': sub_form })
+                                       'name': ''.join(panel.name.split()).lower(),
+                                       'form': es_form,
+                                       'sub_form': sub_form})
         tabs.append(tmp_dict)
 
     context = {}
@@ -390,6 +415,7 @@ def search_home2(request):
     context = {}
     context['es_form'] = es_form
     return render(request, 'search/search_home.html', context)
+
 
 def remove_nested_attributes_not_selected(results, nested_attributes_selected):
     for result in results:
@@ -418,7 +444,8 @@ def search(request):
     if request.POST:
         start_time = datetime.now()
 
-        # Ensure logged in users belong to a group so that Variant annotation works!
+        # Ensure logged in users belong to a group so that Variant annotation
+        # works!
         if not request.user.is_anonymous:
             if request.user.groups.count() > 1:
                 print('More than one group')
@@ -437,10 +464,8 @@ def search(request):
         else:
             show_review_status = True
 
-
         attribute_order = json.loads(request.POST['attribute_order'])
         POST_data = QueryDict(request.POST['form_data'])
-
 
         review_status_data = request.POST.get('review_status_to_filter', None)
         review_status_to_filter = []
@@ -449,13 +474,10 @@ def search(request):
                 if 'review_status_to_filter' in ele:
                     tmp_val = ele.split('=')[1]
                     review_status_to_filter.append(tmp_val)
-            review_status_form = ReviewStatusForm(initial={'review_status_to_filter': review_status_to_filter})
+            review_status_form = ReviewStatusForm(
+                initial={'review_status_to_filter': review_status_to_filter})
         else:
             review_status_form = ReviewStatusForm()
-
-
-
-
 
         study_form = StudyForm(request.user, POST_data)
         study_form.is_valid()
@@ -468,7 +490,8 @@ def search(request):
         dataset_obj = Dataset.objects.get(description=dataset_string)
 
         es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
-        es_attribute_form = ESAttributeForm(dataset_obj, POST_data, prefix='attribute_group')
+        es_attribute_form = ESAttributeForm(
+            dataset_obj, POST_data, prefix='attribute_group')
 
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
             es_filter = ElasticSearchFilter()
@@ -484,11 +507,11 @@ def search(request):
             source_fields = []
             inner_hits_source_fields = {}
 
-
             nested_attribute_fields = []
             non_nested_attribute_fields = []
-            ### I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
-            ### not put on a separate line; Maybe better to add some attribute to the field in model instead.
+            # I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
+            # not put on a separate line; Maybe better to add some attribute to
+            # the field in model instead.
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
@@ -497,7 +520,8 @@ def search(request):
                     if path:
                         if path not in nested_attributes_selected:
                             nested_attributes_selected[path] = []
-                        nested_attributes_selected[path].append('%s.%s' %(path, es_name))
+                        nested_attributes_selected[path].append(
+                            '%s.%s' % (path, es_name))
                         if path not in nested_attribute_fields:
                             nested_attribute_fields.append(path)
                     else:
@@ -506,7 +530,6 @@ def search(request):
 
             keys = es_filter_form_data.keys()
             used_keys = []
-
 
             nested_attribute_fields = list(set(nested_attribute_fields))
             dict_filter_fields = {}
@@ -534,27 +557,28 @@ def search(request):
                 if path == 'QUAL':
                     QUAL_value = float(data)
 
-
-                ### Elasticsearch source fields use path for nested fields and the actual field name for non-nested fields
+                # Elasticsearch source fields use path for nested fields and
+                # the actual field name for non-nested fields
                 if path:
-                    source_name = '%s.%s' %(path, es_name)
+                    source_name = '%s.%s' % (path, es_name)
                     if path not in nested_filters_applied:
                         nested_filters_applied[path] = []
                     if source_name not in nested_filters_applied[path]:
-                        nested_filters_applied[path].append('%s.%s' %(path, es_name))
+                        nested_filters_applied[path].append(
+                            '%s.%s' % (path, es_name))
                 else:
                     non_nested_filters_applied.append(es_name)
 
-                ### Figure out which fields will be in the document source fields and which will be in the inner hits fields
+                # Figure out which fields will be in the document source fields
+                # and which will be in the inner hits fields
 
-
-                ### Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
-                ### are returned for a recored even if only one field match the search criteria
+                # Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
+                # are returned for a recored even if only one field match the
+                # search criteria
                 if path:
                     dict_filter_fields[filter_field_pk] = []
 
                 used_keys.append((es_name, data))
-
 
                 if es_filter_type == 'filter_term':
                     if isinstance(data, list):
@@ -573,11 +597,14 @@ def search(request):
                     for ele in data.splitlines():
                         if filter_field_obj.es_data_type == 'text':
                             if filter_field_obj.es_text_analyzer != 'whitespace':
-                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip(), filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                            es_filter.add_nested_filter_term(
+                                es_name, ele.strip(), filter_field_obj.path)
 
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
@@ -585,11 +612,14 @@ def search(request):
                     for ele in data:
                         if filter_field_obj.es_data_type == 'text':
                             if filter_field_obj.es_text_analyzer != 'whitespace':
-                                es_filter.add_nested_filter_term(es_name, ele.strip().lower(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip().lower(), filter_field_obj.path)
                             else:
-                                es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip(), filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_term(es_name, ele.strip(), filter_field_obj.path)
+                            es_filter.add_nested_filter_term(
+                                es_name, ele.strip(), filter_field_obj.path)
 
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
@@ -597,12 +627,16 @@ def search(request):
                     data_split = data.splitlines()
                     if filter_field_obj.es_data_type == 'text':
                         if filter_field_obj.es_text_analyzer != 'whitespace':
-                            data_split_lower = [ele.lower() for ele in data_split]
-                            es_filter.add_nested_filter_terms(es_name, data_split_lower, filter_field_obj.path)
+                            data_split_lower = [ele.lower()
+                                                for ele in data_split]
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_split_lower, filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_split, filter_field_obj.path)
                     else:
-                        es_filter.add_nested_filter_terms(es_name, data_split, filter_field_obj.path)
+                        es_filter.add_nested_filter_terms(
+                            es_name, data_split, filter_field_obj.path)
 
                     for ele in data_split:
                         dict_filter_fields[filter_field_pk].append(ele.strip())
@@ -611,32 +645,38 @@ def search(request):
                     if filter_field_obj.es_data_type == 'text':
                         if filter_field_obj.es_text_analyzer != 'whitespace':
                             data_lowercase = [ele.lower() for ele in data]
-                            es_filter.add_nested_filter_terms(es_name, data_lowercase, filter_field_obj.path)
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_lowercase, filter_field_obj.path)
                         else:
-                            es_filter.add_nested_filter_terms(es_name, data, filter_field_obj.path)
+                            es_filter.add_nested_filter_terms(
+                                es_name, data, filter_field_obj.path)
                     else:
-                        es_filter.add_nested_filter_terms(es_name, data, filter_field_obj.path)
+                        es_filter.add_nested_filter_terms(
+                            es_name, data, filter_field_obj.path)
 
                     for ele in data:
                         dict_filter_fields[filter_field_pk].append(ele.strip())
 
                 elif es_filter_type == 'filter_range_gte':
-                    es_filter.add_filter_range_gte(es_name, float(data.strip()))
+                    es_filter.add_filter_range_gte(
+                        es_name, float(data.strip()))
 
                 elif es_filter_type == 'filter_range_lte':
-                    es_filter.add_filter_range_lte(es_name, float(data.strip()))
+                    es_filter.add_filter_range_lte(
+                        es_name, float(data.strip()))
 
                 elif es_filter_type == 'filter_range_lt':
                     es_filter.add_filter_range_lt(es_name, float(data.strip()))
 
                 elif es_filter_type == 'nested_filter_range_gte':
                     es_filter.add_nested_filter_range_gte(es_name, data, path)
-                    dict_filter_fields[filter_field_pk].append(float(data.strip()))
+                    dict_filter_fields[filter_field_pk].append(
+                        float(data.strip()))
 
                 elif es_filter_type == 'nested_filter_range_lte':
                     es_filter.add_nested_filter_range_lte(es_name, data, path)
-                    dict_filter_fields[filter_field_pk].append(float(data.strip()))
-
+                    dict_filter_fields[filter_field_pk].append(
+                        float(data.strip()))
 
                 elif es_filter_type == 'filter_exists':
                     if data == 'only':
@@ -653,7 +693,8 @@ def search(request):
             attributes_paths = nested_attributes_selected.keys()
             filter_paths = nested_filters_applied.keys()
 
-            possible_paths = [ele for ele in attributes_paths if ele in filter_paths]
+            possible_paths = [
+                ele for ele in attributes_paths if ele in filter_paths]
 
             if nested_filters_applied:
                 inner_hits_source_fields = nested_filters_applied
@@ -661,7 +702,8 @@ def search(request):
                     if pp_ele not in inner_hits_source_fields[pp_ele]:
                         for ele in nested_attributes_selected[pp_ele]:
                             if ele not in inner_hits_source_fields[pp_ele]:
-                                inner_hits_source_fields[pp_ele].extend(nested_attributes_selected[pp_ele])
+                                inner_hits_source_fields[pp_ele].extend(
+                                    nested_attributes_selected[pp_ele])
                         nested_attributes_selected.pop(pp_ele)
 
             source_fields.extend(non_nested_attributes_selected)
@@ -676,7 +718,7 @@ def search(request):
             if inner_hits_source_fields:
                 es_filter.update_inner_hits_source(inner_hits_source_fields)
 
-            content =  es_filter.generate_query_string()
+            content = es_filter.generate_query_string()
 
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
@@ -685,16 +727,17 @@ def search(request):
             search_options = SearchOptions.objects.get(dataset=dataset_obj)
 
             if search_options.es_terminate:
-                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' %(dataset_obj.es_host,
-                                                                        dataset_obj.es_port,
-                                                                        dataset_obj.es_index_name,
-                                                                        dataset_obj.es_type_name,
-                                                                        search_options.es_terminate_size_per_shard)
+                uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' % (dataset_obj.es_host,
+                                                                         dataset_obj.es_port,
+                                                                         dataset_obj.es_index_name,
+                                                                         dataset_obj.es_type_name,
+                                                                         search_options.es_terminate_size_per_shard)
             else:
-                uri = 'http://%s:%s/%s/%s/_search?' %(dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
-            response = requests.get(uri, data=query, headers={'Content-type': 'application/json'})
+                uri = 'http://%s:%s/%s/%s/_search?' % (
+                    dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
+            response = requests.get(uri, data=query, headers={
+                                    'Content-type': 'application/json'})
             results = json.loads(response.text)
-
 
             start_after_results_time = datetime.now()
             total = results['hits']['total']
@@ -713,13 +756,12 @@ def search(request):
                     nested_attributes_selected[path].append(es_name)
                 headers.append((int(order), attribute_field_obj))
 
-
             headers = sorted(headers, key=itemgetter(0))
-            _, headers  = zip(*headers)
+            _, headers = zip(*headers)
 
             attributes_selected = []
             for ele in headers:
-                attributes_selected.append('%d' %(ele.id))
+                attributes_selected.append('%d' % (ele.id))
             tmp_results = results['hits']['hits']
             results = []
 
@@ -735,11 +777,12 @@ def search(request):
                 es_id = ele['_id']
                 inner_hits = ele.get('inner_hits')
 
-
                 if show_review_status and not request.user.is_anonymous:
-                    variant_review_status = get_variant_review_status(es_id, group)
+                    variant_review_status = get_variant_review_status(
+                        es_id, group)
                     if review_status_to_filter and variant_review_status not in review_status_to_filter:
-                        variants_excluded.append((dataset_obj.id, es_id, tmp_source['Variant']))
+                        variants_excluded.append(
+                            (dataset_obj.id, es_id, tmp_source['Variant']))
                         continue
                     tmp_source['variant_review_status'] = variant_review_status
 
@@ -763,7 +806,7 @@ def search(request):
                             if tmp_hit_dict:
                                 tmp_source[key].append(tmp_hit_dict)
                 results.append(tmp_source)
-            ## gene_names
+            # gene_names
             result_hash_list = deque()
             all_genes = []
             if nested_attribute_fields:
@@ -791,19 +834,23 @@ def search(request):
                             combined = True
                             continue
                         else:
-                            combined_nested = list(itertools.product(combined_nested, result[path]))
-                            combined_nested = merge_two_dicts_array(combined_nested)
+                            combined_nested = list(itertools.product(
+                                combined_nested, result[path]))
+                            combined_nested = merge_two_dicts_array(
+                                combined_nested)
 
-
-                    tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
+                    tmp_non_nested = subset_dict(
+                        result, non_nested_attribute_fields)
                     if combined_nested:
-                        tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
+                        tmp_output = list(itertools.product(
+                            [tmp_non_nested, ], combined_nested))
 
-                        for x,y in tmp_output:
-                            tmp = merge_two_dicts(x,y)
+                        for x, y in tmp_output:
+                            tmp = merge_two_dicts(x, y)
                             tmp["es_id"] = result["es_id"]
                             if show_review_status and not request.user.is_anonymous:
-                                tmp['variant_review_status'] = result['variant_review_status']
+                                tmp['variant_review_status'] = result[
+                                    'variant_review_status']
 
                             if result.get('FILTER'):
                                 tmp['FILTER'] = result['FILTER']
@@ -821,16 +868,17 @@ def search(request):
             else:
                 final_results = results
 
-
             header_json = serializers.serialize("json", headers)
             query_json = json.dumps(query)
             if nested_attribute_fields:
-                nested_attribute_fields_json = json.dumps(nested_attribute_fields)
+                nested_attribute_fields_json = json.dumps(
+                    nested_attribute_fields)
             else:
                 nested_attribute_fields_json = None
 
             if non_nested_attribute_fields:
-                non_nested_attribute_fields_json = json.dumps(non_nested_attribute_fields)
+                non_nested_attribute_fields_json = json.dumps(
+                    non_nested_attribute_fields)
             else:
                 non_nested_attribute_fields_json = None
 
@@ -844,45 +892,43 @@ def search(request):
             else:
                 used_keys_json = None
 
-
             filters_used = json.dumps(filters_used)
             attributes_selected = json.dumps(attributes_selected)
 
             try:
                 search_log_obj = SearchLog.objects.create(
-                                                    dataset=dataset_obj,
-                                                    headers=header_json,
-                                                    query=query_json,
-                                                    nested_attribute_fields=nested_attribute_fields_json,
-                                                    non_nested_attribute_fields=non_nested_attribute_fields_json,
-                                                    dict_filter_fields=dict_filter_fields_json,
-                                                    used_keys=used_keys_json,
-                                                    filters_used=filters_used,
-                                                    attributes_selected=attributes_selected,
-                                                )
+                    dataset=dataset_obj,
+                    headers=header_json,
+                    query=query_json,
+                    nested_attribute_fields=nested_attribute_fields_json,
+                    non_nested_attribute_fields=non_nested_attribute_fields_json,
+                    dict_filter_fields=dict_filter_fields_json,
+                    used_keys=used_keys_json,
+                    filters_used=filters_used,
+                    attributes_selected=attributes_selected,
+                )
 
             except Exception as e:
                 print(e)
 
             if request.user.is_authenticated:
-                search_log_obj.user=request.user
+                search_log_obj.user = request.user
                 search_log_obj.save()
 
-
             if request.user.is_authenticated:
-                save_search_form = SaveSearchForm(request.user, dataset_obj, filters_used or 'None', attributes_selected)
+                save_search_form = SaveSearchForm(
+                    request.user, dataset_obj, filters_used or 'None', attributes_selected)
                 context['save_search_form'] = save_search_form
             else:
                 context['save_search_form'] = None
 
-
             if all_genes:
-                all_genes  = sorted(list(set(all_genes)))
+                all_genes = sorted(list(set(all_genes)))
                 if 'NONE' in all_genes:
                     all_genes.remove('NONE')
-                gene_mania_link =  "http://genemania.org/#/search/9606/%s" % ('|'.join(all_genes))
+                gene_mania_link = "http://genemania.org/#/search/9606/%s" % (
+                    '|'.join(all_genes))
                 context['gene_mania_link'] = gene_mania_link
-
 
             context['review_status_form'] = review_status_form
             context['debug'] = settings.DEBUG
@@ -894,27 +940,26 @@ def search(request):
             context['total'] = total
             context['results'] = final_results[:400]
             context['content_generate_time'] = content_generate_time
-            context['after_results_time'] = datetime.now() - start_after_results_time
+            context['after_results_time'] = datetime.now() - \
+                start_after_results_time
             context['total_time'] = datetime.now() - start_time
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj
             context['variant_field_exist'] = variant_field_exist
 
-
-
             return render(request, 'search/search_results.html', context)
 
-def yield_results(dataset_obj,
-                    headers,
-                    query,
-                    nested_attribute_fields,
-                    non_nested_attribute_fields,
-                    dict_filter_fields,
-                    used_keys,
-                    review_status_to_filter,
-                    group, FILTER_value=None, QUAL_value=None):
 
+def yield_results(dataset_obj,
+                  headers,
+                  query,
+                  nested_attribute_fields,
+                  non_nested_attribute_fields,
+                  dict_filter_fields,
+                  used_keys,
+                  review_status_to_filter,
+                  group, FILTER_value=None, QUAL_value=None):
 
     es = Elasticsearch(host=dataset_obj.es_host)
     # query = json.dumps(query)
@@ -933,7 +978,6 @@ def yield_results(dataset_obj,
         variant_review_status = get_variant_review_status(es_id, group)
         if review_status_to_filter and variant_review_status not in review_status_to_filter:
             continue
-
 
         if inner_hits:
             for key, value in inner_hits.items():
@@ -964,20 +1008,21 @@ def yield_results(dataset_obj,
                 if path not in result:
                     continue
 
-
                 if not combined:
                     combined_nested = result[path]
                     combined = True
                     continue
                 else:
-                    combined_nested = list(itertools.product(combined_nested, result[path]))
+                    combined_nested = list(itertools.product(
+                        combined_nested, result[path]))
                     combined_nested = merge_two_dicts_array(combined_nested)
 
             tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
             if combined_nested:
-                tmp_output = list(itertools.product([tmp_non_nested,], combined_nested))
-                for x,y in tmp_output:
-                    tmp = merge_two_dicts(x,y)
+                tmp_output = list(itertools.product(
+                    [tmp_non_nested, ], combined_nested))
+                for x, y in tmp_output:
+                    tmp = merge_two_dicts(x, y)
                     if result.get('FILTER'):
                         tmp['FILTER'] = result['FILTER']
                     if result.get('QUAL'):
@@ -989,7 +1034,7 @@ def yield_results(dataset_obj,
                     final_results.append(result)
 
         else:
-            final_results = [result,]
+            final_results = [result, ]
 
         for idx, result in enumerate(final_results):
             tmp = []
@@ -999,26 +1044,31 @@ def yield_results(dataset_obj,
                 if path in ['FILTER', 'QUAL']:
                     if path == "FILTER":
                         data = result.get(path)
-                        tmp.append('; '.join(["%s %s" %(ele.get('FILTER_label', ""), ele.get('FILTER_value')) for ele in data]))
+                        tmp.append('; '.join(["%s %s" % (
+                            ele.get('FILTER_label', ""), ele.get('FILTER_value')) for ele in data]))
                     elif path == "QUAL":
                         data = result.get(path)
-                        tmp.append('; '.join(["%s %s" %(ele.get('QUAL_label', ""), ele.get('QUAL_value')) for ele in data]))
+                        tmp.append('; '.join(
+                            ["%s %s" % (ele.get('QUAL_label', ""), ele.get('QUAL_value')) for ele in data]))
                 else:
                     tmp.append(str(result.get(header.es_name, None)))
             yield tmp
-
 
 
 class Echo(object):
     """An object that implements just the write method of the file-like
     interface.
     """
+
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
+
+
 @gzip_page
 def download_result(request):
-    review_status_data = request.POST.get('download_review_status_to_filter', None)
+    review_status_data = request.POST.get(
+        'download_review_status_to_filter', None)
     review_status_to_filter = []
     if review_status_data:
         for ele in review_status_data.split("&"):
@@ -1034,12 +1084,14 @@ def download_result(request):
     query = json.loads(search_log_obj.query)
     query = json.loads(query)
     if search_log_obj.nested_attribute_fields:
-        nested_attribute_fields = json.loads(search_log_obj.nested_attribute_fields)
+        nested_attribute_fields = json.loads(
+            search_log_obj.nested_attribute_fields)
     else:
         nested_attribute_fields = []
 
     if search_log_obj.non_nested_attribute_fields:
-        non_nested_attribute_fields = json.loads(search_log_obj.non_nested_attribute_fields)
+        non_nested_attribute_fields = json.loads(
+            search_log_obj.non_nested_attribute_fields)
     else:
         non_nested_attribute_fields = []
 
@@ -1054,11 +1106,14 @@ def download_result(request):
         used_keys = []
 
     try:
-        FILTER_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='FILTER_value')
-        QUAL_field_obj = FilterField.objects.get(dataset=dataset_obj, es_name='QUAL_value')
+        FILTER_field_obj = FilterField.objects.get(
+            dataset=dataset_obj, es_name='FILTER_value')
+        QUAL_field_obj = FilterField.objects.get(
+            dataset=dataset_obj, es_name='QUAL_value')
         if str(FILTER_field_obj.id) in dict_filter_fields and str(QUAL_field_obj.id) in dict_filter_fields:
             FILTER_value = dict_filter_fields.get(str(FILTER_field_obj.id))[0]
-            QUAL_value = float(dict_filter_fields.get(str(QUAL_field_obj.id))[0])
+            QUAL_value = float(dict_filter_fields.get(
+                str(QUAL_field_obj.id))[0])
         else:
             FILTER_value = None
             QUAL_value = None
@@ -1066,28 +1121,26 @@ def download_result(request):
         FILTER_value = None
         QUAL_value = None
 
-
-
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer, delimiter='\t')
 
-
     if request.user.groups.count() != 1 and not request.user.is_anonymous:
-            return HttpResponse(status=400)
+        return HttpResponse(status=400)
     elif request.user.is_anonymous:
         group = 'anonymous'
     else:
         group = request.user.groups.all()[:1].get()
 
     results = yield_results(dataset_obj,
-                    headers,
-                    query,
-                    nested_attribute_fields,
-                    non_nested_attribute_fields,
-                    dict_filter_fields,
-                    used_keys,
-                    review_status_to_filter, group, FILTER_value=FILTER_value, QUAL_value=QUAL_value)
-    response = StreamingHttpResponse((writer.writerow(row) for row in results if row), content_type="text/csv")
+                            headers,
+                            query,
+                            nested_attribute_fields,
+                            non_nested_attribute_fields,
+                            dict_filter_fields,
+                            used_keys,
+                            review_status_to_filter, group, FILTER_value=FILTER_value, QUAL_value=QUAL_value)
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in results if row), content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="results.tsv"'
     return response
 
@@ -1102,14 +1155,12 @@ def get_variant(request, dataset_id, variant_id):
     if not group_access and not dataset.is_public:
         return HttpResponseForbidden()
 
-
     es = elasticsearch.Elasticsearch(host=dataset.es_host)
     index_name = dataset.es_index_name
     type_name = dataset.es_type_name
     result = get_es_result(es, index_name, type_name, variant_id)
 
     context = {}
-
 
     conserved_elements = [
         "gerp_plus_gt2",
@@ -1120,18 +1171,22 @@ def get_variant(request, dataset_id, variant_id):
 
     ]
 
-    conserved_elements_available = True if any(True for ele in conserved_elements if result.get(ele)) else False
+    conserved_elements_available = True if any(
+        True for ele in conserved_elements if result.get(ele)) else False
 
-    fsp = FilterSubPanel.objects.get(dataset=dataset, filter_panel__name='Pathogenic Prediction', name='Coding Region')
+    fsp = FilterSubPanel.objects.get(
+        dataset=dataset, filter_panel__name='Pathogenic Prediction', name='Coding Region')
     coding_regions = [ele.display_text for ele in fsp.filter_fields.all()]
 
     splice_junctions = ["dbscSNV_ADA_SCORE", "dbscSNV_RF_SCORE"]
 
-    coding_region_available = True if any(True for ele in coding_regions if result.get(ele)) else False
-    splice_junctions_available = True if any(True for ele in splice_junctions if result.get(ele)) else False
+    coding_region_available = True if any(
+        True for ele in coding_regions if result.get(ele)) else False
+    splice_junctions_available = True if any(
+        True for ele in splice_junctions if result.get(ele)) else False
 
-
-    baminfo_exists = SampleBamInfo.objects.filter(dataset__id=dataset_id).exists()
+    baminfo_exists = SampleBamInfo.objects.filter(
+        dataset__id=dataset_id).exists()
 
     context["baminfo_exists"] = baminfo_exists
     context["result"] = result
@@ -1151,7 +1206,8 @@ def save_search(request):
         dataset = Dataset.objects.get(id=request.POST.get('dataset'))
         filters_used = request.POST.get('filters_used')
         attributes_selected = request.POST.get('attributes_selected')
-        form = SaveSearchForm(request.user, dataset, filters_used, attributes_selected, request.POST)
+        form = SaveSearchForm(request.user, dataset,
+                              filters_used, attributes_selected, request.POST)
         if form.is_valid():
             data = form.cleaned_data
             user = data.get('user')
@@ -1159,17 +1215,21 @@ def save_search(request):
             filters_used = data.get('filters_used')
             attributes_selected = data.get('attributes_selected')
             description = data.get('description')
-            SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used, attributes_selected=attributes_selected, description=description)
+            SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used,
+                                       attributes_selected=attributes_selected, description=description)
             return redirect('saved-search-list')
         else:
             return HttpResponseServerError()
+
 
 class SavedSearchList(ListView):
     model = SavedSearch
     context_object_name = 'saved_search_list'
     template_name = 'search/savedsearch_list.html'
+
     def get_queryset(self):
         return SavedSearch.objects.filter(user=self.request.user)
+
 
 class SavedSearchUpdate(UpdateView):
     model = SavedSearch
@@ -1177,14 +1237,16 @@ class SavedSearchUpdate(UpdateView):
     success_url = reverse_lazy('saved-search-list')
     template_name = 'search/savedsearch_form_update.html'
 
+
 class SavedSearchDelete(DeleteView):
     model = SavedSearch
     success_url = reverse_lazy('saved-search-list')
     template_name = 'search/savedsearch_confirm_delete.html'
 
+
 def update_variant_review_status(request):
     if request.POST:
-        ### make sure user only belongs to one group
+        # make sure user only belongs to one group
         if request.user.groups.count() != 1:
             print('No Group')
             return HttpResponse(status=400)
@@ -1198,8 +1260,8 @@ def update_variant_review_status(request):
 
         new_variant_review_status = request.POST.get("variant_review_status")
 
-
-        variant_review_status_obj = get_variant_review_status_obj(variant_es_id, group)
+        variant_review_status_obj = get_variant_review_status_obj(
+            variant_es_id, group)
         if new_variant_review_status == 'not_reviewed' and variant_review_status_obj:
             variant_review_status_obj.delete()
             return HttpResponse(status=200)
@@ -1213,10 +1275,10 @@ def update_variant_review_status(request):
             return HttpResponse(status=200)
         elif not variant_review_status_obj:
             variant_review_status_obj, _ = VariantReviewStatus.objects.get_or_create(group=group,
-                                                                               variant_es_id=variant_es_id,
-                                                                               variant=variant,
-                                                                               dataset = dataset_obj,
-                                                                               status=new_variant_review_status)
+                                                                                     variant_es_id=variant_es_id,
+                                                                                     variant=variant,
+                                                                                     dataset=dataset_obj,
+                                                                                     status=new_variant_review_status)
             variant_review_status_history = VariantReviewStatusHistory.objects.create(variant_review_status=variant_review_status_obj,
                                                                                       user=request.user,
                                                                                       status=new_variant_review_status)
@@ -1224,18 +1286,23 @@ def update_variant_review_status(request):
         else:
             return HttpResponse(status=400)
 
+
 def list_variant_review_status(request):
-    user_variants = VariantReviewStatus.objects.filter(user=request.user).prefetch_related('user')
-    group_variants = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list('pk', flat=True)).exclude(user=request.user).prefetch_related('user')
+    user_variants = VariantReviewStatus.objects.filter(
+        user=request.user).prefetch_related('user')
+    group_variants = VariantReviewStatus.objects.filter(shared_with_group__pk__in=request.user.groups.values_list(
+        'pk', flat=True)).exclude(user=request.user).prefetch_related('user')
 
     context = {}
     context['user_variants'] = user_variants
     context['group_variants'] = group_variants
     return render(request, 'search/variant_review_list.html', context)
 
+
 def delete_variant(request, pk):
     try:
-        variant_review_status_obj = VariantReviewStatus.objects.get(pk=pk, user=request.user)
+        variant_review_status_obj = VariantReviewStatus.objects.get(
+            pk=pk, user=request.user)
         review_status = variant_review_status_obj.variant_review_status
         variant_review_status_obj.delete()
         # print(reverse('list-variant-status', kwargs={'review_status': review_status}))
@@ -1259,16 +1326,18 @@ def list_variant_review_summary(request):
     else:
         group = request.user.groups.all()[:1].get()
 
-    group_approved = VariantReviewStatus.objects.filter(group=group, status='approved')
+    group_approved = VariantReviewStatus.objects.filter(
+        group=group, status='approved')
     group_approved_count = group_approved.count()
     group_approved = group_approved[:MAX_SUMMARY_LEN]
 
-
-    group_rejected = VariantReviewStatus.objects.filter(group=group, status='rejected')
+    group_rejected = VariantReviewStatus.objects.filter(
+        group=group, status='rejected')
     group_rejected_count = group_rejected.count()
     group_rejected = group_rejected[:MAX_SUMMARY_LEN]
 
-    group_pending = VariantReviewStatus.objects.filter(group=group, status='pending')
+    group_pending = VariantReviewStatus.objects.filter(
+        group=group, status='pending')
     group_pending_count = group_pending.count()
     group_pending = group_pending[:MAX_SUMMARY_LEN]
 
@@ -1283,9 +1352,8 @@ def list_variant_review_summary(request):
     context['group_pending'] = group_pending
     context['group_pending_count'] = group_pending_count
 
-    context['any_variants'] = any([group_approved, group_rejected, group_pending])
-
-
+    context['any_variants'] = any(
+        [group_approved, group_rejected, group_pending])
 
     return render(request, 'search/variant_review_status_summary.html', context)
 
@@ -1296,10 +1364,10 @@ def list_group_variant_status(request, review_status):
         return HttpResponse(status=400)
     else:
         group = request.user.groups.all()[:1].get()
-    review_status = VariantReviewStatus.objects.filter(group=group, status=review_status)
+    review_status = VariantReviewStatus.objects.filter(
+        group=group, status=review_status)
 
     context = {}
     context['review_status'] = review_status
     context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
     return render(request, 'search/list_group_review_status.html', context)
-
