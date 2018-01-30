@@ -11,7 +11,7 @@ suppressMessages(library(elastic))
 suppressMessages(library(jsonlite))
 library(svglite)
 
-generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_port, output_folder, output_type) {
+generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_type_name, es_host, es_port, output_folder, output_type) {
 
     # run an elasticsearch query
     connect(es_host = es_host, es_port = es_port)
@@ -41,7 +41,7 @@ generate_mas_plot <- function(gene, rs_id, vset, dataset, es_index, es_host, es_
             "size": 1000
         }',rs_id,vset)
 
-    response <- Search(index=INDEX_NAME,type=dataset,body=gene_query_string,raw=T)
+    response <- Search(index=INDEX_NAME,type=es_type_name,body=gene_query_string,raw=T)
     gene_info <- fromJSON(response)$hits$hits$`_source`
     if (is.null(gene_info)) {
         return()
@@ -247,10 +247,11 @@ rs_id <- args[2]
 vset <- args[3]
 dataset <- args[4]
 es_index_name <- args[5]
-es_host <- args[6]
-es_port <- args[7]
-output_folder <- args[8]
-output_type <- args[9]
+es_type_name <- args[6]
+es_host <- args[7]
+es_port <- args[8]
+output_folder <- args[9]
+output_type <- args[10]
 
 #if (expand) {
 #    datasets = c('sim_wgs_expand','sim_con_expand','sim_wgs_minus_con_expand','sim_con_minus_wgs_expand')
@@ -258,4 +259,4 @@ output_type <- args[9]
 #    datasets = c('sim_wgs_noexpand','sim_con_noexpand','sim_wgs_minus_con_noexpand','sim_con_minus_wgs_noexpand')
 #}
 
-generate_mas_plot(gene, rs_id, vset, dataset, es_index_name, es_host, es_port, output_folder, output_type)
+generate_mas_plot(gene, rs_id, vset, dataset, es_index_name, es_type_name, es_host, es_port, output_folder, output_type)
