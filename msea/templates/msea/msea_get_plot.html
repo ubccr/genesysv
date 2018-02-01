@@ -17,7 +17,7 @@
         <h5 class="text-center">{{dataset_display_name}}</h5>
         <div class="main_image text-center">
             <img src="/static/r_outputs/svg/{{plot_path}}" alt="img" width="500" height="500">
-            <a href="{% url 'download-tiff' %}?dataset_short_name={{dataset_short_name}}&gene={{gene}}&study_id={{study_id}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}&recurrent_variant_option={{recurrent_variant_option}}">
+            <a href="{% url 'download-tiff' %}?dataset_es_index_name={{dataset_es_index_name}}&gene={{gene}}&rs_id={{rs_id}}&variant_selected={{variant_selected}}&recurrent_variant_option={{recurrent_variant_option}}">
                 <img class="download_inlay" src="/static/custom/images/Gnome-Document-Save-32.png" title="download as tiff">
             </a>
         </div>

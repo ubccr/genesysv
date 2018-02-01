@@ -13,7 +13,7 @@
 </ul>
 
 <div class="tab-content">
-{% for short_name, display_name, result in results %}
+{% for dataset_es_index_name, display_name, result in results %}
     {% if forloop.first %}
       <div id="{{forloop.counter}}" class="tab-pane fade in active">
     {% else %}
@@ -32,9 +32,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                    {% for ele in result%}
+                    {% for ele in result %}
                         <tr>
-                            <td><a target="_blank" href="/msea/get-plot?study_id={{study_id}}&rs_id={{ele.refgene_id}}&variant_selected={{ele.vset}}&gene={{ele.gene_name}}&dataset_short_name={{short_name}}">{{ ele.refgene_id}}</a></td>
+                            <td><a target="_blank" href="/msea/get-plot?rs_id={{ele.refgene_id}}&variant_selected={{ele.vset}}&gene={{ele.gene_name}}&dataset_es_index_name={{dataset_es_index_name}}">{{ ele.refgene_id}}</a></td>
                             <td>{{ ele.gene_name}}</td>
                             <td>{{ ele.vset}}</td>
                             <td>{{ ele.nes}}</td>

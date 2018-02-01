@@ -31,13 +31,12 @@ def msea_home(request):
 def download_tiff(request):
     if request.GET:
         try:
-            dataset_short_name = request.GET.get('dataset_short_name')
+            dataset_es_index_name = request.GET.get('dataset_es_index_name')
             gene = request.GET.get('gene')
             rs_id = request.GET.get('rs_id')
             variant_selected = request.GET.get('variant_selected')
             recurrent_variant_option = request.GET.get(
                 'recurrent_variant_option')
-            study_id = request.GET.get('study_id')
 
         except Exception as e:
             return HttpResponse('Missing parameter')
@@ -49,15 +48,13 @@ def download_tiff(request):
 
         # # Variable number of args in a list
 
-        study_obj = Study.objects.get(id=study_id)
-        dataset_obj = Dataset.objects.get(
-            study=study_obj, short_name=dataset_short_name)
+        dataset_obj = Dataset.objects.get(es_index_name=dataset_es_index_name)
         output_folder = os.path.join(settings.BASE_DIR, 'msea/output_tiff/')
-        output_filename = "%s_%s_%s_%s_%s.tiff" % (
-            gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
+        output_filename = "%s_%s_%s_%s.tiff" % (
+            gene, rs_id, dataset_es_index_name, variant_selected)
         output_path = os.path.join(output_folder, output_filename)
 
-        args = [gene, rs_id, variant_selected, '%s_%s' % (dataset_short_name, recurrent_variant_option), dataset_obj.es_index_name,
+        args = [gene, rs_id, variant_selected, dataset_obj.es_index_name,
                 dataset_obj.es_type_name, dataset_obj.es_host, dataset_obj.es_port, output_folder, 'tiff']
 
         # # Build subprocess command
@@ -106,11 +103,11 @@ def msea_plot(request):
             else:
                 output_folder = os.path.join(
                     settings.BASE_DIR, 'static_root/r_outputs/svg/')
-            wildcardstring = '%s_%s_*_%s_%s.svg' % (
-                gene, rs_id, recurrent_variant_option, variant_selected)
+            wildcardstring = '%s_%s_*_%s.svg' % (
+                gene, rs_id, variant_selected)
 
-            for dataset in Dataset.objects.filter(study=study_obj):
-                args = [gene, rs_id, variant_selected, '%s_%s' % (dataset.short_name, recurrent_variant_option),
+            for dataset in Dataset.objects.filter(study=study_obj, es_index_name__contains='_'+recurrent_variant_option):
+                args = [gene, rs_id, variant_selected,
                         dataset.es_index_name, dataset.es_type_name, dataset.es_host, dataset.es_port, output_folder, 'svg']
 
                 # Build subprocess command
@@ -118,26 +115,25 @@ def msea_plot(request):
                 print(' '.join(cmd))
 
                 # only create plot if plot doesn't already exist
-                filename = '%s%s_%s_%s_%s_%s.svg' % (
-                    output_folder, gene, rs_id, dataset.short_name, recurrent_variant_option, variant_selected)
+                filename = '%s%s_%s_%s_%s.svg' % (
+                    output_folder, gene, rs_id, dataset.es_type_name, variant_selected)
                 if not os.path.isfile(filename):
                     # Run Rscript
                     subprocess.check_call(cmd)
 
             svg_files = glob.glob(os.path.join(output_folder, wildcardstring))
-            wildcardstring = '%s_%s_(\S+)_%s_%s' % (gene, rs_id,
-                                                    recurrent_variant_option, variant_selected)
+            wildcardstring = '%s_%s_(\S+)_%s' % (gene, rs_id,
+                                                 variant_selected)
             plots = []
             # hacky way to get 'proper' display order for SIM study plots
             for file in sorted(svg_files, key=len):
                 # print(file)
                 filename = os.path.basename(file)
                 tmp = re.search(wildcardstring, filename).groups()[0]
-                dataset_obj = Dataset.objects.get(
-                    study=study_obj, short_name=tmp)
+                dataset_obj = Dataset.objects.get(es_index_name=tmp)
 
                 plots.append((gene, rs_id, variant_selected, recurrent_variant_option,
-                              dataset_obj.short_name, dataset_obj.display_name, study_obj.id, filename))
+                              dataset_obj.es_index_name, dataset_obj.display_name, study_obj.id, filename))
             # print(plots)
             context = {}
             context['plots'] = plots
@@ -225,25 +221,22 @@ def msea_get_sorted_pvalues(request):
     study_obj = Study.objects.get(short_name=study_short_name)
 
     results = []
-    for dataset in Dataset.objects.filter(study=study_obj, short_name__contains="noexpand"):
+    for dataset in Dataset.objects.filter(study=study_obj, es_index_name__contains="_noexpand"):
         result = get_top100_nes(
             dataset.es_index_name, dataset.es_type_name, dataset.es_host, dataset.es_port, size=100)
-        results.append((dataset.short_name, dataset.display_name, result))
+        results.append((dataset.es_index_name, dataset.display_name, result))
 
     context = {}
     context['results'] = results
-    context['study_id'] = study_obj.id
     return render(request, 'msea/msea_get_pvalues.html', context)
 
 
 @gzip_page
 def get_plot(request):
-    dataset_short_name = request.GET.get('dataset_short_name')
+    dataset_es_index_name = request.GET.get('dataset_es_index_name')
     gene = request.GET.get('gene')
     rs_id = request.GET.get('rs_id')
     variant_selected = request.GET.get('variant_selected')
-
-    study_id = request.GET.get('study_id')
 
     recurrent_variant_option = 'noexpand'
     command = 'Rscript'
@@ -252,19 +245,19 @@ def get_plot(request):
 
     # # Variable number of args in a list
 
-    study_obj = Study.objects.get(id=study_id)
+    dataset_obj = Dataset.objects.get(es_index_name=dataset_es_index_name)
     if settings.DEBUG:
         output_folder = os.path.join(
             settings.BASE_DIR, 'static/r_outputs/svg/')
     else:
         output_folder = os.path.join(
             settings.BASE_DIR, 'static_root/r_outputs/svg/')
-    output_filename = "%s_%s_%s_%s_%s.svg" % (
-        gene, rs_id, dataset_short_name, recurrent_variant_option, variant_selected)
+    output_filename = "%s_%s_%s_%s.svg" % (
+        gene, rs_id, dataset_es_index_name, variant_selected)
     output_path = os.path.join(output_folder, output_filename)
 
-    args = [gene, rs_id, variant_selected, '%s_%s' % (
-        dataset_short_name, recurrent_variant_option), study_obj.es_index_name, study_obj.es_host, study_obj.es_port, output_folder, 'svg']
+    args = [gene, rs_id, variant_selected,
+            dataset_obj.es_index_name, dataset_obj.es_type_name, dataset_obj.es_host, dataset_obj.es_port, output_folder, 'svg']
 
     # # Build subprocess command
     cmd = [command, path2script] + args
@@ -280,8 +273,7 @@ def get_plot(request):
     context = {}
     context['plot_path'] = output_filename
 
-    dataset_obj = Dataset.objects.get(
-        study=study_obj, short_name=dataset_short_name)
+
     context['dataset_display_name'] = dataset_obj.display_name
 
     # The following are used to generate the 'download as tiff' link
@@ -289,7 +281,6 @@ def get_plot(request):
     context['rs_id'] = rs_id
     context['variant_selected'] = variant_selected
     context['recurrent_variant_option'] = recurrent_variant_option
-    context['study_id'] = study_id
-    context['dataset_short_name'] = dataset_short_name
+    context['dataset_es_index_name'] = dataset_es_index_name
 
     return render(request, 'msea/msea_get_plot.html', context)
