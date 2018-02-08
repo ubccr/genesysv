@@ -18,3 +18,11 @@ python inspect_vcf.py --index thousand_samples --type thousand_samples --vcf ~/A
 python prepare_elasticsearch_for_import.py --hostname 172.17.39.0 --port 9200 --index thousand_samples --type thousand_samples --info es_scripts/inspect_output_for_thousand_samples_thousand_samples.txt
 
 bash es_scripts/delete_index_thousand_samples.sh; bash es_scripts/create_index_thousand_samples_and_put_mapping_thousand_samples.sh; python import_vcf_using_celery.py --hostname 172.17.39.0 --port 9200 --index thousand_samples --type thousand_samples --label None --update False --vcf ~/ALL.1kg.everythingVEP.500sample_10000.vcf --mapping es_scripts/inspect_output_for_thousand_samples_thousand_samples.txt;
+
+
+python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --study sim_wgs_case_wes_control --dataset sim_wgs_case_wes_control --gui search/management/commands/data/sim_wgs_case_wes_control_vcf_field_gui_mapping.json
+
+
+python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --study "Statin Induced Myopathy" --dataset sim_wgs_case_wes_control --gui search/management/commands/data/sim_wgs_case_wes_control_vcf_field_gui_mapping.json
+
+python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 9200 --index sim_wes_case --type sim_wes_case --study "Statin Induced Myopathy" --dataset sim_wes_case --gui search/management/commands/data/sim_wgs_case_wes_control_vcf_field_gui_mapping.json

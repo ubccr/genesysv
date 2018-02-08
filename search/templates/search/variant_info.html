@@ -435,18 +435,7 @@
     <h3 class="panel-title">Visualization</h3>
   </div>
   <div class="panel-body">
-    <div class="col-md-6">
-        <form target="_blank" action="{% url 'pybamview' %}" method="POST">
-            {% csrf_token %}
-            <input type="submit" class="btn btn-success btn-block" value="View in PyBAMView">
-            <input type="hidden" name="dataset_id" value="{{dataset_id}}">
-            <input type="hidden" name="variant_id" value="{{variant_id}}">
-            <input type="hidden" name="index_name" value="{{index_name}}">
-            <input type="hidden" name="type_name" value="{{type_name}}">
-        </form>
-    </div>
-
-    <div class="col-md-6">
+    <div class="col-md-12">
         <form target="_blank" action="{% url 'igvview' %}" method="POST">
             {% csrf_token %}
             <input type="submit" class="btn btn-success btn-block" value="View in IGV.JS">
@@ -456,8 +445,6 @@
             <input type="hidden" name="type_name" value="{{type_name}}">
         </form>
     </div>
-
-
 
   </div>
 </div>

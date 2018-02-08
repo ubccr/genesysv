@@ -232,7 +232,7 @@ class Command(BaseCommand):
 
                 try:
                     attribute_field_obj, _ = AttributeField.objects.get_or_create(dataset=dataset_obj,
-                                                           display_text=field_display_text,
+                                                           display_text=field_display_text.replace('Limit Variants to','') ,
                                                            es_name=field_es_name,
                                                            path=field_path,
                                                            place_in_panel=attribute_panel_obj.name)

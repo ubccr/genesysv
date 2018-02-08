@@ -24297,7 +24297,6 @@ var igv = (function (igv) {
     igv.BamReader = function (config) {
 
         this.config = config;
-        console.log(config);
 
         this.bamPath = config.url;
 

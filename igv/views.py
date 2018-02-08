@@ -3,10 +3,13 @@ from django.http import HttpResponse, HttpResponseNotFound
 from search.models import Dataset
 import elasticsearch
 from search.utils import get_es_result
-from pybamview.forms import SampleSelectForm
-from pybamview.models import SampleBamInfo
+from .forms import SampleSelectForm
+from .models import SampleBamInfo, AnnotationReference
 from django.conf import settings
 from .utils import generate_url
+import json
+from pprint import pprint
+import time
 
 
 def get_sample_ids(result):
@@ -17,7 +20,7 @@ def igvview(request):
     if request.POST:
         if 'igvredirect' in request.POST:
             dataset_id = request.POST.get('dataset_id')
-            Chr = request.POST.get('Chr')
+            Chr = request.POST.get('Chr').replace('chr','')
             Start = int(request.POST.get('Start'))
             dataset = Dataset.objects.get(id=dataset_id)
 
@@ -27,28 +30,31 @@ def igvview(request):
                 for sample in (key for key, val in request.POST.items() if 'on' in val):
                     sample_bam_info_obj = SampleBamInfo.objects.get(
                         dataset=dataset, sample_id=sample)
-                    path = sample_file = sample_bam_info_obj.file_path.replace(
-                        '/gpfs/projects/academic/big', '')
+                    path = sample_bam_info_obj.file_path
                     url = generate_url(path)
-                    url = "https://bam.ccr.buffalo.edu" + url
+                    url = sample_bam_info_obj.bam_server + url
                     bai = generate_url(path + '.bai')
-                    bai = "https://bam.ccr.buffalo.edu" + bai
+                    bai = sample_bam_info_obj.bam_server + bai
                     name = sample
                     tmp = {'url': url, 'name': name, 'bai': bai}
                     bam_files.append(tmp)
+
+                annotation_reference_obj = AnnotationReference.objects.get(dataset=dataset)
                 context = {}
+                annotation = {}
+                reference = {}
+                annotation['name'] = annotation_reference_obj.annotation_name
+                annotation['format'] = annotation_reference_obj.annotation_file_format
+                annotation['url'] = annotation_reference_obj.annotation_url
+                annotation['index_url'] = annotation_reference_obj.annotation_index_url
+                reference['genome_id'] = annotation_reference_obj.genome_id
+                reference['fasta_url'] = annotation_reference_obj.reference_fasta_url
+                reference['cytoband_url'] = annotation_reference_obj.reference_cytoband_url
+                context['annotation'] = annotation
+                context['reference'] = reference
                 context['bam_files'] = bam_files
                 context['locus'] = locus
                 return render(request, "igv/igv_lite.html", context)
-                # for sample in (key for key,val in request.POST.items() if 'on' in val):
-                #     sample_bam_info_obj = SampleBamInfo.objects.get(dataset=dataset, sample_id=sample)
-                #     url_string += 'samplebams={sample_name}:{sample_file}&'.format(sample_name=sample_bam_info_obj.sample_id,
-                # sample_file=sample_bam_info_obj.file_path)
-
-                # url_string += 'zoomlevel=1'
-                # url_string += '&region=%d:%d' %(Chr,Start)
-                # return redirect(url_string)
-                # # return redirect(url_string)
             except Exception as e:
                 print(e)
                 return HttpResponse('Missing BAM file for: %s' % (sample))

@@ -12,6 +12,7 @@
     <link rel="shortcut icon" href="//igv.org/web/img/favicon.ico">
     <title>Integrative Genomics Viewer - BAM Example</title>
 
+
     <!-- Bootstrap CSS - for demo only, NOT REQUIRED FOR IGV -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 
@@ -24,7 +25,7 @@
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
 
     <!-- IGV CSS -->
-    <link rel="stylesheet" type="text/css" href="https://igv.org/web/test/multilocus/igv-multilocus.css">
+    <link rel="stylesheet" type="text/css" href="https://igv.org/web/beta/igv-beta.css">
 
     <!-- jQuery JS -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -35,7 +36,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
     <!-- IGV JS-->
-    <script type="text/javascript" src="{% static 'igv_lite/igv-multilocus.js' %}"></script>
+    <script type="text/javascript" src="{% static 'igv_lite/igv-beta.js' %}"></script>
+
 
       <!-- Customization --> <script src="{% static 'custom/js/custom.js' %}"></script>
     <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}">
@@ -110,9 +112,7 @@
                         <li><a href="http://www.buffalo.edu/cbls">NYS Center of Excellence in Bioinformatics and Life Sciences (CBLS)</a></li>
                         <li><a href="http://www.buffalo.edu/ccr">Center for Computational Research (CCR)</a></li>
                         <li><a href="http://www.buffalo.edu/ihi">Institute for Healthcare Informatics (IHI)</a></li>
-
                         <li><a href="http://www.buffalo.edu/big">Buffalo Institute for Genomics (BIG) and Data Analytics</a></li>
-
                     </ul>
               </div>
             </div>
@@ -132,20 +132,21 @@
     var locus = {{locus|safe }};
     // var locus = "chr8:128,747,267-128,754,546";
     var bam_files = {{bam_files|safe }};
+    var annotation = {{ annotation|safe }}
+    var reference = {{ reference|safe }}
     var input_tracks = [
         {
-            name: "Genes",
+            name: annotation["name"],
             type: "annotation",
-            format: "bed",
+            format: annotation["file_format"],
             sourceType: "file",
-            url: "https://bam.ccr.buffalo.edu/refGene.hg19.bed.gz",
-            indexURL: "https://bam.ccr.buffalo.edu/refGene.hg19.bed.gz.tbi",
+            url: annotation["url"],
+            indexURL: annotation["indexURL"],
             order: Number.MAX_VALUE,
-            visibilityWindow: 300000000,
+            visibilityWindow: 10000000,
             displayMode: "EXPANDED"
         }]
 
-    // console.log(bam_files)
     var arrayLength = bam_files.length;
     for (var i = 0; i < arrayLength; i++) {
         var tmp = {
@@ -156,14 +157,24 @@
         input_tracks.push(tmp)
     }
 
-    console.log(input_tracks)
+    // console.log(input_tracks)
     $(document).ready(function () {
 
         var div = $("#igvDiv")[0],
                 options = {
                     showNavigation: true,
                     showRuler: true,
-                    genome: "hg19",
+                    // genome: "hg19",
+                    // reference: {
+                    //     id: "hg19",
+                    //     fastaURL: "https://bam.ccr.buffalo.edu/hg19/hg19.fasta",
+                    //     cytobandURL: "https://bam.ccr.buffalo.edu/hg19/cytoBand.txt"
+                    // },
+                    reference: {
+                        id: reference["genome_id"],
+                        fastaURL: reference["fasta_url"],
+                        cytobandURL: reference["cytoband_url"]
+                    },
                     locus: locus,
                     tracks: input_tracks
                 };

@@ -455,7 +455,7 @@ function submit_via_ajax() {
 
         form_data = form_data.replace(/\d+_\d+___/g, "");
         form_data = form_data.replace(/\d+___/g, "");
-
+        console.log(form_data)
         exclude_variants = $("#hidden_exclude_variants").val()
         $.ajax(
             {

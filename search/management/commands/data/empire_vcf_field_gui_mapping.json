@@ -1755,7 +1755,7 @@
         "display_text": "ExAC OTH",
         "es_filter_type": "filter_range_lt",
         "form_type": "CharField",
-        "in_line_tooltip": "(>=)",
+        "in_line_tooltip": "(<)",
         "tooltip": "Other population",
         "widget_type": "TextInput"
       }

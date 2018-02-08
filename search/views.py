@@ -31,7 +31,7 @@ from django.conf import settings
 import itertools
 import hashlib
 from collections import deque
-from pybamview.models import SampleBamInfo
+from igv.models import SampleBamInfo
 from django.db.models import Q
 from django.views.generic.edit import UpdateView
 from django.http import HttpResponseForbidden
@@ -444,6 +444,7 @@ def search(request):
     if request.POST:
         start_time = datetime.now()
 
+
         # Ensure logged in users belong to a group so that Variant annotation
         # works!
         if not request.user.is_anonymous:
@@ -493,7 +494,9 @@ def search(request):
         es_attribute_form = ESAttributeForm(
             dataset_obj, POST_data, prefix='attribute_group')
 
+
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
+            print('test2')
             es_filter = ElasticSearchFilter()
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
@@ -512,6 +515,7 @@ def search(request):
             # I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
             # not put on a separate line; Maybe better to add some attribute to
             # the field in model instead.
+
 
             for key, val in es_attribute_form.cleaned_data.items():
                 if val:
@@ -949,6 +953,10 @@ def search(request):
             context['variant_field_exist'] = variant_field_exist
 
             return render(request, 'search/search_results.html', context)
+        else:
+            for key in es_filter_form.errors.keys():
+                print(key, es_filter_form.errors[key].as_data())
+
 
 
 def yield_results(dataset_obj,
