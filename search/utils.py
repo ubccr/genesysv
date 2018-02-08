@@ -460,7 +460,7 @@ def get_from_es(dataset_es_index_name,
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
-        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["buckets"]])
+        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["buckets"] if ele['key']])
 
     elif field_path:
         body_nested_template = """
@@ -485,4 +485,4 @@ def get_from_es(dataset_es_index_name,
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
-        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"]])
+        return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
