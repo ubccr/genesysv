@@ -19,19 +19,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-from django.utils.crypto import get_random_string
-
-chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-SECRET_KEY = get_random_string(50, chars)
-# SECRET_KEY = 'w8w^)v%^mm_7m(m6rgc0d(xn+!71ui^6rl5q13s9pdf@t20t#8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+if DEBUG:
+    SECRET_KEY = 'w8w^)v%^mm_7m(m6rgc0d(xn+!71ui^6rl5q13s9pdf@t20t#8'
+else:
+    from django.utils.crypto import get_random_string
+
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    SECRET_KEY = get_random_string(50, chars)
+
 
 ALLOWED_HOSTS = ['gdwdev.ccr.buffalo.edu']
-
 
 
 # Application definition
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'crispy_forms',
     'search',
-    'pybamview',
+    # 'pybamview',
     'subject_report',
     'tinymce',
     'beacon',
@@ -74,7 +75,7 @@ ROOT_URLCONF = 'gdw.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -146,7 +147,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = './static_root/'
-STATIC_PATH = os.path.join(BASE_DIR,'static')
+STATIC_PATH = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
