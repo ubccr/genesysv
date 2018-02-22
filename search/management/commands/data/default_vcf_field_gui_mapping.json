@@ -3481,47 +3481,10 @@
     "panel": "VEP Allele Statistics",
     "tab": "Basic"
   },
-  "CSQ_CANONICAL": {
-    "filters": [
-      {
-        "display_text": "CSQ_CANONICAL",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "VEP Other",
-    "tab": "Basic"
-  },
-  "CSQ_CLIN_SIG": {
-    "filters": [
-      {
-        "display_text": "Clinical Significance",
-        "es_filter_type": "filter_terms",
-        "form_type": "MultipleChoiceField",
-        "values": "get_from_es()",
-        "widget_type": "SelectMultiple"
-      }
-    ],
-    "panel": "VEP Other",
-    "tab": "Basic"
-  },
   "CSQ_Existing_variation": {
     "filters": [
       {
         "display_text": "CSQ_Existing_variation",
-        "es_filter_type": "filter_term",
-        "form_type": "CharField",
-        "widget_type": "TextInput"
-      }
-    ],
-    "panel": "VEP Other",
-    "tab": "Basic"
-  },
-  "CSQ_GENE_PHENO": {
-    "filters": [
-      {
-        "display_text": "CSQ_GENE_PHENO",
         "es_filter_type": "filter_term",
         "form_type": "CharField",
         "widget_type": "TextInput"
@@ -3644,6 +3607,19 @@
     "panel": "VEP Other Nested",
     "tab": "Basic"
   },
+  "CSQ_nested_CANONICAL": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_CANONICAL",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
   "CSQ_nested_CCDS": {
     "filters": [
       {
@@ -3680,6 +3656,20 @@
         "in_line_tooltip": "(<=)",
         "path": "CSQ_nested",
         "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_CLIN_SIG": {
+    "filters": [
+      {
+        "display_text": "Clinical Significance",
+        "es_filter_type": "nested_filter_terms",
+        "form_type": "MultipleChoiceField",
+        "path": "CSQ_nested",
+        "values": "get_from_es()",
+        "widget_type": "SelectMultiple"
       }
     ],
     "panel": "VEP Other Nested",
@@ -3818,6 +3808,19 @@
     "filters": [
       {
         "display_text": "CSQ_nested_Gene",
+        "es_filter_type": "nested_filter_term",
+        "form_type": "CharField",
+        "path": "CSQ_nested",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "VEP Other Nested",
+    "tab": "Basic"
+  },
+  "CSQ_nested_GENE_PHENO": {
+    "filters": [
+      {
+        "display_text": "CSQ_nested_GENE_PHENO",
         "es_filter_type": "nested_filter_term",
         "form_type": "CharField",
         "path": "CSQ_nested",
