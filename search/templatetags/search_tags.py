@@ -171,6 +171,9 @@ def get_value_from_dict_search(dict_data, element):
                     return "Report ERROR"
         else:
             data = dict_data.get(element.es_name)
+
+        if data == 0:
+            return data
         if not data:
             return None
         es_id = dict_data.get("es_id")
