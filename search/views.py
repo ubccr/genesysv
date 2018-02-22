@@ -1182,9 +1182,12 @@ def get_variant(request, dataset_id, variant_id):
     conserved_elements_available = True if any(
         True for ele in conserved_elements if result.get(ele)) else False
 
-    fsp = FilterSubPanel.objects.get(
-        dataset=dataset, filter_panel__name='Pathogenic Prediction', name='Coding Region')
-    coding_regions = [ele.display_text for ele in fsp.filter_fields.all()]
+    try:
+        fsp = FilterSubPanel.objects.get(
+            dataset=dataset, filter_panel__name='Pathogenic Prediction', name='Coding Region')
+        coding_regions = [ele.display_text for ele in fsp.filter_fields.all()]
+    except:
+        coding_regions = []
 
     splice_junctions = ["dbscSNV_ADA_SCORE", "dbscSNV_RF_SCORE"]
 
