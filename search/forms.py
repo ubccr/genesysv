@@ -20,8 +20,8 @@ class StudyForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(StudyForm, self).__init__(*args, **kwargs)
         user_group_ids = [group.id for group in user.groups.all()]
-        user_dataset = Dataset.objects.all()
-        user_dataset = user_dataset.filter(
+        # user_dataset = Dataset.objects.all()
+        user_dataset = Dataset.objects.select_related('study').filter(
             Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
         user_studies = [ele.study.id for ele in user_dataset]
         # print(user_studies)
