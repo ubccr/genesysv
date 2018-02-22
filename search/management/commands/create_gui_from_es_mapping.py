@@ -124,11 +124,12 @@ class Command(BaseCommand):
         import_order = sorted(list(mapping), key=lambda ele: get_order_of_import(ele, list(vcf_gui_mapping)))
 
         idx = 1
+        warning_and_skipped_msgs = []
         # for var_name, var_info in mapping.items():
         for var_name in import_order:
             var_info = mapping.get(var_name)
             if not vcf_gui_mapping.get(var_name):
-                print('*'*20, 'ERROR', var_name)
+                warning_and_skipped_msgs.append('*'*20 + 'WARNING: No GUI mapping defined for %s' % (var_name))
                 continue
 
             gui_info = vcf_gui_mapping.get(var_name)
@@ -181,6 +182,10 @@ class Command(BaseCommand):
                                             field_es_name,
                                             field_path)
                         pprint(field_values)
+                        if not field_values:
+                            warning_and_skipped_msgs.append('*'*20 + 'Skipped creating GUI for %s because no values found' % (var_name))
+                            continue
+
                     elif match:
                         match_status = True
                         tmp_str = match.groups()[0]
@@ -267,3 +272,6 @@ class Command(BaseCommand):
                     if not attribute_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
                         attribute_panel_obj.attribute_fields.add(attribute_field_obj)
                 idx += 1
+
+        for msg in warning_and_skipped_msgs:
+            print(msg)
