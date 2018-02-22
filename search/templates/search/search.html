@@ -435,7 +435,12 @@
 
 function submit_via_ajax() {
      $('#results_div').html('<button class="btn btn-warning text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Searching...</button>');
-        var form_data = $('#searchForm').serialize();
+        // var form_data = $('#searchForm').serialize();
+        var form_data = $("#searchForm :input")
+            .filter(function(index, element) {
+                return $(element).val() != '';
+            })
+            .serialize();
         $("#user-alert-div").empty();
         $("#li-step3").removeClass("active");
         $("#li-step4").addClass("active");
@@ -455,7 +460,7 @@ function submit_via_ajax() {
 
         form_data = form_data.replace(/\d+_\d+___/g, "");
         form_data = form_data.replace(/\d+___/g, "");
-        console.log(form_data)
+        // console.log(form_data)
         exclude_variants = $("#hidden_exclude_variants").val()
         $.ajax(
             {
