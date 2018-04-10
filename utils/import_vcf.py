@@ -65,7 +65,7 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
         os.path.basename(vcf_filename))
     exception_divider = '-' * 120 + '\n\n'
     # with open(vcf_filename, 'r') as fp:
-    fp = get_file_handle(vcf_filename)
+    fp = file_handle(vcf_filename)
     # for line in tqdm(fp, total=no_lines):
     for line in tqdm(fp, total=no_lines):
         line = line.strip()

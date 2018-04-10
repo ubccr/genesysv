@@ -18,8 +18,8 @@ import time
 from tqdm import tqdm
 from utils import *
 import sys
-sys.stdout = open('stdout_import_vcf_using_celery.txt', 'a')
-sys.stderr = open('stderr_import_vcf_using_celery.txt', 'a')
+# sys.stdout = open('stdout_import_vcf_using_celery.txt', 'a')
+# sys.stderr = open('stderr_import_vcf_using_celery.txt', 'a')
 
 # Global Variables
 
@@ -100,7 +100,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                     'Consequence annotations from Ensembl VEP. Format:')
                 CSQ_fields = CSQ_fields[:-1].strip()
                 CSQ_fields = CSQ_fields.split('|')
-                pprint(CSQ_fields)
 
             if "Functional annotations:" in line and 'ANN' in line:
                 _, ANN_fields = line.strip().split('Functional annotations:')
@@ -201,7 +200,6 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                         continue
 
                     sample_content['sample_ID'] = sample
-
                     for idx, key_format_field in enumerate(format_fields_for_current_line):
                         key_format_field_sample = 'sample_%s' % (
                             key_format_field)
@@ -561,8 +559,10 @@ def set_data(es, index_name, type_name, vcf_filename, vcf_mapping, vcf_label, **
                 yield json.dumps(content)
 
             except Exception as e:
+                print(str(e))
                 error_msg = 'Error on line %s %s %s' % (
                     sys.exc_info()[-1].tb_lineno, type(e).__name__, e)
+                print(error_msg)
                 with open(exception_filename, exception_vcf_line_io_mode) as fp:
                     fp.write(error_msg + '\n')
                     fp.write(line + '\n')
@@ -633,7 +633,6 @@ def main():
                                                vcf_label,
                                                update=update), 1):
         file_size_total += sys.getsizeof(data)
-
         if line_count == 1:
             filename = os.path.join(
                 directory_name, 'output_%s.json' % (file_count))

@@ -12,13 +12,13 @@
     <h4>Database Took: {{took}} ms</h4>
     <h4>Post Processing Time: {{after_results_time}} ms</h4>
     <h4>Total Time: {{total_time}} ms</h4>
-
     {% for ele in used_keys %}
         {{ele.0}}: <strong>{{ele.1}}</strong><br>
     {% endfor %}
     <br>
 {% endif %}
 
+<h4>Analysis Type: {{analysis_type}}</h4>
 
 <div class="well">
     <a id="back-to-top-container" class="btn btn-primary" role="button"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
@@ -51,7 +51,9 @@
                 <thead>
                   <tr>
                     {% if show_review_status and user.is_authenticated %}<th>Review Status</th>{% endif %}
-
+                    <th>Father GT</th>
+                    <th>Mother GT</th>
+                    <th>Child GT</th>
                     {% for element in headers %}
                         <th>{{element.display_text}}</th>
                     {% endfor %}
@@ -73,6 +75,9 @@
                                      </select>
                                 </td>
                             {% endif %}
+                                <td>{{ row.father_gt }}</td>
+                                <td>{{ row.mother_gt }}</td>
+                                <td>{{ row.child_gt }}</td>
                             {% for element in headers %}
                                 <td>{{ row|get_value_from_dict_search:element|safe }}
                                 </td>

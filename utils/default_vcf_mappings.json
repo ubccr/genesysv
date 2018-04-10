@@ -108,7 +108,7 @@
         "es_field_name": "sample_FSRR"
       },
       "GQ": {
-        "es_field_datatype": "integer",
+        "es_field_datatype": "float",
         "es_field_name": "sample_GQ"
       },
       "GT": {
@@ -132,7 +132,7 @@
         "es_field_name": "sample_PL"
       },
       "RGQ": {
-        "es_field_datatype": "integer",
+        "es_field_datatype": "float",
         "es_field_name": "sample_RGQ"
       },
       "RO": {

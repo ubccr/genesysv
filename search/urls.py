@@ -30,4 +30,8 @@ urlpatterns = (
     # url(r'^list_user_variant_status/(?P<review_status>[\w-]+)/$', list_user_variant_status, name='list-user-variant-status'),
     url(r'^list_group_variant_status/(?P<review_status>[\w-]+)/$',
         list_group_variant_status, name='list-group-variant-status'),
+
+    url(r'^mendelian$', mendelian_search_home, name='mendelian-search-home'),
+    url(r'^get-mendelian-form/$', get_mendelian_form, name='get-mendelian-form'),
+     url(r'^mendelian-search$', mendelian_search, name='mendelian-search'),
 )

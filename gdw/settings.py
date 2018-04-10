@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 if DEBUG:
     SECRET_KEY = 'w8w^)v%^mm_7m(m6rgc0d(xn+!71ui^6rl5q13s9pdf@t20t#8'
@@ -32,7 +32,7 @@ else:
     SECRET_KEY = get_random_string(50, chars)
 
 
-ALLOWED_HOSTS = ['gdwdev.ccr.buffalo.edu']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -157,5 +157,5 @@ LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-PYBAMVIEW_URI = 'http://128.205.41.50:9005/bamview?'
+
 HTML_MINIFY = True

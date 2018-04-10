@@ -43,6 +43,7 @@ from collections import defaultdict
 import multiprocessing
 from functools import partial
 
+from .utils import is_denovo, is_autosomal_dominant, is_autosomal_recessive, get_compound_heterozygous_variants_for_gene, get_from_es, get_genes_es
 
 from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
 
@@ -54,54 +55,28 @@ REVIEW_STATUS_CHOICES = (
     ('not_reviewed', '--'),
 )
 
+from django.db import connection
+class SqlPrintMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # One-time configuration and initialization.
+    def __call__(self, request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
 
-def filter_FILTER_QUAL(result, FILTER_value, QUAL_value):
-    case_filter_status = None
-    control_filter_status = None
-    case_qual_score = None
-    control_qual_score = None
-    for ele in result.get('FILTER'):
-        if ele.get('FILTER_label'):
-            if ele.get('FILTER_label') == "case":
-                case_filter_status = ele.get('FILTER_value')
-            elif ele.get('FILTER_label') == "control":
-                control_filter_status = ele.get('FILTER_value')
+        response = self.get_response(request)
+        sqltime = 0 # Variable to store execution time
+        for query in connection.queries:
+            pprint(query)
+            sqltime += float(query["time"])  # Add the time that the query took to the total
 
-    for ele in result.get('QUAL'):
-        if ele.get('QUAL_label'):
-            if ele.get('QUAL_label') == "case":
-                case_qual_score = ele.get('QUAL_value')
-            elif ele.get('QUAL_label') == "control":
-                control_qual_score = ele.get('QUAL_value')
+        # len(connection.queries) = total number of queries
+        print("Page render: " + str(sqltime) + "sec for " + str(len(connection.queries)) + " queries")
 
-    keep_label = {}
+        return response
 
-    if case_filter_status == FILTER_value and case_qual_score >= QUAL_value:
-        keep_label["case"] = True
-    else:
-        keep_label["case"] = False
-
-    if control_filter_status == FILTER_value and control_qual_score >= QUAL_value:
-        keep_label["control"] = True
-    else:
-        keep_label["control"] = False
-
-    old_filter_data = result['FILTER']
-    new_filter_data = []
-    for ele in old_filter_data:
-        label = ele['FILTER_label']
-        if keep_label.get(label):
-            new_filter_data.append(ele)
-
-    old_qual_data = result['QUAL']
-    new_qual_data = []
-    for ele in old_qual_data:
-        label = ele['QUAL_label']
-        if keep_label.get(label):
-            new_qual_data.append(ele)
-
-    return (new_filter_data, new_qual_data)
-
+        # Code to be executed for each request/response after
+        # the view is called.
 
 def get_variant_review_status(variant_es_id, group):
 
@@ -121,87 +96,6 @@ def get_variant_review_status_obj(variant_es_id, group):
         return variant_review_status_obj
     except:
         return None
-
-
-def compare_array_dictionaries(array_dict1, array_dict2):
-    if len(array_dict1) != len(array_dict2):
-        return False
-
-    compare_results = []
-    for ele1 in array_dict1:
-        status = False
-        for ele2 in array_dict2:
-            if ele2.__eq__(ele1):
-                status = True
-                break
-        compare_results.append(status)
-
-    return True if all(compare_results) else False
-
-
-def filter_dicts(array, key, values):
-    output = []
-    for ele in array:
-        tmp = ele.get(key)
-        if tmp in values:
-            output.append(ele)
-
-
-def filter_array_dicts(array, key, values, comparison_type):
-    output = []
-
-    for ele in array:
-        tmp = ele.get(key, 'missing')
-        if tmp == 'missing':
-            continue
-        for val in values:
-            if comparison_type == "lt":
-                if float(tmp) < float(val):
-                    output.append(ele)
-
-            elif comparison_type == "lte":
-                if float(tmp) <= float(val):
-                    output.append(ele)
-
-            elif comparison_type == "gt":
-                if float(tmp) > float(val):
-                    output.append(ele)
-
-            elif comparison_type == "gte":
-                if float(tmp) >= float(val):
-                    output.append(ele)
-
-            elif comparison_type == "number_equal":
-                if float(val) == float(tmp):
-                    output.append(ele)
-
-            elif comparison_type == "keyword":
-                if val == tmp:
-                    output.append(ele)
-
-            elif comparison_type == "text":
-                print(val, tmp)
-                if isinstance(tmp, list):
-                    for ele_tmp in tmp:
-                        if val.lower() in ele_tmp.lower():
-                            output.append(ele)
-                            break
-                else:
-                    if val.lower() in ele_tmp.lower():
-                        output.append(ele)
-                        break
-
-            elif comparison_type == "val_in":
-                for ele_tmp in tmp.split('_'):
-                    if val.lower() in ele_tmp.lower():
-                        output.append(ele)
-                        break
-            elif comparison_type == "nested_filter_exists":
-                output.append(ele)
-            else:
-                if val in tmp:
-                    output.append(ele)
-    return output
 
 
 def merge_two_dicts_array(input):
@@ -281,7 +175,7 @@ def get_filter_form_cached(dataset_object):
 
 @gzip_page
 def get_filter_form(request):
-    if request.GET:
+    if request.method == 'GET':
         dataset = request.GET.get('selected_dataset')
         dataset = Dataset.objects.get(description=dataset)
         cache_name = 'context_filter_{}'.format(dataset.name)
@@ -293,6 +187,18 @@ def get_filter_form(request):
             return response
         else:
             return cache.get(cache_name)
+
+
+@gzip_page
+def get_mendelian_form(request):
+    if request.method == 'GET':
+        dataset = request.GET.get('selected_dataset')
+        context = {}
+        mendelian_form = MendelianForm()
+        context['mendelian_form'] = mendelian_form
+        response = render(request, "search/get_mendelian_snippet.html", context)
+        return response
+
 
 
 def get_attribute_form_cached(dataset_object):
@@ -338,7 +244,7 @@ def get_attribute_form_cached(dataset_object):
 
 @gzip_page
 def get_attribute_form(request):
-    if request.GET:
+    if request.method == 'GET':
         dataset = request.GET.get('selected_dataset')
         dataset = Dataset.objects.get(description=dataset)
         cache_name = 'context_attribute_{}'.format(dataset.name)
@@ -358,6 +264,7 @@ def search_home(request):
     context['load_search'] = 'false'
     context['information_json'] = 'false'
     return render(request, 'search/search.html', context)
+
 
 
 @gzip_page
@@ -380,68 +287,9 @@ def retrieve_saved_search(request, pk):
 
 
 @gzip_page
-def search_old_home(request):
-    tabs = []
-    for tab in Tab.objects.all():
-        tmp_dict = {}
-        tmp_dict['name'] = tab.name
-        tmp_dict['panels'] = []
-        for panel in Panel.objects.filter(tab=tab):
-            es_form = ESFormPart(panel.filter_fields.all())
-
-            sub_form = []
-            for sub_panel in panel.subpanel_set.all():
-                tmp_sub_panel_dict = {}
-                tmp_sub_panel_dict['display_name'] = sub_panel.name
-                tmp_sub_panel_dict['name'] = ''.join(
-                    sub_panel.name.split()).lower()
-                tmp_sub_panel_dict['form'] = ESFormPart(
-                    sub_panel.filter_fields.all())
-                sub_form.append(tmp_sub_panel_dict)
-
-            tmp_dict['panels'].append({'display_name': panel.name,
-                                       'name': ''.join(panel.name.split()).lower(),
-                                       'form': es_form,
-                                       'sub_form': sub_form})
-        tabs.append(tmp_dict)
-
-    context = {}
-    context['tabs'] = tabs
-    return render(request, 'search/search_old_home.html', context)
-
-
-def search_home2(request):
-    es_form = ESForm()
-    context = {}
-    context['es_form'] = es_form
-    return render(request, 'search/search_home.html', context)
-
-
-def remove_nested_attributes_not_selected(results, nested_attributes_selected):
-    for result in results:
-        for path, nested_attributes in nested_attributes_selected.items():
-            if path in ['FILTER', 'QUAL']:
-                continue
-            if result.get(path):
-                old_data = result[path]
-            else:
-                continue
-            new_data = []
-            for ele in old_data:
-                tmp_dict = {}
-                for nested_attribute in nested_attributes:
-                    if ele.get(nested_attribute):
-                        tmp_dict[nested_attribute] = ele[nested_attribute]
-                if tmp_dict and tmp_dict not in new_data:
-                    new_data.append(tmp_dict)
-            result[path] = new_data
-    return results
-
-
-@gzip_page
 def search(request):
 
-    if request.POST:
+    if request.method =='POST':
         start_time = datetime.now()
 
 
@@ -488,7 +336,7 @@ def search(request):
         dataset_form.is_valid()
         dataset_string = dataset_form.cleaned_data['dataset']
 
-        dataset_obj = Dataset.objects.get(description=dataset_string)
+        dataset_obj = Dataset.objects.prefetch_related('attributefield_set').filter(description=dataset_string)[0]
 
         es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
         es_attribute_form = ESAttributeForm(
@@ -496,7 +344,6 @@ def search(request):
 
 
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
-            print('test2')
             es_filter = ElasticSearchFilter()
             es_filter_form_data = es_filter_form.cleaned_data
             es_attribute_form_data = es_attribute_form.cleaned_data
@@ -517,9 +364,11 @@ def search(request):
             # the field in model instead.
 
 
-            for key, val in es_attribute_form.cleaned_data.items():
+            # for key, val in es_attribute_form.cleaned_data.items():
+            for attribute_field_obj in AttributeField.objects.filter(id__in=es_attribute_form.cleaned_data.keys()):
+                key = str(attribute_field_obj.id)
+                val = es_attribute_form.cleaned_data[key]
                 if val:
-                    attribute_field_obj = AttributeField.objects.get(id=key)
                     es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
                     if path:
                         if path not in nested_attributes_selected:
@@ -543,8 +392,8 @@ def search(request):
             FILTER_value = None
             QUAL_value = None
 
-            for key, filter_field_obj in [(key, FilterField.objects.get(id=key)) for key in keys]:
-
+            for filter_field_obj in FilterField.objects.filter(id__in=keys).select_related('widget_type', 'form_type', 'es_filter_type'):
+                key = str(filter_field_obj.id)
                 data = es_filter_form_data[key]
 
                 if not data:
@@ -750,23 +599,36 @@ def search(request):
             headers = []
 
             nested_attributes_selected = defaultdict(list)
+
+
+            pks_orders = {}
             for key, val in attribute_order.items():
                 order, pk = val.split('-')
+                pks_orders[int(pk)] = order
 
-                attribute_field_obj = AttributeField.objects.get(id=pk)
+            for attribute_field_obj in AttributeField.objects.filter(id__in=list(pks_orders)):
                 es_name = attribute_field_obj.es_name
                 path = attribute_field_obj.path
                 if path:
                     nested_attributes_selected[path].append(es_name)
-                headers.append((int(order), attribute_field_obj))
+                headers.append((int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers = zip(*headers)
+
+
+
 
             attributes_selected = []
             for ele in headers:
                 attributes_selected.append('%d' % (ele.id))
             tmp_results = results['hits']['hits']
+
+            # father_obj = {'display_name': 'Father GT', 'GT': None}
+            # mother_obj = {'display_name': 'Father GT','GT': None}
+            # child_obj = {'display_name': 'Father GT', 'GT': None}
+
+
             results = []
 
             try:
@@ -943,10 +805,9 @@ def search(request):
             context['took'] = took
             context['total'] = total
             context['results'] = final_results[:400]
-            context['content_generate_time'] = content_generate_time
-            context['after_results_time'] = datetime.now() - \
-                start_after_results_time
-            context['total_time'] = datetime.now() - start_time
+            context['content_generate_time'] = round(content_generate_time.total_seconds()*1000)
+            context['after_results_time'] = round((datetime.now() - start_after_results_time).total_seconds()*1000)
+            context['total_time'] = round((datetime.now() - start_time).total_seconds()*1000)
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj
@@ -1213,7 +1074,7 @@ def get_variant(request, dataset_id, variant_id):
 
 
 def save_search(request):
-    if request.POST:
+    if request.method == 'POST':
         dataset = Dataset.objects.get(id=request.POST.get('dataset'))
         filters_used = request.POST.get('filters_used')
         attributes_selected = request.POST.get('attributes_selected')
@@ -1256,7 +1117,7 @@ class SavedSearchDelete(DeleteView):
 
 
 def update_variant_review_status(request):
-    if request.POST:
+    if request.method == 'POST':
         # make sure user only belongs to one group
         if request.user.groups.count() != 1:
             print('No Group')
@@ -1382,3 +1243,832 @@ def list_group_variant_status(request, review_status):
     context['review_status'] = review_status
     context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
     return render(request, 'search/list_group_review_status.html', context)
+
+@gzip_page
+def mendelian_search_home(request):
+    if request.method == 'GET':
+        context = {}
+        context['load_search'] = 'false'
+        context['information_json'] = 'false'
+        return render(request, 'search/mendelian_search.html', context)
+
+
+@gzip_page
+def mendelian_search(request):
+
+    if request.method == 'POST':
+        start_time = datetime.now()
+
+        # Ensure logged in users belong to a group so that Variant annotation
+        # works!
+        if not request.user.is_anonymous:
+            if request.user.groups.count() > 1:
+                print('More than one group')
+                return HttpResponse(status=400)
+            elif request.user.groups.count() == 0:
+                print('All users must be in a group!')
+                return HttpResponse(status=400)
+            else:
+                group = request.user.groups.all()[:1].get()
+
+        show_review_status = request.POST.get('show_review_status')
+        if show_review_status == "true":
+            show_review_status = True
+        elif show_review_status == "false":
+            show_review_status = False
+        else:
+            show_review_status = True
+
+        attribute_order = json.loads(request.POST['attribute_order'])
+        POST_data = QueryDict(request.POST['form_data'])
+
+        review_status_data = request.POST.get('review_status_to_filter', None)
+        review_status_to_filter = []
+        if review_status_data:
+            for ele in review_status_data.split("&"):
+                if 'review_status_to_filter' in ele:
+                    tmp_val = ele.split('=')[1]
+                    review_status_to_filter.append(tmp_val)
+            review_status_form = ReviewStatusForm(
+                initial={'review_status_to_filter': review_status_to_filter})
+        else:
+            review_status_form = ReviewStatusForm()
+
+        study_form = StudyForm(request.user, POST_data)
+        study_form.is_valid()
+        study_string = study_form.cleaned_data['study']
+
+        dataset_form = DatasetForm(study_string, request.user, POST_data)
+        dataset_form.is_valid()
+        dataset_string = dataset_form.cleaned_data['dataset']
+
+        dataset_obj = Dataset.objects.prefetch_related('attributefield_set').filter(description=dataset_string)[0]
+
+        es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
+        es_attribute_form = ESAttributeForm(dataset_obj, POST_data, prefix='attribute_group')
+
+        mendelian_form = MendelianForm(POST_data)
+
+
+
+        if es_filter_form.is_valid() and es_attribute_form.is_valid() and mendelian_form.is_valid():
+            es_filter = ElasticSearchFilter()
+            es_filter_form_data = es_filter_form.cleaned_data
+            es_attribute_form_data = es_attribute_form.cleaned_data
+
+            mendelian_form_data = mendelian_form.cleaned_data
+
+
+            non_nested_attributes_selected = []
+            nested_attributes_selected = {}
+
+            non_nested_filters_applied = []
+            nested_filters_applied = {}
+
+            source_fields = []
+            inner_hits_source_fields = {}
+
+            nested_attribute_fields = []
+            non_nested_attribute_fields = []
+            # I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
+            # not put on a separate line; Maybe better to add some attribute to
+            # the field in model instead.
+
+            non_nested_attribute_fields.extend(('father_gt', 'mother_gt', 'child_gt'))
+            # for key, val in es_attribute_form.cleaned_data.items():
+            for attribute_field_obj in AttributeField.objects.filter(id__in=es_attribute_form.cleaned_data.keys()):
+                key = str(attribute_field_obj.id)
+                val = es_attribute_form.cleaned_data[key]
+                if val:
+                    es_name, path = attribute_field_obj.es_name, attribute_field_obj.path
+                    if path:
+                        if path not in nested_attributes_selected:
+                            nested_attributes_selected[path] = []
+                        nested_attributes_selected[path].append(
+                            '%s.%s' % (path, es_name))
+                        if path not in nested_attribute_fields:
+                            nested_attribute_fields.append(path)
+                    else:
+                        non_nested_attributes_selected.append(es_name)
+                        non_nested_attribute_fields.append(es_name)
+
+            keys = es_filter_form_data.keys()
+            used_keys = []
+
+            nested_attribute_fields = list(set(nested_attribute_fields))
+            dict_filter_fields = {}
+
+            filters_used = {}
+
+            FILTER_value = None
+            QUAL_value = None
+
+            for filter_field_obj in FilterField.objects.filter(id__in=keys).select_related('widget_type', 'form_type', 'es_filter_type'):
+                key = str(filter_field_obj.id)
+                data = es_filter_form_data[key]
+
+                if not data:
+                    continue
+                filters_used[key] = data
+
+                filter_field_pk = filter_field_obj.id
+                es_name = filter_field_obj.es_name
+                path = filter_field_obj.path
+                es_filter_type = filter_field_obj.es_filter_type.name
+
+                if path == 'FILTER':
+                    FILTER_value = data
+                if path == 'QUAL':
+                    QUAL_value = float(data)
+
+                # Elasticsearch source fields use path for nested fields and
+                # the actual field name for non-nested fields
+                if path:
+                    source_name = '%s.%s' % (path, es_name)
+                    if path not in nested_filters_applied:
+                        nested_filters_applied[path] = []
+                    if source_name not in nested_filters_applied[path]:
+                        nested_filters_applied[path].append(
+                            '%s.%s' % (path, es_name))
+                else:
+                    non_nested_filters_applied.append(es_name)
+
+                # Figure out which fields will be in the document source fields
+                # and which will be in the inner hits fields
+
+                # Keep a list of nested fields. Nested fields in Elasticsearch are not filtered. All the nested fields
+                # are returned for a recored even if only one field match the
+                # search criteria
+                if path:
+                    dict_filter_fields[filter_field_pk] = []
+
+                used_keys.append((es_name, data))
+
+                if es_filter_type == 'filter_term':
+                    if isinstance(data, list):
+                        for ele in data:
+                            es_filter.add_filter_term(es_name, ele.strip())
+                    else:
+                        es_filter.add_filter_term(es_name, data)
+
+                elif es_filter_type == 'filter_terms' and isinstance(data, str):
+                    es_filter.add_filter_terms(es_name, data.splitlines())
+
+                elif es_filter_type == 'filter_terms' and isinstance(data, list):
+                    es_filter.add_filter_terms(es_name, data)
+
+                elif es_filter_type == 'nested_filter_term' and isinstance(data, str):
+                    for ele in data.splitlines():
+                        if filter_field_obj.es_data_type == 'text':
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip().lower(), filter_field_obj.path)
+                            else:
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip(), filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_term(
+                                es_name, ele.strip(), filter_field_obj.path)
+
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
+
+                elif es_filter_type == 'nested_filter_term' and isinstance(data, list):
+                    for ele in data:
+                        if filter_field_obj.es_data_type == 'text':
+                            if filter_field_obj.es_text_analyzer != 'whitespace':
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip().lower(), filter_field_obj.path)
+                            else:
+                                es_filter.add_nested_filter_term(
+                                    es_name, ele.strip(), filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_term(
+                                es_name, ele.strip(), filter_field_obj.path)
+
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
+
+                elif es_filter_type == 'nested_filter_terms' and isinstance(data, str):
+                    data_split = data.splitlines()
+                    if filter_field_obj.es_data_type == 'text':
+                        if filter_field_obj.es_text_analyzer != 'whitespace':
+                            data_split_lower = [ele.lower()
+                                                for ele in data_split]
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_split_lower, filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_split, filter_field_obj.path)
+                    else:
+                        es_filter.add_nested_filter_terms(
+                            es_name, data_split, filter_field_obj.path)
+
+                    for ele in data_split:
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
+
+                elif es_filter_type == 'nested_filter_terms' and isinstance(data, list):
+                    if filter_field_obj.es_data_type == 'text':
+                        if filter_field_obj.es_text_analyzer != 'whitespace':
+                            data_lowercase = [ele.lower() for ele in data]
+                            es_filter.add_nested_filter_terms(
+                                es_name, data_lowercase, filter_field_obj.path)
+                        else:
+                            es_filter.add_nested_filter_terms(
+                                es_name, data, filter_field_obj.path)
+                    else:
+                        es_filter.add_nested_filter_terms(
+                            es_name, data, filter_field_obj.path)
+
+                    for ele in data:
+                        dict_filter_fields[filter_field_pk].append(ele.strip())
+
+                elif es_filter_type == 'filter_range_gte':
+                    es_filter.add_filter_range_gte(
+                        es_name, float(data.strip()))
+
+                elif es_filter_type == 'filter_range_lte':
+                    es_filter.add_filter_range_lte(
+                        es_name, float(data.strip()))
+
+                elif es_filter_type == 'filter_range_lt':
+                    es_filter.add_filter_range_lt(es_name, float(data.strip()))
+
+                elif es_filter_type == 'nested_filter_range_gte':
+                    es_filter.add_nested_filter_range_gte(es_name, data, path)
+                    dict_filter_fields[filter_field_pk].append(
+                        float(data.strip()))
+
+                elif es_filter_type == 'nested_filter_range_lte':
+                    es_filter.add_nested_filter_range_lte(es_name, data, path)
+                    dict_filter_fields[filter_field_pk].append(
+                        float(data.strip()))
+
+                elif es_filter_type == 'filter_exists':
+                    if data == 'only':
+                        es_filter.add_filter_exists(es_name, data)
+                    else:
+                        es_filter.add_must_not_exists(es_name, '')
+
+                elif es_filter_type == 'must_not_exists':
+                    es_filter.add_must_not_exists(es_name, data)
+
+                elif es_filter_type == 'nested_filter_exists':
+                    es_filter.add_nested_filter_exists(es_name, data, path)
+
+            attributes_paths = nested_attributes_selected.keys()
+            filter_paths = nested_filters_applied.keys()
+
+            possible_paths = [
+                ele for ele in attributes_paths if ele in filter_paths]
+
+            if nested_filters_applied:
+                inner_hits_source_fields = nested_filters_applied
+                for pp_ele in possible_paths:
+                    if pp_ele not in inner_hits_source_fields[pp_ele]:
+                        for ele in nested_attributes_selected[pp_ele]:
+                            if ele not in inner_hits_source_fields[pp_ele]:
+                                inner_hits_source_fields[pp_ele].extend(
+                                    nested_attributes_selected[pp_ele])
+                        nested_attributes_selected.pop(pp_ele)
+
+            source_fields.extend(non_nested_attributes_selected)
+
+            if nested_attributes_selected:
+                for nested_attribute_selected_key, nested_attribute_selected_value in nested_attributes_selected.items():
+                    source_fields.extend(nested_attribute_selected_value)
+
+            for field in source_fields:
+                es_filter.add_source(field)
+
+            es_filter.add_source('sample')
+
+
+            if inner_hits_source_fields:
+                es_filter.update_inner_hits_source(inner_hits_source_fields)
+
+            content = es_filter.generate_query_string()
+
+            content_generate_time = datetime.now() - start_time
+            query = json.dumps(content)
+
+
+            father_id = mendelian_form_data.get('father_id')
+            mother_id = mendelian_form_data.get('mother_id')
+            child_id = mendelian_form_data.get('child_id')
+            analysis_type = mendelian_form_data.get('analysis_type')
+
+
+
+
+            if analysis_type in ['denovo', 'autosomal_dominant', 'autosomal_recessive']:
+                if analysis_type == 'denovo':
+                    if not 'query' in content:
+                        content['query'] = {
+                            "nested" : {
+                                "path" : "sample",
+                                "score_mode" : "none",
+                                "query" : {
+                                    "bool" : {
+                                        "filter" : [
+                                            { "term" : {"sample.sample_ID" : child_id} }
+                                        ],
+                                        "must_not" : [
+                                            { "term" : {"sample.sample_GT" : "0/0"} },
+                                            { "term" : {"sample.sample_GT" : "0|0"} }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    elif content['query']['bool']['filter']:
+                        content['query']['bool']['filter'].append(
+                            {"nested" : {
+                                    "path" : "sample",
+                                    "score_mode" : "none",
+                                    "query" : {
+                                        "bool" : {
+                                            "filter" : [
+                                                { "term" : {"sample.sample_ID" : child_id} }
+                                            ],
+                                            "must_not" : [
+                                                { "term" : {"sample.sample_GT" : "0/0"} },
+                                                { "term" : {"sample.sample_GT" : "0|0"} }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                elif analysis_type == 'autosomal_dominant':
+                    if not 'query' in content:
+                        content['query'] = {
+                                            "nested" : {
+                                                "path" : "sample",
+                                                "score_mode" : "none",
+                                                "query" : {
+                                                    "bool" : {
+                                                        "filter" : [
+                                                            { "match" : {"sample.sample_ID" : child_id} }
+                                                        ],
+                                                        "must_not" : [
+                                                            { "match" : {"sample.sample_GT" : "0/0"} },
+                                                            { "match" : {"sample.sample_GT" : "0|0"} },
+                                                            { "match" : {"sample.sample_GT" : "1/1"} },
+                                                            { "match" : {"sample.sample_GT" : "1|1"} }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                    elif content['query']['bool']['filter']:
+                        content['query']['bool']['filter'].append(
+                            {
+                                "nested" : {
+                                    "path" : "sample",
+                                    "score_mode" : "none",
+                                    "query" : {
+                                        "bool" : {
+                                            "filter" : [
+                                                { "match" : {"sample.sample_ID" : child_id} }
+                                            ],
+                                            "must_not" : [
+                                                { "match" : {"sample.sample_GT" : "0/0"} },
+                                                { "match" : {"sample.sample_GT" : "0|0"} },
+                                                { "match" : {"sample.sample_GT" : "1/1"} },
+                                                { "match" : {"sample.sample_GT" : "1|1"} }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        )
+
+
+                elif analysis_type == 'autosomal_recessive':
+                    if not 'query' in content:
+                        content['query'] = {
+                                            "nested" : {
+                                                "path" : "sample",
+                                                "score_mode" : "none",
+                                                "query" : {
+                                                    "bool" : {
+                                                        "filter" : [
+                                                            { "match" : {"sample.sample_ID" : child_id} }
+                                                        ],
+                                                        "should" : [
+                                                            { "match" : {"sample.sample_GT" : "1/1"} },
+                                                            { "match" : {"sample.sample_GT" : "1|1"} }
+                                                        ],
+                                                        "minimum_should_match": 1
+                                                    }
+                                                }
+                                            }
+                                        }
+                    elif content['query']['bool']['filter']:
+                        content['query']['bool']['filter'].append(
+                            {
+                            "nested" : {
+                                "path" : "sample",
+                                "score_mode" : "none",
+                                "query" : {
+                                    "bool" : {
+                                        "filter" : [
+                                            { "match" : {"sample.sample_ID" : child_id} }
+                                        ],
+                                        "should" : [
+                                            { "match" : {"sample.sample_GT" : "1/1"} },
+                                            { "match" : {"sample.sample_GT" : "1|1"} }
+                                        ],
+                                        "minimum_should_match": 1
+                                    }
+                                }
+                            }
+                        }
+                        )
+
+
+
+
+
+            pprint(content)
+            # search_options = SearchOptions.objects.get(dataset=dataset_obj)
+
+            # if search_options.es_terminate:
+            #     uri = 'http://%s:%s/%s/%s/_search?terminate_after=%d' % (dataset_obj.es_host,
+            #                                                              dataset_obj.es_port,
+            #                                                              dataset_obj.es_index_name,
+            #                                                              dataset_obj.es_type_name,
+            #                                                              search_options.es_terminate_size_per_shard)
+            # else:
+            #     uri = 'http://%s:%s/%s/%s/_search?' % (
+            #         dataset_obj.es_host, dataset_obj.es_port, dataset_obj.es_index_name, dataset_obj.es_type_name)
+            # response = requests.get(uri, data=query, headers={
+            #                         'Content-type': 'application/json'})
+            # results = json.loads(response.text)
+
+            start_after_results_time = datetime.now()
+            # total = results['hits']['total']
+            # print(total)
+            # took = results['took']
+
+
+            tmp_results = deque()
+            try:
+                es = Elasticsearch(host=dataset_obj.es_host, port=dataset_obj.es_port, request_timeout=180)
+            except Exception as e:
+                print(e)
+
+
+
+            if analysis_type == 'denovo':
+                for hit in helpers.scan(es,
+                        query=content,
+                        scroll=u'5m',
+                        size=1000,
+                        preserve_order=False,
+                        index='trio_trim',
+                        doc_type='trio_trim'):
+                    result = hit['_source']
+                    denovo = is_denovo(result.get('sample'), father_id, mother_id, child_id)
+                    if denovo:
+                        result = hit.copy()
+                        result['_source']['father_gt'] = denovo[0]
+                        result['_source']['mother_gt'] = denovo[1]
+                        result['_source']['child_gt'] = denovo[2]
+                        tmp_results.append(result)
+            elif analysis_type == 'autosomal_dominant':
+                for hit in helpers.scan(es,
+                        query=content,
+                        scroll=u'5m',
+                        size=1000,
+                        preserve_order=False,
+                        index='trio_trim',
+                        doc_type='trio_trim'):
+                    result = hit['_source']
+                    autosomal_dominant = is_autosomal_dominant(result.get('sample'), father_id, mother_id, child_id)
+                    if autosomal_dominant:
+                        result = hit.copy()
+                        result['_source']['father_gt'] = autosomal_dominant[0]
+                        result['_source']['mother_gt'] = autosomal_dominant[1]
+                        result['_source']['child_gt'] = autosomal_dominant[2]
+                        tmp_results.append(result)
+
+            elif analysis_type == 'autosomal_recessive':
+                for hit in helpers.scan(es,
+                        query=content,
+                        scroll=u'5m',
+                        size=1000,
+                        preserve_order=False,
+                        index='trio_trim',
+                        doc_type='trio_trim'):
+                    result = hit['_source']
+                    autosomal_recessive = is_autosomal_recessive(result.get('sample'), father_id, mother_id, child_id)
+                    if autosomal_recessive:
+                        result = hit.copy()
+                        result['_source']['father_gt'] = autosomal_recessive[0]
+                        result['_source']['mother_gt'] = autosomal_recessive[1]
+                        result['_source']['child_gt'] = autosomal_recessive[2]
+                        tmp_results.append(result)
+
+            elif analysis_type == 'compound_heterozygous':
+                try:
+                    genes = get_genes_es(dataset_obj.es_index_name,
+                        dataset_obj.es_type_name,
+                        dataset_obj.es_host,
+                        dataset_obj.es_port,
+                        'CSQ_nested_SYMBOL',
+                        'CSQ_nested',
+                        content)
+                    for gene in genes:
+                        query_body = content.copy()
+                        if not 'query' in query_body:
+                                query_body['query'] = {"bool":{
+                                                      "filter":[
+                                                        {
+                                                          "nested":{
+                                                            "path":"CSQ_nested",
+                                                            "query":{
+                                                              "bool":{
+                                                                "filter":[
+                                                                  {
+                                                                    "term":{
+                                                                      "CSQ_nested.CSQ_nested_SYMBOL": gene
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "nested":{
+                                                            "path":"sample",
+                                                            "query":{
+                                                              "bool":{
+                                                                "filter":[
+                                                                  {
+                                                                    "terms":{"sample.sample_GT":["0|1", "1|0", "0/1", "1/0"]}
+                                                                  },
+                                                                  {
+                                                                    "term":{"sample.sample_ID": child_id}
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }}
+                        elif query_body['query']['bool']['filter']:
+                            query_body['query']['bool']['filter'].extend(
+                                                    ({
+                                                      "nested":{
+                                                        "path":"CSQ_nested",
+                                                        "query":{
+                                                          "bool":{
+                                                            "filter":[
+                                                              {
+                                                                "term":{
+                                                                  "CSQ_nested.CSQ_nested_SYMBOL": gene
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "nested":{
+                                                        "path":"sample",
+                                                        "query":{
+                                                          "bool":{
+                                                            "filter":[
+                                                              {
+                                                                "terms":{"sample.sample_GT":["0|1", "1|0", "0/1", "1/0"]}
+                                                              },
+                                                              {
+                                                                "term":{"sample.sample_ID": child_id}
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    })
+                                                )
+
+                        results = get_compound_heterozygous_variants_for_gene(es, dataset_obj, query_body, father_id, mother_id, child_id)
+                        if results:
+                            tmp_results.extend(results)
+                except Exception as  e:
+                    print(e)
+
+
+
+            context = {}
+            headers = []
+            results = []
+
+            nested_attributes_selected = defaultdict(list)
+
+
+            pks_orders = {}
+            for key, val in attribute_order.items():
+                order, pk = val.split('-')
+                pks_orders[int(pk)] = order
+
+            for attribute_field_obj in AttributeField.objects.filter(id__in=list(pks_orders)):
+                es_name = attribute_field_obj.es_name
+                path = attribute_field_obj.path
+                if path:
+                    nested_attributes_selected[path].append(es_name)
+                headers.append((int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
+
+            headers = sorted(headers, key=itemgetter(0))
+            _, headers = zip(*headers)
+
+            attributes_selected = []
+            for ele in headers:
+                attributes_selected.append('%d' % (ele.id))
+
+            try:
+                FilterField.objects.get(dataset=dataset_obj, es_name='Variant')
+                variant_field_exist = True
+            except:
+                variant_field_exist = False
+
+            variants_excluded = []
+            for ele in tmp_results:
+                tmp_source = ele['_source']
+                es_id = ele['_id']
+                inner_hits = ele.get('inner_hits')
+
+                if show_review_status and not request.user.is_anonymous:
+                    variant_review_status = get_variant_review_status(
+                        es_id, group)
+                    if review_status_to_filter and variant_review_status not in review_status_to_filter:
+                        variants_excluded.append(
+                            (dataset_obj.id, es_id, tmp_source['Variant']))
+                        continue
+                    tmp_source['variant_review_status'] = variant_review_status
+
+                tmp_source['es_id'] = es_id
+                if inner_hits:
+                    for key, value in inner_hits.items():
+                        if key not in tmp_source:
+                            tmp_source[key] = []
+                        hits_hits_array = inner_hits[key]['hits']['hits']
+                        for hit in hits_hits_array:
+                            tmp_hit_dict = {}
+                            if hit['_source'].get(key):
+                                # for Elasticsearch 5
+                                for hit_key, hit_value in hit['_source'][key].items():
+                                    tmp_hit_dict[hit_key] = hit_value
+                            else:
+                                # for Elasticsearch 6
+                                for hit_key, hit_value in hit['_source'].items():
+                                    tmp_hit_dict[hit_key] = hit_value
+
+                            if tmp_hit_dict:
+                                tmp_source[key].append(tmp_hit_dict)
+                results.append(tmp_source)
+            # gene_names
+            result_hash_list = deque()
+            all_genes = []
+            try:
+                if nested_attribute_fields:
+                    final_results = []
+                    results_count = 0
+                    for idx, result in enumerate(results):
+                        if result.get('refGene'):
+                            for ele in result.get('refGene'):
+                                if ele.get('refGene_symbol'):
+                                    genes = ele.get('refGene_symbol').split()
+                                    all_genes.extend(genes)
+                        # if results_count > search_options.maximum_table_size:
+                        #     break
+                        combined = False
+                        combined_nested = None
+                        for idx, path in enumerate(nested_attribute_fields):
+                            if path.startswith('FILTER') or path.startswith('QUAL'):
+                                continue
+
+                            if path not in result:
+                                continue
+
+                            if not combined:
+                                combined_nested = result[path]
+                                combined = True
+                                continue
+                            else:
+                                combined_nested = list(itertools.product(
+                                    combined_nested, result[path]))
+                                combined_nested = merge_two_dicts_array(
+                                    combined_nested)
+
+                        tmp_non_nested = subset_dict(
+                            result, non_nested_attribute_fields)
+                        if combined_nested:
+                            tmp_output = list(itertools.product(
+                                [tmp_non_nested, ], combined_nested))
+
+                            for x, y in tmp_output:
+                                tmp = merge_two_dicts(x, y)
+                                tmp["es_id"] = result["es_id"]
+                                if show_review_status and not request.user.is_anonymous:
+                                    tmp['variant_review_status'] = result[
+                                        'variant_review_status']
+
+                                if result.get('FILTER'):
+                                    tmp['FILTER'] = result['FILTER']
+                                if result.get('QUAL'):
+                                    tmp['QUAL'] = result['QUAL']
+
+                                if tmp not in final_results:
+                                    final_results.append(tmp)
+                                    results_count += 1
+                        else:
+                            if result not in final_results:
+                                final_results.append(result)
+                                results_count += 1
+                else:
+                    final_results = results
+            except Exception as e:
+                print(e)
+            header_json = serializers.serialize("json", headers)
+            query_json = json.dumps(query)
+            if nested_attribute_fields:
+                nested_attribute_fields_json = json.dumps(
+                    nested_attribute_fields)
+            else:
+                nested_attribute_fields_json = None
+
+            if non_nested_attribute_fields:
+                non_nested_attribute_fields_json = json.dumps(
+                    non_nested_attribute_fields)
+            else:
+                non_nested_attribute_fields_json = None
+
+            if dict_filter_fields:
+                dict_filter_fields_json = json.dumps(dict_filter_fields)
+            else:
+                dict_filter_fields_json = None
+
+            if used_keys:
+                used_keys_json = json.dumps(used_keys)
+            else:
+                used_keys_json = None
+
+            filters_used = json.dumps(filters_used)
+            attributes_selected = json.dumps(attributes_selected)
+
+
+            try:
+                search_log_obj = SearchLog.objects.create(
+                    dataset=dataset_obj,
+                    headers=header_json,
+                    query=query_json,
+                    nested_attribute_fields=nested_attribute_fields_json,
+                    non_nested_attribute_fields=non_nested_attribute_fields_json,
+                    dict_filter_fields=dict_filter_fields_json,
+                    used_keys=used_keys_json,
+                    filters_used=filters_used,
+                    attributes_selected=attributes_selected,
+                )
+
+            except Exception as e:
+                print(e)
+
+
+            if request.user.is_authenticated:
+                save_search_form = SaveSearchForm(
+                    request.user, dataset_obj, filters_used or 'None', attributes_selected)
+                context['save_search_form'] = save_search_form
+            else:
+                context['save_search_form'] = None
+
+
+            context['review_status_form'] = review_status_form
+            context['debug'] = settings.DEBUG
+            context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
+            context['show_review_status'] = show_review_status
+            context['variants_excluded'] = variants_excluded
+            context['used_keys'] = used_keys
+            context['took'] = None
+            context['total'] = None
+            context['results'] = final_results
+            context['content_generate_time'] = round(content_generate_time.total_seconds()*1000)
+            context['after_results_time'] = round((datetime.now() - start_after_results_time).total_seconds()*1000)
+            context['total_time'] = round((datetime.now() - start_time).total_seconds()*1000)
+            context['headers'] = headers
+            context['search_log_obj_id'] = search_log_obj.id
+            context['dataset_obj'] = dataset_obj
+            context['variant_field_exist'] = variant_field_exist
+            context['analysis_type'] = analysis_type
+
+            try:
+                return render(request, 'search/mendelian_search_results.html', context)
+            except Exception as e:
+                print(e)
+
+        else:
+            for key in es_filter_form.errors.keys():
+                print(key, es_filter_form.errors[key].as_data())

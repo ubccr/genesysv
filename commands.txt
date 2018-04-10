@@ -26,3 +26,6 @@ python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 920
 python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 9200 --index sim_wgs_case_wes_control --type sim_wgs_case_wes_control --study "Statin Induced Myopathy" --dataset sim_wgs_case_wes_control --gui search/management/commands/data/sim_wgs_case_wes_control_vcf_field_gui_mapping.json
 
 python manage.py create_gui_from_es_mapping --hostname 199.109.195.2  --port 9200 --index sim_wes_case --type sim_wes_case --study "Statin Induced Myopathy" --dataset sim_wes_case --gui search/management/commands/data/sim_wgs_case_wes_control_vcf_field_gui_mapping.json
+
+
+python manage.py create_gui_from_es_mapping --hostname 199.109.193.178  --port 9200 --index test_denovo --type test_denovo --study test_denovo --dataset test_denovo --gui search/management/commands/data/default_vcf_field_gui_mapping.json

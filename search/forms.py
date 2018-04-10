@@ -76,8 +76,10 @@ class ESFilterFormPart(forms.Form):
                         {'groupId': MEgroup})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
+                # CHOICES = [(ele.value, ' '.join(ele.value.split('_')))
+                #            for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
                 CHOICES = [(ele.value, ' '.join(ele.value.split('_')))
-                           for ele in FilterFieldChoice.objects.filter(filter_field=field).order_by('pk')]
+                           for ele in field.filterfieldchoice_set.all().order_by('pk')]
                 self.fields[field_name] = forms.MultipleChoiceField(
                     label=label, required=False, choices=CHOICES)
                 if MEgroup:
@@ -92,8 +94,9 @@ class ESFilterFormPart(forms.Form):
                     self.fields[field_name] = forms.ChoiceField(
                         label=label, required=False, choices=EXIST_CHOICES)
                 else:
-                    CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(
-                        filter_field=field).order_by('pk')]
+                    # CHOICES = [(ele.value, ele.value) for ele in FilterFieldChoice.objects.filter(
+                    #     filter_field=field).order_by('pk')]
+                    CHOICES = [(ele.value, ele.value) for ele in field.filterfieldchoice_set.all().order_by('pk')]
                     CHOICES.insert(0, ('', '----'))
                     self.fields[field_name] = forms.ChoiceField(
                         label=label, required=False, choices=CHOICES)
@@ -121,7 +124,8 @@ class ESFilterForm(forms.Form):
     def __init__(self, dataset, *args, **kwargs):
         super(ESFilterForm, self).__init__(*args, **kwargs)
 
-        for field in FilterField.objects.filter(dataset=dataset):
+        for field in FilterField.objects.filter(dataset=dataset).select_related(
+                'widget_type', 'form_type', 'es_filter_type'):
 
             if field.tooltip:
                 tooltip = ' <i data-toggle="popover" data-trigger="hover" data-content="%s" class="fa fa-info-circle" aria-hidden="true"></i>' % (
@@ -179,7 +183,7 @@ class ESAttributeForm(forms.Form):
     def __init__(self, dataset, *args, **kwargs):
         super(ESAttributeForm, self).__init__(*args, **kwargs)
 
-        for field in AttributeField.objects.filter(dataset=dataset):
+        for field in dataset.attributefield_set.all():
             label = field.display_text
             field_name = '%d' % (field.id)
             self.fields[field_name] = forms.BooleanField(
@@ -215,6 +219,18 @@ class SaveSearchForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),
         }
 
+class MendelianForm(forms.Form):
+    ANALYSIS_CHOICES = (
+        ('autosomal_dominant', 'autosomal_dominant'),
+        ('autosomal_recessive', 'autosomal_recessive'),
+        ('compound_heterozygous', 'compound_heterozygous'),
+        ('denovo', 'denovo'),
+    )
+
+    father_id = forms.CharField()
+    mother_id = forms.CharField()
+    child_id = forms.CharField()
+    analysis_type = forms.ChoiceField(choices=ANALYSIS_CHOICES)
 
 class VariantStatusReviewUpdateForm(forms.ModelForm):
     REVIEW_STATUS_CHOICES = (
