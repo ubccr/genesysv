@@ -42,6 +42,7 @@ from django.views.decorators.cache import cache_page
 from collections import defaultdict
 import multiprocessing
 from functools import partial
+import copy
 
 from .utils import is_denovo, is_autosomal_dominant, is_autosomal_recessive, get_compound_heterozygous_variants_for_gene, get_from_es, get_genes_es
 
@@ -56,27 +57,34 @@ REVIEW_STATUS_CHOICES = (
 )
 
 from django.db import connection
+
+
 class SqlPrintMiddleware:
+
     def __init__(self, get_response):
         self.get_response = get_response
         # One-time configuration and initialization.
+
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
 
         response = self.get_response(request)
-        sqltime = 0 # Variable to store execution time
+        sqltime = 0  # Variable to store execution time
         for query in connection.queries:
             pprint(query)
-            sqltime += float(query["time"])  # Add the time that the query took to the total
+            # Add the time that the query took to the total
+            sqltime += float(query["time"])
 
         # len(connection.queries) = total number of queries
-        print("Page render: " + str(sqltime) + "sec for " + str(len(connection.queries)) + " queries")
+        print("Page render: " + str(sqltime) + "sec for " +
+              str(len(connection.queries)) + " queries")
 
         return response
 
         # Code to be executed for each request/response after
         # the view is called.
+
 
 def get_variant_review_status(variant_es_id, group):
 
@@ -196,9 +204,9 @@ def get_mendelian_form(request):
         context = {}
         mendelian_form = MendelianForm()
         context['mendelian_form'] = mendelian_form
-        response = render(request, "search/get_mendelian_snippet.html", context)
+        response = render(
+            request, "search/get_mendelian_snippet.html", context)
         return response
-
 
 
 def get_attribute_form_cached(dataset_object):
@@ -266,7 +274,6 @@ def search_home(request):
     return render(request, 'search/search.html', context)
 
 
-
 @gzip_page
 def retrieve_saved_search(request, pk):
 
@@ -289,9 +296,8 @@ def retrieve_saved_search(request, pk):
 @gzip_page
 def search(request):
 
-    if request.method =='POST':
+    if request.method == 'POST':
         start_time = datetime.now()
-
 
         # Ensure logged in users belong to a group so that Variant annotation
         # works!
@@ -336,12 +342,12 @@ def search(request):
         dataset_form.is_valid()
         dataset_string = dataset_form.cleaned_data['dataset']
 
-        dataset_obj = Dataset.objects.prefetch_related('attributefield_set').filter(description=dataset_string)[0]
+        dataset_obj = Dataset.objects.prefetch_related(
+            'attributefield_set').filter(description=dataset_string)[0]
 
         es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
         es_attribute_form = ESAttributeForm(
             dataset_obj, POST_data, prefix='attribute_group')
-
 
         if es_filter_form.is_valid() and es_attribute_form.is_valid():
             es_filter = ElasticSearchFilter()
@@ -362,7 +368,6 @@ def search(request):
             # I am going to treat gatkqs as a non-nested field; This way the case and control gatk scores are
             # not put on a separate line; Maybe better to add some attribute to
             # the field in model instead.
-
 
             # for key, val in es_attribute_form.cleaned_data.items():
             for attribute_field_obj in AttributeField.objects.filter(id__in=es_attribute_form.cleaned_data.keys()):
@@ -600,7 +605,6 @@ def search(request):
 
             nested_attributes_selected = defaultdict(list)
 
-
             pks_orders = {}
             for key, val in attribute_order.items():
                 order, pk = val.split('-')
@@ -611,13 +615,11 @@ def search(request):
                 path = attribute_field_obj.path
                 if path:
                     nested_attributes_selected[path].append(es_name)
-                headers.append((int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
+                headers.append(
+                    (int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers = zip(*headers)
-
-
-
 
             attributes_selected = []
             for ele in headers:
@@ -627,7 +629,6 @@ def search(request):
             # father_obj = {'display_name': 'Father GT', 'GT': None}
             # mother_obj = {'display_name': 'Father GT','GT': None}
             # child_obj = {'display_name': 'Father GT', 'GT': None}
-
 
             results = []
 
@@ -805,9 +806,12 @@ def search(request):
             context['took'] = took
             context['total'] = total
             context['results'] = final_results[:400]
-            context['content_generate_time'] = round(content_generate_time.total_seconds()*1000)
-            context['after_results_time'] = round((datetime.now() - start_after_results_time).total_seconds()*1000)
-            context['total_time'] = round((datetime.now() - start_time).total_seconds()*1000)
+            context['content_generate_time'] = round(
+                content_generate_time.total_seconds() * 1000)
+            context['after_results_time'] = round(
+                (datetime.now() - start_after_results_time).total_seconds() * 1000)
+            context['total_time'] = round(
+                (datetime.now() - start_time).total_seconds() * 1000)
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj
@@ -817,7 +821,6 @@ def search(request):
         else:
             for key in es_filter_form.errors.keys():
                 print(key, es_filter_form.errors[key].as_data())
-
 
 
 def yield_results(dataset_obj,
@@ -1244,6 +1247,7 @@ def list_group_variant_status(request, review_status):
     context['REVIEW_STATUS_CHOICES'] = REVIEW_STATUS_CHOICES
     return render(request, 'search/list_group_review_status.html', context)
 
+
 @gzip_page
 def mendelian_search_home(request):
     if request.method == 'GET':
@@ -1302,14 +1306,14 @@ def mendelian_search(request):
         dataset_form.is_valid()
         dataset_string = dataset_form.cleaned_data['dataset']
 
-        dataset_obj = Dataset.objects.prefetch_related('attributefield_set').filter(description=dataset_string)[0]
+        dataset_obj = Dataset.objects.prefetch_related(
+            'attributefield_set').filter(description=dataset_string)[0]
 
         es_filter_form = ESFilterForm(dataset_obj, POST_data, prefix='filter_')
-        es_attribute_form = ESAttributeForm(dataset_obj, POST_data, prefix='attribute_group')
+        es_attribute_form = ESAttributeForm(
+            dataset_obj, POST_data, prefix='attribute_group')
 
         mendelian_form = MendelianForm(POST_data)
-
-
 
         if es_filter_form.is_valid() and es_attribute_form.is_valid() and mendelian_form.is_valid():
             es_filter = ElasticSearchFilter()
@@ -1317,7 +1321,6 @@ def mendelian_search(request):
             es_attribute_form_data = es_attribute_form.cleaned_data
 
             mendelian_form_data = mendelian_form.cleaned_data
-
 
             non_nested_attributes_selected = []
             nested_attributes_selected = {}
@@ -1334,7 +1337,8 @@ def mendelian_search(request):
             # not put on a separate line; Maybe better to add some attribute to
             # the field in model instead.
 
-            non_nested_attribute_fields.extend(('father_gt', 'mother_gt', 'child_gt'))
+            non_nested_attribute_fields.extend(
+                ('father_gt', 'mother_gt', 'child_gt'))
             # for key, val in es_attribute_form.cleaned_data.items():
             for attribute_field_obj in AttributeField.objects.filter(id__in=es_attribute_form.cleaned_data.keys()):
                 key = str(attribute_field_obj.id)
@@ -1541,7 +1545,6 @@ def mendelian_search(request):
 
             es_filter.add_source('sample')
 
-
             if inner_hits_source_fields:
                 es_filter.update_inner_hits_source(inner_hits_source_fields)
 
@@ -1550,30 +1553,26 @@ def mendelian_search(request):
             content_generate_time = datetime.now() - start_time
             query = json.dumps(content)
 
-
             father_id = mendelian_form_data.get('father_id')
             mother_id = mendelian_form_data.get('mother_id')
             child_id = mendelian_form_data.get('child_id')
             analysis_type = mendelian_form_data.get('analysis_type')
 
-
-
-
             if analysis_type in ['denovo', 'autosomal_dominant', 'autosomal_recessive']:
                 if analysis_type == 'denovo':
                     if not 'query' in content:
                         content['query'] = {
-                            "nested" : {
-                                "path" : "sample",
-                                "score_mode" : "none",
-                                "query" : {
-                                    "bool" : {
-                                        "filter" : [
-                                            { "term" : {"sample.sample_ID" : child_id} }
+                            "nested": {
+                                "path": "sample",
+                                "score_mode": "none",
+                                "query": {
+                                    "bool": {
+                                        "filter": [
+                                            {"term": {"sample.sample_ID": child_id}}
                                         ],
-                                        "must_not" : [
-                                            { "term" : {"sample.sample_GT" : "0/0"} },
-                                            { "term" : {"sample.sample_GT" : "0|0"} }
+                                        "must_not": [
+                                            {"term": {"sample.sample_GT": "0/0"}},
+                                            {"term": {"sample.sample_GT": "0|0"}}
                                         ]
                                     }
                                 }
@@ -1581,60 +1580,66 @@ def mendelian_search(request):
                         }
                     elif content['query']['bool']['filter']:
                         content['query']['bool']['filter'].append(
-                            {"nested" : {
-                                    "path" : "sample",
-                                    "score_mode" : "none",
-                                    "query" : {
-                                        "bool" : {
-                                            "filter" : [
-                                                { "term" : {"sample.sample_ID" : child_id} }
+                            {"nested": {
+                                "path": "sample",
+                                "score_mode": "none",
+                                "query": {
+                                        "bool": {
+                                            "filter": [
+                                                {"term": {"sample.sample_ID": child_id}}
                                             ],
-                                            "must_not" : [
-                                                { "term" : {"sample.sample_GT" : "0/0"} },
-                                                { "term" : {"sample.sample_GT" : "0|0"} }
+                                            "must_not": [
+                                                {"term": {"sample.sample_GT": "0/0"}},
+                                                {"term": {"sample.sample_GT": "0|0"}}
                                             ]
                                         }
-                                    }
                                 }
+                            }
                             }
                         )
                 elif analysis_type == 'autosomal_dominant':
                     if not 'query' in content:
                         content['query'] = {
-                                            "nested" : {
-                                                "path" : "sample",
-                                                "score_mode" : "none",
-                                                "query" : {
-                                                    "bool" : {
-                                                        "filter" : [
-                                                            { "match" : {"sample.sample_ID" : child_id} }
-                                                        ],
-                                                        "must_not" : [
-                                                            { "match" : {"sample.sample_GT" : "0/0"} },
-                                                            { "match" : {"sample.sample_GT" : "0|0"} },
-                                                            { "match" : {"sample.sample_GT" : "1/1"} },
-                                                            { "match" : {"sample.sample_GT" : "1|1"} }
-                                                        ]
-                                                    }
-                                                }
-                                            }
-                                        }
+                            "nested": {
+                                "path": "sample",
+                                "score_mode": "none",
+                                "query": {
+                                    "bool": {
+                                        "filter": [
+                                            {"match": {
+                                                "sample.sample_ID": child_id}}
+                                        ],
+                                        "must_not": [
+                                            {"match": {
+                                                "sample.sample_GT": "0/0"}},
+                                            {"match": {
+                                                "sample.sample_GT": "0|0"}},
+                                            {"match": {
+                                                "sample.sample_GT": "1/1"}},
+                                            {"match": {
+                                                "sample.sample_GT": "1|1"}}
+                                        ]
+                                    }
+                                }
+                            }
+                        }
                     elif content['query']['bool']['filter']:
                         content['query']['bool']['filter'].append(
                             {
-                                "nested" : {
-                                    "path" : "sample",
-                                    "score_mode" : "none",
-                                    "query" : {
-                                        "bool" : {
-                                            "filter" : [
-                                                { "match" : {"sample.sample_ID" : child_id} }
+                                "nested": {
+                                    "path": "sample",
+                                    "score_mode": "none",
+                                    "query": {
+                                        "bool": {
+                                            "filter": [
+                                                {"match": {
+                                                    "sample.sample_ID": child_id}}
                                             ],
-                                            "must_not" : [
-                                                { "match" : {"sample.sample_GT" : "0/0"} },
-                                                { "match" : {"sample.sample_GT" : "0|0"} },
-                                                { "match" : {"sample.sample_GT" : "1/1"} },
-                                                { "match" : {"sample.sample_GT" : "1|1"} }
+                                            "must_not": [
+                                                {"match": {"sample.sample_GT": "0/0"}},
+                                                {"match": {"sample.sample_GT": "0|0"}},
+                                                {"match": {"sample.sample_GT": "1/1"}},
+                                                {"match": {"sample.sample_GT": "1|1"}}
                                             ]
                                         }
                                     }
@@ -1642,52 +1647,51 @@ def mendelian_search(request):
                             }
                         )
 
-
                 elif analysis_type == 'autosomal_recessive':
                     if not 'query' in content:
                         content['query'] = {
-                                            "nested" : {
-                                                "path" : "sample",
-                                                "score_mode" : "none",
-                                                "query" : {
-                                                    "bool" : {
-                                                        "filter" : [
-                                                            { "match" : {"sample.sample_ID" : child_id} }
-                                                        ],
-                                                        "should" : [
-                                                            { "match" : {"sample.sample_GT" : "1/1"} },
-                                                            { "match" : {"sample.sample_GT" : "1|1"} }
-                                                        ],
-                                                        "minimum_should_match": 1
-                                                    }
-                                                }
-                                            }
-                                        }
-                    elif content['query']['bool']['filter']:
-                        content['query']['bool']['filter'].append(
-                            {
-                            "nested" : {
-                                "path" : "sample",
-                                "score_mode" : "none",
-                                "query" : {
-                                    "bool" : {
-                                        "filter" : [
-                                            { "match" : {"sample.sample_ID" : child_id} }
+                            "nested": {
+                                "path": "sample",
+                                "score_mode": "none",
+                                "query": {
+                                    "bool": {
+                                        "filter": [
+                                            {"match": {
+                                                "sample.sample_ID": child_id}}
                                         ],
-                                        "should" : [
-                                            { "match" : {"sample.sample_GT" : "1/1"} },
-                                            { "match" : {"sample.sample_GT" : "1|1"} }
+                                        "should": [
+                                            {"match": {
+                                                "sample.sample_GT": "1/1"}},
+                                            {"match": {
+                                                "sample.sample_GT": "1|1"}}
                                         ],
                                         "minimum_should_match": 1
                                     }
                                 }
                             }
                         }
+                    elif content['query']['bool']['filter']:
+                        content['query']['bool']['filter'].append(
+                            {
+                                "nested": {
+                                    "path": "sample",
+                                    "score_mode": "none",
+                                    "query": {
+                                        "bool": {
+                                            "filter": [
+                                                {"match": {
+                                                    "sample.sample_ID": child_id}}
+                                            ],
+                                            "should": [
+                                                {"match": {"sample.sample_GT": "1/1"}},
+                                                {"match": {"sample.sample_GT": "1|1"}}
+                                            ],
+                                            "minimum_should_match": 1
+                                        }
+                                    }
+                                }
+                            }
                         )
-
-
-
-
 
             pprint(content)
             # search_options = SearchOptions.objects.get(dataset=dataset_obj)
@@ -1710,25 +1714,24 @@ def mendelian_search(request):
             # print(total)
             # took = results['took']
 
-
             tmp_results = deque()
             try:
-                es = Elasticsearch(host=dataset_obj.es_host, port=dataset_obj.es_port, request_timeout=180)
+                es = Elasticsearch(host=dataset_obj.es_host,
+                                   port=dataset_obj.es_port, request_timeout=180)
             except Exception as e:
                 print(e)
 
-
-
             if analysis_type == 'denovo':
                 for hit in helpers.scan(es,
-                        query=content,
-                        scroll=u'5m',
-                        size=1000,
-                        preserve_order=False,
-                        index='trio_trim',
-                        doc_type='trio_trim'):
+                                        query=content,
+                                        scroll=u'5m',
+                                        size=1000,
+                                        preserve_order=False,
+                                        index='trio_trim',
+                                        doc_type='trio_trim'):
                     result = hit['_source']
-                    denovo = is_denovo(result.get('sample'), father_id, mother_id, child_id)
+                    denovo = is_denovo(result.get('sample'),
+                                       father_id, mother_id, child_id)
                     if denovo:
                         result = hit.copy()
                         result['_source']['father_gt'] = denovo[0]
@@ -1737,14 +1740,15 @@ def mendelian_search(request):
                         tmp_results.append(result)
             elif analysis_type == 'autosomal_dominant':
                 for hit in helpers.scan(es,
-                        query=content,
-                        scroll=u'5m',
-                        size=1000,
-                        preserve_order=False,
-                        index='trio_trim',
-                        doc_type='trio_trim'):
+                                        query=content,
+                                        scroll=u'5m',
+                                        size=1000,
+                                        preserve_order=False,
+                                        index='trio_trim',
+                                        doc_type='trio_trim'):
                     result = hit['_source']
-                    autosomal_dominant = is_autosomal_dominant(result.get('sample'), father_id, mother_id, child_id)
+                    autosomal_dominant = is_autosomal_dominant(
+                        result.get('sample'), father_id, mother_id, child_id)
                     if autosomal_dominant:
                         result = hit.copy()
                         result['_source']['father_gt'] = autosomal_dominant[0]
@@ -1754,14 +1758,15 @@ def mendelian_search(request):
 
             elif analysis_type == 'autosomal_recessive':
                 for hit in helpers.scan(es,
-                        query=content,
-                        scroll=u'5m',
-                        size=1000,
-                        preserve_order=False,
-                        index='trio_trim',
-                        doc_type='trio_trim'):
+                                        query=content,
+                                        scroll=u'5m',
+                                        size=1000,
+                                        preserve_order=False,
+                                        index='trio_trim',
+                                        doc_type='trio_trim'):
                     result = hit['_source']
-                    autosomal_recessive = is_autosomal_recessive(result.get('sample'), father_id, mother_id, child_id)
+                    autosomal_recessive = is_autosomal_recessive(
+                        result.get('sample'), father_id, mother_id, child_id)
                     if autosomal_recessive:
                         result = hit.copy()
                         result['_source']['father_gt'] = autosomal_recessive[0]
@@ -1772,103 +1777,102 @@ def mendelian_search(request):
             elif analysis_type == 'compound_heterozygous':
                 try:
                     genes = get_genes_es(dataset_obj.es_index_name,
-                        dataset_obj.es_type_name,
-                        dataset_obj.es_host,
-                        dataset_obj.es_port,
-                        'CSQ_nested_SYMBOL',
-                        'CSQ_nested',
-                        content)
+                                         dataset_obj.es_type_name,
+                                         dataset_obj.es_host,
+                                         dataset_obj.es_port,
+                                         'CSQ_nested_SYMBOL',
+                                         'CSQ_nested',
+                                         content)
+
                     for gene in genes:
-                        query_body = content.copy()
+                        query_body = copy.deepcopy(content)
                         if not 'query' in query_body:
-                                query_body['query'] = {"bool":{
-                                                      "filter":[
+                            query_body['query'] = {"bool": {
+                                "filter": [
+                                    {
+                                        "nested": {
+                                            "path": "CSQ_nested",
+                                            "query": {
+                                                "bool": {
+                                                    "filter": [
                                                         {
-                                                          "nested":{
-                                                            "path":"CSQ_nested",
-                                                            "query":{
-                                                              "bool":{
-                                                                "filter":[
-                                                                  {
-                                                                    "term":{
-                                                                      "CSQ_nested.CSQ_nested_SYMBOL": gene
-                                                                    }
-                                                                  }
-                                                                ]
-                                                              }
+                                                            "term": {
+                                                                "CSQ_nested.CSQ_nested_SYMBOL": gene
                                                             }
-                                                          }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "nested": {
+                                            "path": "sample",
+                                            "query": {
+                                                "bool": {
+                                                    "filter": [
+                                                        {
+                                                            "terms": {"sample.sample_GT": ["0|1", "1|0", "0/1", "1/0"]}
                                                         },
                                                         {
-                                                          "nested":{
-                                                            "path":"sample",
-                                                            "query":{
-                                                              "bool":{
-                                                                "filter":[
-                                                                  {
-                                                                    "terms":{"sample.sample_GT":["0|1", "1|0", "0/1", "1/0"]}
-                                                                  },
-                                                                  {
-                                                                    "term":{"sample.sample_ID": child_id}
-                                                                  }
-                                                                ]
-                                                              }
-                                                            }
-                                                          }
+                                                            "term": {"sample.sample_ID": child_id}
                                                         }
-                                                      ]
-                                                    }}
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }}
                         elif query_body['query']['bool']['filter']:
                             query_body['query']['bool']['filter'].extend(
-                                                    ({
-                                                      "nested":{
-                                                        "path":"CSQ_nested",
-                                                        "query":{
-                                                          "bool":{
-                                                            "filter":[
-                                                              {
-                                                                "term":{
-                                                                  "CSQ_nested.CSQ_nested_SYMBOL": gene
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
+                                ({
+                                    "nested": {
+                                        "path": "CSQ_nested",
+                                        "query": {
+                                            "bool": {
+                                                "filter": [
+                                                    {
+                                                        "term": {
+                                                            "CSQ_nested.CSQ_nested_SYMBOL": gene
                                                         }
-                                                      }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                    {
+                                    "nested": {
+                                        "path": "sample",
+                                        "query": {
+                                            "bool": {
+                                                "filter": [
+                                                    {
+                                                        "terms": {"sample.sample_GT": ["0|1", "1|0", "0/1", "1/0"]}
                                                     },
                                                     {
-                                                      "nested":{
-                                                        "path":"sample",
-                                                        "query":{
-                                                          "bool":{
-                                                            "filter":[
-                                                              {
-                                                                "terms":{"sample.sample_GT":["0|1", "1|0", "0/1", "1/0"]}
-                                                              },
-                                                              {
-                                                                "term":{"sample.sample_ID": child_id}
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      }
-                                                    })
-                                                )
+                                                        "term": {"sample.sample_ID": child_id}
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                })
+                            )
 
-                        results = get_compound_heterozygous_variants_for_gene(es, dataset_obj, query_body, father_id, mother_id, child_id)
+                        results = get_compound_heterozygous_variants_for_gene(
+                            es, dataset_obj, query_body, father_id, mother_id, child_id)
                         if results:
                             tmp_results.extend(results)
-                except Exception as  e:
+                except Exception as e:
                     print(e)
-
-
 
             context = {}
             headers = []
             results = []
 
             nested_attributes_selected = defaultdict(list)
-
 
             pks_orders = {}
             for key, val in attribute_order.items():
@@ -1880,7 +1884,8 @@ def mendelian_search(request):
                 path = attribute_field_obj.path
                 if path:
                     nested_attributes_selected[path].append(es_name)
-                headers.append((int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
+                headers.append(
+                    (int(pks_orders[attribute_field_obj.id]), attribute_field_obj))
 
             headers = sorted(headers, key=itemgetter(0))
             _, headers = zip(*headers)
@@ -2020,7 +2025,6 @@ def mendelian_search(request):
             filters_used = json.dumps(filters_used)
             attributes_selected = json.dumps(attributes_selected)
 
-
             try:
                 search_log_obj = SearchLog.objects.create(
                     dataset=dataset_obj,
@@ -2037,14 +2041,12 @@ def mendelian_search(request):
             except Exception as e:
                 print(e)
 
-
             if request.user.is_authenticated:
                 save_search_form = SaveSearchForm(
                     request.user, dataset_obj, filters_used or 'None', attributes_selected)
                 context['save_search_form'] = save_search_form
             else:
                 context['save_search_form'] = None
-
 
             context['review_status_form'] = review_status_form
             context['debug'] = settings.DEBUG
@@ -2055,9 +2057,12 @@ def mendelian_search(request):
             context['took'] = None
             context['total'] = None
             context['results'] = final_results
-            context['content_generate_time'] = round(content_generate_time.total_seconds()*1000)
-            context['after_results_time'] = round((datetime.now() - start_after_results_time).total_seconds()*1000)
-            context['total_time'] = round((datetime.now() - start_time).total_seconds()*1000)
+            context['content_generate_time'] = round(
+                content_generate_time.total_seconds() * 1000)
+            context['after_results_time'] = round(
+                (datetime.now() - start_after_results_time).total_seconds() * 1000)
+            context['total_time'] = round(
+                (datetime.now() - start_time).total_seconds() * 1000)
             context['headers'] = headers
             context['search_log_obj_id'] = search_log_obj.id
             context['dataset_obj'] = dataset_obj

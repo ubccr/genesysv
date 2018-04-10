@@ -168,7 +168,7 @@ class ElasticSearchFilter():
         nested = {
             "nested": {
                 "path": path,
-                "score_mode" : "none",
+                "score_mode": "none",
                 "query": {
                     "bool": {
                         "filter": []
@@ -437,21 +437,21 @@ def get_es_result(es, index_name, type_name, es_id):
     return result["_source"]
 
 
-
 def get_genes_es(dataset_es_index_name,
-                dataset_es_type_name,
-                dataset_es_host,
-                dataset_es_port,
-                field_es_name,
-                field_path,
-                body):
+                 dataset_es_type_name,
+                 dataset_es_host,
+                 dataset_es_port,
+                 field_es_name,
+                 field_path,
+                 body):
 
     es = elasticsearch.Elasticsearch(
         host=dataset_es_host, port=dataset_es_port)
 
     if not field_path:
         body["size"] = 0
-        body["aggs"] = {"values" : {"terms" : { "field" :field_es_name, "size" : 30000 }}}
+        body["aggs"] = {"values": {
+            "terms": {"field": field_es_name, "size": 30000}}}
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
@@ -460,20 +460,20 @@ def get_genes_es(dataset_es_index_name,
     elif field_path:
         body["size"] = 0
         body["aggs"] = {
-                    "values" : {
-                        "nested" : {
-                            "path" : field_path
-                        },
-                        "aggs" : {
-                            "values" : {"terms" : {"field" : "%s.%s" %(field_path, field_es_name), "size" : 30000}}
-                        }
-                    }
+            "values": {
+                "nested": {
+                    "path": field_path
+                },
+                "aggs": {
+                    "values": {"terms": {"field": "%s.%s" % (field_path, field_es_name), "size": 30000}}
                 }
-
+            }
+        }
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
+
 
 def get_from_es(dataset_es_index_name,
                 dataset_es_type_name,
@@ -578,7 +578,7 @@ def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
             if child_gt not in ['0/1', '0|1', '0|1']:
                 None
 
-    if not all( (father_gt, mother_gt, child_gt)):
+    if not all((father_gt, mother_gt, child_gt)):
         return None
 
     case_1 = case_2 = False
@@ -589,7 +589,7 @@ def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
     father_genotype == '0/0' or '0|0',
     affected child_genotype == '0/1'  or '0|1' or '1|0'.
     """
-    if  mother_gt in ['0/1', '0|1', '1|0',] and father_gt in ['0/0', '0|0',]:
+    if mother_gt in ['0/1', '0|1', '1|0', ] and father_gt in ['0/0', '0|0', ]:
         case_1 = True
 
     # Case 2
@@ -598,13 +598,14 @@ def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
     father_genotype == '0/1' or '0|1' or '1|0',
     affected child_genotype == '0/1'  or '0|1' or '1|0'.
     """
-    if  mother_gt in ['0/0', '0|0',] and father_gt in ['0/1', '0|1', '1|0',]:
+    if mother_gt in ['0/0', '0|0', ] and father_gt in ['0/1', '0|1', '1|0', ]:
         case_2 = True
 
     if any((case_1, case_2)):
         return (father_gt, mother_gt, child_gt)
     else:
         return None
+
 
 def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
 
@@ -676,7 +677,6 @@ def are_variants_compound_heterozygous(variant_genotypes):
         return False
 
 
-
 def get_genotypes(sample_array, father_id, mother_id, child_id):
 
     looking_for_ids = (father_id, mother_id, child_id)
@@ -704,6 +704,7 @@ def get_genotypes(sample_array, father_id, mother_id, child_id):
     else:
         return None
 
+
 def get_compound_heterozygous_variants_for_gene(es, dataset_obj, query, father_id, mother_id, child_id):
     compound_heterozygous_variants = []
     saved_hits = {}
@@ -715,7 +716,6 @@ def get_compound_heterozygous_variants_for_gene(es, dataset_obj, query, father_i
                             preserve_order=False,
                             index=dataset_obj.es_index_name,
                             doc_type=dataset_obj.es_type_name):
-
 
         result = ele['_source']
         es_id = ele['_id']
@@ -745,4 +745,3 @@ def get_compound_heterozygous_variants_for_gene(es, dataset_obj, query, father_i
             return None
     else:
         return None
-
