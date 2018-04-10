@@ -451,7 +451,7 @@ def get_genes_es(dataset_es_index_name,
 
     if not field_path:
         body["size"] = 0
-        body["aggs"] = {"values" : {"terms" : { "field" :field_es_name, "size" : 3000 }}}
+        body["aggs"] = {"values" : {"terms" : { "field" :field_es_name, "size" : 30000 }}}
         results = es.search(index=dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
@@ -465,7 +465,7 @@ def get_genes_es(dataset_es_index_name,
                             "path" : field_path
                         },
                         "aggs" : {
-                            "values" : {"terms" : {"field" : "%s.%s" %(field_path, field_es_name), "size" : 3000}}
+                            "values" : {"terms" : {"field" : "%s.%s" %(field_path, field_es_name), "size" : 30000}}
                         }
                     }
                 }
@@ -491,7 +491,7 @@ def get_from_es(dataset_es_index_name,
                 "size": 0,
                 "aggs" : {
                     "values" : {
-                        "terms" : { "field" : "%s", "size" : 3000 }
+                        "terms" : { "field" : "%s", "size" : 30000 }
                     }
                 }
             }
@@ -512,7 +512,7 @@ def get_from_es(dataset_es_index_name,
                             "path" : "%s"
                         },
                         "aggs" : {
-                            "values" : {"terms" : {"field" : "%s.%s", "size" : 3000}}
+                            "values" : {"terms" : {"field" : "%s.%s", "size" : 30000}}
                         }
                     }
                 }

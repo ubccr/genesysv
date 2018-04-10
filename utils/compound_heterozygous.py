@@ -25,7 +25,7 @@ def get_from_es(dataset_es_index_name,
                 "size": 0,
                 "aggs" : {
                     "values" : {
-                        "terms" : { "field" : "%s", "size" : 3000 }
+                        "terms" : { "field" : "%s", "size" : 30000 }
                     }
                 }
             }
@@ -46,7 +46,7 @@ def get_from_es(dataset_es_index_name,
                             "path" : "%s"
                         },
                         "aggs" : {
-                            "values" : {"terms" : {"field" : "%s.%s", "size" : 3000}}
+                            "values" : {"terms" : {"field" : "%s.%s", "size" : 30000}}
                         }
                     }
                 }
