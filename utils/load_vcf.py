@@ -156,12 +156,14 @@ def process_vcf_header(vcf):
 	global csq_fields
 	global col_header
 	global assembly
+	global chr2len  # to hold a chr to its length lookup table
 
 	num_header_lines = 0
 	id2type = {}
 	csq_fields = []
 	col_header = []
-	
+	chr2len = {} 
+
 	# compile some patterns
 	p1 = re.compile('^##(.*?)=(.*)$')	
 	p2 = re.compile(r'<(.*)\">')
@@ -169,6 +171,7 @@ def process_vcf_header(vcf):
 	p4 = re.compile(r'.*Number=(.*?),?.*$')
 	p5 = re.compile(r'.*Type=(.*?),')
 	p6 = re.compile(r'.*Description=\"(.*?)\",?.*')
+	p7 = re.compile(r'^##contig=<ID=(.*?),.*?length=(\d+).*?>')
 	
 	with gzip.open(vcf, 'rt') as fp:
 		while True:
@@ -189,9 +192,6 @@ def process_vcf_header(vcf):
 				if value.startswith('ID=CSQ'):
 					csq_fields = value.split("|")
 					csq_fields[0] = re.sub('ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: ', '', csq_fields[0])
-					
-					# prefix with "CSQ_" for each field name
-					#csq_fields = ['CSQ_' + field for field in csq_fields]
 				else:	
 					m3 = p3.match(value)
 					m4 = p4.match(value)
@@ -211,7 +211,23 @@ def process_vcf_header(vcf):
 				if 'assembly' in value:
 					assembly = value.split('assembly=')[1]
 					assembly = re.sub(r'\>', '', assembly)
-				continue
+
+			m7 = p7.match(line)
+			if m7:
+				# only include regular chromosomes
+				valid_chrs = range(1, 23)
+				valid_chrs = [str(item) for item in valid_chrs ]
+				valid_chrs.append('X')
+				valid_chrs.append('Y')
+				valid_chrs.append('M')
+
+				if m7.group(1) in valid_chrs:
+					chr2len[m7.group(1)] = int(m7.group(2))
+				else:
+					valid_chrs = ['chr' + chr for chr in valid_chrs]
+					if m7.group(1) in valid_chrs:
+						chr2len[m7.group(1)] = int(m7.group(2))
+
 
 def parse_vcf(vcf, interval, outfile):
 
@@ -340,11 +356,12 @@ def process_line_data_vep(variant_lines, log, f):
 					priority_list.append(min(tmp))
 					
 					# booleans
-					if csq_dict['Existing_variation'].startswith('rs'):
-						in_dbsnp = 1
+					if csq_dict['Existing_variation'] is not None:
+						if 'rs' in csq_dict['Existing_variation']:
+							in_dbsnp = 1
 	
-					if 'COSM' in csq_dict['Existing_variation']:
-						in_cosmic = 1
+						if 'COSM' in csq_dict['Existing_variation']:
+							in_cosmic = 1
 
 				# reduce the CSQ annotation to keep the entry with the most severe damaging variant
 				# get the index of the smallist value in the priority_list
@@ -358,7 +375,7 @@ def process_line_data_vep(variant_lines, log, f):
 					# type conversion
 					if key in name2type['int']:
 						if val == '.':
-							val = 'NA'
+							val = None
 							log.write("INFO skipped: %s" % info)
 							continue
 
@@ -368,14 +385,13 @@ def process_line_data_vep(variant_lines, log, f):
 							if 'ExAC_' in key or 'esp6500siv2_' in key or '1000g2015aug_' in key:
  								val = -9
 							else:
-								val = 'NA'
+								val = None
 								log.write("INFO skipped: %s\n" % info)
 								continue
 
 						result[key] = float(val)
 					else:
-						if data_fixed['CHROM'].startswith('rs'):
- 							key_exists = 1
+						pass
 
 				elif info in ['DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE']:
 					continue
@@ -467,21 +483,12 @@ def read_json_in_chunk(fp, n):
 		else:
 			yield next_n_lines
 
-		
-if __name__ == '__main__':
-	check_commandline(args)
 
-	get_mapping(mapping_file)
-
-#	mapping = json.load(open("", 'r'))
-#	es.indices.put_mapping(index=index_name, doc_type=type_name, body=mapping)
-	if args.ped:
-		process_ped_file(args.ped)
-		
-	process_vcf_header(args.vcf)
+def process_single_cohort(vcf):
+	process_vcf_header(vcf)
 		
 	# get the total number of variants in the input vcf
-	out = check_output(["grabix", "size", args.vcf])
+	out = check_output(["grabix", "size", vcf])
 	total_lines = int(out.decode('ascii').strip())
 
 	# calculate number of variants each cpu core need to process
@@ -507,13 +514,13 @@ if __name__ == '__main__':
 	# to be used to hold the process ids for the join() function
 	processes = []
 
-#	parse_vcf(args.vcf, intervals[-1], 'tmp/output_annovar.json')	
+	parse_vcf(vcf, intervals[-1], 'tmp/output_annovar.json')	
 	output_json = []
 
  	# dispatch subtasks to each of the processes. 
 	for i in range(num_cpus):
-		output_file = os.path.join(args.tmp_dir, os.path.basename(args.vcf) + '.chunk_' + str(i) + '.json')
-		proc = multiprocessing.Process(target=parse_vcf, args=[args.vcf, intervals[i], output_file])
+		output_file = os.path.join(args.tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
+		proc = multiprocessing.Process(target=parse_vcf, args=[vcf, intervals[i], output_file])
 		proc.start()
 		processes.append(proc)
 		output_json.append(output_file)
@@ -523,6 +530,33 @@ if __name__ == '__main__':
 		proc.join()
 	print("Process %s finished ..." % proc.pid)
 		
+	return(output_json)
+
+def process_case_control(case_vcf, control_vcf):
+	process_vcf_header(case_vcf)
+	
+
+if __name__ == '__main__':
+	check_commandline(args)
+
+	get_mapping(mapping_file)
+
+#	mapping = json.load(open("", 'r'))
+#	es.indices.put_mapping(index=index_name, doc_type=type_name, body=mapping)
+	if args.ped:
+		process_ped_file(args.ped)
+	elif args.case_vcf and args.control_vcf:
+		pass
+
+	# determine which work flow to choose, i.e. single cohort or case-control analysis
+	if args.vcf:
+		output_files = process_single_cohort(args.vcf)
+		print(output_files)
+	elif args.case_vcf and args.control_vcf:
+		output_files = process_case_control(args.case_vcf, args.control_vcf)
+
+
+
 	print("Finished parsing vcf file, now creating ElasticSearch index ...")
 	output_json = ["tmp/SIMCT20160930_variants_VEP.vcf.gz.chunk_0.json", "tmp/SIMCT20160930_variants_VEP.vcf.gz.chunk_1.json"]
 	for infile in output_json:
