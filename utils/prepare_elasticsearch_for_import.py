@@ -136,7 +136,7 @@ def main():
                                   args.type,
                                   non_nested_fields_dict,
                                   nested_fields_dict)
-    # pprint(mapping)
+    pprint(mapping)
 
 
 if __name__ == "__main__":
