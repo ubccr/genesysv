@@ -12,6 +12,7 @@ import multiprocessing
 import logging
 import math
 import re
+from collections import defaultdict
 from collections import OrderedDict
 import json
 from collections import deque
@@ -79,7 +80,8 @@ type_name = index_name # use the same name since only one type is allowed
 	        
 result2 = OrderedDict()
 
-priority_dict = {
+# https://useast.ensembl.org/info/genome/variation/predicted_data.html
+precedence_dict = {
 	"transcript_ablation" : 1,
 	"splice_acceptor_variant" : 2,
 	"splice_donor_variant" : 3,
@@ -262,10 +264,7 @@ def parse_vcf(vcf, interval, outfile):
 				lines = output.splitlines()
 				variant_lines = lines[num_header_lines:]
 			
-			#	if annot == 'vep':
-				process_line_data_vep(variant_lines, log, f)
-			#	elif annot == 'annovar':
-			#		process_line_data_vep(variant_lines, log, f)
+				process_line_data(variant_lines, log, f)
 				
 				num_variants_processed += end - start + 1
 				
@@ -277,11 +276,100 @@ def parse_vcf(vcf, interval, outfile):
 				if end >= interval[1]:
 					break
 	
-	
-# TO DO: count number of parsed variants, skipped or failed
-# write to log files
+def parse_info_fields(info_fields, result, group = None):
+	in_dbsnp = 0 # for  boolean variables
+	in_cosmic = 0
 
-def process_line_data_vep(variant_lines, log, f):
+	for info in info_fields:
+		if info.startswith('CSQ='):
+			csq_list = []
+			precedence_list = []
+			info_csq = info.split(',')
+
+			for csq in info_csq:
+				csq2	= csq.split('|')
+				csq2[0] = re.sub('CSQ=', '', csq2[0]) # first csq item contains 'CSQ=', so remove it
+				csq_dict = OrderedDict(zip(csq_fields, csq2)) # map names to values for CSQ annotation sub-fields
+
+				# set missing values
+				for key, val in csq_dict.items():
+					if val == '':
+						if key.endswith('_AF'):
+							csq_dict[key] = -9 # set missing MAF values to -9
+						else:
+							csq_dict[key] = None # set other string values to 'None'
+					else:
+						if key.endswith('_AF') or key.startswith('CADD'): # need to handel other float variables
+							csq_dict[key] = float(csq_dict[key])
+
+				csq_list.append(csq_dict)
+				consequence_list = csq_dict['Consequence'].split('&')
+				tmp = []
+
+				for conseq in consequence_list:
+					tmp.append(precedence_dict[conseq])
+				
+				precedence_list.append(min(tmp))
+				
+				# booleans
+				if csq_dict['Existing_variation'] is not None:
+					if 'rs' in csq_dict['Existing_variation']:
+						in_dbsnp = 1
+
+					if 'COSM' in csq_dict['Existing_variation']:
+						in_cosmic = 1
+
+			# reduce the CSQ annotation to keep the entry with the most severe damaging variant
+			# get the index of the smallist value in the precedence_list
+			pos = precedence_list.index(min(precedence_list))
+			result.update(csq_list[pos])
+
+		else: # general annotation in INFO line contains AC, AF, AN, ect. May also contains  Annovar annotation
+			if '=' in info:
+				key, val = info.split('=')
+
+				# type conversion
+				if key in name2type['int']:
+					if val == '.':
+						val = None
+						log.write("INFO skipped: %s" % info)
+						continue
+					if group is not None:
+						result[key +'_'+ group] = int(val)
+					else:
+						result[key] = int(val)
+				elif key in name2type['float']:
+					if val == '.':
+						if 'ExAC_' in key or 'esp6500siv2_' in key or '1000g2015aug_' in key:
+ 							val = -9
+						else:
+							val = None
+							log.write("INFO skipped: %s\n" % info)
+							continue
+
+					if group is not None:
+						result[key +'_'+ group] = float(val)
+					else:
+						result[key] = float(val)
+				else:
+					if group is not None:
+						result[key +'_'+ group] = val
+					else:
+						result[key] = val
+			elif info in ['DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE']:
+				continue
+			else:
+				log.write("INFO skipped: %s\n" % info)
+				continue
+
+	if in_dbsnp == 1:
+		result['in_dbsnp'] = True
+	if in_cosmic == 1:
+		result['in_cosmic'] = True
+
+	return(result)
+
+def process_line_data(variant_lines, log, f):
 	for line in variant_lines:
 		result = OrderedDict()
 		col_data = line.strip().split("\t")
@@ -314,96 +402,9 @@ def process_line_data_vep(variant_lines, log, f):
 			format_fields = 'GT' # 1000 Genomes Project used a single GT field
 		
 		# parse INFO field
-		csq_annot = []
-		csq_found = 0
 		result['in_cosmic'] = False
 		result['in_dbsnp'] = False
-	
-		in_dbsnp = 0 # for  boolean variables
-		in_cosmic = 0
-
-		for info in info_fields:
-
-			if info.startswith('CSQ='):
-				#csq_found = 1
-				csq_list = []
-				priority_list = []
-				info_csq = info.split(',')
-
-				for csq in info_csq:
-					csq2	= csq.split('|')
-					csq2[0] = re.sub('CSQ=', '', csq2[0]) # first csq item contains 'CSQ=', so remove it
-					csq_dict = OrderedDict(zip(csq_fields, csq2)) # map names to values for CSQ annotation sub-fields
-
-					# set missing values
-					for key, val in csq_dict.items():
-						if val == '':
-							if key.endswith('_AF'):
-								csq_dict[key] = -9 # set missing MAF values to -9
-							else:
-								csq_dict[key] = None # set other string values to 'None'
-						else:
-							if key.endswith('_AF') or key.startswith('CADD'): # need to handel other float variables
-								csq_dict[key] = float(csq_dict[key])
-
-					csq_list.append(csq_dict)
-					consequence_list = csq_dict['Consequence'].split('&')
-					tmp = []
-
-					for conseq in consequence_list:
-						tmp.append(priority_dict[conseq])
-					
-					priority_list.append(min(tmp))
-					
-					# booleans
-					if csq_dict['Existing_variation'] is not None:
-						if 'rs' in csq_dict['Existing_variation']:
-							in_dbsnp = 1
-	
-						if 'COSM' in csq_dict['Existing_variation']:
-							in_cosmic = 1
-
-				# reduce the CSQ annotation to keep the entry with the most severe damaging variant
-				# get the index of the smallist value in the priority_list
-				pos = priority_list.index(min(priority_list))
-				result.update(csq_list[pos])
-
-			else: # general annotation in INFO line, not specific to VEP. This applies to Annovar annotation
-				if '=' in info:
-					key, val = info.split('=')
-
-					# type conversion
-					if key in name2type['int']:
-						if val == '.':
-							val = None
-							log.write("INFO skipped: %s" % info)
-							continue
-
-						result[key] = int(val)
-					elif key in name2type['float']:
-						if val == '.':
-							if 'ExAC_' in key or 'esp6500siv2_' in key or '1000g2015aug_' in key:
- 								val = -9
-							else:
-								val = None
-								log.write("INFO skipped: %s\n" % info)
-								continue
-
-						result[key] = float(val)
-					else:
-						pass
-
-				elif info in ['DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE']:
-					continue
-				else:
-					log.write("INFO skipped: %s\n" % info)
-					continue
-
-		if in_dbsnp == 1:
-			result['in_dbsnp'] = True
-		if in_cosmic == 1:
-			result['in_cosmic'] = True
-
+		result = parse_info_fields(info_fields, result)
 		
 		# parse sample related data
 		sample_info = dict(zip(col_header[9:], col_data[9:]))
@@ -534,7 +535,83 @@ def process_single_cohort(vcf):
 
 def process_case_control(case_vcf, control_vcf):
 	process_vcf_header(case_vcf)
-	
+	start = 1
+	batch_size = 1000000
+
+	for chrom, length in chr2len.items():
+		while True:
+			if (start < length):
+				
+				batch = chrom + ':' + start + '-' + batch_size
+				if (start + batch_size >= length):
+					batch = chrom + ':' + start + '-' + length
+ 				# get a chunck of line from each of the vcf files
+				lines_case = check_output("tabix", case_vcf, batch)
+				lines_control = check_output("tabix", control_vcf, batch)
+
+				parse_case_control(lines_case, lines_control)
+
+				start = start + batch_size + 1
+			if (start + batch_size >= length):
+				break
+
+def parse_case_control(lines_case, lines_control):
+	data_dict = defaultdict()
+	result = OrderedDict()
+
+	for line in lines_case:
+		col_data = line.strip().split("\t")
+		v_id = '_'.join(col_data[0], col_data[1], col_data[3], col_data[4])
+		data_dict['case'][v_id] = col_data
+
+	for line in lines_control:
+		col_data = line.strip().split("\t")
+		v_id = '_'.join(col_data[0], col_data[1], col_data[3], col_data[4])
+		data_dict['control'][v_id] = col_data
+
+	for group in ['case', 'control']:
+		for v_id in data_dict[group]:
+			in_dbsnp = 0
+			in_cosmic = 0
+
+			# process shared variants
+			data_fixed = dict(zip(col_header[:6], data_dict[group][v_id][:6]))
+
+			result['Variant'] = '_'.join(data_fixed['CHROM'], data_fixed['POS'], data_fixed['REF'][:10], data_fixed['ALT'][:10])
+			
+			if data_fixed['ID'].startswith('rs'): # should also check the INFO field
+				in_dbsnp = 1
+
+			if data_fixed['REF'] in ['G','A','T','C'] and data_fixed['ALT'] in ['G','A','T','C']:
+				result['VariantType'] = 'SNV'
+			else:
+				result['VariantType'] = 'INDEL'
+
+			# QUAL and FILTER field
+			result['QUAL_' + group] = float(data_fixed['QUAL'])
+			result['FILTER_' + group] = data_fixed_case['FILTER']
+			
+			# parse INFO field
+			if ';' in data_dict[group][key][7]:
+				info_fields = data_dict[group][key][7].split(";")
+				
+				result = parse_info_fields(info_fields, result, group)
+
+			
+			# parse FORMAT field
+			if ':' in data_dict[group][vid][8]:
+				format_fields = data_dict[group][v_id][8].split(":")
+			else:
+				format_fields = 'GT' # 1000 Genomes Project used a single GT field
+
+
+		
+      #  if in_dbsnp == 1:
+       #     result['in_dbsnp'] = True
+        #if in_cosmic == 1:
+         #   result['in_cosmic'] = True
+
+
 
 if __name__ == '__main__':
 	check_commandline(args)
@@ -573,26 +650,3 @@ if __name__ == '__main__':
 
 	print("Finished creating ES index\n")	
 	print("All done!")
-		
-
-#[2018-04-16 13:30:36,791: ERROR/ForkPoolWorker-13] Task es_celery.tasks.post_data[9e0ff02e-dc24-4910-a86e-e6a425115a3e] raised unexpected: ConnectionError(ProtocolError('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer')),)
-#Traceback (most recent call last):
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/celery/app/trace.py", line 374, in trace_task
-#    R = retval = fun(*args, **kwargs)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/celery/app/trace.py", line 629, in __protected_call__
-#    return self.run(*args, **kwargs)
-#  File "/home/jw24/GDW/utils/es_celery/tasks.py", line 14, in post_data
-#    r = requests.post(url, data=payload, headers=headers)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/requests/api.py", line 112, in post
-#    return request('post', url, data=data, json=json, **kwargs)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/requests/api.py", line 58, in request
-#    return session.request(method=method, url=url, **kwargs)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/requests/sessions.py", line 508, in request
-#    resp = self.send(prep, **send_kwargs)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/requests/sessions.py", line 618, in send
-#    r = adapter.send(request, **kwargs)
-#  File "/home/jw24/GDW/env/lib/python3.6/site-packages/requests/adapters.py", line 490, in send
-#    raise ConnectionError(err, request=request)
-#requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
-
-
