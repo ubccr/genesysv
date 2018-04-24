@@ -46,16 +46,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'crispy_forms',
-    'search',
+    'core',
+    'common',
+    'complex',
+    'mendelian',
+    # 'search',
     # 'pybamview',
-    'subject_report',
+    # 'subject_report',
     'tinymce',
-    'beacon',
-    'msea',
+    # 'beacon',
+    # 'msea',
     'igv',
     'news',
     'sortedm2m',
-    'inheritance_analysis'
+    # 'inheritance_analysis'
 ]
 
 MIDDLEWARE = [
@@ -133,7 +137,7 @@ CACHES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 

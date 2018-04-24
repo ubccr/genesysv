@@ -20,50 +20,21 @@
 <div class="col-md-6">
      <div class="panel panel-primary">
       <div class="panel-heading">
-        <h3 class="panel-title text-center">Variant Search</h3>
+        <h3 class="panel-title text-center"> Studies Available for Searching</h3>
       </div>
       <div class="panel-body">
-        <a class="btn btn-success btn-block" href="{% url 'search-home' %}"><i class="fa fa-search" aria-hidden="true"></i> Start Searching</a>
-      </div>
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h3 class="panel-title text-center">Mendelian Search</h3>
-      </div>
-      <div class="panel-body">
-        <a class="btn btn-success btn-block" href="{% url 'mendelian-search-home' %}"><i class="fa fa-search" aria-hidden="true"></i> Start Searching</a>
-      </div>
-    </div>
-</div>
-<div class="col-md-6">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h3 class="panel-title">GA4GH Beacon</h3>
-      </div>
-      <div class="panel-body">
-        <div id="beacon_form_div">
+       {% if studies %}
+       <ul>
+        {% for study in studies %}
+            <li><a href="{{study.app_name}}/{{study.id}}">{{study.name}} <strong>({{study.app_name |upper }})</strong></a></li>
+        {% endfor %}
+        </ul>
 
-        </div>
+        {% endif %}
       </div>
     </div>
 </div>
 
-<div class="col-md-6">
-    <div class="panel panel-primary">
-          <div class="panel-heading">
-            <h3 class="panel-title">News</h3>
-          </div>
-          <div class="panel-body">
-                {% for ele in news %}
-                    <h3>{{ele.title}}</h3>
-                    {{ele.content|safe}}
-                {% endfor %}
-          </div>
-    </div>
-
-</div>
 
 <script>
     function getCookie(name) {
@@ -81,24 +52,6 @@
     }
     return cookieValue;
 }
-  function get_beacon_form(){
-    $.ajax(
-        {
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
-            type: "GET",
-            url : "{% url 'get-beacon-form' %}",
-            success:function(data) {
-                $('#beacon_form_div').html(data);
-            },
-
-        }
-
-    );
-  };
-
-  $( document ).ready(function() {
-        get_beacon_form();
-    });
 
 
 </script>

@@ -1,0 +1,80 @@
+{% load crispy_forms_tags %} {% load staticfiles %}
+<ul class="nav nav-tabs">
+    {% for tab in tabs %} {% if forloop.counter == 1 %}
+    <li class="active"><a data-toggle="tab" href="#{{tab.name|slugify}}">{{tab.name}}</a></li>
+    {% else %}
+    <li><a data-toggle="tab" href="#{{tab.name|slugify}}">{{tab.name}}</a></li>
+    {% endif %} {% endfor %}
+</ul>
+<br>
+<div class="tab-content">
+    {% for tab in tabs %} {% if forloop.counter == 1 %}
+    <div id="{{tab.name|slugify}}" class="tab-pane fade in active">
+        {% else %}
+        <div id="{{tab.name|slugify}}" class="tab-pane fade">
+            {% endif %}
+            <div class="panel-group" id="filter-accordion">
+                {% for panel in tab.panels %}
+                <div class="panel panel-primary">
+                    <div style="cursor: pointer;" class="panel-heading" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-{{panel.name|slugify}}">
+                        <h3 class="panel-title accordion-toggle">
+                                  {{panel.display_name|safe}}
+                                </h3>
+                    </div>
+                    <div id="filter-{{panel.name|slugify}}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            {% for field in panel.form %}
+                            <div class="row">
+                                <div class="col-md-11">{{field|as_crispy_field}}</div>
+                                <div id="{{field.auto_id}}_reset_div" class="col-md-1" style="display: none;">
+                                    <i id="{{field.auto_id}}_reset_main" class="fa fa-times reset_button" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            {% endfor %} {% for sub_panel in panel.sub_panels %}
+                            <div class="panel panel-info">
+                                <div class="panel-heading">{{sub_panel.display_name|safe}}</div>
+                                <div id="{{sub_panel.name|slugify}}">
+                                    <div class="panel-body">
+                                        {% for field in sub_panel.form %}
+                                        <div class="row">
+                                            <div class="col-md-11">{{field|as_crispy_field}}</div>
+                                            <div id="{{field.auto_id}}_reset_div" class="col-md-1" style="display: none;"><i id="{{field.auto_id}}_reset_main" class="fa fa-times reset_button" aria-hidden="true"></i></div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div> {% comment %} End Accordion {% endcomment %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+$(".upload-field").each(function() {
+    var field_id = $(this).attr('id');
+    var field = document.getElementById(field_id);
+    var upload_field_id = field_id + "___uploadFieldId"
+    var parent_div = $(field).parent()
+    var content = "<input type='file' id=\"" + upload_field_id + "\">"
+    parent_div.append(content)
+
+});
+
+
+$(document).ready(function() {
+    $('[data-toggle="popover"]').popover();
+    $(":input[type=text]").each(function() {
+        if ($(this).val()) {
+            $(this).trigger("change");
+        }
+
+    })
+});
+
+
+</script>

@@ -71,7 +71,12 @@ span.round-tab:hover {
     border: 2px solid #333;
 }
 
-.wizard .nav-tabs > li {
+#complexdiv > .wizard .nav-tabs > li {
+    width: 25%;
+}
+
+
+#mendeliandiv > .wizard .nav-tabs > li {
     width: 20%;
 }
 
@@ -559,3 +564,8 @@ color: #5e5e5e;
 background-color: transparent;
 border: none;
 }
+
+
+#attribute___p { list-style-type: none; margin: 0; padding: 0;}
+#attribute___p li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
+#attribute___p li span { position: absolute; margin-left: -1.3em; }

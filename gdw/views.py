@@ -5,6 +5,7 @@ from datetime import datetime
 from news.models import News
 
 
+
 @gzip_page
 def home(request):
     context = {}
