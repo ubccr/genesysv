@@ -33,6 +33,7 @@ required.add_argument("--index", help="ElasticSearch index name", required=True)
 required.add_argument("--num_cores", help="Number of cpu cores to use. Default to the number of cpu cores of the system", required=False)
 required.add_argument("--ped", help="Pedigree file", required=False)
 required.add_argument("--control_vcf", help="vcf file from control study. Must be compressed with bgzip and indexed with grabix", required=False)
+required.add_argument("--interval_size", help="Genomic interval size (bp) for loading case/control vcf. Default is 5000000. Choose a smaller number if low in physical memory", required=False)
 required.add_argument("--debug", help="Run in single CPU mode for debugging purposes", required=False)
 	
 args = parser.parse_args()
@@ -168,7 +169,6 @@ def process_vcf_header(vcf):
 		if key in valid_chrs:
 			chr2len[key] = int(contig_dict[key]['length'])
 
-
 	return([num_header_lines, csq_fields, col_header, chr2len, info_dict, format_dict, contig_dict, csq_dict])
 
 def parse_vcf(vcf, interval, outfile, vcf_info):
@@ -180,8 +180,6 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 	num_variants_processed = 0
 
 	logfile = re.sub('json', 'log', outfile)
-	
-	# open log file
 	log = open(logfile, 'w')
 	
 	with open(outfile, 'w') as f:
@@ -220,7 +218,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		try:
 			key, val = info.split('=')
 		except ValueError:
-			#log.write("Single value: %s\n" % info)
+			log.write("Single value: %s\n" % info)
 			continue
 
 		if key in excluded_list:
@@ -232,7 +230,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 			for csq in info_csq:
 				csq2	= csq.split('|')
-				#csq2[0] = re.sub('CSQ=', '', csq2[0]) # first csq item contains 'CSQ=', so remove it
 				csq_dict2 = dict(zip(vcf_info['csq_fields'], csq2)) # map names to values for CSQ annotation sub-fields
 
 				tmp_dict = {}
@@ -362,7 +359,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 	return(result)
 
 def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group = ''):
-	# parse sample data according to the FORMAT field
 	sample_data_array = []
 	
 	for sample_id, sample_data in sample_info.items():
@@ -389,7 +385,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict['AD_ref'] = int(sample_data_dict['AD_ref'])
 					sample_data_dict['AD_alt'] = int(sample_data_dict['AD_alt'])
 				else:
-					#log.write("Unknown type: %s, %s\n" % (key, val))
+					log.write("Unknown type: %s, %s\n" % (key, val))
 					sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
 			elif key == 'DP':
 				if val == '.':
@@ -414,21 +410,9 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 			sample_data_dict['Sex'] = vcf_info['ped_info'][sample_id]['sex']
 			sample_data_dict['Phenotype'] = vcf_info['ped_info'][sample_id]['phenotype']
 			
-#			if ped_info[sample_id]['father'] == sample_id:
-#				sample_data_dict['is_father'] = True
-#			elif ped_info[sample_id]['mother'] == sample_id:
-#				sample_data_dict['is_mother'] = True
-#			elif ped_info[sample_id]['subject'] == sample_id:
-#				sample_data_dict['is_child'] = True
-#			elif ped_info[sample_id]['sex'] == 'M':
-#				sample_data_dict['is_male'] = True
-#			elif ped_info[sample_id]['sex'] == 'F':
-#				sample_data_dict['is_female'] = True
-
-			
 		sample_data_dict['Sample_ID'] = sample_id
 		if group != '':
-			sample_data_dict['group'] = group
+			sample_data_dict['group'] = re.sub('_', '', group)
 
 		sample_data_array.append(sample_data_dict)
 
@@ -443,7 +427,7 @@ def process_line_data(variant_lines, log, f, vcf_info):
 		data_fixed = dict(zip(vcf_info['col_header'][:7], col_data[:7]))					
 		result['Variant'] = "_".join([data_fixed['CHROM'], data_fixed['POS'], data_fixed['REF'][:10], data_fixed['ALT'][:10]])
 
-		# in the first 8 field of vcf format, POS and QUAL are of non-string, so convert them to the right type
+		# in the first 8 field of vcf format, POS and QUAL are of non-string type, so convert them to the right type
 		data_fixed['POS'] = int(data_fixed['POS'])
 		data_fixed['QUAL'] = float(data_fixed['QUAL'])
 
@@ -459,10 +443,7 @@ def process_line_data(variant_lines, log, f, vcf_info):
 		info_fields = col_data[7].split(";") 
 
 		# parse FORMAT field
-		if ':' in col_data[8]:
-			format_fields = col_data[8].split(":")
-		else:
-			format_fields = 'GT' # 1000 Genomes Project used a single GT field
+		format_fields = col_data[8].split(":")
 		
 		# parse INFO field
 		result['in_cosmic'] = False
@@ -479,6 +460,7 @@ def process_line_data(variant_lines, log, f, vcf_info):
 
 
 def process_single_cohort(vcf, vcf_info):
+
 	# get the total number of variants in the input vcf
 	out = check_output(["grabix", "size", vcf])
 	total_lines = int(out.decode('ascii').strip())
@@ -491,6 +473,7 @@ def process_single_cohort(vcf, vcf_info):
 	line_start = 1
 	line_end = num_lines_per_proc + line_start
 
+	# get the interval list
 	while True:
 		if (line_start < total_lines):
 			line_end = line_start + num_lines_per_proc - 1
@@ -530,7 +513,10 @@ def process_single_cohort(vcf, vcf_info):
 	return(output_json)
 
 def process_case_control(case_vcf, control_vcf, vcf_info):
-	batch_size = 5000000
+	batch_size = 500000 # reduce this number if memory is an issue
+	if args.interval_size:
+		batch_size = args.interval_size
+
 	batch_list = []
 	output_json = []
 	processes = []
@@ -587,8 +573,6 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 	p = multiprocessing.current_process()
 
 	logfile = re.sub('json', 'log', outfile)
-	
-	# open log file
 	log = open(logfile, 'w')
 	
 	batch_count = 0
@@ -723,7 +707,10 @@ def make_es_mapping(vcf_info):
 	# add null_value tags:
 	for key in info_dict2:
 		if info_dict2[key]['type'] == 'integer': 
-			info_dict2[key]["null_value"] = -999
+			if key == 'CIPOS' or key == 'CIEND':
+				info_dict2[key] = { "type" : "keyword", "null_value" : 'NA'}
+			else:
+				info_dict2[key]["null_value"] = -999
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
 		elif info_dict2[key]['type'] == 'string':
