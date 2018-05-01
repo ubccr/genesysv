@@ -22,7 +22,7 @@ from collections import deque
 from elasticsearch import helpers
 #from es_celery.tasks import post_data, update_refresh_interval
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Parse vcf file(s) and create ElasticSearch mapping and index from the parsed data')
 required = parser.add_argument_group('required named arguments')
 required.add_argument("--vcf", help="Annovar or VEP annotated input vcf file. Must be compressed with bgzip and indexed with grabix", required=True)
 required.add_argument("--tmp_dir", help="Temporory directory to store intermediate files", required=True)
@@ -31,10 +31,10 @@ required.add_argument("--hostname", help="ElasticSearch hostname", required=True
 required.add_argument("--port", help="ElasticSearch host port number", required=True)
 required.add_argument("--index", help="ElasticSearch index name", required=True)
 required.add_argument("--num_cores", help="Number of cpu cores to use. Default to the number of cpu cores of the system", required=False)
-required.add_argument("--ped", help="Pedigree file", required=False)
+required.add_argument("--ped", help="Pedigree file in the format of '#Family Subject Father  Mother  Sex     Phenotype", required=False)
 required.add_argument("--control_vcf", help="vcf file from control study. Must be compressed with bgzip and indexed with grabix", required=False)
 required.add_argument("--interval_size", help="Genomic interval size (bp) for loading case/control vcf. Default is 5000000. Choose a smaller number if low in physical memory", required=False)
-required.add_argument("--debug", help="Run in single CPU mode for debugging purposes", required=False)
+parser.add_argument("--debug", help="Run in single CPU mode for debugging purposes")
 	
 args = parser.parse_args()
 
@@ -235,6 +235,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				tmp_dict = {}
 					
 				for key2, val2 in csq_dict2.items():
+					if '&' in val2:
+						val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
+					if '&' in key2:
+						key2 = key2.split('&')[0]
+
 					if key2 in ['SIFT', 'PolyPhen']:
 						m = p.match(val2)
 						if m:
@@ -817,11 +822,11 @@ if __name__ == '__main__':
 				tmp = json.loads(line)
 				data.append(tmp)
 				if len(data) % 5000 == 0:
-					deque(helpers.parallel_bulk(es, data, thread_count=4), maxlen=0)
+					deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
 					data = []
 
 		# leftover data
-		deque(helpers.parallel_bulk(es, data, thread_count=4), maxlen=0)
+		deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
 
 	print("Finished creating ES index\n")	
 		
