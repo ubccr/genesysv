@@ -16,13 +16,11 @@ from collections import defaultdict
 from collections import OrderedDict
 import json
 from collections import deque
-from utils import *
-from itertools import islice
-import ast
+#from utils import *
 import elasticsearch
 from collections import deque
 from elasticsearch import helpers
-from es_celery.tasks import post_data, update_refresh_interval
+#from es_celery.tasks import post_data, update_refresh_interval
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required named arguments')
@@ -478,15 +476,6 @@ def process_line_data(variant_lines, log, f, vcf_info):
 
 		json.dump({"_index" : index_name, "_type" : type_name, "_source" : result}, f, ensure_ascii=True)
 		f.write("\n")
-
-def read_json_in_chunk(fp, n):
-	while True:
-		next_n_lines = list(islice(fp, n))
-
-		if not next_n_lines:
-			break
-		else:
-			yield next_n_lines
 
 
 def process_single_cohort(vcf, vcf_info):
