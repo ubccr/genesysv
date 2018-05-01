@@ -11,6 +11,7 @@ def post_data(hostname, port, index, type, filename):
         headers = {'Content-type': 'application/json'}
         # print((hostname, port, index, type))
         url = 'http://%s:%s/%s/%s/_bulk' %(hostname, port, index, type, filename)
+        print("URL: %s\n" % url)
         r = requests.post(url, data=payload, headers=headers)
 
     output_dict = {}

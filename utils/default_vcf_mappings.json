@@ -22,17 +22,8 @@
       "parse_function": "CHROM_parser"
     },
     "FILTER": {
-      "es_nested_path": "FILTER",
-      "nested_fields": {
-        "FILTER_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "FILTER_label"
-        },
-        "FILTER_value": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "FILTER_value"
-        }
-      }
+      "es_field_datatype": "keyword",
+      "es_field_name": "FILTER"
     },
     "ID": {
       "es_field_datatype": "keyword",
@@ -43,17 +34,8 @@
       "es_field_name": "POS"
     },
     "QUAL": {
-      "es_nested_path": "QUAL",
-      "nested_fields": {
-        "QUAL_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "QUAL_label"
-        },
-        "QUAL_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "QUAL_value"
-        }
-      }
+      "es_field_datatype": "keyword",
+      "es_field_name": "QUAL"
     },
     "REF": {
       "es_field_datatype": "keyword",
@@ -147,9 +129,13 @@
         "es_field_datatype": "keyword",
         "es_field_name": "sample_ID"
       },
-      "sample_label": {
-        "es_field_datatype": "keyword",
-        "es_field_name": "sample_label"
+      "is_case": {
+        "es_field_datatype": "boolean",
+        "es_field_name": "is_case"
+      },
+      "is_control": {
+        "es_field_datatype": "boolean",
+        "es_field_name": "is_control"
       },
       "SAR": {
         "es_field_datatype": "integer",
@@ -174,49 +160,31 @@
     "1000g2015aug_afr": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_afr",
-      "null_value": 0
+      "null_value": -9
     },
     "1000g2015aug_all": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_all",
-      "null_value": 0
+      "null_value": -9
     },
     "1000g2015aug_amr": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_amr",
-      "null_value": 0
+      "null_value": -9
     },
     "1000g2015aug_eur": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_eur",
-      "null_value": 0
+      "null_value": -9
     },
     "1000g2015aug_sas": {
       "es_field_datatype": "float",
       "es_field_name": "1000g2015aug_sas",
-      "null_value": 0
+      "null_value": -9
     },
     "AA": {
-      "es_nested_path": "AA",
-      "nested_fields": {
-        "AA_AA": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "AA_AA"
-        },
-        "AA_ALT": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "AA_ALT"
-        },
-        "AA_IndelType": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "AA_IndelType"
-        },
-        "AA_REF": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "AA_REF"
-        }
-      },
-      "parse_function": "AA_parser"
+     "es_field_datatype": "keyword",
+     "es_field_name": "AA_AA"
     },
     "AA_pos": {
       "es_field_datatype": "keyword",
@@ -229,94 +197,78 @@
     "AAChange.ensGene": {
       "es_nested_path": "ensGene",
       "nested_fields": {
-        "ensGene_aa_change": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ensGene_aa_change"
-        },
-        "ensGene_cDNA_change": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ensGene_cDNA_change"
-        },
-        "ensGene_distance_to_gene": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ensGene_distance_to_gene"
-        },
         "ensGene_gene_id": {
           "es_field_datatype": "text",
           "es_field_name": "ensGene_gene_id",
           "es_field_text_analyzer": "whitespace"
         },
-        "ensGene_location": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ensGene_location"
-        },
         "ensGene_transcript_id": {
           "es_field_datatype": "keyword",
           "es_field_name": "ensGene_transcript_id"
+        },
+        "ensGene_exon_id": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_exon_id"
+        },
+        "ensGene_cDNA_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_cDNA_change"
+        },
+        "ensGene_aa_change": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "ensGene_aa_change"
         }
-      },
-      "parse_function": "AAChange_ensGene_parser"
+      }
+    },
+    "ensGene_distance_to_gene_upstream": {
+    	"es_field_datatype": "integer",
+        "es_field_name": "ensGene_distance_to_gene_upstream"
+    },
+    "ensGene_distance_to_gene_downstream": {
+        "es_field_datatype": "integer",
+        "es_field_name": "ensGene_distance_to_gene_downstream"
     },
     "AAChange.refGene": {
       "es_nested_path": "refGene",
       "nested_fields": {
-        "refGene_aa_change": {
+        "refGene_symbol": {
           "es_field_datatype": "keyword",
-          "es_field_name": "refGene_aa_change"
+          "es_field_name": "refGene_symbol",
+          "es_field_text_analyzer": "whitespace"
+        },
+        "refGene_transcript_id": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_transcript_id"
+        },
+        "refGene_exon_id": {
+          "es_field_datatype": "keyword",
+          "es_field_name": "refGene_exon_id"
         },
         "refGene_cDNA_change": {
           "es_field_datatype": "keyword",
           "es_field_name": "refGene_cDNA_change"
         },
-        "refGene_distance_to_gene": {
+        "refGene_aa_change": {
           "es_field_datatype": "keyword",
-          "es_field_name": "refGene_distance_to_gene"
-        },
-        "refGene_location": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "refGene_location"
-        },
-        "refGene_refgene_id": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "refGene_refgene_id"
-        },
-        "refGene_symbol": {
-          "es_field_datatype": "text",
-          "es_field_name": "refGene_symbol",
-          "es_field_text_analyzer": "whitespace"
+          "es_field_name": "refGene_aa_change"
         }
-      },
-      "parse_function": "AAChange_refGene_parser"
+	  }
+    },
+    "refGene_distance_to_gene_upstream": {
+       "es_field_datatype": "integer",
+       "es_field_name": "refGene_distance_to_gene_upstream"
+    },
+    "refGene_distance_to_gene_downstream": {
+       "es_field_datatype": "integer",
+       "es_field_name": "refGene_distance_to_gene_downstream"
     },
     "AC": {
       "es_field_datatype": "integer",
-      "es_field_name": "AC",
-      "is_non_nested_label_field": true
-    },
-    "AC_case": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AC",
-      "is_non_nested_label_field": true
-    },
-    "AC_control": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AC",
-      "is_non_nested_label_field": true
+      "es_field_name": "AC"
     },
     "AF": {
       "es_field_datatype": "float",
-      "es_field_name": "AF",
-      "is_non_nested_label_field": true
-    },
-    "AF_case": {
-      "es_field_datatype": "float",
-      "es_field_name": "AF",
-      "is_non_nested_label_field": true
-    },
-    "AF_control": {
-      "es_field_datatype": "float",
-      "es_field_name": "AF",
-      "is_non_nested_label_field": true
+      "es_field_name": "AF"
     },
     "AFR_AF": {
       "es_field_datatype": "float",
@@ -330,16 +282,6 @@
       "es_field_name": "AMR_AF"
     },
     "AN": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AN",
-      "is_non_nested_label_field": true
-    },
-    "AN_case": {
-      "es_field_datatype": "integer",
-      "es_field_name": "AN",
-      "is_non_nested_label_field": true
-    },
-    "AN_control": {
       "es_field_datatype": "integer",
       "es_field_name": "AN",
       "is_non_nested_label_field": true
@@ -452,18 +394,12 @@
       "es_field_name": "BA1"
     },
     "BaseQRankSum": {
-      "es_nested_path": "BaseQRankSum",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "BaseQRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "BaseQRankSum_label"
-        },
-        "BaseQRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "BaseQRankSum_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "BaseQRankSum"
+    },
+    "FS": {
+      "es_field_datatype": "float",
+      "es_field_name": "FS"
     },
     "BP1": {
       "es_field_datatype": "integer",
@@ -562,11 +498,11 @@
       "es_field_name": "CCC"
     },
     "CIEND": {
-      "es_field_datatype": "float",
+      "es_field_datatype": "integer",
       "es_field_name": "CIEND"
     },
     "CIPOS": {
-      "es_field_datatype": "float",
+      "es_field_datatype": "integer",
       "es_field_name": "CIPOS"
     },
     "Class_predicted": {
@@ -574,45 +510,30 @@
       "es_field_name": "Class_predicted"
     },
     "CLINSIG": {
-      "es_nested_path": "clinvar",
-      "nested_fields": {
-        "CLINSIG": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "clinvar_CLINSIG",
-          "parse_function": "CLINSIG_parser"
-        },
-        "CLNACC": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "clinvar_CLNACC"
-        },
-        "CLNDBN": {
-          "es_field_datatype": "text",
-          "es_field_name": "clinvar_CLNDBN",
-          "es_field_text_analyzer": "simple"
-        },
-        "CLNDSDB": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "clinvar_CLNDSDB"
-        },
-        "CLNDSDBID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "clinvar_CLNDSDBID"
-        }
-      }
+      "es_field_datatype": "keyword",
+      "es_field_name": "clinvar_CLINSIG",
+      "parse_function": "CLINSIG_parser"
+    },
+    "CLNACC": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "clinvar_CLNACC"
+    },
+    "CLNDBN": {
+      "es_field_datatype": "text",
+      "es_field_name": "clinvar_CLNDBN",
+      "es_field_text_analyzer": "simple"
+    },
+    "CLNDSDB": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "clinvar_CLNDSDB"
+    },
+    "CLNDSDBID": {
+      "es_field_datatype": "keyword",
+      "es_field_name": "clinvar_CLNDSDBID"
     },
     "ClippingRankSum": {
-      "es_nested_path": "ClippingRankSum",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "ClippingRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ClippingRankSum_label"
-        },
-        "ClippingRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "ClippingRankSum_value"
-        }
-      }
+       "es_field_datatype": "float",
+       "es_field_name": "ClippingRankSum"
     },
     "CLNACC": {
       "es_nested_path": "clinvar",
@@ -752,6 +673,10 @@
     "COSMIC_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "COSMIC_ID"
+    },
+    "in_cosmic": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "in_cosmic"
     },
     "COVEC_WMV": {
       "es_field_datatype": "float",
@@ -1048,18 +973,8 @@
       "es_field_name": "CSQ_VARIANT_CLASS"
     },
     "culprit": {
-      "es_nested_path": "culprit",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "culprit_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "culprit_label"
-        },
-        "culprit_value": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "culprit_value"
-        }
-      }
+      "es_field_datatype": "keyword",
+      "es_field_name": "culprit"
     },
     "cytoBand": {
       "es_field_datatype": "keyword",
@@ -1079,30 +994,24 @@
       "is_exists_only": true
     },
     "dbscSNV_ADA_SCORE": {
-      "es_field_datatype": "keyword",
+      "es_field_datatype": "float",
       "es_field_name": "dbscSNV_ADA_SCORE"
     },
     "dbscSNV_RF_SCORE": {
-      "es_field_datatype": "keyword",
+      "es_field_datatype": "float",
       "es_field_name": "dbscSNV_RF_SCORE"
     },
     "dbSNP_ID": {
       "es_field_datatype": "keyword",
       "es_field_name": "dbSNP_ID"
     },
+    "in_dbsnp": {
+      "es_field_datatype": "boolean",
+      "es_field_name": "in_dbsnp"
+    },
     "DP": {
-      "es_nested_path": "DP",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "DP_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "DP_label"
-        },
-        "DP_value": {
-          "es_field_datatype": "integer",
-          "es_field_name": "DP_value"
-        }
-      }
+      "es_field_datatype": "keyword",
+      "es_field_name": "DP"
     },
     "DS": {
       "es_field_datatype": "boolean",
@@ -1184,122 +1093,122 @@
     "ExAC_AFR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_AFR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_ALL": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_ALL",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_AMR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_AMR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_EAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_EAS",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_FIN": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_FIN",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_NFE": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_NFE",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_AFR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_AFR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_ALL": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_ALL",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_AMR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_AMR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_EAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_EAS",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_FIN": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_FIN",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_NFE": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_NFE",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_OTH": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_OTH",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nonpsych_SAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nonpsych_SAS",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_AFR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_AFR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_ALL": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_ALL",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_AMR": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_AMR",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_EAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_EAS",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_FIN": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_FIN",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_NFE": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_NFE",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_OTH": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_OTH",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_nontcga_SAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_nontcga_SAS",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_OTH": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_OTH",
-      "null_value": 0
+      "null_value": -9
     },
     "ExAC_SAS": {
       "es_field_datatype": "float",
       "es_field_name": "ExAC_SAS",
-      "null_value": 0
+      "null_value": -9
     },
     "Examined_samples": {
       "es_field_datatype": "keyword",
@@ -1375,24 +1284,6 @@
     "FR": {
       "es_field_datatype": "keyword",
       "es_field_name": "FR"
-    },
-    "FRO": {
-      "es_field_datatype": "integer",
-      "es_field_name": "FRO"
-    },
-    "FS": {
-      "es_nested_path": "FS",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "FS_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "FS_label"
-        },
-        "FS_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "FS_value"
-        }
-      }
     },
     "FSAF": {
       "es_field_datatype": "integer",
@@ -1546,18 +1437,12 @@
       "is_exists_only": true
     },
     "InbreedingCoeff": {
-      "es_nested_path": "InbreedingCoeff",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "InbreedingCoeff_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "InbreedingCoeff_label"
-        },
-        "InbreedingCoeff_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "InbreedingCoeff_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "InbreedingCoeff"
+    },
+    "InbreedingCoeff_control": {
+      "es_field_datatype": "float",
+      "es_field_name": "InbreedingCoeff_control"
     },
     "integrated_confidence_value": {
       "es_field_datatype": "integer",
@@ -1579,10 +1464,6 @@
     "InterVar(automated)": {
       "es_field_datatype": "keyword",
       "es_field_name": "InterVar(automated)"
-    },
-    "LEN": {
-      "es_field_datatype": "integer",
-      "es_field_name": "LEN"
     },
     "LOF": {
       "es_nested_path": "LOF",
@@ -1696,32 +1577,20 @@
       "es_field_name": "mitimpact2"
     },
     "MLEAC": {
-      "es_nested_path": "MLEAC",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "MLEAC_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MLEAC_label"
-        },
-        "MLEAC_value": {
-          "es_field_datatype": "integer",
-          "es_field_name": "MLEAC_value"
-        }
-      }
+      "es_field_datatype": "integer",
+      "es_field_name": "MLEAC"
+    },
+    "MLEAC_control": {
+      "es_field_datatype": "integer",
+      "es_field_name": "MLEAC"
     },
     "MLEAF": {
-      "es_nested_path": "MLEAF",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "MLEAF_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MLEAF_label"
-        },
-        "MLEAF_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MLEAF_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "MLEAF_control"
+    },
+    "MLEAF_control": {
+      "es_field_datatype": "float",
+      "es_field_name": "MLEAF_control"
     },
     "MLEN": {
       "es_field_datatype": "integer",
@@ -1732,46 +1601,12 @@
       "es_field_name": "MLLD"
     },
     "MQ": {
-      "es_nested_path": "MQ",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "MQ_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQ_label"
-        },
-        "MQ_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQ_value"
-        }
-      }
-    },
-    "MQ0": {
-      "es_nested_path": "MQ0",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "MQ0_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQ0_label"
-        },
-        "MQ0_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQ0_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "MQ"
     },
     "MQRankSum": {
-      "es_nested_path": "MQRankSum",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "MQRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "MQRankSum_label"
-        },
-        "MQRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "MQRankSum_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "MQRankSum"
     },
     "MSTART": {
       "es_field_datatype": "integer",
@@ -1854,28 +1689,6 @@
       "es_field_datatype": "boolean",
       "es_field_name": "NEGATIVE_TRAIN_SITE",
       "is_exists_only": true
-    },
-    "NMD": {
-      "es_nested_path": "NMD",
-      "is_nested_label_field": false,
-      "nested_fields": {
-        "NMD_Gene_ID": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "NMD_Gene_ID"
-        },
-        "NMD_Gene_Name": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "NMD_Gene_Name"
-        },
-        "NMD_Number_of_transcripts_in_gene": {
-          "es_field_datatype": "integer",
-          "es_field_name": "NMD_Number_of_transcripts_in_gene"
-        },
-        "NMD_Percent_of_transcripts_affected": {
-          "es_field_datatype": "float",
-          "es_field_name": "NMD_Percent_of_transcripts_affected"
-        }
-      }
     },
     "NS": {
       "es_field_datatype": "integer",
@@ -2129,18 +1942,8 @@
       "es_field_name": "PVS1"
     },
     "QD": {
-      "es_nested_path": "QD",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "QD_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "QD_label"
-        },
-        "QD_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "QD_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "QD"
     },
     "RAW_MQ": {
       "es_field_datatype": "float",
@@ -2151,18 +1954,8 @@
       "es_field_name": "RBI"
     },
     "ReadPosRankSum": {
-      "es_nested_path": "ReadPosRankSum",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "ReadPosRankSum_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "ReadPosRankSum_label"
-        },
-        "ReadPosRankSum_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "ReadPosRankSum_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "ReadPosRankSum"
     },
     "REFB": {
       "es_field_datatype": "float",
@@ -2175,7 +1968,7 @@
     "REVEL": {
       "es_field_datatype": "float",
       "es_field_name": "REVEL",
-      "null_value": 0
+      "null_value": -9
     },
     "RO": {
       "es_field_datatype": "integer",
@@ -2238,18 +2031,8 @@
       "es_field_name": "snp138NonFlagged"
     },
     "SOR": {
-      "es_nested_path": "SOR",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "SOR_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "SOR_label"
-        },
-        "SOR_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "SOR_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "SOR"
     },
     "SRF": {
       "es_field_datatype": "integer",
@@ -2336,18 +2119,8 @@
       "es_field_name": "VEST3_score"
     },
     "VQSLOD": {
-      "es_nested_path": "VQSLOD",
-      "is_nested_label_field": true,
-      "nested_fields": {
-        "VQSLOD_label": {
-          "es_field_datatype": "keyword",
-          "es_field_name": "VQSLOD_label"
-        },
-        "VQSLOD_value": {
-          "es_field_datatype": "float",
-          "es_field_name": "VQSLOD_value"
-        }
-      }
+      "es_field_datatype": "float",
+      "es_field_name": "VQSLOD"
     },
     "VT": {
       "es_field_datatype": "keyword",
