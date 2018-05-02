@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Complex Search
+{% endblock %}
+
+
+{% block content %}
+<script>
+  $("#main-nav-bar > ul > li.active").removeClass("active")
+  $("#navbarId-Home-Menu").addClass("active")
+  $("#navbarId-Home").addClass("active")
+</script>
+
+
+<div id="genericdiv"> <!-- Start <div id="genericdiv"> -->
+    <div id="user-alert-div">
+    </div>
+    <div class="wizard container-fluid">
+        <div class="wizard-inner">
+            <div class="connecting-line"></div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li id="li-step1" role="presentation" class="active">
+                    <a href="#step1" data-toggle="tab" aria-controls="step1" role="tab" title="Select Study/Dataset">
+                            <span class="round-tab">
+                                <i class="fa fa-database" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                </li>
+                <li id="li-step2" role="presentation" class="disabled li-disable">
+                    <a href="#step2" data-toggle="tab" aria-controls="step2" role="tab" title="Select Filters">
+                            <span class="round-tab">
+                                <i class="fa fa-filter" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                </li>
+                <li id="li-step-submit" role="presentation" class="disabled li-disable">
+                    <a href="#step3" data-toggle="tab" aria-controls="step3" role="tab" title="Select Outputs">
+                            <span class="round-tab">
+                                <i class="fa fa-columns" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                </li>
+                <li id="li-step4" role="presentation" class="disabled li-disable">
+                    <a href="#results_div" data-toggle="tab" aria-controls="" role="tab" title="Results">
+                            <span class="round-tab">
+                                <i class="fa fa-table" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="input_div">
+        <form id="searchForm" role="form" method="POST" action="">
+            {% csrf_token %}
+            <div class="col-md-8">
+                <div class="panel panel-primary">
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" role="tabpanel" id="step1">
+                                <div class="clearfix">
+                                </div>
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-primary next-step to_step2" disabled>Next <i class="fa fa-long-arrow-right"></i></button>
+                                    </li>
+                                    <li class="pull-right">
+                                        <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?" href="/">Reset</a>
+                                    </li>
+                                </ul>
+                                <div class="clearfix"></div>
+                                <h3>Select Study and Dataset</h3>
+                                <div id="step1-study-select">
+                                    {{study_form|crispy}}
+                                </div>
+
+                               <div id="step1-dataset-select">
+                                  <div class="form-group">
+                                    <div class="form-group">
+                                        <select class='select form-control'><option value='select_a_study'>Select a study</option></select>
+
+                                    </div>
+                                  </div>
+                               </div>
+                                <input id="dataset_description" type="hidden" name="dataset_description" value="">
+                                <ul class="list-inline pull-left">
+                                    <li>
+                                        <button type="button" class="btn btn-primary next-step to_step2" disabled>Next <i class="fa fa-long-arrow-right"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-pane" role="tabpanel" id="step2">
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-default prev-step pull-left"><i class="fa fa-long-arrow-left"></i> Previous</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-primary next-step pull-right">Next <i class="fa fa-long-arrow-right"></i></button>
+                                    </li>
+                                    <li class="pull-right">
+                                        <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?" href="/complex/{{study_obj.id}}">Reset</a>
+                                    </li>
+                                </ul>
+                                <div class="clearfix"></div>
+                                <h3>Select Filters</h3>
+                                <div id="step2-filter-select">
+                                </div>
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-primary next-step">Next <i class="fa fa-long-arrow-right"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-pane" role="tabpanel" id="step3">
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-success submit_via_ajax_button disabled">Search</button>
+                                    </li>
+                                    <li class="pull-right">
+                                        <a class="btn btn-warning" data-toggle="confirmation" data-title="Are you sure?" href="/complex/{{study_obj.id}}">Reset</a>
+                                    </li>
+                                </ul>
+                                <div class="clearfix"></div>
+                                <h3>Select Attributes</h3>
+                                <div id="step3-attribute-select">
+                                </div>
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-default prev-step"><i class="fa fa-long-arrow-left"></i> Previous</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-success submit_via_ajax_button disabled">Search</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="clearfix">
+                            <div class="pull-right" sytle="display: inline;">
+                                Powered by <a href="https://www.elastic.co/"><img src="{% static 'custom/images/elastic-logo.svg' %}" class="img-responsive" alt="Elasitc Search"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Summary</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4 class="add-bottom-border">Study</h4>
+                        <p id="study___p">None Selected</p>
+                        <h4 class="add-bottom-border">Dataset</h4>
+                        <p id="dataset___p">None Selected</p>
+                        <h4 class="add-bottom-border">Filters</h4>
+                        <div id="filter___p" style="word-wrap: break-word;"></div>
+                        <h4 class="add-bottom-border">Attributes</h4>
+                        <ul id="attribute___p">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div> <!-- End <div id="genericdiv"> -->
+
+
+<div class="clearfix"></div>
+<div id="results_div">Hello!</div>
+
+<!-- Variables for JS manipulation -->
+
+<input id="study_loaded" type="hidden" name="study_loaded" value="false">
+<input id="dataset_loaded" type="hidden" name="dataset_loaded" value="false">
+<input id="filters_loaded" type="hidden" name="filters_loaded" value="false">
+<input id="attributes_loaded" type="hidden" name="attributes_loaded" value="false">
+
+<script>
+
+$(document).ready(function(){
+  $( "#attribute___p" ).sortable();
+  $( "#attribute___p" ).disableSelection();
+  $("#results_div").hide()
+  $('#study_loaded').val(true).trigger("change");
+  var dataset_id;
+});
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+//
+$('[data-toggle=confirmation]').confirmation({
+  rootSelector: '[data-toggle=confirmation]',
+  // other options
+});
+
+
+$("#study_loaded").on('change', function(){
+    if ($("#study_loaded").val() == "true" && $("#load_search").val() == "true") {
+        $("#id_study").val(data['study']).trigger("change");
+        $("#study_loaded").removeAttr('id');
+    }
+});
+
+$("#dataset_loaded").on('change', function(){
+    if ($("#dataset_loaded").val() == "true" && $("#load_search").val() == "true") {
+        $("#id_dataset").val(data['dataset']).trigger("change");
+        $("#dataset_loaded").removeAttr('id');
+        $(".next-step").click();
+    }
+});
+
+
+ $("#filters_loaded").on('change', function(){
+    if ($("#filters_loaded").val() == "true" && $("#load_search").val() == "true") {
+        $('[id ^=id_filter][id $=reset_sidebar]').each(function() {
+            $(this).trigger("click");
+        });
+        $(data['filters_used']).each(function( index ) {
+            var filter = data['filters_used'][index];
+            filter_name = filter[0];
+            filter_value = filter[2];
+            $(document.getElementById("id_filter_-"+filter_name)).val(filter_value).trigger("change");
+        });
+        $("#filters_loaded").removeAttr('id');
+        $("#automated_submit").val(true).trigger("change");
+        $(".next-step").click();
+    }
+});
+
+
+$("#attributes_loaded").on('change', function(){
+    if ($("#attributes_loaded").val() == "true" && $("#load_search").val() == "true") {
+        $(data['attributes_selected']).each(function( index ) {
+            var attribute_name = data['attributes_selected'][index];
+            var id = "input:checkbox[id$=attribute_group-"+ attribute_name + "]";
+            // $("input:checkbox[id$=attribute_group-"+ attribute_name + "]")[0].prop("checked", true );
+            // console.log(id);
+            $(id).prop("checked", true );
+        });
+        $(data['attributes_selected']).each(function( index ) {
+            var attribute_name = data['attributes_selected'][index];
+            var id = "input:checkbox[id$=attribute_group-"+ attribute_name + "]";
+            // console.log(id);
+            $(id).trigger("click");
+            $(id).trigger("click");
+        });
+        $("#attributes_loaded").removeAttr('id');
+        $(".next-step").click();
+        $("#automated_submit").val(true).trigger("change");
+
+    }
+});
+
+
+
+$( "#step1-study-select" ).on("change", function(event) {
+    var study_id = $(this).find('option:selected').val();
+    var study_text = $(this).find('option:selected').text();
+    if (study_id != '---') {
+        $('#filter___p').html("");
+        $('#attribute___p').html("");
+        $("#study___p").text(study_text);
+        get_dataset(study_id);
+
+
+    } else {
+        $(".to_step2").attr("disabled", true);
+        $("#step1-dataset-select").html(blank_select_dataset);
+        $("#study___p").text('None Selected');
+        $('#step3-attribute-select').html("");
+        $('#step2-filter-select').html("");
+        $('#filter___p').html("");
+        $('#attribute___p').html("");
+    }
+});
+
+
+$( "#step1-dataset-select" ).on("change", function(event) {
+    dataset_id = $(this).find('option:selected').val();
+    var dataset_text = $(this).find('option:selected').text();
+    if (dataset_text != '---') {
+      $('#filter___p').html("");
+      $('#attribute___p').html("");
+      $("#dataset_description").val(dataset_text);
+      $("#dataset___p").text(dataset_text);
+      get_filter(dataset_id);
+      get_attribute(dataset_id);
+      $("#li-step2").removeClass("disabled");
+      $("#li-step-submit").removeClass("disabled");
+
+    } else {
+        $("#dataset___p").text('None Selected');
+        $('#step3-attribute-select').html("");
+        $('#step2-filter-select').html("");
+        $(".to_step2").attr("disabled", true);
+        $("#li-step2").addClass("disabled");
+        $("#li-step-submit").addClass("disabled");
+        $('#filter___p').html("");
+        $('#attribute___p').html("");
+    }
+
+  });
+
+
+function get_dataset(study_id){
+$.ajax(
+    {
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+        type: "GET",
+        url : "/core/dataset-snippet/" + study_id,
+        success:function(data) {
+            $('#step1-dataset-select').html(data);
+            $('#dataset_loaded').val(true).trigger("change");
+        }
+    }
+
+);
+};
+
+function get_filter(dataset_id){
+  $.ajax(
+      {
+          headers: {'X-CSRFToken': getCookie('csrftoken')},
+          type: "GET",
+          url : "/core/filter-snippet/" + dataset_id,
+          success:function(data) {
+              // console.log(data)
+              $('#step2-filter-select').html(data);
+              $("#collapse1-filter").addClass("in");
+              $(".to_step2").attr("disabled", false);
+              $("#filter-accordion > div:nth-child(1) > div.panel-heading").click()
+              $('#filters_loaded').val(true).trigger("change");
+
+          }
+      }
+
+  );
+};
+
+function get_attribute(dataset_id){
+  $.ajax(
+      {
+          headers: {'X-CSRFToken': getCookie('csrftoken')},
+          type: "GET",
+          url : "/core/attribute-snippet/" + dataset_id,
+          success:function(data) {
+              $('#step3-attribute-select').html(data);
+              $("#collapse1-attribute").addClass("in");
+              $(".to_step2").attr("disabled", false);
+              $("#attribute-accordion > div:nth-child(1) > div.panel-heading").click()
+              $('#attributes_loaded').val(true).trigger("change");
+          }
+      }
+
+  );
+};
+
+function submit_via_ajax() {
+  $('#results_div').html('<button class="btn btn-info text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Searching...</button>');
+  var form_data = $("#searchForm :input")
+      .filter(function(index, element) {
+          return $(element).val() != '';
+      })
+      .serialize();
+  $("#user-alert-div").empty();
+  $("#li-step-submit").removeClass("active");
+  $("#li-step4").addClass("active");
+  $('#input_div').hide();
+  $('#results_div').show();
+      var attribute_order = {}
+      $("#attribute___p>li" ).each(function( index ) {
+          var tmp = $(this).attr('id')
+          tmp = tmp.replace(/id_\d+___/g, "id_");
+          tmp = tmp.replace(/id_\d+_\d+___/g, "id_");
+          attribute_order[index] = index + "-" + tmp.split("id_attribute_group-")[1].split("___p")[0]
+      });
+
+
+  form_data = form_data.replace(/\d+_\d+___/g, "");
+  form_data = form_data.replace(/\d+___/g, "");
+  var study_id = {{study_obj.id|safe}}
+
+  $.ajax(
+      {
+          headers: {'X-CSRFToken': getCookie('csrftoken')},
+          type: "POST",
+          url : "/core/search-router/",
+          data: {
+                  form_data: form_data,
+                  attribute_order: JSON.stringify(attribute_order),
+                  study_id: study_id
+          },
+          success:function(data) {
+              $('#results_div').html(data);
+              $("#li-step4").addClass("active");
+          },
+          error: function(xhr, status, error) {
+            console.log(status);
+            console.log(error);
+          }
+      }
+
+  );
+}
+
+$(".submit_via_ajax_button").on("click", function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if ($(this).hasClass("disabled") == false) {
+        submit_via_ajax()
+    } else {
+        $("#user-alert-div").html('<div class="alert alert-info">\
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
+                        You must select an attribute before searching!\
+                      </div>');
+
+
+    }
+});
+
+
+$("#li-step-submit").on("click", function() {
+    // $("#li-step").removeClass("active")
+    $('#input_div').show();
+    $('#results_div').hide();
+});
+
+
+$("#li-step2").on("click", function() {
+    $('#input_div').show();
+    $('#results_div').hide();
+});
+
+
+$("#li-step1").on("click", function() {
+    $('#input_div').show();
+    $('#results_div').hide();
+});
+
+
+$("#li-step4").on("click", function() {
+    if ($("#li-step4").hasClass("disabled") == false) {
+        $("#li-step1").removeClass("active");
+        $("#li-step2").removeClass("active");
+        $("#li-step-submit").removeClass("active");
+        $("#li-step4").addClass("active");
+        $('#input_div').hide();
+        $('#results_div').show();
+    }
+});
+
+</script>
+
+{% endblock %}

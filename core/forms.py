@@ -1,5 +1,5 @@
 from django import forms
-from core.models import Dataset
+from core.models import Study, Dataset
 from django.db.models import Q
 
 
@@ -9,26 +9,42 @@ from core.models import AttributeField, FilterField, FilterFieldChoice
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 
 
+
+class StudyForm(forms.Form):
+    # You have to comment out study choices before migrating
+
+    def __init__(self, user, *args, **kwargs):
+        super(StudyForm, self).__init__(*args, **kwargs)
+        user_group_ids = [group.id for group in user.groups.all()]
+        # user_dataset = Dataset.objects.all()
+        user_dataset = Dataset.objects.select_related('study').filter(
+            Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
+        user_studies = [ele.study.id for ele in user_dataset]
+        # print(user_studies)
+        STUDY_CHOICES = [(ele.id, ele.name)
+                         for ele in Study.objects.filter(id__in=user_studies)]
+        # STUDY_CHOICES = [] #Fixme
+        STUDY_CHOICES.insert(0, ('', '---'))
+        self.fields['study'] = forms.ChoiceField(
+            label='Study', choices=STUDY_CHOICES)
+
+
+
 class DatasetForm(forms.Form):
 
     def __init__(self, study_obj, user, *args, **kwargs):
         super(DatasetForm, self).__init__(*args, **kwargs)
+        user_group_ids = [group.id for group in user.groups.all()]
 
-        if not user.is_anonymous:
-            user_group_ids = [group.id for group in user.groups.all()]
-            user_dataset = Dataset.objects.filter(study=study_obj)
-            user_dataset = user_dataset.filter(
-                Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
-        else:
-            user_dataset = Dataset.objects.filter(study=study_obj)
-            user_dataset = user_dataset.filter(is_public=True)
+        user_dataset = Dataset.objects.filter(study=study_obj)
+        user_dataset = user_dataset.filter(
+            Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
 
         DATASET_CHOICES = [(ele.id, ele.description)
                            for ele in user_dataset]
         DATASET_CHOICES.insert(0, ('', '---'))
         self.fields['dataset'] = forms.ChoiceField(
             label='Dataset', choices=DATASET_CHOICES)
-
 
 class FilterFormPart(forms.Form):
     """Filter Form Part is used to create snippet. Filter Form is used to validate the POST data"""

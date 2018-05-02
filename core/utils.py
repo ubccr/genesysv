@@ -8,6 +8,8 @@ import elasticsearch
 from operator import itemgetter, attrgetter, methodcaller
 import itertools
 import copy
+import elasticsearch
+from django.core import serializers
 
 from core import models as core_models
 
@@ -75,7 +77,7 @@ def get_es_document(es, index_name, type_name, es_id):
     return result["_source"]
 
 
-class ElasticSearchFilter():
+class ElasticSearchFilter:
 
     def __init__(self):
         self.query_string = {}
@@ -503,10 +505,6 @@ class ElasticSearchFilter():
         return query_string
 
 
-
-
-
-
 class BaseElasticSearchQueryDSL:
 
     def __init__(self, dataset_obj, filter_form_data, attribute_form_data, attribute_order):
@@ -522,7 +520,6 @@ class BaseElasticSearchQueryDSL:
         self.non_nested_attribute_fields = []
         self.base_query_body = None
         self.base_query_header = None
-
 
     def determine_selected_attirbute_fields(self):
         for attribute_field_obj in core_models.AttributeField.objects.filter(id__in=self.attribute_form_data.keys()):
@@ -716,7 +713,8 @@ class BaseElasticSearchQueryDSL:
             ele for ele in attributes_paths if ele in filter_paths]
 
         if self.nested_filters_applied:
-            inner_hits_source_fields =  copy.deepcopy(self.nested_filters_applied)
+            inner_hits_source_fields = copy.deepcopy(
+                self.nested_filters_applied)
             for pp_ele in possible_paths:
                 if pp_ele not in inner_hits_source_fields[pp_ele]:
                     for ele in self.nested_attributes_selected[pp_ele]:
@@ -746,7 +744,6 @@ class BaseElasticSearchQueryDSL:
         self.determine_data_table_header()
         self.generate_base_query_from_filters()
 
-
     def process_forms(self):
         self.default_process_forms()
 
@@ -764,7 +761,6 @@ class BaseElasticSearchQueryDSL:
 
 
 class BaseElasticSearchQueryExecutor:
-
 
     def __init__(self, dataset_obj, query_body, elasticsearch_terminate_after=0):
         self.dataset_obj = dataset_obj
@@ -792,6 +788,7 @@ class BaseElasticSearchQueryExecutor:
     def get_elasticsearch_response_time(self):
         return self.elasticsearch_response.get('took')
 
+
 class BaseElasticsearchResponseParser:
     flatten_nested = True
     maximum_table_size = 400
@@ -804,17 +801,14 @@ class BaseElasticsearchResponseParser:
         self.results = []
         self.flattened_results = []
 
-
     def subset_dict(self, input, keys):
 
         return {key: input[key] for key in keys if input.get(key) != None}
-
 
     def merge_two_dicts(self, x, y):
         z = x.copy()
         z.update(y)
         return z
-
 
     def merge_two_dicts_array(self, input):
         output = []
@@ -822,8 +816,6 @@ class BaseElasticsearchResponseParser:
             output.append(self.merge_two_dicts(x, y))
 
         return output
-
-
 
     def extract_nested_results_from_elasticsearch_response(self):
         hits = self.elasticsearch_response['hits']['hits']
@@ -891,6 +883,247 @@ class BaseElasticsearchResponseParser:
                         tmp = self.merge_two_dicts(x, y)
                         tmp["es_id"] = result["es_id"]
 
+                        for field_to_skip in self.fields_to_skip_flattening:
+                            if result.get(field_to_skip):
+                                tmp[field_to_skip] = result[field_to_skip]
+
+                        if tmp not in flattened_results:
+                            flattened_results.append(tmp)
+                            results_count += 1
+                else:
+                    if result not in flattened_results:
+                        flattened_results.append(result)
+                        results_count += 1
+        else:
+            flattened_results = self.results
+
+        self.flattened_results = flattened_results
+
+    def get_results(self):
+        self.extract_nested_results_from_elasticsearch_response()
+        if self.flatten_nested:
+            self.flatten_nested_results()
+            return self.flattened_results[:self.maximum_table_size]
+        else:
+            return self.results[:self.maximum_table_size]
+
+
+class BaseSearchElasticsearch:
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('user')
+        self.dataset_obj = kwargs.get('dataset_obj')
+        self.filter_form_data = kwargs.get('filter_form_data')
+        self.attribute_form_data = kwargs.get('attribute_form_data')
+        self.attribute_order = kwargs.get('attribute_order')
+        self.elasticsearch_dsl_class = kwargs.get(
+            'elasticsearch_dsl_class')
+        self.elasticsearch_query_executor_class = kwargs.get(
+            'elasticsearch_query_executor_class')
+        self.elasticsearch_response_parser_class = kwargs.get(
+            'elasticsearch_response_parser_class')
+        self.header = None
+        self.results = None
+        self.query_body = None
+        self.elasticsearch_response_time = None
+        self.nested_attribute_fields = None
+        self.non_nested_attribute_fields = None
+        self.search_log_id = None
+
+    def run_elasticsearch_dsl(self):
+        elasticsearch_dsl = self.elasticsearch_dsl_class(
+            self.dataset_obj, self.filter_form_data, self.attribute_form_data, self.attribute_order)
+        elasticsearch_dsl.process_forms()
+        self.header = elasticsearch_dsl.get_header()
+        self.query_body = elasticsearch_dsl.get_query_body()
+        self.nested_attribute_fields = elasticsearch_dsl.get_nested_attribute_fields()
+        self.non_nested_attribute_fields = elasticsearch_dsl.get_non_nested_attribute_fields()
+
+    def run_elasticsearch_query_executor(self):
+        elasticsearch_query_executor = self.elasticsearch_query_executor_class(
+            self.dataset_obj, self.query_body)
+        self.elasticsearch_response = elasticsearch_query_executor.get_elasticsearch_response()
+        self.elasticsearch_response_time = elasticsearch_query_executor.get_elasticsearch_response_time()
+
+    def run_elasticsearch_response_parser_class(self):
+        elasticsearch_response_parser = self.elasticsearch_response_parser_class(
+            self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields)
+        self.results = elasticsearch_response_parser.get_results()
+
+    def log_search(self):
+
+        # convert to json
+        header_json = serializers.serialize("json", self.header)
+        query_body_json = json.dumps(self.query_body)
+
+        nested_attribute_fields_json = json.dumps(
+            self.nested_attribute_fields) if self.nested_attribute_fields else None
+        non_nested_attribute_fields_json = json.dumps(
+            self.non_nested_attribute_fields) if self.non_nested_attribute_fields else None
+
+        search_log_obj = core_models.SearchLog.objects.create(
+            dataset=self.dataset_obj,
+            header=header_json,
+            query=query_body_json,
+            nested_attribute_fields=nested_attribute_fields_json,
+            non_nested_attribute_fields=non_nested_attribute_fields_json,
+            dict_filter_fields=None,
+            used_keys=None,
+            filters_used=None,
+            attributes_selected='',
+        )
+
+        if self.user.is_authenticated:
+            search_log_obj.user = self.user
+            search_log_obj.save()
+
+        self.search_log_id = search_log_obj.id
+
+    def search(self):
+        self.run_elasticsearch_dsl()
+        self.run_elasticsearch_query_executor()
+        self.run_elasticsearch_response_parser_class()
+        self.log_search()
+
+    def get_header(self):
+        return self.header
+
+    def get_results(self):
+        return self.results
+
+    def get_elasticsearch_response_time(self):
+        return self.elasticsearch_response_time
+
+    def get_search_log_id(self):
+        return self.search_log_id
+
+
+class Echo(object):
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+class BaseDownloadAllResults:
+    fields_to_skip_flattening = []
+
+    def __init__(self, search_log_obj):
+        self.search_log_obj = search_log_obj
+        self.results = []
+        self.flattened_results = []
+        self.header = [ele.object for ele in serializers.deserialize("json", self.search_log_obj.header)]
+        self.query_body = json.loads(self.search_log_obj.query)
+        if self.search_log_obj.nested_attribute_fields:
+            self.nested_attribute_fields = json.loads(
+                self.search_log_obj.nested_attribute_fields)
+        else:
+            nested_attribute_fields = []
+
+        if self.search_log_obj.non_nested_attribute_fields:
+            self.non_nested_attribute_fields = json.loads(
+            self.search_log_obj.non_nested_attribute_fields)
+        else:
+            non_nested_attribute_fields = []
+
+
+    def merge_two_dicts(self, x, y):
+        z = x.copy()
+        z.update(y)
+        return z
+
+    def merge_two_dicts_array(self, input):
+        output = []
+        for x, y in input:
+            output.append(self.merge_two_dicts(x, y))
+
+        return output
+
+
+    def generate_row(self, header, tmp_source):
+        tmp = []
+        for ele in header:
+            tmp.append(str(tmp_source.get(ele.es_name, None)))
+
+        return tmp
+
+    def yield_rows(self):
+
+        header_keys = [ele.display_text for ele in self.header]
+        yield header_keys
+
+        es = elasticsearch.Elasticsearch(
+            host=self.search_log_obj.dataset.es_host)
+        for hit in elasticsearch.helpers.scan(es,
+                                query=self.query_body,
+                                scroll=u'5m',
+                                size=1000,
+                                preserve_order=False,
+                                index=self.search_log_obj.dataset.es_index_name,
+                                doc_type=self.search_log_obj.dataset.es_type_name):
+            tmp_source = hit['_source']
+            es_id = hit['_id']
+            inner_hits = hit.get('inner_hits')
+
+            tmp_source['es_id'] = es_id
+            if inner_hits:
+                for key, value in inner_hits.items():
+                    if key not in tmp_source:
+                        tmp_source[key] = []
+                    hits_hits_array = inner_hits[key]['hits']['hits']
+                    for hit in hits_hits_array:
+                        tmp_hit_dict = {}
+                        for hit_key, hit_value in hit['_source'].items():
+                            tmp_hit_dict[hit_key] = hit_value
+
+                        if tmp_hit_dict:
+                            tmp_source[key].append(tmp_hit_dict)
+
+
+
+            row = self.generate_row(self.header, tmp_source)
+            yield row
+
+    def flatten_nested_results(self):
+
+        if self.nested_attribute_fields:
+            flattened_results = []
+            results_count = 0
+            for idx, result in enumerate(self.results):
+                if results_count > self.maximum_table_size:
+                    break
+                combined = False
+                combined_nested = None
+                for idx, path in enumerate(self.nested_attribute_fields):
+                    for field_to_skip in self.fields_to_skip_flattening:
+                        if path.startswith(field_to_skip):
+                            continue
+
+                    if path not in result:
+                        continue
+
+                    if not combined:
+                        combined_nested = result[path]
+                        combined = True
+                        continue
+                    else:
+                        combined_nested = list(itertools.product(
+                            combined_nested, result[path]))
+                        combined_nested = self.merge_two_dicts_array(
+                            combined_nested)
+
+                tmp_non_nested = self.subset_dict(
+                    result, self.non_nested_attribute_fields)
+                if combined_nested:
+                    tmp_output = list(itertools.product(
+                        [tmp_non_nested, ], combined_nested))
+
+                    for x, y in tmp_output:
+                        tmp = self.merge_two_dicts(x, y)
+                        tmp["es_id"] = result["es_id"]
 
                         for field_to_skip in self.fields_to_skip_flattening:
                             if result.get(field_to_skip):
@@ -904,73 +1137,95 @@ class BaseElasticsearchResponseParser:
                         flattened_results.append(result)
                         results_count += 1
         else:
-            flattened_results = results
+            flattened_results = self.results
 
         self.flattened_results = flattened_results
 
 
-    def get_results(self):
-        self.extract_nested_results_from_elasticsearch_response()
-        if self.flatten_nested:
-            self.flatten_nested_results()
-            return self.flattened_results[:self.maximum_table_size]
-        else:
-            return self.results[:self.maximum_table_size]
 
+    # def yield_rows(self):
+    #     header = serializers.deserialize("json", self.search_log_obj.header)
+    #     query_body = json.loads(self.search_log_obj.query)
+    #     pprint.pprint(query_body)
 
-class BaseSearchElasticsearch:
+    #     if self.search_log_obj.nested_attribute_fields:
+    #         nested_attribute_fields = json.loads(
+    #             self.search_log_obj.nested_attribute_fields)
+    #     else:
+    #         nested_attribute_fields = []
 
-        def __init__(self, *args, **kwargs):
+    #     if self.search_log_obj.non_nested_attribute_fields:
+    #         non_nested_attribute_fields = json.loads(
+    #         self.search_log_obj.non_nested_attribute_fields)
+    #     else:
+    #         non_nested_attribute_fields = []
 
-            self.dataset_obj = kwargs.get('dataset_obj')
-            self.filter_form_data = kwargs.get('filter_form_data')
-            self.attribute_form_data = kwargs.get('attribute_form_data')
-            self.attribute_order = kwargs.get('attribute_order')
-            self.elasticsearch_dsl_class = kwargs.get('elasticsearch_dsl_class')
-            self.elasticsearch_query_executor_class = kwargs.get('elasticsearch_query_executor_class')
-            self.elasticsearch_response_parser_class = kwargs.get('elasticsearch_response_parser_class')
-            self.header = None
-            self.results = None
-            self.query_body = None
-            self.elasticsearch_response_time = None
-            self.nested_attribute_fields = None
-            self.non_nested_attribute_fields = None
+    #     header = [ele.object for ele in header]
+    #     header_keys = [ele.display_text for ele in header]
+    #     yield header_keys
 
+    #     es = elasticsearch.Elasticsearch(
+    #         host=self.search_log_obj.dataset.es_host)
+    #     for ele in elasticsearch.helpers.scan(es,
+    #                             query=query_body,
+    #                             scroll=u'5m',
+    #                             size=1000,
+    #                             preserve_order=False,
+    #                             index=self.search_log_obj.dataset.es_index_name,
+    #                             doc_type=self.search_log_obj.dataset.es_type_name):
+    #         result = ele['_source']
+    #         es_id = ele['_id']
+    #         inner_hits = ele.get('inner_hits')
 
-        def run_elasticsearch_dsl(self):
-            elasticsearch_dsl = self.elasticsearch_dsl_class(
-                self.dataset_obj, self.filter_form_data, self.attribute_form_data, self.attribute_order)
-            elasticsearch_dsl.process_forms()
-            self.header = elasticsearch_dsl.get_header()
-            self.query_body = elasticsearch_dsl.get_query_body()
-            self.nested_attribute_fields = elasticsearch_dsl.get_nested_attribute_fields()
-            self.non_nested_attribute_fields = elasticsearch_dsl.get_non_nested_attribute_fields()
+    #         if inner_hits:
+    #             for key, value in inner_hits.items():
+    #                 if key not in result:
+    #                     result[key] = []
+    #                 hits_hits_array = inner_hits[key]['hits']['hits']
+    #                 for hit in hits_hits_array:
+    #                     tmp_hit_dict = {}
+    #                     for hit_key, hit_value in hit['_source'].items():
+    #                         tmp_hit_dict[hit_key] = hit_value
 
+    #                     if tmp_hit_dict:
+    #                         result[key].append(tmp_hit_dict)
 
-        def run_elasticsearch_query_executor(self):
-            elasticsearch_query_executor = self.elasticsearch_query_executor_class(
-                self.dataset_obj, self.query_body)
-            self.elasticsearch_response = elasticsearch_query_executor.get_elasticsearch_response()
-            self.elasticsearch_response_time = elasticsearch_query_executor.get_elasticsearch_response_time()
+    #         final_results = []
+    #         if nested_attribute_fields:
+    #             combined = False
+    #             combined_nested = None
+    #             for idx, path in enumerate(nested_attribute_fields):
+    #                 if path not in result:
+    #                     continue
 
+    #                 if not combined:
+    #                     combined_nested = result[path]
+    #                     combined = True
+    #                     continue
+    #                 else:
+    #                     combined_nested = list(itertools.product(
+    #                         combined_nested, result[path]))
+    #                     combined_nested = merge_two_dicts_array(combined_nested)
 
+    #             tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
+    #             if combined_nested:
+    #                 tmp_output = list(itertools.product(
+    #                     [tmp_non_nested, ], combined_nested))
+    #                 for x, y in tmp_output:
+    #                     tmp = merge_two_dicts(x, y)
+    #                     if tmp not in final_results:
+    #                         final_results.append(tmp)
+    #             else:
+    #                 if result not in final_results:
+    #                     final_results.append(result)
 
-        def run_elasticsearch_response_parser_class(self):
-            elasticsearch_response_parser = self.elasticsearch_response_parser_class(self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields)
-            self.results = elasticsearch_response_parser.get_results()
+    #         else:
+    #             final_results = [result, ]
 
+    #         for idx, result in enumerate(final_results):
+    #             tmp = []
 
-        def search(self):
-            self.run_elasticsearch_dsl()
-            self.run_elasticsearch_query_executor()
-            self.run_elasticsearch_response_parser_class()
-
-
-        def get_header(self):
-            return self.header
-
-        def get_results(self):
-            return self.results
-
-        def get_elasticsearch_response_time(self):
-            return self.elasticsearch_response_time
+    #             for ele in header:
+    #                 path = ele.path
+    #                 tmp.append(str(result.get(ele.es_name, None)))
+    #             yield tmp

@@ -10,7 +10,10 @@
 <div class="well">
 
     <div class="pull-right">
-        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Request Download</a>
+        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download as OTU Table</a>
+        <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+
         <form id="download-result-form" role="form"  method="POST" action="">
             {% csrf_token %}
             <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">

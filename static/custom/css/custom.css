@@ -71,7 +71,7 @@ span.round-tab:hover {
     border: 2px solid #333;
 }
 
-#complexdiv > .wizard .nav-tabs > li {
+#genericdiv > .wizard .nav-tabs > li {
     width: 25%;
 }
 

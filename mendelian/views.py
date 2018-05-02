@@ -12,7 +12,7 @@ from core.utils import get_values_from_es
 
 
 from core.models import Dataset, Study
-from core.views import AppHomeView, SearchView
+from core.views import AppHomeView, BaseSearchView
 from core.forms import DatasetForm
 from core.utils import BaseSearchElasticsearch
 from mendelian.forms import FamilyForm, MendelianAnalysisForm
@@ -67,7 +67,7 @@ class FamilySnippetView(View):
             request, dataset_obj)
         return family_form_response
 
-class MendelianSearchView(SearchView):
+class MendelianSearchView(BaseSearchView):
     search_elasticsearch_class = MendelianSearchElasticsearch
     elasticsearch_query_executor_class = MendelianElasticSearchQueryExecutor
     elasticsearch_response_parser_class = MendelianElasticsearchResponseParser

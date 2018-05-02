@@ -1,15 +1,6 @@
-from django.views.generic.base import TemplateView
-from django.shortcuts import render
+import core
+from complex.utils import ComplexElasticsearchResponseParser
 
-
-from core.models import Dataset
-from core.views import AppHomeView, SearchView
-from .utils import ComplexElasticsearchResponseParser
-
-class ComplexHomeView(AppHomeView):
-    template_name = "complex/home.html"
-
-
-class ComplexSearchView(SearchView):
+class ComplexSearchView(core.views.BaseSearchView):
     elasticsearch_response_parser_class = ComplexElasticsearchResponseParser
 

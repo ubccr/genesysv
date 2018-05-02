@@ -9,28 +9,39 @@ from core.utils import flush_memcache
 
 
 class AppName(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.name
+
+
+class AnalysisType(TimeStampedModel):
+    name = models.CharField(max_length=64)
+    app_name = models.ForeignKey(
+        'AppName',
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
         return self.name
 
 
 class ESFilterType(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=64)
 
     def __str__(self):
         return self.name
 
 
 class FormType(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=64)
 
     def __str__(self):
         return self.name
 
 
 class WidgetType(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=64)
 
     def __str__(self):
         return self.name
@@ -39,10 +50,6 @@ class WidgetType(TimeStampedModel):
 class Study(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True)
-    app_name = models.ForeignKey(
-        'AppName',
-        on_delete=models.CASCADE,
-    )
 
     class Meta:
         unique_together = ('name', 'description',)
@@ -57,6 +64,7 @@ class Dataset(TimeStampedModel):
         'Study',
         on_delete=models.CASCADE,
     )
+    analysis_type = models.ManyToManyField(AnalysisType, blank=True)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     es_index_name = models.CharField(max_length=255)
@@ -331,7 +339,7 @@ class SearchLog(TimeStampedModel):
         on_delete=models.CASCADE,
         null=True, blank=True
     )
-    headers = models.TextField()
+    header = models.TextField()
     query = models.TextField()
     nested_attribute_fields = models.TextField(null=True, blank=True)
     non_nested_attribute_fields = models.TextField(null=True, blank=True)

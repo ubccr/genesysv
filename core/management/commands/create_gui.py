@@ -8,6 +8,7 @@ from collections import OrderedDict
 from core.utils import get_values_from_es
 from core.models import (
     AppName,
+    AnalysisType,
     ESFilterType,
     FormType,
     WidgetType,
@@ -49,13 +50,23 @@ ES_FILTER_TYPES = ("filter_term",
                    )
 
 APP_NAMES = (
+    "core",
     "complex",
     "mendelian",
     "microbiome",
 )
 
+ANALYSIS_TYPES = (
+    ("base-search", "core"),
+    ("complex","complex"),
+    ("autosomal_dominant", "mendelian"),
+    ("autosomal_recessive", "mendelian"),
+    ("compound_heterozygous", "mendelian"),
+    ("denovo", "mendelian"),
+    ("microbiome","microbiome"),
+)
 
-def add_required_model_data_to_db():
+def add_required_data_to_db():
     """Setup required models"""
     for name in FORM_TYPES:
         FormType.objects.get_or_create(name=name)
@@ -68,6 +79,9 @@ def add_required_model_data_to_db():
 
     for name in APP_NAMES:
         AppName.objects.get_or_create(name=name)
+
+    for analysis_type, app_name in ANALYSIS_TYPES:
+        AnalysisType.objects.get_or_create(name=analysis_type, app_name=AppName.objects.get(name=app_name))
 
 
 def get_order_of_import(ele, vcf_gui_mapping_order):
@@ -91,8 +105,6 @@ class Command(BaseCommand):
             "--index", help="Elasticsearch index name", required=True)
         required.add_argument(
             "--type", help="Elasticsearch doc type name", required=True)
-        required.add_argument(
-            "--app_name", help="App used for analysis (complex, mendelian, or microbiome)", required=True)
         required.add_argument("--study", help="Study name", required=True)
         required.add_argument("--dataset", help="Dataset name", required=True)
         required.add_argument(
@@ -103,13 +115,12 @@ class Command(BaseCommand):
         hostname = options.get('hostname')
         port = options.get('port')
         index_name = options.get('index')
-        app_name = options.get('app_name')
         study = options.get('study')
         dataset = options.get('dataset')
         type_name = options.get('type')
         gui_mapping = options.get('gui')
 
-        add_required_model_data_to_db()
+        add_required_data_to_db()
 
         es = elasticsearch.Elasticsearch(host=hostname, port=port)
 
@@ -136,7 +147,6 @@ class Command(BaseCommand):
             open(gui_mapping, 'r'), object_pairs_hook=OrderedDict)
 
         print("*" * 80 + "\n")
-        print('App Name: %s' % (app_name))
         print('Study Name: %s' % (study))
         print('Dataset Name: %s' % (dataset))
         print('Dataset ES Index Name: %s' % (index_name))
@@ -145,11 +155,8 @@ class Command(BaseCommand):
         print('Dataset ES Port: %s' % (port))
 
 
-        app_name_obj, created = AppName.objects.get_or_create(
-            name=app_name)
-
         study_obj, created = Study.objects.get_or_create(
-            name=study, description=study, app_name=app_name_obj)
+            name=study, description=study)
 
         dataset_obj, created = Dataset.objects.get_or_create(study=study_obj,
                                                              name=dataset,

@@ -1,6 +1,7 @@
 from collections import deque
 from datetime import datetime
 import json
+import csv
 
 from pprint import pprint
 
@@ -8,6 +9,7 @@ from pprint import pprint
 from django.views.generic.base import TemplateView
 from django.views import View
 from django.http import JsonResponse
+from django.http import StreamingHttpResponse
 from django.utils.html import mark_safe
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -16,18 +18,25 @@ from django.http import HttpResponse
 from django.http import QueryDict
 from django.core.exceptions import ValidationError
 
-from core.models import Dataset, AttributeTab, FilterTab, Study
+from core.models import Dataset, AttributeTab, FilterTab, Study, SearchLog
 from core.apps import CoreConfig
-from core.forms import DatasetForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
-from core.utils import BaseElasticSearchQueryDSL, BaseElasticSearchQueryExecutor, BaseElasticsearchResponseParser, BaseSearchElasticsearch
-
+from core.forms import StudyForm, DatasetForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
+from core.utils import (
+    BaseElasticSearchQueryDSL,
+    BaseElasticSearchQueryExecutor,
+    BaseElasticsearchResponseParser,
+    BaseSearchElasticsearch,
+    BaseDownloadAllResults,
+    Echo,
+)
 
 class MainPageView(TemplateView):
-    template_name = "home.html"
+    template_name = "core/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['studies'] = Study.objects.all()
+        study_form = StudyForm(self.request.user)
+        context['study_form'] = study_form
         return context
 
 
@@ -41,6 +50,20 @@ class AppHomeView(TemplateView):
             Study, pk=self.kwargs.get('study_id'))
         context['form'] = DatasetForm(study_obj, self.request.user)
         return context
+
+
+class DatasetSnippetView(View):
+    form_class = DatasetForm
+    template_name = "core/dataset_form_template.html"
+
+    def get(self, request, *args, **kwargs):
+        study_obj = get_object_or_404(
+            Study, pk=self.kwargs.get('study_id'))
+        print(study_obj)
+        dataset_form = self.form_class(study_obj, self.request.user)
+        context = {}
+        context['form'] = dataset_form
+        return render(request, self.template_name, context)
 
 
 class FilterSnippetView(View):
@@ -164,7 +187,28 @@ class AttributeSnippetView(View):
         return attribute_form_tabs_response
 
 
-class SearchView(View):
+class SearchRouterView(View):
+
+    def post(self, request):
+        POST_data = QueryDict(request.POST['form_data'])
+        dataset_id = POST_data.get('dataset')
+        dataset_obj = get_object_or_404(Dataset, pk=dataset_id)
+        app_name = dataset_obj.analysis_type.first().app_name.name
+
+        app_name = 'microbiome'
+
+        if app_name == 'microbiome':
+            from microbiome.views import MicrobiomeSearchView
+            return_view = MicrobiomeSearchView
+        else:
+            return_view = BaseSearchView
+
+        # return complex.views.ComplexSearchView().post(request)
+        return return_view().post(request)
+        # return BaseSearchView().post(request)
+
+
+class BaseSearchView(View):
     template_name = "core/search_results_template.html"
     start_time = None
     study_obj = None
@@ -177,11 +221,17 @@ class SearchView(View):
     elasticsearch_response_parser_class = BaseElasticsearchResponseParser
     search_elasticsearch_class = BaseSearchElasticsearch
 
-
-
     def validate_request_data(self, request):
+
+        # Get all FORM POST Data
+        POST_data = QueryDict(request.POST['form_data'])
+
         # Get Study Object
-        study_id = request.POST['study_id']
+        study_form = StudyForm(request.user, POST_data)
+        if study_form.is_valid():
+            study_id = study_form.cleaned_data['study']
+        else:
+            raise ValidationError('Invalid study!')
         self.study_obj = get_object_or_404(Study, pk=study_id)
 
         # Get Attribute Order
@@ -190,8 +240,7 @@ class SearchView(View):
         except:
             raise ValidationError('Invalid attribute!')
 
-        # Get all FORM POST Data
-        POST_data = QueryDict(request.POST['form_data'])
+
 
         # Validate Dataset
         dataset_form = DatasetForm(self.study_obj, request.user, POST_data)
@@ -216,13 +265,14 @@ class SearchView(View):
             self.attribute_form_data = attribute_form.cleaned_data
         else:
             raise ValidationError('Invalid Attribute Form!')
+
     def post(self, request, *args, **kwargs):
         self.start_time = datetime.now()
 
         self.validate_request_data(request)
 
-
         kwargs = {
+            'user': request.user,
             'dataset_obj': self.dataset_obj,
             'filter_form_data': self.filter_form_data,
             'attribute_form_data': self.attribute_form_data,
@@ -238,11 +288,35 @@ class SearchView(View):
         header = search_elasticsearch_obj.get_header()
         results = search_elasticsearch_obj.get_results()
         elasticsearch_response_time = search_elasticsearch_obj.get_elasticsearch_response_time()
+        search_log_id = search_elasticsearch_obj.get_search_log_id()
 
         context = {}
         context['header'] = header
         context['results'] = results
-        context['total_time'] = int((datetime.now()-self.start_time).total_seconds() * 1000)
         context['elasticsearch_response_time'] = elasticsearch_response_time
+        context['search_log_id'] = search_log_id
+
+        context['total_time'] = int(
+            (datetime.now() - self.start_time).total_seconds() * 1000)
 
         return render(request, self.template_name, context)
+
+
+
+class BaseDownloadView(View):
+
+    def get(self, request, *args, **kwargs):
+        search_log_obj = get_object_or_404(
+            SearchLog, pk=self.kwargs.get('search_log_id'))
+
+
+        download_obj = BaseDownloadAllResults(search_log_obj)
+        rows = download_obj.yield_rows()
+        # rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                         content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+        return response
