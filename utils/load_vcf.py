@@ -188,11 +188,14 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 				end = start + chunk_size - 1
 				if end >= interval[1]:
 					end = interval[1]
+
 				command = ["grabix", "grab", vcf, str(start), str(end)]
 				output = check_output(command)
 				try:
 					output = output.decode('ascii')
 				except ValueError:
+					log.write("ascii error: %s, %s\n" % (start, end))
+					start = end + 1
 					continue # need to check
 				# remove the header lines from output
 				lines = output.splitlines()
@@ -202,29 +205,25 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 				
 				num_variants_processed += end - start + 1
 				
-				# update start and end positions
-				start += chunk_size
-				
 				print("Pid %s: processed %d variants" % (p.pid, num_variants_processed))
-			
-				if end >= interval[1]:
+
+				# update start and end positions
+				start = end + 1
+					
+				if start >= interval[1]:
 					break
 	
 def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
-	p = re.compile(r'^(.*?)\((.*)\)') # parsing SIFT and PolyPhen predition and score
-	aac_dict = {}
+	p = re.compile(r'^(.*?)\((.*)\)') # for parsing SIFT and PolyPhen predition and score
+			
+	tmp = [info for info in info_fields if '=' in info]
+	tmp_dict = {d[0]:d[1] for d in [item.split('=') for item in tmp]}
+	for item in excluded_list:
+		if item in tmp_dict:
+			del tmp_dict[item]
 
-	for info in info_fields:
-		try:
-			key, val = info.split('=')
-		except ValueError:
-			log.write("Single value: %s\n" % info)
-			continue
-
-		if key in excluded_list:
-			continue
-
-		elif key == 'CSQ':
+	for key, val in tmp_dict.items():
+		if key == 'CSQ':
 			csq_list = []
 			info_csq = val.split(',')
 
@@ -246,10 +245,12 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							tmp_dict[key2 + '_pred'] = m.group(1)
 							tmp_dict[key2 + '_score'] = float(m.group(2))
 						else: # only pred or score are included in vep annotation
-							if isinstance(val2, float):
+							try:
 								tmp_dict[key] = float(val2)
-							else:
-								tmp_dict[key] = val2
+							except ValueError:
+								log.write("Value error: %s, %s\n" % (key, val))
+								continue
+
 					elif vcf_info['csq_dict'][key2]['type'] == 'integer':
 						if val2 == '':
 							csq_dict2[key2] = -999
@@ -257,7 +258,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							try:
 									csq_dict2[key2] = int(csq_dict2[key2])
 							except ValueError:
-								log.write("Cating to int error: %s" % info)
+								log.write("Casting to int error: %s" % info)
+								continue
+
 					elif vcf_info['csq_dict'][key2]['type'] == 'float':
 						if val2 == '':
 							csq_dict2[key2] = -999.99
@@ -266,6 +269,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								csq_dict2[key2] = float(val2)
 							except ValueError:
 								log.write("casting to float error:  %s, %s\n" % (key2, val2))
+								continue
 				
 				del csq_dict2['SIFT']
 				del csq_dict2['PolyPhen']
@@ -280,10 +284,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					if 'COSM' in csq_dict2['Existing_variation']:
 						result['in_cosmic'] = True
 
-			result['CSQ_nested'] = (csq_list)
+			result['CSQ_annotation'] = (csq_list)
 		else:
 			if args.annot == 'annovar':
 				aac_list = []
+				aac_dict = {}
 
 				if key == 'AAChange.refGene':
 					if val == '.' or val == 'UNKNOWN':
@@ -291,6 +296,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						aac_dict['exon_id'] = 'NA'
 						aac_dict['cdna_change'] = 'NA'
 						aac_dict['aa_change'] = 'NA'
+						aac_list.append(aac_dict)
 					else:
 						val_list = val.split(',')
 						for subval in val_list:
@@ -304,15 +310,15 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							else:
 								aac_dict['cdna_change'] = 'NA'
 								aac_dict['aa_change'] = 'NA'
-					aac_list.append(aac_dict)
-					result[key] = aac_list
-
+							aac_list.append(aac_dict)
+					result['refGene_annotation'] = aac_list
 				elif key == 'AAChange.ensGene':		
 					if val == '.' or val == 'UNKNOWN':
 						aac_dict['EnsembleTranscriptID'] = 'NA'
 						aac_dict['exon_id'] = 'NA'
 						aac_dict['cdna_change'] = 'NA'
 						aac_dict['aa_change'] = 'NA'
+						aac_list.append(aac_dict)
 					else:
 						val_list = val.split(',')
 						for subval in val_list:
@@ -326,35 +332,37 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								aac_dict['cdna_change'] = 'NA'
 								aac_dict['aa_change'] = 'NA'
 
-					aac_list.append(aac_dict)
-					result[key] = aac_list
+							aac_list.append(aac_dict)
+					result['ensGene_annotation'] = aac_list
 
-			try:
-				if vcf_info['info_dict'][key]['type'] == 'integer': 
-					if val == '.':
-						val = -999
-					if key == 'CIPOS' or key == 'CIEND':
-						result[key + group] = val # keep as is (i.e. string type)
+			if vcf_info['info_dict'][key]['type'] == 'integer': 
+				if val == '.':
+					val = -999
+				if key == 'CIPOS' or key == 'CIEND':
+					result[key + group] = val # keep as is (i.e. string type)
+				else:
+					if key == 'FS':
+						result[key + group] = val # keep FS interger string as is
 					else:
-						if isinstance(val, int):
+						try:
 							result[key + group] = int(val)
-						else:
-							result[key + group] = val
-				elif vcf_info['info_dict'][key]['type'] == 'float': # key in name2float:
-					if val == '.':
-	 					val = -999.99
-					else:
-						if isinstance(val, float):
-							result[key + group] = float(val)
-						else:
-							result[key + group] = val
-				else: # string type
-					if val =='.':
-						val = 'NA'
-					result[key + group] = val
-			except KeyError:
-				log.write("Key %s not found" % key)
-				continue
+						except ValueError:
+							log.write("Interger parsing problem: %s, %s\n" % (key, val))
+							continue
+
+			elif vcf_info['info_dict'][key]['type'] == 'float': 
+				if val == '.':
+ 					val = -999.99
+				else:
+					try:
+						result[key + group] = float(val)
+					except ValueError:
+						log.write("Parsing problem: %s %s\n" % (key, val))
+						continue
+			else: # string type
+				if val =='.':
+					val = 'NA'
+				result[key + group] = val
 
 			if key == 'ID' and val.startswith('rs'): 
 				result['in_dbsnp'] = True
@@ -390,7 +398,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict['AD_ref'] = int(sample_data_dict['AD_ref'])
 					sample_data_dict['AD_alt'] = int(sample_data_dict['AD_alt'])
 				else:
-					log.write("Unknown type: %s, %s\n" % (key, val))
+					#log.write("Unknown type: %s, %s\n" % (key, val))
 					sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
 			elif key == 'DP':
 				if val == '.':
@@ -538,7 +546,7 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 				batch_list.append(batch)
 
 				start = end + 1
-				if (end >= length):
+				if (start >= length):
 					break
 
 	# calculate number of batches each cpu need to process
@@ -742,10 +750,14 @@ def make_es_mapping(vcf_info):
 		del vcf_info['csq_dict']['PolyPhen']
 		del vcf_info['csq_dict']['SIFT']
 	elif args.annot == 'annovar':
-		info_dict2["annovar_nested"] = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
-		info_dict2["annovar_nested"].update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
-		info_dict2["annovar_nested"].update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		info_dict2["annovar_nested"].update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["ensGene_annotation"] = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
+		info_dict2["ensGene_annotation"].update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["ensGene_annotation"].update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["ensGene_annotation"].update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["refGene_annotation"] = {"RefSeq" : {"type" : "keyword", "null_value" : 'NA'}}
+		info_dict2["refGene_annotation"].update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["refGene_annotation"].update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		info_dict2["refGene_annotation"].update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
 		
 		if 'ANNOVAR_DATE' in info_dict2:
 			del info_dict2['ANNOVAR_DATE']
@@ -758,13 +770,27 @@ def make_es_mapping(vcf_info):
 	if 'AD' in format_dict2:
 		del format_dict2['AD']
 	
+	# first 7 columns
+	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
+				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
 	mapping = defaultdict()
 	mapping[type_name] = {}
 	mapping[type_name]["properties"] = {}
+	mapping[type_name]["properties"].update(fixed_dict)
 	mapping[type_name]["properties"].update(info_dict2)
-	mapping[type_name]["properties"]["csq_annotation"] = {}
-	csq_annot = {"type" : "nested", "properties" : vcf_info['csq_dict']}
-	mapping[type_name]["properties"]["csq_annotation"].update(csq_annot)
+
+	if args.annot == 'vep':
+		mapping[type_name]["properties"]["csq_annotation"] = {}
+		csq_annot = {"type" : "nested", "properties" : vcf_info['csq_dict']}
+		mapping[type_name]["properties"]["csq_annotation"].update(csq_annot)
+	elif args.annot == 'annovar':
+		mapping[type_name]["properties"]["refGene_annotation"] = {}
+		mapping[type_name]["properties"]["ensGene_annotation"] = {}
+		refGene_annot = {"type" : "nested", "properties" : info_dict2["refGene_annotation"]}
+		ensGene_annot = {"type" : "nested", "properties" : info_dict2["ensGene_annotation"]}
+		mapping[type_name]["properties"]['refGene_annotation'].update(refGene_annot)
+		mapping[type_name]["properties"]['ensGene_annotation'].update(ensGene_annot)
+
 	mapping[type_name]["properties"]["sample_info"] = {}
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
 	mapping[type_name]["properties"]["sample_info"].update(sample_annot) 
