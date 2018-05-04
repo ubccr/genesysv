@@ -23,7 +23,9 @@ urlpatterns = [
     path('core/', include('core.urls')),
     path('complex/', include('complex.urls')),
     path('mendelian/', include('mendelian.urls')),
+    path('microbiome/', include('microbiome.urls')),
     path('admin/', admin.site.urls),
+    path('', include('django.contrib.auth.urls')),
 
 ]
 

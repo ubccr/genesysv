@@ -998,16 +998,6 @@ class BaseSearchElasticsearch:
         return self.search_log_id
 
 
-class Echo(object):
-    """An object that implements just the write method of the file-like
-    interface.
-    """
-
-    def write(self, value):
-        """Write the value by returning it, instead of storing in a buffer."""
-        return value
-
-
 class BaseDownloadAllResults:
     fields_to_skip_flattening = []
 
@@ -1140,92 +1130,3 @@ class BaseDownloadAllResults:
             flattened_results = self.results
 
         self.flattened_results = flattened_results
-
-
-
-    # def yield_rows(self):
-    #     header = serializers.deserialize("json", self.search_log_obj.header)
-    #     query_body = json.loads(self.search_log_obj.query)
-    #     pprint.pprint(query_body)
-
-    #     if self.search_log_obj.nested_attribute_fields:
-    #         nested_attribute_fields = json.loads(
-    #             self.search_log_obj.nested_attribute_fields)
-    #     else:
-    #         nested_attribute_fields = []
-
-    #     if self.search_log_obj.non_nested_attribute_fields:
-    #         non_nested_attribute_fields = json.loads(
-    #         self.search_log_obj.non_nested_attribute_fields)
-    #     else:
-    #         non_nested_attribute_fields = []
-
-    #     header = [ele.object for ele in header]
-    #     header_keys = [ele.display_text for ele in header]
-    #     yield header_keys
-
-    #     es = elasticsearch.Elasticsearch(
-    #         host=self.search_log_obj.dataset.es_host)
-    #     for ele in elasticsearch.helpers.scan(es,
-    #                             query=query_body,
-    #                             scroll=u'5m',
-    #                             size=1000,
-    #                             preserve_order=False,
-    #                             index=self.search_log_obj.dataset.es_index_name,
-    #                             doc_type=self.search_log_obj.dataset.es_type_name):
-    #         result = ele['_source']
-    #         es_id = ele['_id']
-    #         inner_hits = ele.get('inner_hits')
-
-    #         if inner_hits:
-    #             for key, value in inner_hits.items():
-    #                 if key not in result:
-    #                     result[key] = []
-    #                 hits_hits_array = inner_hits[key]['hits']['hits']
-    #                 for hit in hits_hits_array:
-    #                     tmp_hit_dict = {}
-    #                     for hit_key, hit_value in hit['_source'].items():
-    #                         tmp_hit_dict[hit_key] = hit_value
-
-    #                     if tmp_hit_dict:
-    #                         result[key].append(tmp_hit_dict)
-
-    #         final_results = []
-    #         if nested_attribute_fields:
-    #             combined = False
-    #             combined_nested = None
-    #             for idx, path in enumerate(nested_attribute_fields):
-    #                 if path not in result:
-    #                     continue
-
-    #                 if not combined:
-    #                     combined_nested = result[path]
-    #                     combined = True
-    #                     continue
-    #                 else:
-    #                     combined_nested = list(itertools.product(
-    #                         combined_nested, result[path]))
-    #                     combined_nested = merge_two_dicts_array(combined_nested)
-
-    #             tmp_non_nested = subset_dict(result, non_nested_attribute_fields)
-    #             if combined_nested:
-    #                 tmp_output = list(itertools.product(
-    #                     [tmp_non_nested, ], combined_nested))
-    #                 for x, y in tmp_output:
-    #                     tmp = merge_two_dicts(x, y)
-    #                     if tmp not in final_results:
-    #                         final_results.append(tmp)
-    #             else:
-    #                 if result not in final_results:
-    #                     final_results.append(result)
-
-    #         else:
-    #             final_results = [result, ]
-
-    #         for idx, result in enumerate(final_results):
-    #             tmp = []
-
-    #             for ele in header:
-    #                 path = ele.path
-    #                 tmp.append(str(result.get(ele.es_name, None)))
-    #             yield tmp

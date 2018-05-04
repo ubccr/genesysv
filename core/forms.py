@@ -68,6 +68,9 @@ class FilterFormPart(forms.Form):
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(
                     label=label, required=False)
+
+                if field.default_value:
+                    self.fields[field_name].initial = field.default_value
                 if MEgroup:
                     self.fields[field_name].widget.attrs.update(
                         {'groupId': MEgroup})

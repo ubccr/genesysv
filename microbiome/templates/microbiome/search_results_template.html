@@ -8,17 +8,15 @@
 
 
 <div class="well">
-
     <div class="pull-right">
-        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Request Download</a>
-        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Download as OTU Table</a>
-        <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+        <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-download" aria-hidden="true"></i> Request Download</a>
+        {% if perms.microbiome.can_download_OTU_without_request %}
+            <a id="download-result-button" class="btn btn-primary" role="button" href="/microbiome/otu-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Download as OTU Table</a>
+        {% endif %}
+        {% if perms.microbiome.can_download_results_without_request %}
+            <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+        {% endif %}
 
-        <form id="download-result-form" role="form"  method="POST" action="">
-            {% csrf_token %}
-            <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
-            <input id="download_review_status_to_filter" style="display: none;" type="hidden" name="download_review_status_to_filter" value="false">
-        </form>
     </div>
 
     <div class="clearfix"></div>
@@ -54,6 +52,33 @@
     </div>
 </div>
 
+
+
+<!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Request Download</h4>
+        </div>
+        <div id="request-download-body" class="modal-body">
+            <form id="download_request_form" role="form"  method="POST" action="">
+                {% csrf_token %}
+                {% crispy download_request_form %}
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button id="request_download_submit" class="btn btn-submit btn-success">Submit</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 {% endblock %}
 
 <script>
@@ -68,5 +93,59 @@
 
     });
 
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function submit_download_request() {
+        console.log('Hello1')
+        var search_log_id = {{search_log_id |safe}}
+        var form_data = $("#download_request_form :input")
+            .filter(function(index, element) {
+                return $(element).val() != '';
+            })
+            .serialize();
+        console.log(search_log_id)
+        $.ajax(
+            {
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                type: "POST",
+                url : "/microbiome/request-download/" + search_log_id,
+                data: {
+                    form_data: form_data,
+                },
+                success:function(data) {
+                    $("#request-download-body").html("You have already requested download.");
+                    $('#myModal').modal('hide');
+                    $('#request_download_submit').hide()
+                },
+                error: function(xhr, status, error) {
+                  console.log(status);
+                  console.log(error);
+                }
+            }
+        );
+
+}
+
+$("#request_download_submit").on("click", function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    console.log('test')
+    submit_download_request();
+});
 
 </script>

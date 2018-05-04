@@ -8,8 +8,24 @@ from core.models import (AppName,
                          FormType,
                          Study,
                          WidgetType,
-                         SearchLog)
+                         SearchLog,
+                         FilterPanel)
 
+from django import forms
+
+class FilterPanelForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(FilterPanelForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
+                                                                               dataset=kwargs['instance'].dataset)
+            self.fields['dataset'].disabled = True
+            print(self.fields['dataset'].widget)
+
+    class Meta:
+        model = FilterPanel
+        fields = '__all__'
 
 @admin.register(AppName)
 class AppNameAdmin(admin.ModelAdmin):
@@ -32,6 +48,13 @@ class DatasetAdmin(admin.ModelAdmin):
 class AttributeFieldAdmin(admin.ModelAdmin):
     list_display = ('display_text',)
 
+@admin.register(FilterField)
+class FilterFieldAdmin(admin.ModelAdmin):
+    list_display = ('display_text', 'dataset', 'in_line_tooltip', 'tooltip', 'default_value', 'form_type', 'widget_type',
+                    'es_name', 'path', 'es_data_type', 'es_filter_type', 'place_in_panel', 'is_visible', )
+    list_filter = ('dataset',)
+    search_fields = ('display_text',)
+
 
 @admin.register(ESFilterType)
 class ESFilterTypeAdmin(admin.ModelAdmin):
@@ -51,3 +74,11 @@ class WidgetTypeAdmin(admin.ModelAdmin):
 class SearchLogAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'created', 'dataset', 'filters_used')
     list_filter = ('user', 'dataset',)
+
+
+@admin.register(FilterPanel)
+class FilterPanelAdmin(admin.ModelAdmin):
+    form = FilterPanelForm
+    list_display = ('name', 'dataset')
+    list_filter = ('dataset',)
+    search_fields = ('name',)

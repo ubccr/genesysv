@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load microbiome_tags %}
+
+{% block title %}
+    Download Request List
+{% endblock %}
+
+
+{% block content %}
+    {% if download_request_list %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>PI</th>
+            <th>Reason</th>
+            <th>Contact Email</th>
+            <th>Date Requested</th>
+            <th>Date Modified</th>
+            <th>Query</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ele in download_request_list %}
+              <tr>
+                <td>{{ele.user.first_name}} {{ele.user.last_name}} ({{ele.user.username}})</td>
+                <td>{{ele.pi}}</td>
+                <td>{{ele.reason}}</td>
+                <td>{{ele.contact_email}}</td>
+                <td style="white-space:nowrap;">{{ele.created}}</td>
+                <td style="white-space:nowrap;">{{ele.modified}}</td>
+                <td>{{ele.search_log.query|format_search_log }}</td>
+                <td style="white-space:nowrap;">
+                    {% if ele.status == 'Pending' %}
+                    <a id="download-result-button" class="btn btn-primary" role="button" href="/microbiome/approve-download-request/{{ele.id}}"><i class="fa fa-check" aria-hidden="true"></i> Approve</a>
+                    <a id="download-result-button" class="btn btn-primary" role="button" href="/microbiome/deny-download-request/{{ele.id}}"><i class="fa fa-times" aria-hidden="true"></i> Deny   </a>
+                    {% else %}
+                       {{ele.status}}
+                    {% endif %}
+                </td>
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>
+            There are no pending download requests!
+        </div>
+
+    {% endif %}
+
+{% endblock %}

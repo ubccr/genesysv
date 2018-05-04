@@ -5,11 +5,12 @@ import csv
 
 from pprint import pprint
 
-
+from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
 from django.views.generic.base import TemplateView
 from django.views import View
 from django.http import JsonResponse
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponseForbidden
 from django.utils.html import mark_safe
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -18,6 +19,7 @@ from django.http import HttpResponse
 from django.http import QueryDict
 from django.core.exceptions import ValidationError
 
+from common.utils import Echo
 from core.models import Dataset, AttributeTab, FilterTab, Study, SearchLog
 from core.apps import CoreConfig
 from core.forms import StudyForm, DatasetForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
@@ -27,7 +29,6 @@ from core.utils import (
     BaseElasticsearchResponseParser,
     BaseSearchElasticsearch,
     BaseDownloadAllResults,
-    Echo,
 )
 
 class MainPageView(TemplateView):
@@ -59,7 +60,6 @@ class DatasetSnippetView(View):
     def get(self, request, *args, **kwargs):
         study_obj = get_object_or_404(
             Study, pk=self.kwargs.get('study_id'))
-        print(study_obj)
         dataset_form = self.form_class(study_obj, self.request.user)
         context = {}
         context['form'] = dataset_form
@@ -204,12 +204,14 @@ class SearchRouterView(View):
             return_view = BaseSearchView
 
         # return complex.views.ComplexSearchView().post(request)
+        print(return_view)
         return return_view().post(request)
         # return BaseSearchView().post(request)
 
 
-class BaseSearchView(View):
+class BaseSearchView(TemplateView):
     template_name = "core/search_results_template.html"
+    call_get_context = False
     start_time = None
     study_obj = None
     dataset_obj = None
@@ -290,7 +292,13 @@ class BaseSearchView(View):
         elasticsearch_response_time = search_elasticsearch_obj.get_elasticsearch_response_time()
         search_log_id = search_elasticsearch_obj.get_search_log_id()
 
-        context = {}
+        if self.call_get_context and request.user.is_authenticated:
+            kwargs.update({'user_obj': request.user})
+            kwargs.update({'search_log_obj': SearchLog.objects.get(id=search_log_id)})
+            context = self.get_context_data(**kwargs)
+        else:
+            context = {}
+
         context['header'] = header
         context['results'] = results
         context['elasticsearch_response_time'] = elasticsearch_response_time
@@ -310,6 +318,10 @@ class BaseDownloadView(View):
             SearchLog, pk=self.kwargs.get('search_log_id'))
 
 
+        if request.user != search_log_obj.user:
+            return HttpResponseForbidden()
+
+
         download_obj = BaseDownloadAllResults(search_log_obj)
         rows = download_obj.yield_rows()
         # rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
@@ -317,6 +329,6 @@ class BaseDownloadView(View):
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse((writer.writerow(row) for row in rows),
                                          content_type="text/csv")
-        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        response['Content-Disposition'] = 'attachment; filename="search_results.csv"'
 
         return response
