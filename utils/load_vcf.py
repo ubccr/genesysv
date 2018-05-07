@@ -487,7 +487,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict[key] = 'NA'
 				else:
 					try:
-						sample_data_dict[key] = int(val) # are they all the integer type?
+						sample_data_dict[key] = eval(vcf_info['format_dict'][key]['type'])(val) # are they all the integer type?
 					except ValueError:
 						log.write("Unknown type: %s, %s\n" % (key, val))
 						continue
