@@ -288,35 +288,45 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					else:
 						if val2 == '':
 							csq_dict2_local[key2] = None
-						
+
+				tmp_dict2 = {}
+
 				for key2, val2 in csq_dict2_global.items():
-					if '&' in val2:
-						val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
-					if '&' in key2:
-						key2 = key2.split('&')[0]
-					
-					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
+					if key2 == "AF":
+						if '&' in val2:
+							val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
+						elif val2 == '':
+							val2 = -999.00
+						tmp_dict2[key2] = float(val2)
+					elif key2 == 'SOMATIC':
+						continue
+					elif key2 == 'Existing_variation':
+						if 'COSM' in val2:
+							tmp_dict2.update({'COSMIC_ID' : re.sub(r'rs\d+&', '', val2)})
+						elif val2.startswith('rs'):
+							tmp_dict2['dbSNP_ID'] = val2.replace(r'COSM\d+', '')
+					elif vcf_info['csq_dict_global'][key2]['type'] == 'integer':
 						if val2 == '':
-							csq_dict2_global[key2] = -999
+							tmp_dict2[key2] = -999
 						else:
 							try:
-								csq_dict2_global[key2] = int(csq_dict2_global[key2])
+								tmp_dict2[key2] = int(csq_dict2_global[key2])
 							except ValueError:
 								log.write("Casting to int error: %s, %s\n" % (key2, val2))
 								continue
 
 					elif vcf_info['csq_dict_global'][key2]['type'] == 'float':
 						if val2 == '':
-							csq_dict2_global[key2] = -999.99
+							tmp_dict2[key2] = -999.99
 						else:
 							try:
-								csq_dict2_global[key2] = float(val2)
+								tmp_dict2[key2] = float(val2)
 							except ValueError:
 								log.write("casting to float error:  %s, %s\n" % (key2, val2))
 								continue
 					else:
 						if val2 == '':
-							csq_dict2_global[key2] = None
+							tmp_dict2[key2] = None
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
@@ -324,7 +334,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				csq_list.append(csq_dict2_local)
 
 			result['CSQ_nested'] = (csq_list)
-			result.update(csq_dict2_global)
+			result.update(tmp_dict2)
 
 		elif key == 'AAChange.refGene':
 			aac_list = []
@@ -410,6 +420,12 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						result[key + group] = -999.99
 					else:
 						result[key] = -999.99
+
+				elif math.isinf(x):
+					if key in cohort_specific:
+						result[key + group] = 9999.99
+					else:
+						result[key] = 9999.99
 				else:
 					if key in cohort_specific:
 						result[key + group] = x
@@ -765,10 +781,54 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 def make_es_mapping(vcf_info):
 	info_dict2 = vcf_info['info_dict']
 	format_dict2 = vcf_info['format_dict']
-	csq_dict_global =vcf_info['csq_dict_global']
-	csq_dict_local = vcf_info['csq_dict_local']
+	
+	mapping = defaultdict()
+	mapping[type_name] = {}
+	mapping[type_name]["properties"] = {}
+	p = re.compile(r'snp\d+')
 
+	if args.annot == 'vep':
+		csq_dict_global =vcf_info['csq_dict_global']
+		csq_dict_local = vcf_info['csq_dict_local']
+		vcf_info['csq_dict_local'].update({'SIFT_pred' : {"type" : "keyword", "null_value" : 'NA'}})
+		vcf_info['csq_dict_local'].update({'SIFT_score' : {"type" : "float", "null_value" : -999.99}})
+		vcf_info['csq_dict_local'].update({'PolyPhen_pred' : {"type" : "keyword", "null_value" : 'NA'}})
+		vcf_info['csq_dict_local'].update({'PolyPhen_score' : {"type" : "float", "null_value" : -999.99}})
+		del csq_dict_local['PolyPhen']
+		del csq_dict_local['SIFT']
+		del csq_dict_global['SOMATIC']
+		excluded_list.append('CSQ')
+
+		csq_annot = {"type" : "nested", "properties" : csq_dict_local} #vcf_info['csq_dict_local']}
+		mapping[type_name]["properties"]["CSQ_nested"] = csq_annot
+
+		# variables used for boolean type need to have None value if empty
+		mapping[type_name]["properties"].update({"COSMIC_ID" : {"type" : "text"}, "dbSNP_ID" : {"type" : "text"}})
+		del csq_dict_global['Existing_variation']
+		mapping[type_name]["properties"].update(csq_dict_global)
+
+	elif args.annot == 'annovar':
+		#ensGene_dict = {}
+		ensGene_dict = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
+		ensGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
+		ensGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		ensGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		#refGene_dict = {}
+		refGene_dict = {"RefSeq" : {"type" : "keyword", "null_value" : 'NA'}}
+		refGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
+		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
+		mapping[type_name]["properties"]['AAChange.refGene'] = refGene_annot
+		mapping[type_name]["properties"]['AAChange.ensGene'] = ensGene_annot
+	
+		excluded_list.append('AAChange.refGene')
+		excluded_list.append('AAChange.ensGene')
+		excluded_list.append('ANNOVAR_DATE')
+	
 	tmp_keys = info_dict2.keys()
+
 	for key in tmp_keys:
 		if 'Description' in info_dict2[key]:
 			del info_dict2[key]['Description']
@@ -781,7 +841,6 @@ def make_es_mapping(vcf_info):
 			del format_dict2[key]['Description']
 
 	keys = [key	for key in info_dict2]
-	excluded_list.append('CSQ')
 	keys = [x for x in keys if x not in excluded_list]
 
 	if args.control_vcf:
@@ -805,9 +864,12 @@ def make_es_mapping(vcf_info):
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
 		elif info_dict2[key]['type'] == 'string':
-			info_dict2[key]= {'type' : 'keyword', 'null_value' : 'NA'}
-		elif info_dict2[key]['type'] == 'boolean':
-			info_dict2[key]["null_value"] = 'false'
+			m = p.match(key)
+
+			if key == 'snp138NonFlagged' or re.search(p, key):
+ 				info_dict2[key]= {'type' : 'keyword'}
+			else:
+				info_dict2[key]= {'type' : 'keyword', 'null_value' : 'NA'}
 		else:
 			info_dict2[key]["type"] = 'text'
 
@@ -823,30 +885,6 @@ def make_es_mapping(vcf_info):
 			format_dict2[key]["null_value"]  = -999.99
 
 	format_dict2['Sample_ID'] =  {'type' : 'keyword'}
-
-	# update the field list to include the expanded fields
-	if args.annot == 'vep':
-		vcf_info['csq_dict_local'].update({'SIFT_pred' : {"type" : "keyword", "null_value" : 'NA'}})
-		vcf_info['csq_dict_local'].update({'SIFT_score' : {"type" : "float", "null_value" : -999.99}})
-		vcf_info['csq_dict_local'].update({'PolyPhen_pred' : {"type" : "keyword", "null_value" : 'NA'}})
-		vcf_info['csq_dict_local'].update({'PolyPhen_score' : {"type" : "float", "null_value" : -999.99}})
-		del vcf_info['csq_dict_local']['PolyPhen']
-		del vcf_info['csq_dict_local']['SIFT']
-	elif args.annot == 'annovar':
-		ensGene_dict = {}
-		ensGene_dict = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
-		ensGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
-		ensGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		ensGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		refGene_dict = {}
-		refGene_dict = {"RefSeq" : {"type" : "keyword", "null_value" : 'NA'}}
-		refGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
-		refGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		refGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		
-		if 'ANNOVAR_DATE' in info_dict2:
-			del info_dict2['ANNOVAR_DATE']
-
 	format_dict2.update({'AD_ref' : {"type" : "integer", "null_value" : -999}})
 	format_dict2.update({'AD_alt' : {"type" : "integer", "null_value" : -999}})
 	if 'AD' in format_dict2:
@@ -856,24 +894,9 @@ def make_es_mapping(vcf_info):
 	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
 	
-	mapping = defaultdict()
-	mapping[type_name] = {}
-	mapping[type_name]["properties"] = {}
 	mapping[type_name]["properties"].update(fixed_dict)
 	mapping[type_name]["properties"].update(info_dict2)
 
-	if args.annot == 'vep':
-		csq_annot = {"type" : "nested", "properties" : csq_dict_local} #vcf_info['csq_dict_local']}
-		mapping[type_name]["properties"]["CSQ_nested"] = csq_annot
-
-		# variables used for boolean type need to have None value if empty
-		del csq_dict_global['Existing_variation']['null_value']
-		mapping[type_name]["properties"].update(csq_dict_global)
-	elif args.annot == 'annovar':
-		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
-		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
-		mapping[type_name]["properties"]['AAChange.refGene'] = refGene_annot
-		mapping[type_name]["properties"]['AAChange.ensGene'] = ensGene_annot
 
 	mapping[type_name]["properties"]["sample"] = {}
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
