@@ -127,8 +127,6 @@ def process_vcf_header(vcf):
 			type_ = p2.match(line)
 			desc_ = p3.match(line)
 			contig_ = p4.match(line)
-			if 'GQ_MEAN' in line:
-				print
 			if id_:
 				if type_:
 					if desc_:
@@ -183,8 +181,10 @@ def process_vcf_header(vcf):
 	for key in contig_dict:
 		if key in valid_chrs:
 			chr2len[key] = int(contig_dict[key]['length'])
-
-	return([num_header_lines, csq_fields, col_header, chr2len, info_dict, format_dict, contig_dict, csq_dict_local, csq_dict_global])
+	if args.annot == 'vep':
+		return([num_header_lines, csq_fields, col_header, chr2len, info_dict, format_dict, contig_dict, csq_dict_local, csq_dict_global])
+	elif args.annot == 'annovar':
+		return([num_header_lines, col_header, chr2len, info_dict, format_dict, contig_dict])
 
 def parse_vcf(vcf, interval, outfile, vcf_info):
 	p = multiprocessing.current_process()
@@ -263,13 +263,13 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							tmp_dict[key2 + '_score'] = float(m.group(2))
 						else: # empty value or only pred or score are included in vep annotation	
 							if val2 =='':
-								tmp_dict[key2 + '_pred'] = 'NA'
+								tmp_dict[key2 + '_pred'] = None
 								tmp_dict[key2 + '_score'] = -999
 							else:
 								try:
 									x = float(val2)
 									tmp_dict[key2 + '_score'] = x
-									tmp_dict[key2 + '_pred'] = 'NA'
+									tmp_dict[key2 + '_pred'] = None
 								except ValueError:
 									tmp_dict[key2 + '_score'] = -999
 									tmp_dict[key2 + '_pred'] = val2
@@ -287,7 +287,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								continue
 					else:
 						if val2 == '':
-							csq_dict2_local[key2] = 'NA'
+							csq_dict2_local[key2] = None
 						
 				for key2, val2 in csq_dict2_global.items():
 					if '&' in val2:
@@ -316,20 +316,12 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								continue
 					else:
 						if val2 == '':
-							csq_dict2_global[key2] = 'NA'
+							csq_dict2_global[key2] = None
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
 				csq_dict2_local.update(tmp_dict)	
 				csq_list.append(csq_dict2_local)
-
-				# booleans
-				if csq_dict2_global['Existing_variation'] != '':
-					if 'rs' in csq_dict2_global['Existing_variation']:
-						result['in_dbsnp'] = True
-
-					if 'COSM' in csq_dict2_global['Existing_variation']:
-						result['in_cosmic'] = True
 
 			result['CSQ_nested'] = (csq_list)
 			result.update(csq_dict2_global)
@@ -339,10 +331,10 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			aac_dict = {}
 
 			if val == '.' or val == 'UNKNOWN':
-				aac_dict['RefSeq'] = 'NA'
-				aac_dict['exon_id'] = 'NA'
-				aac_dict['cdna_change'] = 'NA'
-				aac_dict['aa_change'] = 'NA'
+				aac_dict['RefSeq'] = None
+				aac_dict['exon_id'] = None
+				aac_dict['cdna_change'] = None
+				aac_dict['aa_change'] = None
 				aac_list.append(aac_dict)
 			else:
 				val_list = val.split(',')
@@ -355,8 +347,8 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						aac_dict['cdna_change'] = cdna_aa[0]
 						aac_dict['aa_change'] = cdna_aa[1]
 					else:
-						aac_dict['cdna_change'] = 'NA'
-						aac_dict['aa_change'] = 'NA'
+						aac_dict['cdna_change'] = None
+						aac_dict['aa_change'] = None
 					aac_list.append(aac_dict)
 
 			result[key] = aac_list
@@ -364,10 +356,10 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			aac_list = []
 			aac_dict = {}
 			if val == '.' or val == 'UNKNOWN':
-				aac_dict['EnsembleTranscriptID'] = 'NA'
-				aac_dict['exon_id'] = 'NA'
-				aac_dict['cdna_change'] = 'NA'
-				aac_dict['aa_change'] = 'NA'
+				aac_dict['EnsembleTranscriptID'] = None
+				aac_dict['exon_id'] = None
+				aac_dict['cdna_change'] = None
+				aac_dict['aa_change'] = None
 				aac_list.append(aac_dict)
 			else:
 				val_list = val.split(',')
@@ -379,8 +371,8 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						aac_dict['cdna_change'] = cdna_aa[0]
 						aac_dict['aa_change'] = cdna_aa[1]
 					else:
-						aac_dict['cdna_change'] = 'NA'
-						aac_dict['aa_change'] = 'NA'
+						aac_dict['cdna_change'] = None
+						aac_dict['aa_change'] = None
 
 					aac_list.append(aac_dict)
 			result[key] = aac_list
@@ -430,21 +422,26 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					result[key] = -999.99
 				#log.write("Parsing problem: %s %s. value is assigned with -999.99\n" % (key, val))
 				continue
-
+		elif key == 'snp138NonFlagged':
+			if val == '.':
+				result[key] = None
+			else:
+				result[key] = val	
+		elif 'snp' in key:
+			if val.startswith('rs'):
+				result[key] = val
+			else:
+				result[key] = None
 		else: # string type
 			if val =='.':
-				val = 'NA'
-			val = val.replace('\\x3d', '=')
-			val = val.replace('\\x3b',';')
+				val = None
+			else:
+				val = val.replace('\\x3d', '=')
+				val = val.replace('\\x3b',';')
 			if key in cohort_specific:
 				result[key + group] = val
 			else:
 				result[key] = val
-
-		if key == 'ID' and val.startswith('rs'): 
-			result['in_dbsnp'] = True
-		if 'COSMIC_ID' in key and val !='.':
-			result['in_cosmic'] = True
 
 	return(result)
 
@@ -465,7 +462,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 		for (key, val) in sample_sub_info_dict.items():
 			if key in ['GT', 'PGT', 'PID']:
 				if val == '.':
-					sample_data_dict[key] = 'NA'
+					sample_data_dict[key] = None
 				else:
 					sample_data_dict[key] = val
 			elif ',' in val:
@@ -484,11 +481,13 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict[key] = int(val)
 			else:
 				if val == '.':
-					sample_data_dict[key] = 'NA'
+					sample_data_dict[key] = None
 				else:
-					try:
-						sample_data_dict[key] = eval(vcf_info['format_dict'][key]['type'])(val) # are they all the integer type?
-					except ValueError:
+					if vcf_info['format_dict'][key]['type'] == 'float':
+						sample_data_dict[key] = float(val)
+					elif vcf_info['format_dict'][key]['type'] == 'integer':
+						sample_data_dict[key] = int(val)
+					else:
 						log.write("Unknown type: %s, %s\n" % (key, val))
 						continue
 
@@ -536,8 +535,6 @@ def process_line_data(variant_lines, log, f, vcf_info):
 		format_fields = col_data[8].split(":")
 		
 		# parse INFO field
-		result['in_cosmic'] = False
-		result['in_dbsnp'] = False
 		result = parse_info_fields(info_fields, result, log, vcf_info)
 		
 		# parse sample related data
@@ -741,9 +738,6 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 						result[v_id]['QUAL' + group] = float(data_fixed['QUAL'])
 						result[v_id]['FILTER' + group] = data_fixed['FILTER']
 	
-						if data_fixed['ID'].startswith('rs'): # should also check the INFO field
-							result[v_id]['in_dbsnp'] = True
-		
 						if data_fixed['REF'] in ['G','A','T','C'] and data_fixed['ALT'] in ['G','A','T','C']:
 							result[v_id]['VariantType'] = 'SNV'
 						else:
@@ -852,9 +846,6 @@ def make_es_mapping(vcf_info):
 		
 		if 'ANNOVAR_DATE' in info_dict2:
 			del info_dict2['ANNOVAR_DATE']
-	
-	info_dict2.update({"in_dbsnp": {"type" : "boolean", 'null_value' : "false"}})
-	info_dict2.update({"in_cosmic": {"type" : "boolean", 'null_value' : "false"}})
 
 	format_dict2.update({'AD_ref' : {"type" : "integer", "null_value" : -999}})
 	format_dict2.update({'AD_alt' : {"type" : "integer", "null_value" : -999}})
@@ -874,6 +865,9 @@ def make_es_mapping(vcf_info):
 	if args.annot == 'vep':
 		csq_annot = {"type" : "nested", "properties" : csq_dict_local} #vcf_info['csq_dict_local']}
 		mapping[type_name]["properties"]["CSQ_nested"] = csq_annot
+
+		# variables used for boolean type need to have None value if empty
+		del csq_dict_global['Existing_variation']['null_value']
 		mapping[type_name]["properties"].update(csq_dict_global)
 	elif args.annot == 'annovar':
 		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
@@ -895,7 +889,11 @@ if __name__ == '__main__':
 	check_commandline(args)
 
 	rv = process_vcf_header(args.vcf)
-	vcf_info = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv))
+
+	if args.annot == 'vep':
+		vcf_info = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv))
+	elif args.annot == 'annovar':
+		vcf_info = dict(zip([ 'num_header_lines', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict'], rv))
 
 	if args.control_vcf:
 		rv2 = process_vcf_header(args.control_vcf)
