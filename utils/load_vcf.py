@@ -135,7 +135,7 @@ def process_vcf_header(vcf):
 							if id_.group(1).startswith('ExAC_') or id_.group(1).endswith('score') or id_.group(1).endswith('SCORE') or id_.group(1).endswith('_frequency') or id_.group(1).startswith('CADD') or id_.group(1).startswith('Eigen-') or id_.group(1).startswith('GERP++'):
 								info_dict[id_.group(1)] = {'type' : 'float', 'Description' : desc_.group(1)}
 							else:
-								info_dict[id_.group(1)] = {'type' : type_.group(1).lower(), 'Description' : desc_.group(1)}
+								info_dict[id_.group(1).replace('.', '_')] = {'type' : type_.group(1).lower(), 'Description' : desc_.group(1)}
 						elif line.startswith('##FORMAT'):
 							if id_.group(1) == 'PL': # make this as sting type
 								format_dict[id_.group(1)] = {'type' : "string", 'Description' : desc_.group(1)}
@@ -232,7 +232,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 	p = re.compile(r'^(.*?)\((.*)\)') # for parsing SIFT and PolyPhen predition and score
 			
 	tmp = [info for info in info_fields if '=' in info]
-	tmp_dict = {d[0]:d[1] for d in [item.split('=') for item in tmp]}
+	tmp_dict = {d[0].replace('.', '_'):d[1] for d in [item.split('=') for item in tmp]}
 	for item in excluded_list:
 		if item in tmp_dict:
 			del tmp_dict[item]
@@ -336,7 +336,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			result['CSQ_nested'] = (csq_list)
 			result.update(tmp_dict2)
 
-		elif key == 'AAChange.refGene':
+		elif key == 'AAChange_refGene':
 			aac_list = []
 			aac_dict = {}
 
@@ -362,7 +362,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					aac_list.append(aac_dict)
 
 			result[key] = aac_list
-		elif key == 'AAChange.ensGene':		
+		elif key == 'AAChange_ensGene':		
 			aac_list = []
 			aac_dict = {}
 			if val == '.' or val == 'UNKNOWN':
@@ -820,11 +820,11 @@ def make_es_mapping(vcf_info):
 		refGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
 		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
 		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
-		mapping[type_name]["properties"]['AAChange.refGene'] = refGene_annot
-		mapping[type_name]["properties"]['AAChange.ensGene'] = ensGene_annot
+		mapping[type_name]["properties"]['AAChange_refGene'] = refGene_annot
+		mapping[type_name]["properties"]['AAChange_ensGene'] = ensGene_annot
 	
-		excluded_list.append('AAChange.refGene')
-		excluded_list.append('AAChange.ensGene')
+		excluded_list.append('AAChange_refGene')
+		excluded_list.append('AAChange_ensGene')
 		excluded_list.append('ANNOVAR_DATE')
 	
 	tmp_keys = info_dict2.keys()
@@ -902,8 +902,43 @@ def make_es_mapping(vcf_info):
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
 	mapping[type_name]["properties"]["sample"].update(sample_annot) 
 
-	with open("my_mapping.json", 'w') as f:
+	outputfile = os.path.basename(args.vcf) + '_mapping.json'
+	with open(outputfile, 'w') as f:
 		json.dump(mapping, f, sort_keys=True, indent=4, ensure_ascii=True)
+
+def make_gui(vcf_info, mapping):
+	info_dict = vcf_info['info_dict']
+	format_dict = vcf_info['format_dict']
+	gui_mapping = {}
+
+	SelectMultiple = ['CHROM', 'cytoBand', 'Func_ensGene', 'Func_refGene']
+
+	for key in info_dict:
+		gui_mapping[key] = {"filters": [{"display_text": key, 
+										"es_filter_type": "es_filter_type", 
+										"form_type": "form_type",
+										"tooltip": info_dict[key]['Description'],
+										"in_line_tooltip": "in_line_tooltip",
+										"values": "get_from_es()",
+										"widget_type": "SelectMultiple"}
+								],
+							"panel": "panel",
+							"tab": "Basic"
+							}
+	
+		if info_dict[key]['type'] == 'integer':
+			gui_mapping[key]['filters'][0]['form_type'] = "CharField"
+			gui_mapping[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
+			gui_mapping[key]['filters'][0]['in_line_tooltip'] = "(>=)"
+			gui_mapping[key]['filters'][0]['widget_type'] = "TextInput"
+
+			gui_mapping[key]['filters'][1].append(gui_mapping[key]['filters'][0])
+			gui_mapping[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
+			gui_mapping[key]['filters'][1]['in_line_tooltip'] = "(<=)"
+			
+		elif info_dict[key]['type'] == 'float':
+			pass
+
 
 
 if __name__ == '__main__':
@@ -923,6 +958,8 @@ if __name__ == '__main__':
 		vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
 		vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
 
+	with open("vcf_info.json", 'w') as f:
+		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
 	es = elasticsearch.Elasticsearch( host=args.hostname, port=args.port, request_timeout=180)
 
 
@@ -952,8 +989,13 @@ if __name__ == '__main__':
 	print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
 
 	make_es_mapping(vcf_info)
-	mapping = json.load(open("my_mapping.json", 'r'))
+	mapping_file = os.path.basename(args.vcf) + '_mapping.json'
+	mapping = json.load(open(mapping_file, 'r'))
 	es.indices.put_mapping(index=index_name, doc_type=type_name, body=mapping)
+
+	# before creating index, make a gui mapping file
+	#make_gui(vcf_info, mapping)	
+
 	for infile in output_files:
 		print("Indexing file %s" % infile)
 		data = []
