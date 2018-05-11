@@ -902,7 +902,7 @@ def make_es_mapping(vcf_info):
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
 	mapping[type_name]["properties"]["sample"].update(sample_annot) 
 
-	outputfile = os.path.basename(args.vcf) + '_mapping.json'
+	outputfile = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_mapping.json'
 	with open(outputfile, 'w') as f:
 		json.dump(mapping, f, sort_keys=True, indent=4, ensure_ascii=True)
 
@@ -957,8 +957,8 @@ if __name__ == '__main__':
 		rv2 = process_vcf_header(args.control_vcf)
 		vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
 		vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
-
-	with open("vcf_info.json", 'w') as f:
+	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
+	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
 	es = elasticsearch.Elasticsearch( host=args.hostname, port=args.port, request_timeout=180)
 
