@@ -810,12 +810,10 @@ def make_es_mapping(vcf_info):
 		mapping[type_name]["properties"].update(csq_dict_global)
 
 	elif args.annot == 'annovar':
-		#ensGene_dict = {}
 		ensGene_dict = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
 		ensGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
 		ensGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
 		ensGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		#refGene_dict = {}
 		refGene_dict = {"RefSeq" : {"type" : "keyword", "null_value" : 'NA'}}
 		refGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
 		refGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
@@ -892,6 +890,13 @@ def make_es_mapping(vcf_info):
 	if 'AD' in format_dict2:
 		del format_dict2['AD']
 	
+	if args.ped:
+		format_dict2.update({'Family_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
+		format_dict2.update({'Father_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
+		format_dict2.update({'Mother_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
+		format_dict2.update({'Sex' : {'type' : 'keyword', 'null_value' : 'NA'}})
+		format_dict2.update({'Phenotype' : {'type' : 'keyword', 'null_value' : 'NA'}})
+
 	# first 7 columns
 	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
@@ -925,39 +930,6 @@ def make_es_mapping(vcf_info):
 
 	return(create_filename)
 
-def make_gui(vcf_info, mapping):
-	info_dict = vcf_info['info_dict']
-	format_dict = vcf_info['format_dict']
-	gui_mapping = {}
-
-	SelectMultiple = ['CHROM', 'cytoBand', 'Func_ensGene', 'Func_refGene']
-
-	for key in info_dict:
-		gui_mapping[key] = {"filters": [{"display_text": key, 
-										"es_filter_type": "es_filter_type", 
-										"form_type": "form_type",
-										"tooltip": info_dict[key]['Description'],
-										"in_line_tooltip": "in_line_tooltip",
-										"values": "get_from_es()",
-										"widget_type": "SelectMultiple"}
-								],
-							"panel": "panel",
-							"tab": "Basic"
-							}
-	
-		if info_dict[key]['type'] == 'integer':
-			gui_mapping[key]['filters'][0]['form_type'] = "CharField"
-			gui_mapping[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
-			gui_mapping[key]['filters'][0]['in_line_tooltip'] = "(>=)"
-			gui_mapping[key]['filters'][0]['widget_type'] = "TextInput"
-
-			gui_mapping[key]['filters'][1].append(gui_mapping[key]['filters'][0])
-			gui_mapping[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
-			gui_mapping[key]['filters'][1]['in_line_tooltip'] = "(<=)"
-			
-		elif info_dict[key]['type'] == 'float':
-			pass
-
 
 
 if __name__ == '__main__':
@@ -976,13 +948,16 @@ if __name__ == '__main__':
 		rv2 = process_vcf_header(args.control_vcf)
 		vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
 		vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
+
+	# below are for develpong gui code only, remove after done
 	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
+	
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180)
 
 
-
+	# insert pedegree data if ped file is specified
 	if args.ped:
 		ped_info = process_ped_file(args.ped)
 		vcf_info['ped_info'] = ped_info
