@@ -45,6 +45,8 @@ if (num_cpus is None):
 else:
 	num_cpus = int(args.num_cores)
 
+hostname = args.hostname
+port = args.port
 index_name = args.index
 type_name = index_name + '_' #'gdwtest'
 
@@ -902,9 +904,26 @@ def make_es_mapping(vcf_info):
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
 	mapping[type_name]["properties"]["sample"].update(sample_annot) 
 
-	outputfile = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_mapping.json'
-	with open(outputfile, 'w') as f:
-		json.dump(mapping, f, sort_keys=True, indent=4, ensure_ascii=True)
+
+	index_settings = {}
+	index_settings["settings"] = {
+		"number_of_shards": 7,
+		"number_of_replicas": 1,
+		"refresh_interval": "1s"
+	}
+
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	create_filename = os.path.join(dir_path,  'es_scripts', 'create_index_%s_and_put_mapping_%s.sh' % (index_name, type_name))
+
+	with open(create_filename, 'w') as fp:
+		fp.write("curl -XPUT \'%s:%s/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name))
+		json.dump(index_settings, fp, sort_keys=True, indent=2, ensure_ascii=False)
+		fp.write("\'\n")
+		fp.write("curl -XPUT \'%s:%s/%s/_mapping/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name, type_name))
+		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
+		fp.write("\'")
+
+	return(create_filename)
 
 def make_gui(vcf_info, mapping):
 	info_dict = vcf_info['info_dict']
@@ -960,18 +979,9 @@ if __name__ == '__main__':
 	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
-	es = elasticsearch.Elasticsearch( host=args.hostname, port=args.port, request_timeout=180)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180)
 
 
-	# prepare for elasticsearch 
-	if es.indices.exists(index_name):
-		print("deleting '%s' index..." % index_name)
-		res = es.indices.delete(index = index_name)
-		print("response: '%s'" % res)
-
-	print("creating '%s' index..." % index_name)
-	res = es.indices.create(index = index_name)
-	print("response: '%s'" % res)
 
 	if args.ped:
 		ped_info = process_ped_file(args.ped)
@@ -988,10 +998,17 @@ if __name__ == '__main__':
 
 	print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
 
-	make_es_mapping(vcf_info)
-	mapping_file = os.path.basename(args.vcf) + '_mapping.json'
-	mapping = json.load(open(mapping_file, 'r'))
-	es.indices.put_mapping(index=index_name, doc_type=type_name, body=mapping)
+	create_index_script = make_es_mapping(vcf_info)
+
+	# prepare for elasticsearch 
+	if es.indices.exists(index_name):
+		print("deleting '%s' index..." % index_name)
+		res = es.indices.delete(index = index_name)
+		print("response: '%s'" % res)
+
+	print("creating '%s' index..." % index_name)
+	res = check_output(["bash", create_index_script])
+	print("Response: '%s'" % res.decode('ascii'))
 
 	# before creating index, make a gui mapping file
 	#make_gui(vcf_info, mapping)	
