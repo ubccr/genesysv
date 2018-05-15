@@ -344,23 +344,23 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 			if val == '.' or val == 'UNKNOWN':
 				aac_dict['RefSeq'] = None
-				aac_dict['exon_id'] = None
-				aac_dict['cdna_change'] = None
-				aac_dict['aa_change'] = None
+				aac_dict['exon_id_rg'] = None
+				aac_dict['cdna_change_rg'] = None
+				aac_dict['aa_change_rg'] = None
 				aac_list.append(aac_dict)
 			else:
 				val_list = val.split(',')
 				for subval in val_list:
 					gene, refseq, exon, *cdna_aa = subval.split(':')
 					aac_dict['RefSeq'] = refseq
-					aac_dict['exon_id'] = exon
+					aac_dict['exon_id_rg'] = exon
 
 					if len(cdna_aa) == 2:
-						aac_dict['cdna_change'] = cdna_aa[0]
-						aac_dict['aa_change'] = cdna_aa[1]
+						aac_dict['cdna_change_rg'] = cdna_aa[0]
+						aac_dict['aa_change_rg'] = cdna_aa[1]
 					else:
-						aac_dict['cdna_change'] = None
-						aac_dict['aa_change'] = None
+						aac_dict['cdna_change_rg'] = None
+						aac_dict['aa_change_rg'] = None
 					aac_list.append(aac_dict)
 
 			result[key] = aac_list
@@ -369,22 +369,22 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			aac_dict = {}
 			if val == '.' or val == 'UNKNOWN':
 				aac_dict['EnsembleTranscriptID'] = None
-				aac_dict['exon_id'] = None
-				aac_dict['cdna_change'] = None
-				aac_dict['aa_change'] = None
+				aac_dict['exon_id_eg'] = None
+				aac_dict['cdna_change_eg'] = None
+				aac_dict['aa_change_eg'] = None
 				aac_list.append(aac_dict)
 			else:
 				val_list = val.split(',')
 				for subval in val_list:
 					gene, transcript, exon, *cdna_aa = subval.split(':')
 					aac_dict['EnsembleTranscriptID'] = transcript
-					aac_dict['exon_id'] = exon
+					aac_dict['exon_id_eg'] = exon
 					if len(cdna_aa) == 2:
-						aac_dict['cdna_change'] = cdna_aa[0]
-						aac_dict['aa_change'] = cdna_aa[1]
+						aac_dict['cdna_change_eg'] = cdna_aa[0]
+						aac_dict['aa_change_eg'] = cdna_aa[1]
 					else:
-						aac_dict['cdna_change'] = None
-						aac_dict['aa_change'] = None
+						aac_dict['cdna_change_eg'] = None
+						aac_dict['aa_change_eg'] = None
 
 					aac_list.append(aac_dict)
 			result[key] = aac_list
@@ -811,13 +811,13 @@ def make_es_mapping(vcf_info):
 
 	elif args.annot == 'annovar':
 		ensGene_dict = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
-		ensGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
-		ensGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		ensGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		ensGene_dict.update({"exon_id_eg" : {"type" : "keyword", "null_value" : 'NA'}})
+		ensGene_dict.update({"cdna_change_eg" : {"type" : "keyword", "null_value" : 'NA'}})
+		ensGene_dict.update({"aa_change_eg" : {"type" : "keyword", "null_value" : 'NA'}})
 		refGene_dict = {"RefSeq" : {"type" : "keyword", "null_value" : 'NA'}}
-		refGene_dict.update({"exon_id" : {"type" : "keyword", "null_value" : 'NA'}})
-		refGene_dict.update({"cdna_change" : {"type" : "keyword", "null_value" : 'NA'}})
-		refGene_dict.update({"aa_change" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_dict.update({"exon_id_rg" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_dict.update({"cdna_change_rg" : {"type" : "keyword", "null_value" : 'NA'}})
+		refGene_dict.update({"aa_change_rg" : {"type" : "keyword", "null_value" : 'NA'}})
 		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
 		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
 		mapping[type_name]["properties"]['AAChange_refGene'] = refGene_annot
@@ -914,21 +914,33 @@ def make_es_mapping(vcf_info):
 	index_settings["settings"] = {
 		"number_of_shards": 7,
 		"number_of_replicas": 1,
-		"refresh_interval": "1s"
+		"refresh_interval": "1s",
+		"index.merge.policy.max_merge_at_once": 7,
+		"index.merge.scheduler.max_thread_count": 7,
+		"index.merge.scheduler.max_merge_count": 7,
+		"index.merge.policy.floor_segment": "100mb",
+		"index.merge.policy.segments_per_tier": 25,
+		"index.merge.policy.max_merged_segment": "10gb"
 	}
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
-	create_filename = os.path.join(dir_path,  'es_scripts', 'create_index_%s_and_put_mapping_%s.sh' % (index_name, type_name))
-
-	with open(create_filename, 'w') as fp:
+	print(dir_path)
+	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
+	print(dir_path)
+	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name) 
+	
+	with open(create_index_script, 'w') as fp:
 		fp.write("curl -XPUT \'%s:%s/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name))
 		json.dump(index_settings, fp, sort_keys=True, indent=2, ensure_ascii=False)
 		fp.write("\'\n")
 		fp.write("curl -XPUT \'%s:%s/%s/_mapping/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name, type_name))
 		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
 		fp.write("\'")
+		
+	with open(mapping_file, 'w') as fp:
+		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
 
-	return(create_filename)
+	return(create_index_script, mapping_file)
 
 
 
@@ -973,7 +985,7 @@ if __name__ == '__main__':
 
 	print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
 
-	create_index_script = make_es_mapping(vcf_info)
+	create_index_script, _ = make_es_mapping(vcf_info)
 
 	# prepare for elasticsearch 
 	if es.indices.exists(index_name):
