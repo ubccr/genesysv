@@ -1,98 +1,47 @@
+{% extends 'core/search_results_template.html' %}
 {% load crispy_forms_tags %}
 {% load core_tags %}
 {% load staticfiles %}
 {% load humanize %}
 
-
-{% block content %}
-
+{% block well %}
 
 <div class="well">
     <div class="pull-right">
-        <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-download" aria-hidden="true"></i> Request Download</a>
-        {% if perms.microbiome.can_download_OTU_without_request %}
-            <a id="download-result-button" class="btn btn-primary" role="button" href="/microbiome/otu-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Download as OTU Table</a>
-        {% endif %}
-        {% if perms.microbiome.can_download_results_without_request %}
-            <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
-        {% endif %}
-
+        <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-download" aria-hidden="true"></i> Request Download</a> {% if perms.microbiome.can_download_OTU_without_request %}
+        <a id="download-result-button" class="btn btn-primary" role="button" href="/microbiome/otu-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Download as OTU Table</a> {% endif %} {% if perms.microbiome.can_download_results_without_request %}
+        <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a> {% endif %}
     </div>
-
     <div class="clearfix"></div>
 </div>
 
+{% endblock %}
 
+{% block custom %}
 
-<div class="panel panel-primary">
-    <div class="panel-body">
-        <div class="table-responsive">
-            <table id="result-table" class="table display compact" cellspacing="0" width="100%">
-                <thead>
-                    <tr>
-                        {% for element in header %}
-                        <th>{{element.display_text}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in results %}
-                    <tr>
-                        {% for element in header %}
-                        <td>{{ row|get_value_from_dict_core:element|safe }}
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            Total Time: <strong>{{total_time}} ms</strong> <br>
-            Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong>
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Request Download</h4>
+            </div>
+            <div id="request-download-body" class="modal-body">
+                <form id="download_request_form" role="form" method="POST" action="">
+                    {% csrf_token %} {% crispy download_request_form %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="request_download_submit" class="btn btn-submit btn-success">Submit</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
 
-
-
-<!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Request Download</h4>
-        </div>
-        <div id="request-download-body" class="modal-body">
-            <form id="download_request_form" role="form"  method="POST" action="">
-                {% csrf_token %}
-                {% crispy download_request_form %}
-            </form>
-        </div>
-        <div class="modal-footer">
-          <button id="request_download_submit" class="btn btn-submit btn-success">Submit</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-{% endblock %}
-
 <script>
-
-
-    $(document).ready(function() {
-
-        $('#result-table').DataTable({
-            "iDisplayLength": 25,
-            "bSortClasses": false
-        });
-
-    });
-
 
 function getCookie(name) {
     var cookieValue = null;
@@ -111,34 +60,28 @@ function getCookie(name) {
 }
 
 function submit_download_request() {
-        console.log('Hello1')
-        var search_log_id = {{search_log_id |safe}}
-        var form_data = $("#download_request_form :input")
-            .filter(function(index, element) {
-                return $(element).val() != '';
-            })
-            .serialize();
-        console.log(search_log_id)
-        $.ajax(
-            {
-                headers: {'X-CSRFToken': getCookie('csrftoken')},
-                type: "POST",
-                url : "/microbiome/request-download/" + search_log_id,
-                data: {
-                    form_data: form_data,
-                },
-                success:function(data) {
-                    $("#request-download-body").html("You have already requested download.");
-                    $('#myModal').modal('hide');
-                    $('#request_download_submit').hide()
-                },
-                error: function(xhr, status, error) {
-                  console.log(status);
-                  console.log(error);
-                }
-            }
-        );
-
+    var search_log_id = {{ search_log_id | safe }};
+    var form_data = $("#download_request_form :input")
+        .filter(function(index, element) {
+            return $(element).val() != '';
+        }).serialize();
+    $.ajax({
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        type: "POST",
+        url: "/microbiome/request-download/" + search_log_id,
+        data: {
+            form_data: form_data,
+        },
+        success: function(data) {
+            $("#request-download-body").html("You have already requested download.");
+            $('#myModal').modal('hide');
+            $('#request_download_submit').hide()
+        },
+        error: function(xhr, status, error) {
+            console.log(status);
+            console.log(error);
+        }
+    });
 }
 
 $("#request_download_submit").on("click", function(event) {
@@ -147,5 +90,7 @@ $("#request_download_submit").on("click", function(event) {
     console.log('test')
     submit_download_request();
 });
-
 </script>
+
+
+{% endblock %}

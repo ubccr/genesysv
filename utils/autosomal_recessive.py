@@ -17,11 +17,11 @@ query_string = """
             "query" : {
                 "bool" : {
                     "filter" : [
-                        { "match" : {"sample.sample_ID" : "%s"} }
+                        { "match" : {"sample.Sample_ID" : "%s"} }
                     ],
                     "should" : [
-                        { "match" : {"sample.sample_GT" : "1/1"} },
-                        { "match" : {"sample.sample_GT" : "1|1"} }
+                        { "match" : {"sample.GT" : "1/1"} },
+                        { "match" : {"sample.GT" : "1|1"} }
                     ],
                     "minimum_should_match": 1
                 }
@@ -42,21 +42,17 @@ def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
     mother_gt = father_gt = child_gt = None
     for ele in sample_array:
 
-        sample_id = ele.get('sample_ID')
+        sample_id = ele.get('Sample_ID')
 
         if sample_id not in looking_for_ids:
             continue
 
         if sample_id == father_id:
-            father_gt = ele.get('sample_GT')
-            if father_gt in ['0/0', '0|0', ]:
-                continue
+            father_gt = ele.get('GT')
         elif sample_id == mother_id:
-            mother_gt = ele.get('sample_GT')
-            if mother_gt in ['0/0', '0|0', ]:
-                continue
+            mother_gt = ele.get('GT')
         elif sample_id == child_id:
-            child_gt = ele.get('sample_GT')
+            child_gt = ele.get('GT')
 
     if not all((father_gt, mother_gt, child_gt)):
         return None
@@ -80,8 +76,8 @@ for ele in helpers.scan(es,
                         scroll=u'5m',
                         size=1000,
                         preserve_order=False,
-                        index='trio_trim',
-                        doc_type='trio_trim'):
+                        index='test1',
+                        doc_type='test1_'):
 
     result = ele['_source']
     autosomal_recessive = is_autosomal_recessive(

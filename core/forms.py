@@ -9,12 +9,11 @@ from core.models import AttributeField, FilterField, FilterFieldChoice
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 
 
-
 class StudyForm(forms.Form):
     # You have to comment out study choices before migrating
 
     def __init__(self, user, *args, **kwargs):
-        super(StudyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         user_group_ids = [group.id for group in user.groups.all()]
         # user_dataset = Dataset.objects.all()
         user_dataset = Dataset.objects.select_related('study').filter(
@@ -29,11 +28,10 @@ class StudyForm(forms.Form):
             label='Study', choices=STUDY_CHOICES)
 
 
-
 class DatasetForm(forms.Form):
 
     def __init__(self, study_obj, user, *args, **kwargs):
-        super(DatasetForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         user_group_ids = [group.id for group in user.groups.all()]
 
         user_dataset = Dataset.objects.filter(study=study_obj)
@@ -46,11 +44,24 @@ class DatasetForm(forms.Form):
         self.fields['dataset'] = forms.ChoiceField(
             label='Dataset', choices=DATASET_CHOICES)
 
+
+class AnalysisTypeForm(forms.Form):
+
+    def __init__(self, dataset_obj, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        ANALYSIS_TYPE_CHOICES = [(analysis.id, analysis.name)
+                           for analysis in dataset_obj.analysis_type.all()]
+        ANALYSIS_TYPE_CHOICES.insert(0, ('', '---'))
+        self.fields['analysis_type'] = forms.ChoiceField(
+            label='Analysis Type', choices=ANALYSIS_TYPE_CHOICES)
+
+
 class FilterFormPart(forms.Form):
     """Filter Form Part is used to create snippet. Filter Form is used to validate the POST data"""
 
     def __init__(self, fields, MEgroup=None, *args, **kwargs):
-        super(FilterFormPart, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in fields:
 
@@ -125,7 +136,7 @@ class FilterForm(forms.Form):
     """Filter Form Part is used to create snippet. Filter Form is used to validate the POST data"""
 
     def __init__(self, dataset, *args, **kwargs):
-        super(FilterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in FilterField.objects.filter(dataset=dataset).select_related(
                 'widget_type', 'form_type', 'es_filter_type'):
@@ -142,7 +153,6 @@ class FilterForm(forms.Form):
             if field.form_type.name == "CharField" and field.widget_type.name == "TextInput":
                 self.fields[field_name] = forms.CharField(
                     label=label, required=False)
-                self.fields[field_name].widget.attrs.update({'Khawar': 'off'})
 
             elif field.form_type.name == "MultipleChoiceField" and field.widget_type.name == "SelectMultiple":
                 CHOICES = [(ele.value, ' '.join(ele.value.split('_')))
@@ -169,12 +179,10 @@ class FilterForm(forms.Form):
                     attrs={'rows': 4, 'class': 'upload-field'}), label=label, required=False)
 
 
-
-
 class AttributeFormPart(forms.Form):
 
     def __init__(self, fields, *args, **kwargs):
-        super(AttributeFormPart, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in fields:
             label = field.display_text
@@ -186,7 +194,7 @@ class AttributeFormPart(forms.Form):
 class AttributeForm(forms.Form):
 
     def __init__(self, dataset, *args, **kwargs):
-        super(AttributeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in dataset.attributefield_set.all():
             label = field.display_text

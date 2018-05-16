@@ -3,67 +3,58 @@
 {% load staticfiles %}
 {% load humanize %}
 
-
-{% block content %}
-
-
+{% block well %}
 <div class="well">
-
-    <div class="pull-right">
-        <a id="download-result-button" class="btn btn-primary" role="button" href="#"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
-        <form id="download-result-form" role="form"  method="POST" action="">
-            {% csrf_token %}
-            <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
-            <input id="download_review_status_to_filter" style="display: none;" type="hidden" name="download_review_status_to_filter" value="false">
-        </form>
-    </div>
-
-    <div class="clearfix"></div>
+  <div class="pull-right">
+    <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+    <form id="download-result-form" role="form" method="POST" action="">
+      {% csrf_token %}
+      <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
+      <input id="download_review_status_to_filter" style="display: none;" type="hidden" name="download_review_status_to_filter" value="false">
+    </form>
+  </div>
+  <div class="clearfix"></div>
 </div>
-
-
-
-<div class="panel panel-primary">
-    <div class="panel-body">
-        <div class="table-responsive">
-            <table id="result-table" class="table display compact" cellspacing="0" width="100%">
-                <thead>
-                    <tr>
-                        {% for element in header %}
-                        <th>{{element.display_text}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in results %}
-                    <tr>
-                        {% for element in header %}
-                        <td>{{ row|get_value_from_dict_core:element|safe }}
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            Total Time: <strong>{{total_time}} ms</strong> <br>
-            Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
 
+{% block content %}
+<div class="panel panel-primary">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table id="result-table" class="table display compact" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            {% for element in header %}
+            <th>{{element.display_text}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in results %}
+          <tr>
+            {% for element in header %}
+            <td>{{ row|get_value_from_dict_core:element|safe }}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      Total Time: <strong>{{total_time}} ms</strong>
+      {% if elasticsearch_response_time %}
+        <br> Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong>
+      {% endif %}
+    </div>
+  </div>
+</div>
 <script>
+$(document).ready(function () {
 
+  $('#result-table').DataTable({
+    "iDisplayLength": 25,
+    "bSortClasses": false
+  });
 
-    $(document).ready(function() {
-
-        $('#result-table').DataTable({
-            "iDisplayLength": 25,
-            "bSortClasses": false
-        });
-
-    });
-
-
+});
 </script>
+{% endblock %}

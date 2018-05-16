@@ -17,11 +17,7 @@ denovo_query_string = """
             "query" : {
                 "bool" : {
                     "filter" : [
-                        { "term" : {"sample.sample_ID" : "%s"} }
-                    ],
-                    "must_not" : [
-                        { "term" : {"sample.sample_GT" : "0/0"} },
-                        { "term" : {"sample.sample_GT" : "0|0"} }
+                        { "term" : {"sample.Sample_ID" : "%s"} }
                     ]
                 }
             }
@@ -41,31 +37,25 @@ child_id = "4805"
 
 
 def is_denovo(sample_array, father_id, mother_id, child_id):
-
     looking_for_ids = (father_id, mother_id, child_id)
     mother_gt = father_gt = child_gt = None
     for ele in sample_array:
 
-        sample_id = ele.get('sample_ID')
+        sample_id = ele.get('Sample_ID')
 
         if sample_id not in looking_for_ids:
             continue
 
         if sample_id == father_id:
-            father_gt = ele.get('sample_GT')
-            if father_gt not in ['0/0', '0|0', ]:
-                return None
+            return None
         elif sample_id == mother_id:
-            mother_gt = ele.get('sample_GT')
-            if mother_gt not in ['0/0', '0|0', ]:
-                return None
+            return None
         elif sample_id == child_id:
-            child_gt = ele.get('sample_GT')
+            child_gt = ele.get('GT')
+            if child_gt not in ['0/1', '0|1', '0|1']:
+                None
 
-    if not all((father_gt, mother_gt, child_gt)):
-        return None
-
-    return (father_gt, mother_gt, child_gt)
+    return ('N/A', 'N/A', child_gt)
 
 denovo_query = json.loads(denovo_query_string % (child_id))
 denovo_count = 0
@@ -75,8 +65,8 @@ for ele in helpers.scan(es,
                         scroll=u'5m',
                         size=1000,
                         preserve_order=False,
-                        index='trio_trim',
-                        doc_type='trio_trim'):
+                        index='test1',
+                        doc_type='test1_'):
 
     result = ele['_source']
     denovo = is_denovo(result.get('sample'), father_id, mother_id, child_id)

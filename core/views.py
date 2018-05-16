@@ -20,9 +20,9 @@ from django.http import QueryDict
 from django.core.exceptions import ValidationError
 
 from common.utils import Echo
-from core.models import Dataset, AttributeTab, FilterTab, Study, SearchLog
+from core.models import Dataset, AnalysisType, AttributeTab, FilterTab, Study, SearchLog
 from core.apps import CoreConfig
-from core.forms import StudyForm, DatasetForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
+from core.forms import StudyForm, DatasetForm, AnalysisTypeForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
 from core.utils import (
     BaseElasticSearchQueryDSL,
     BaseElasticSearchQueryExecutor,
@@ -63,6 +63,19 @@ class DatasetSnippetView(View):
         dataset_form = self.form_class(study_obj, self.request.user)
         context = {}
         context['form'] = dataset_form
+        return render(request, self.template_name, context)
+
+
+class AnalysisTypeSnippetView(View):
+    form_class = AnalysisTypeForm
+    template_name = "core/analysis_type_form_template.html"
+
+    def get(self, request, *args, **kwargs):
+        dataset_obj = get_object_or_404(
+            Dataset, pk=self.kwargs.get('dataset_id'))
+        analysis_type_form = self.form_class(dataset_obj, self.request.user)
+        context = {}
+        context['form'] = analysis_type_form
         return render(request, self.template_name, context)
 
 
@@ -193,20 +206,36 @@ class SearchRouterView(View):
         POST_data = QueryDict(request.POST['form_data'])
         dataset_id = POST_data.get('dataset')
         dataset_obj = get_object_or_404(Dataset, pk=dataset_id)
-        app_name = dataset_obj.analysis_type.first().app_name.name
-
-        app_name = 'microbiome'
+        analysis_type_id = POST_data.get('analysis_type')
+        analysis_type_obj = get_object_or_404(AnalysisType, pk=analysis_type_id)
+        app_name = analysis_type_obj.app_name.name
 
         if app_name == 'microbiome':
             from microbiome.views import MicrobiomeSearchView
             return_view = MicrobiomeSearchView
+        elif app_name == 'complex':
+            from complex.views import ComplexSearchView
+            return_view = ComplexSearchView
+        elif app_name == 'mendelian':
+            from mendelian.views import MendelianSearchView
+            return_view = MendelianSearchView
         else:
             return_view = BaseSearchView
 
-        # return complex.views.ComplexSearchView().post(request)
-        print(return_view)
         return return_view().post(request)
-        # return BaseSearchView().post(request)
+
+class AdditionalFormRouterView(View):
+
+    def get(self, request, *args, **kwargs):
+        analysis_type_id = kwargs.get('analysis_type_id')
+        analysis_type_obj = get_object_or_404(AnalysisType, pk=analysis_type_id)
+        dataset_id = kwargs.get('dataset_id')
+
+        if analysis_type_obj.name in ['autosomal_dominant', 'autosomal_recessive', 'compound_heterozygous', 'denovo']:
+            from mendelian.views import KindredSnippetView
+            return KindredSnippetView().get(request, dataset_id=dataset_id)
+        else:
+            return HttpResponse("")
 
 
 class BaseSearchView(TemplateView):
@@ -241,8 +270,6 @@ class BaseSearchView(TemplateView):
             self.attribute_order = json.loads(request.POST['attribute_order'])
         except:
             raise ValidationError('Invalid attribute!')
-
-
 
         # Validate Dataset
         dataset_form = DatasetForm(self.study_obj, request.user, POST_data)
