@@ -966,7 +966,7 @@ if __name__ == '__main__':
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
 	
-	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=40)
 
 
 	# insert pedegree data if ped file is specified
