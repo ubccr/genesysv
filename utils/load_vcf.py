@@ -805,7 +805,7 @@ def make_es_mapping(vcf_info):
 		mapping[type_name]["properties"]["CSQ_nested"] = csq_annot
 
 		# variables used for boolean type need to have None value if empty
-		mapping[type_name]["properties"].update({"COSMIC_ID" : {"type" : "text"}, "dbSNP_ID" : {"type" : "text"}})
+		mapping[type_name]["properties"].update({"COSMIC_ID" : {"type" : "keyword"}, "dbSNP_ID" : {"type" : "keyword"}})
 		del csq_dict_global['Existing_variation']
 		mapping[type_name]["properties"].update(csq_dict_global)
 

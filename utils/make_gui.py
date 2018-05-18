@@ -1,10 +1,11 @@
 import json
 import copy
+from collections import ChainMap
 from collections import OrderedDict
 
-mapping = json.load(open("scripts/simwescase_annovar_mapping.json", 'r'))
-mapping = mapping['simwescase_annovar_']['properties']
-vcf_info = json.load(open("20170419_SIM_WES_CASE.hg19_multianno_vcf_info.json", 'r'))
+mapping = json.load(open("utils/scripts/sim_wgs_case_vep_mapping.json", 'r'))
+mapping = mapping['sim_wgs_case_vep_']['properties']
+vcf_info = json.load(open("utils/SIM_WGS_case_vep_vcf_info.json", 'r'))
 
 annot = 'vep'
 
@@ -23,36 +24,37 @@ def make_gui(vcf_info, mapping):
 	gui_mapping_disease = OrderedDict()
 	gui_mapping_intvar = OrderedDict()
 	gui_mapping_sample = OrderedDict()
-	
+	gui_mapping_others = OrderedDict()
+
 	with open("info_dict.json", 'w') as f:
 		json.dump(info_dict, f, sort_keys=True, indent=4, ensure_ascii=True)
 
-	exist_list = ['']
 
-	# section categories
-	variant_related_fields = set(['CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'VariantID', 'dbSNP_ID', 'VariantType', 'cytoBand', 'MAX_AF_POPS'])
+	# annotation independent fields
+	variant_related_fields = ['Variant', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'VariantType']
 
-	variant_quality_related_fields = set(['SB', 'OND', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR'])
+	variant_quality_related_fields = ['SB', 'OND', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
 	
-	functional_consequence_fields = set(['Func_refGene', 'Func_ensGene', 'ExonicFunc_refGene', 'ExonicFunc_ensGene'])
-	minor_allele_freq_fields = set([key for key in mapping if '_AF' in key])
-	if 'CSQ_nested' in mapping:
-		minor_allele_freq_fields = minor_allele_freq_fields | set([key for key in mapping['CSQ_nested']['properties'] if '_AF' in key or 'gnomAD_' in key])
+	summary_statistics_fields = sorted(['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'DP', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ])
+	summary_statistics_fields_case =  [item + '_case' for item in summary_statistics_fields]
+	summary_statistics_fields_control = [item + '_control' for item in summary_statistics_fields]
+	summary_statistics_fields = summary_statistics_fields + summary_statistics_fields_case
+	summary_statistics_fields = summary_statistics_fields + summary_statistics_fields_control
 	
-		gene_related_fields = set([key for key in mapping['CSQ_nested']['properties']]) - minor_allele_freq_fields
-		
-	if 'AAChange_refGene' in mapping or 'AAChange_ensGene' in mapping:
-		gene_related_fields = set({key for key in mapping['AAChange_refGene']}) | set({key for key in mapping['AAChange_ensGene']})
-		
-	gene_related_fields = gene_related_fields | set(['wgRna', 'Interpro_domain', 'targetScanS', 'Gene_symbol', 'Uniprot_Name', 'Uniprot_ID'])
-	gene_related_fields = gene_related_fields | set({key for key in mapping if 'Gene' in key or 'Uniprot' in key})
-	conservation_fields = set(['PhastCons_46V', 'PhyloP_100V', 'PhyloP_46V', 'PhastCons_100V', 'tfbsConsSites',
-								'phyloP100way_vertebrate', 'phyloP100way_vertebrate_rankscore', 
-								'phyloP20way_mammalian', 'phyloP20way_mammalian_rankscore', 
-								'phastCons100way_vertebrate', 'phastCons100way_vertebrate_rankscore', 
-								'phastCons20way_mammalian', 'phastCons20way_mammalian_rankscore', 
-								'SiPhy_29way_logOdds', 'SiPhy_29way_logOdds_rankscore'])
-	pathogenicity_score_fields = set(['PolyPhen2_score', 'SIFT_score', 'FatHmm_score', 'PROVEAN_score', 'MutAss_score', 
+	if annot == 'vep':
+		minor_allele_freq_fields = [key for key in mapping if '_AF' in key]
+	
+		gene_related_fields = ["Gene", "SYMBOL", "miRNA",  "HGNC_ID", "HGVSc", "HGVSp", "INTRON", "STRAND", "SWISSPROT", "cDNA_position", "Protein_position", "Amino_acids", "BIOTYPE", "CDS_position", "Codons", "DISTANCE", "DOMAINS", "EXON", "Feature", "Feature_type"]
+		functional_consequence_fields = ['Consequence']
+		pathogenicity_score_fields = ["CADD_RAW", "CADD_PHRED", "PolyPhen_score", "SIFT_score"]		
+		pathogenicity_prediction_fields = ["IMPACT", "SIFT_pred", "PolyPhen_pred"]
+		disease_association_fields = ['COSMIC_ID', 'CLIN_SIG']
+		conservation_fields = []
+		intervar_fields = []
+	elif annot == 'annovar':
+		gene_related_fields = gene_related_fields + [key for key in mapping if 'Gene' in key or 'Uniprot' in key]
+		functional_consequence_fields = ['Func_refGene', 'Func_ensGene', 'ExonicFunc_refGene', 'ExonicFunc_ensGene']
+		pathogenicity_score_fields = sorted(['PolyPhen2_score', 'SIFT_score', 'FatHmm_score', 'PROVEAN_score', 'MutAss_score', 
 								'EFIN_Swiss_Prot_Score', 'EFIN_HumDiv_Score', 'CADD_Phred_score', 'Carol_score', 
 								'Condel_score', 'COVEC_WMV', 'PolyPhen2_score_transf', 'SIFT_score_transf', 
 								'MutAss_score_transf', 'SIFT_converted_rankscore', 'Polyphen2_HDIV_score', 
@@ -67,38 +69,39 @@ def make_gui(vcf_info, mapping):
 								'fathmm-MKL_coding_rankscore', 'Eigen', 'Eigen-raw', 'Eigen-PC-raw', 'GenoCanyon_score', 
 								'GenoCanyon_score_rankscore', 'integrated_fitCons_score', 'integrated_fitCons_score_rankscore', 
 								'integrated_confidence_value', 'dbscSNV_ADA_SCORE', 'dbscSNV_RF_SCORE']) 
-	pathogenicity_prediction_fields =  set(['PolyPhen2_prediction', 'SIFT_prediction', 'FatHmm_prediction', 'PROVEAN_prediction', 
-								'MutAss_prediction', 'MutAss_pred_transf', 'EFIN_Swiss_Prot_Predictio', 'EFIN_HumDiv_Prediction', 'CADD_prediction', 
+		pathogenicity_prediction_fields_annovar =  sorted(['PolyPhen2_prediction', 'SIFT_prediction', 'FatHmm_prediction', 'PROVEAN_prediction', 
+			'MutAss_prediction', 'MutAss_pred_transf', 'EFIN_Swiss_Prot_Predictio', 'EFIN_HumDiv_Prediction', 'CADD_prediction', 
 								'Carol_prediction', 'Condel_pred', 'COVEC_WMV_prediction', 'PolyPhen2_pred_transf', 
 							 	'SIFT_pred_transf', 'utAss_pred_transf', 'SIFT_pred', 'Polyphen2_HDIV_pred', 'Polyphen2_HVAR_pred',
 								'LRT_pred', 'MutationTaster_pred', 'MutationAssessor_pred', 'FATHMM_pred', 'PROVEAN_pred', 
 								'MetaSVM_pred', 'MetaLR_pred', 'M-CAP_pred', 'fathmm-MKL_coding_pred', 'EFIN_Swiss_Prot_Prediction'])
-	intervar_fields = set(["BS1", "BS2", "BS3", "BS4", "BA1", "BP1", "BP2","BP3", "BP4", "BP5", "BP6", "BP7", "PVS1", "PS1", "PS2", "PS3", "PS4", "PM1", "PM2", "PM3", "PM4", "PM5", "PM6", "PP1", "PP2", "PP3", "PP4", "PP5"])
-
-	minor_allele_freq_fields = set({key for key in mapping if 'ExAC_' in key or '1000g2015aug_' in key or 'esp6500' in key}) 
-
-	summary_statistics_fields = set(['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'DP', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ])
-	summary_statistics_fields_case =  {item + '_case' for item in summary_statistics_fields}
-	summary_statistics_fields_control = {item + '_control' for item in summary_statistics_fields}
-	summary_statistics_fields = summary_statistics_fields | summary_statistics_fields_case
-	summary_statistics_fields = summary_statistics_fields | summary_statistics_fields_control
+		minor_allele_freq_fields = [key for key in mapping if 'ExAC_' in key or '1000g2015aug_' in key or 'esp6500' in key] 
 		
-	disease_association_fields = set(['Associated_disease', 'gwasCatalog', 'Tumor_site', 'clinvar_CLNDBN', 'clinvar_CLINSIG', 
-								'CLINSIG', 'CLNACC', 'CLNDBN', 'CLNDSDB', 'CLNDSDBID', 'COSMIC_ID', 'snp138NonFlagged'])
+		disease_association_fields = sorted(['Associated_disease', 'gwasCatalog', 'COSMIC_ID', 'Tumor_site', 'CLIN_SIG', 'clinvar_CLNDBN', 'clinvar_CLINSIG']), 
 
+		conservation_fields = sorted(['PhastCons_46V', 'PhyloP_100V', 'PhyloP_46V', 'PhastCons_100V', 'tfbsConsSites',
+								'phyloP100way_vertebrate', 'phyloP100way_vertebrate_rankscore', 
+								'phyloP20way_mammalian', 'phyloP20way_mammalian_rankscore', 
+								'phastCons100way_vertebrate', 'phastCons100way_vertebrate_rankscore', 
+								'phastCons20way_mammalian', 'phastCons20way_mammalian_rankscore', 
+								'SiPhy_29way_logOdds', 'SiPhy_29way_logOdds_rankscore'])
+		intervar_fields = sorted(["BS1", "BS2", "BS3", "BS4", "BA1", "BP1", "BP2","BP3", "BP4", "BP5", "BP6", "BP7", "PVS1", "PS1", "PS2", "PS3", "PS4", "PM1", "PM2", "PM3", "PM4", "PM5", "PM6", "PP1", "PP2", "PP3", "PP4", "PP5"])
+
+	
+		
 	select_multiple_list = pathogenicity_prediction_fields
-
+	
+	# annotation independent fields
 	for key in variant_related_fields:
 		gui_mapping_var[key] = {"filters": [{"display_text": key, 
 										"es_filter_type": "filter_term", 
 										"form_type": "CharField",
-										"in_line_tooltip": "(e.g. 1-115252204-C-T)",
 										"widget_type": "TextInput"}
 										],
 							"panel": "Variant Related Information",
 							"tab": "Basic"
 							}
-		if key in ['CHROM', 'FILTER', 'cytoBand']:
+		if key in ['CHROM', 'FILTER']:
 			gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 			gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 			gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
@@ -113,52 +116,39 @@ def make_gui(vcf_info, mapping):
 			gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
 			gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
 			gui_mapping_var[key]['filters'][1]['in_line_tooltip'] = "(<=)"
+		elif key == 'Variant':
+			gui_mapping_var[key]['filters'][0]["in_line_tooltip"] = "(e.g. 1_115252204_C_T)"
+		elif key == 'QUAL':
+			gui_mapping_var[key]['filters'][0]["display_text"] = "GATK VQSR Score"
+			gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
+			gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
 
-	for key in info_dict:
+	# annotation specific fields
+	keys = sorted([key for key in mapping if key not in gui_mapping_var])
+	for key in keys:
 		if key in ['Ensembl_Gene_ID', 'Ensembl_Protein_ID','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']:
 			continue
+		if key in info_dict and 'Description' in info_dict[key]:
+			tooltip = info_dict[key]['Description']
+		else:
+			tooltip = ""
+			
+		default_gui_mapping = {"filters": 
+								[
+									{
+									"display_text": "Unknown",
+									"es_filter_type": "filter_term", 
+									"form_type": "CharField",
+									"tooltip": tooltip,
+									"widget_type": "TextInput"
+									}
+								],
+								"panel": "Other",
+								"tab": "Basic"
+								}
 
-		gui_mapping = {"filters": [{"display_text": key, 
-										"es_filter_type": "filter_term", 
-										"form_type": "CharField",
-										"tooltip": info_dict[key]['Description'],
-										"in_line_tooltip": "",
-										"widget_type": "TextInput"}
-										],
-							"panel": "Other",
-							"tab": "Basic"
-							}
-
-		if key in variant_related_fields or 'avsnp' in key:
-			gui_mapping_var[key] = gui_mapping
-			if mapping[key]['type'] == 'integer' or mapping[key]['type'] == 'float':
-				gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
-				gui_mapping_var[key]['filters'][0]['form_type'] = "CharField"
-				gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
-				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
-				gui_mapping_var[key]['filters'][0]['widget_type'] = "TextInput"
-				gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
-				gui_mapping_var[key]['filters'][1]['in_line_tooltip'] = "(<=)"
-				gui_mapping_var[key]['panel'] = 'Variant Related Information'
-				
-			elif mapping[key]['type'] == 'keyword':
-				if key in select_multiple_list:
-					gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
-					gui_mapping_var[key]['filters'][0]['form_type'] = "MultipleChoiceField"
-				elif 'avsnp' in key or 'dbSNP_ID' in key:
-					gui_mapping_var[key]['filters'].append(gui_mapping_var[key]['filters'][0])
-					gui_mapping_var[key]['filters'][0]['display_text'] = key + ' ID'
-					gui_mapping_var[key]['filters'][0]['widget_type'] = "UploadField"
-					gui_mapping_var[key]['filters'][0]['form_type'] = "CharField"
-					gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_terms"
-
-					gui_mapping_var[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
-					gui_mapping_var[key]['filters'][1]['widget_type'] = "Select"
-					gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_exists"
-					gui_mapping_var[key]['filters'][1]['form_type'] = "ChoiceField"
-				gui_mapping_var[key]['panel'] = 'Variant Related Information'	
-		elif key in variant_quality_related_fields or 'Allele Balance' in info_dict[key]['Description'] or 'Fraction of Reads' in info_dict[key]['Description'] or 'Homopolymer Run' in info_dict[key]['Description']:
-			gui_mapping_qc[key] = gui_mapping	
+		if key in variant_quality_related_fields or 'Allele Balance' in tooltip or 'Fraction of Reads' in tooltip or 'Homopolymer Run' in tooltip:
+			gui_mapping_qc[key] = copy.deepcopy(default_gui_mapping)	
 			if mapping[key]['type'] == 'integer' or mapping[key]['type'] == 'float':
 				gui_mapping_qc[key]['filters'].append(copy.deepcopy(gui_mapping_qc[key]['filters'][0]))
 				gui_mapping_qc[key]['filters'][0]['form_type'] = "CharField"
@@ -169,8 +159,8 @@ def make_gui(vcf_info, mapping):
 				gui_mapping_qc[key]['filters'][1]['in_line_tooltip'] = "(<=)"
 
 			gui_mapping_qc[key]['panel']  = 'Variant Quality Metrix'
-		elif key in minor_allele_freq_fields or key == 'MAX_AF_POPS':
-			gui_mapping_maf[key] = gui_mapping
+		elif key in minor_allele_freq_fields:
+			gui_mapping_maf[key] = copy.deepcopy(default_gui_mapping)
 			if mapping[key]['type'] == 'float':
 				gui_mapping_maf[key]['filters'].append(copy.deepcopy(gui_mapping_maf[key]['filters'][0]))
 				gui_mapping_maf[key]['filters'][0]['form_type'] = "CharField"
@@ -183,19 +173,19 @@ def make_gui(vcf_info, mapping):
 				gui_mapping_maf[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 				gui_mapping_maf[key]['filters'][0]["values"] = "get_from_es()"
 				
-			if '1000g2015aug_' in key or key in ['AFR_AF', 'EAS_AF', 'ERR_AF', 'AMR_AF', 'SAS_AF']:
+			if '1000g2015aug_' in key or key in ['MAX_AF', 'AA_AF', 'EA_AF', 'EUR_AF', 'AFR_AF', 'EAS_AF', 'ERR_AF', 'AMR_AF', 'SAS_AF']:
 				gui_mapping_maf[key]['sub_panel'] = '1000 Genomes Project (Aug. 2015)'
 			elif 'ExAC_' in key:
 				gui_mapping_maf[key]['sub_panel'] = 'The Exome Aggregation Consortium (ExAC)'
 			elif 'esp6500' in key:
 				gui_mapping_maf[key]['sub_panel'] = 'Exome Sequencing Project'
-			elif 'gnomAD' in kye:
+			elif 'gnomAD' in key:
 				gui_mapping_maf[key]['sub_panel'] = 'gnomAD Allele Frequency'
 
 			gui_mapping_maf[key]['panel']  = 'Minor Allele Frequency (MAF)'
 					
 		elif key in summary_statistics_fields:
-			gui_mapping_stat[key] = gui_mapping
+			gui_mapping_stat[key] = copy.deepcopy(default_gui_mapping)
 			if mapping[key]['type'] == 'integer' or mapping[key]['type'] == 'float':
 				gui_mapping_stat[key]['filters'].append(copy.deepcopy(gui_mapping_stat[key]['filters'][0]))
 				gui_mapping_stat[key]['filters'][0]['form_type'] = "CharField"
@@ -205,19 +195,82 @@ def make_gui(vcf_info, mapping):
 				gui_mapping_stat[key]['filters'][1]['in_line_tooltip'] = "(<=)"
 				gui_mapping_stat[key]['filters'][1]['form_type'] = "CharField"			
 			gui_mapping_stat[key]['panel']  = 'Summary Statistics Information'
-		elif key in functional_consequence_fields:
-			gui_mapping_func[key] = gui_mapping
+		elif key == 'CSQ_nested': # VEP annotation
+			keys2 = sorted([key for key in mapping['CSQ_nested']['properties']])
+			for key2 in keys2:
+				if key2 in functional_consequence_fields:
+					gui_mapping_func[key2] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_func[key2]['filters'][0]['display_text'] = key2
+					gui_mapping_func[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"
+					gui_mapping_func[key2]['filters'][0]['form_type'] = "MultipleChoiceField"
+					gui_mapping_func[key2]['filters'][0]["widget_type"] = "SelectMultiple" 
+					gui_mapping_func[key2]['filters'][0]['values'] = "get_from_es()"
+					gui_mapping_func[key2]['filters'][0]['path'] = key
+					gui_mapping_func[key2]['panel']  = 'Functional Consequences'
+				elif key2 in gene_related_fields:
+					gui_mapping_gene[key2] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_gene[key2]['filters'][0]['display_text'] = key2
+					if key2 in ['Gene', 'Symbol']:
+						gui_mapping_gene[key2]['filters'][0]['widget_type'] = "UploadField"
+						gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "filter_terms"	
+					elif key2 in ['Feature_type', 'BIOTYPE']:
+						gui_mapping_gene[key2]['filters'][0]['values'] = "get_from_es()"
+						gui_mapping_gene[key2]['filters'][0]["widget_type"] = "Select"
+					gui_mapping_gene[key2]['filters'][0]['path'] = key
+					gui_mapping_gene[key2]['panel']  = 'Gene Related Information'
+				elif key2 in pathogenicity_prediction_fields:
+					gui_mapping_patho_p[key2] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_patho_p[key2]['filters'][0]['display_text'] = key2
+					gui_mapping_patho_p[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"
+					gui_mapping_patho_p[key2]['filters'][0]['form_type'] = "MultipleChoiceField"
+					gui_mapping_patho_p[key2]['filters'][0]["widget_type"] = "SelectMultiple"
+					gui_mapping_patho_p[key2]['filters'][0]['path'] = key
+					gui_mapping_patho_p[key2]['filters'][0]['values'] = "get_from_es()"
+					gui_mapping_patho_p[key2]['panel']  = 'Pathogenicity Predictions'
+					gui_mapping_patho_p[key2]['sub_panel']  = 'Predictions'
+				elif key2 in pathogenicity_score_fields:
+					gui_mapping_patho_s[key2] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_patho_s[key2]['filters'][0]['display_text'] = key2
+					gui_mapping_patho_s[key2]['filters'].append(copy.deepcopy(gui_mapping_patho_s[key2]['filters'][0]))
+					gui_mapping_patho_s[key2]['filters'][0]['form_type'] = "CharField"
+					gui_mapping_patho_s[key2]['filters'][0]['es_filter_type'] = "filter_range_gte"
+					gui_mapping_patho_s[key2]['filters'][0]['in_line_tooltip'] = "(>=)"
+					gui_mapping_patho_s[key2]['filters'][1]['es_filter_type'] = "filter_range_lte"
+					gui_mapping_patho_s[key2]['filters'][1]['in_line_tooltip'] = "(<=)"
+					gui_mapping_patho_s[key2]['filters'][1]['form_type'] = "CharField"			
+					gui_mapping_patho_s[key2]['panel']  = 'Pathogenicity Predictions'
+					gui_mapping_patho_s[key2]['sub_panel']  = 'Scores'
+					
+				elif key2 in disease_association_fields:
+					gui_mapping_disease[key2] = copy.deepcopy(default_gui_mapping)
+					if key2 in ['COSMIC_ID']:
+						gui_mapping_disease[key2]['filters'].append(copy.deepcopy(gui_mapping_disease[key2]['filters'][0]))
+						gui_mapping_disease[key2]['filters'][0]['display_text'] = key
+						gui_mapping_disease[key2]['filters'][0]['widget_type'] = "UploadField"
+						gui_mapping_disease[key2]['filters'][0]['form_type'] = "CharField"
+						gui_mapping_disease[key2]['filters'][0]['es_filter_type'] = "filter_terms"
+						gui_mapping_disease[key2]['filters'][0]['path'] = key	
+						gui_mapping_disease[key2]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+						gui_mapping_disease[key2]['filters'][1]['widget_type'] = "Select"
+						gui_mapping_disease[key2]['filters'][1]['es_filter_type'] = "filter_exists"
+						gui_mapping_disease[key2]['filters'][1]['form_type'] = "ChoiceField"
+						gui_mapping_disease[key2]['filters'][1]['path'] = key
+						gui_mapping_disease[key2]['panel'] = 'Disease Associations'
+							
+		elif key in functional_consequence_fields: # annovar annotation
+			gui_mapping_func[key] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_func[key]['filters'][0]['es_filter_type'] = "filter_terms"
 			gui_mapping_func[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 			gui_mapping_func[key]['filters'][0]["widget_type"] = "SelectMultiple" 
 			gui_mapping_func[key]['filters'][0]['values'] = "get_from_es()"
 			gui_mapping_func[key]['panel']  = 'Functional Consequences'
+			
 			if 'ensGene' in key:
 				gui_mapping_func[key]['sub_panel']  = 'Ensembl'
 			elif 'refGene' in key:
 				gui_mapping_func[key]['sub_panel']  = 'RefSeq'
 		elif key in gene_related_fields or key.startswith('Gene'):
-			gui_mapping_gene[key] = gui_mapping
+			gui_mapping_gene[key] = copy.deepcopy(default_gui_mapping)
 			if key in ['AAChange_ensGene', 'AAChange_refGene']:
 				for key2 in mapping[key]['properties']:
 					gui_mapping_gene[key2] = gui_mapping_gene[key]
@@ -267,10 +320,9 @@ def make_gui(vcf_info, mapping):
 				if key in ['Gene_refGene', 'Gene_ensGene']:
 					gui_mapping_gene[key]['filters'][0]['widget_type'] = "UploadField"
 					gui_mapping_gene[key]['filters'][0]['es_filter_type'] = "filter_terms"
-					gui_mapping_gene[key]['filters'][0]["widget_type"] = "SelectMultiple"
 					gui_mapping_gene[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 		elif key in conservation_fields:
-			gui_mapping_conserv[key] = gui_mapping
+			gui_mapping_conserv[key] = copy.deepcopy(default_gui_mapping)
 			if key == "tfbsConsSites":
 				gui_mapping_conserv[key]['filters'][0]["values"] = "get_from_es()"
 			else:
@@ -281,22 +333,31 @@ def make_gui(vcf_info, mapping):
 
 			gui_mapping_conserv[key]['panel'] = 'Conservation Scores'
 		elif key in pathogenicity_prediction_fields or '_prediction' in key or '_pred' in key:
-			gui_mapping_patho_p[key] = gui_mapping
+			gui_mapping_patho_p[key] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_patho_p[key]['filters'][0]['es_filter_type'] = "filter_terms"
 			gui_mapping_patho_p[key]['filters'][0]['values'] = "get_from_es()"
 			if key in select_multiple_list:
 				gui_mapping_patho_p[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_patho_p[key]['filters'][0]['form_type'] = "MultipleChoiceField"
-			gui_mapping_patho_p[key]['panel'] = 'Pathognicity Predictions'
-			gui_mapping_patho_p[key]['sub_panel'] = 'Pathognicity Predictions'
+			gui_mapping_patho_p[key]['panel'] = 'Pathogenicity Prediction'
+			gui_mapping_patho_p[key]['sub_panel'] = 'Predictions'
 		elif key in pathogenicity_score_fields or key.startswith('CADD') or key.startswith('GERP') or key.startswith('DANN'):
-			gui_mapping_patho_s[key] = gui_mapping
+			gui_mapping_patho_s[key] = default_gui_mapping
 			if '++' in key:
 				oldkey = key
 				key = key.replace('++', 'plusplus')
 				gui_mapping_patho_s[key] = gui_mapping_patho_s[oldkey]
 				del gui_mapping_patho_s[oldkey]
-			if mapping[key]['type'] == 'integer' or mapping[key]['type'] == 'float':
+				
+			try:
+				type_ = mapping[key]['type']
+			except KeyError:
+				try:
+					type_ = mapping['CSQ_nested']['properties'][key]['type']
+				except KeyError:
+					print("key error: %s"% key)
+					continue
+			if type_ == 'integer' or type_ == 'float':
 				gui_mapping_patho_s[key]['filters'].append(copy.deepcopy(gui_mapping_patho_s[key]['filters'][0]))
 				gui_mapping_patho_s[key]['filters'][0]['form_type'] = "CharField"
 				gui_mapping_patho_s[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
@@ -305,79 +366,93 @@ def make_gui(vcf_info, mapping):
 				gui_mapping_patho_s[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
 				gui_mapping_patho_s[key]['filters'][1]['in_line_tooltip'] = "(<=)"
 				
-			gui_mapping_patho_s[key]['panel'] = 'Pathogenicity Predictions'
-			gui_mapping_patho_s[key]['sub_panel'] = 'Pathogenicity Prediction Scores'
+			gui_mapping_patho_s[key]['panel'] = 'Pathogenicity Prediction'
+			gui_mapping_patho_s[key]['sub_panel'] = 'Scores'
 			
 		elif key in disease_association_fields:
-			gui_mapping_disease[key] = gui_mapping
-			if key in ['COSMIC', 'snp138NonFlagged']:
-				gui_mapping_disease[key]['filters'].append(copy.deepcopy(gui_mapping_disease[key]['filters'][0]))
-				gui_mapping_disease[key]['filters'][0]['display_text'] = key
-				gui_mapping_disease[key]['filters'][0]['widget_type'] = "UploadField"
-				gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
-				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
-
-				gui_mapping_disease[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
-				gui_mapping_disease[key]['filters'][1]['widget_type'] = "Select"
-				gui_mapping_disease[key]['filters'][1]['es_filter_type'] = "filter_exists"
-				gui_mapping_disease[key]['filters'][1]['form_type'] = "ChoiceField"
-			else:
-				gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
-				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+			gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+			gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+			gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+			if key != 'CLNACC':
 				gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
 			gui_mapping_disease[key]['panel'] = 'Disease Associations'
 
 		elif key in intervar_fields:
-			gui_mapping_intvar[key] = gui_mapping
+			gui_mapping_intvar[key] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_intvar[key]['filters'][0]['values'] = "get_from_es()"
 			gui_mapping_intvar[key]['panel'] = 'ACMG/AMP InterVar Criteria'
-					
-	# sample related fields
-	gui_mapping_sample = {}
-	format_dict.update({"Sample_ID": {"type" : "string", "Description": "Donor/Sample ID"}})
-	for key in format_dict:
-		
-		gui_mapping_sample[key] = {"filters": [{"display_text": key, 
-										"es_filter_type": "nested_filter_range_gte", 
-										"form_type": "CharField",
-										"tooltip": format_dict[key]['Description'],
-										"in_line_tooltip": "(>=)",
-										"path": "sample",
-										"widget_type": "TextInput"}
-										],
-							"panel": "Sample Related Information",
-							"tab": "Basic"
-							}
-		if format_dict[key]['type'] == 'integer':
-			if key == 'PL':
-				gui_mapping_sample[key]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
-				gui_mapping_sample[key]['filters'][0]['widget_type'] = "TextInput"
-				gui_mapping_sample[key]['filters'][0]['form_type'] = "CharField"
-			if key == 'AD':
-				gui_mapping_sample[key + '_ref'] = gui_mapping_sample[key]
-				gui_mapping_sample[key + '_ref']['filters'][0]['display_text'] = 'AD_ref'
-				
-				gui_mapping_sample[key + '_alt'] = gui_mapping_sample[key]
-				gui_mapping_sample[key + '_alt']['filters'][0]['display_text'] = 'AD_alt'
+		elif key == 'cytoBand':
+			gui_mapping_variants[key] = copy.deepcopy(default_gui_mapping)
+			gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
+			gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
+			gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
+			gui_mapping_var[key]['panel'] = "Variant Related Information"	
+		elif key.startswith('COSMIC') or key.startswith('snp138NonFlagged'):
+			gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+			gui_mapping_disease[key]['filters'].append(copy.deepcopy(gui_mapping_disease[key]['filters'][0]))
+			gui_mapping_disease[key]['filters'][0]['display_text'] = key
+			gui_mapping_disease[key]['filters'][0]['widget_type'] = "UploadField"
+			gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+			gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
 
-				del gui_mapping_sample[key]
-		elif format_dict[key]['type'] == 'string':
-			gui_mapping_sample[key]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
+			gui_mapping_disease[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+			gui_mapping_disease[key]['filters'][1]['widget_type'] = "Select"
+			gui_mapping_disease[key]['filters'][1]['es_filter_type'] = "filter_exists"
+			gui_mapping_disease[key]['filters'][1]['form_type'] = "ChoiceField"
+			gui_mapping_disease[key]['panel'] = 'Disease Associations'
 			
-			if key == 'group':
-				gui_mapping_sample[key]['filters'][0]['widget_type'] = "Select"
-				gui_mapping_sample[key]['filters'][0]['form_type'] = "ChoiceField"
-			else:
-				gui_mapping_sample[key]['filters'][0]['widget_type'] = "SelectMultiple"
-				gui_mapping_sample[key]['filters'][0]['form_type'] = "MultipleChoiceField"
-				gui_mapping_sample[key]['filters'][0]['value'] = "get_from_es()"
+		elif key.startswith('dbSNP_ID') or key.startswith('avsnp'):
+			gui_mapping_var[key] = copy.deepcopy(default_gui_mapping)
+			gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
+			gui_mapping_var[key]['filters'][0]['display_text'] = key
+			gui_mapping_var[key]['filters'][0]['widget_type'] = "UploadField"
+			gui_mapping_var[key]['filters'][0]['form_type'] = "CharField"
+			gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_terms"
 
+			gui_mapping_var[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+			gui_mapping_var[key]['filters'][1]['widget_type'] = "Select"
+			gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_exists"
+			gui_mapping_var[key]['filters'][1]['form_type'] = "ChoiceField"
+			gui_mapping_var[key]['panel'] = "Variant Related Information"
+		elif key == 'sample':
+			keys2 = [key for key in mapping['sample']['properties']]
+			for key2 in keys2:
+				gui_mapping_sample[key2] = copy.deepcopy(default_gui_mapping)
+				gui_mapping_sample[key2]['filters'][0]['path'] = key
+				
+				if key2 == 'AD':
+		
+					del gui_mapping_sample[key2]
+				elif key2 in ['Sample_ID', 'GT', 'PGT']:
+					gui_mapping_sample[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
+					gui_mapping_sample[key2]['filters'][0]['value'] = "get_from_es()"
+					gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = ""
+					gui_mapping_sample[key2]['filters'][0]['widget_type'] = "SelectMultiple"
+					gui_mapping_sample[key2]['filters'][0]['form_type'] = "MultipleChoiceField"
+				elif key2 == 'group':
+					gui_mapping_sample[key2]['filters'][0]['widget_type'] = "Select"
+					gui_mapping_sample[key2]['filters'][0]['form_type'] = "ChoiceField"
+				elif mapping['sample']['properties'][key2]['type'] == 'integer':
+					if key2 == 'PL': # keep it as string type
+						pass
+					else:
+						gui_mapping_sample[key2] = copy.deepcopy(default_gui_mapping)
+						gui_mapping_sample[key2]['filters'][0]['display_text'] = key2
+						gui_mapping_sample[key2]['filters'][0]["es_filter_type"] = "nested_filter_range_gte"
+						gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = "(>=)"
+						if key2.startswith('AD_'):
+							gui_mapping_sample[key2]['filters'][0]["tooltip"] = format_dict['AD']['Description']
+				
+		else:
+			gui_mapping_others[key] = copy.deepcopy(default_gui_mapping)
 	
 				
-			
-
+	result = OrderedDict()
+	
+	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
+		result.update(dict_)
+	
 	outputfile = 'default_gui_config.json'
-	result = {**gui_mapping_var, **gui_mapping_stat, **gui_mapping_qc, **gui_mapping_gene, **gui_mapping_func, **gui_mapping_maf, **gui_mapping_conserv, **gui_mapping_patho_p, **gui_mapping_patho_s, **gui_mapping_intvar, **gui_mapping_disease, **gui_mapping_sample}
 	with open(outputfile, 'w') as f:
 		json.dump(result, f, sort_keys=False, indent=4, ensure_ascii=True)
 
