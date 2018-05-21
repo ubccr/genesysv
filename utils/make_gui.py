@@ -124,10 +124,9 @@ def make_gui(vcf_info, mapping):
 			gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
 			gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
 
-	keys = sorted([key for key in mapping if key not in gui_mapping_var])
+	to_exlude = ['Ensembl_Gene_ID', 'culprit', 'Ensembl_Protein_ID','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']
+	keys = sorted([key for key in mapping if key not in gui_mapping_var and key not in to_exlude])
 	for key in keys:
-		if key in ['Ensembl_Gene_ID', 'Ensembl_Protein_ID','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']:
-			continue
 		if key in info_dict and 'Description' in info_dict[key]:
 			tooltip = info_dict[key]['Description']
 		else:
@@ -219,7 +218,6 @@ def make_gui(vcf_info, mapping):
 					if key2 == 'PL': # keep it as string type
 						pass
 					else:
-						gui_mapping_sample[key2] = copy.deepcopy(default_gui_mapping)
 						gui_mapping_sample[key2]['filters'][0]["es_filter_type"] = "nested_filter_range_gte"
 						gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = "(>=)"
 						if key2.startswith('AD_'):
@@ -253,12 +251,14 @@ def make_gui(vcf_info, mapping):
 			gui_mapping_var[key]['panel'] = "Variant Related Information"
 
 		else:
-			if key not in pathogenicity_score_fields:
+			if key not in pathogenicity_score_fields and key not in disease_association_fields:
 				gui_mapping_others[key] = copy.deepcopy(default_gui_mapping)
 
-	keys = sorted([key for key in mapping if key not in ['dbSNP_ID', 'COSMIC_ID'] and key not in summary_statistics_fields and key not in minor_allele_freq_fields and key not in variant_related_fields])
+	keys = sorted([key for key in mapping if key not in ['dbSNP_ID', 'COSMIC_ID'] and key not in summary_statistics_fields and key not in variant_quality_related_fields and key not in minor_allele_freq_fields and key not in variant_related_fields and key not in to_exlude])
 	if annot == 'vep':
 		for key in keys:
+			if key == 'CLIN_SIG':
+				print("")
 			if key in info_dict and 'Description' in info_dict[key]:
 				tooltip = info_dict[key]['Description']
 			else:
@@ -294,7 +294,8 @@ def make_gui(vcf_info, mapping):
 						gui_mapping_gene[key2]['filters'][0]['display_text'] = key2
 						if key2 in ['Gene', 'Symbol']:
 							gui_mapping_gene[key2]['filters'][0]['widget_type'] = "UploadField"
-							gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "filter_terms"	
+							
+							gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"	
 						elif key2 in ['Feature_type', 'BIOTYPE']:
 							gui_mapping_gene[key2]['filters'][0]['values'] = "get_from_es()"
 							gui_mapping_gene[key2]['filters'][0]["widget_type"] = "Select"
@@ -355,11 +356,12 @@ def make_gui(vcf_info, mapping):
 					gui_mapping_patho_s[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
 					gui_mapping_patho_s[key]['filters'][1]['in_line_tooltip'] = "(<=)"
 						
-					gui_mapping_patho_s[key]['panel'] = 'Pathogenicity Prediction'
+					gui_mapping_patho_s[key]['panel'] = 'Pathogenicity Predictions'
 					gui_mapping_patho_s[key]['sub_panel'] = 'Scores'
 					
 				elif key in disease_association_fields:
 					gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_disease[key]['filters'][0]['display_text'] = key
 					gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
 					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
 					gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
