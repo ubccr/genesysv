@@ -490,8 +490,9 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict['AD_ref'] = int(sample_data_dict['AD_ref'])
 					sample_data_dict['AD_alt'] = int(sample_data_dict['AD_alt'])
 				else:
-					#log.write("Unknown type: %s, %s\n" % (key, val))
-					sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
+					continue
+					log.write("Unknown type: %s, %s\n" % (key, val))
+					#sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
 			elif key == 'DP':
 				if val == '.':
 					sample_data_dict[key] = -999
