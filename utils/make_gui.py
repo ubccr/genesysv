@@ -44,7 +44,7 @@ def make_gui(vcf_info, mapping):
 	if annot == 'vep':
 		minor_allele_freq_fields = [key for key in mapping if '_AF' in key]
 	
-		gene_related_fields = ["Gene", "SYMBOL", "miRNA",  "HGNC_ID", "HGVSc", "HGVSp", "INTRON", "STRAND", "SWISSPROT", "cDNA_position", "Protein_position", "Amino_acids", "BIOTYPE", "CDS_position", "Codons", "DISTANCE", "DOMAINS", "EXON", "Feature", "Feature_type"]
+		gene_related_fields = ["Gene", "SYMBOL", "BIOTYPE", "Feature", "Feature_type", "miRNA", "EXON", "INTRON", "CDS_position", "cDNA_position", "Protein_position", "Amino_acids", "DISTANCE", "HGNC_ID", "HGVSc", "HGVSp", "STRAND", "SWISSPROT", "Codons", "DOMAINS"]
 		functional_consequence_fields = ['Consequence']
 		pathogenicity_score_fields = ["CADD_RAW", "CADD_PHRED", "PolyPhen_score", "SIFT_score"]		
 		pathogenicity_prediction_fields = ["IMPACT", "SIFT_pred", "PolyPhen_pred"]
@@ -278,9 +278,10 @@ def make_gui(vcf_info, mapping):
 								"tab": "Basic"
 								}
 			if key == 'CSQ_nested':
-				keys2 = sorted([key for key in mapping['CSQ_nested']['properties']])
-				for key2 in keys2:
-					if key2 in functional_consequence_fields:
+				seen = {}
+				keys = [key for key in mapping['CSQ_nested']['properties']]
+				for key2 in functional_consequence_fields:
+					if key2 in keys:
 						gui_mapping_func[key2] = copy.deepcopy(default_gui_mapping)
 						gui_mapping_func[key2]['filters'][0]['display_text'] = key2
 						gui_mapping_func[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"
@@ -289,19 +290,25 @@ def make_gui(vcf_info, mapping):
 						gui_mapping_func[key2]['filters'][0]['values'] = "get_from_es()"
 						gui_mapping_func[key2]['filters'][0]['path'] = key
 						gui_mapping_func[key2]['panel']  = 'Functional Consequences'
-					elif key2 in gene_related_fields:
+						seen[key2] = {}
+				for key2 in gene_related_fields:
+					if key2 in keys:
 						gui_mapping_gene[key2] = copy.deepcopy(default_gui_mapping)
 						gui_mapping_gene[key2]['filters'][0]['display_text'] = key2
-						if key2 in ['Gene', 'Symbol']:
+						if key2 in ['Gene', 'SYMBOL']:
 							gui_mapping_gene[key2]['filters'][0]['widget_type'] = "UploadField"
-							
 							gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"	
+							if key2 == 'Gene':
+								gui_mapping_gene[key2]['filters'][0]['display_text'] = 'Entrez Gene ID'
 						elif key2 in ['Feature_type', 'BIOTYPE']:
 							gui_mapping_gene[key2]['filters'][0]['values'] = "get_from_es()"
-							gui_mapping_gene[key2]['filters'][0]["widget_type"] = "Select"
+							gui_mapping_gene[key2]['filters'][0]["form_type"] = "MultipleChoiceField"
+							gui_mapping_gene[key2]['filters'][0]["widget_type"] = "SelectMultiple"
 						gui_mapping_gene[key2]['filters'][0]['path'] = key
 						gui_mapping_gene[key2]['panel']  = 'Gene Related Information'
-					elif key2 in pathogenicity_prediction_fields:
+						seen[key2] = {}
+				for key2 in pathogenicity_prediction_fields:
+					if key2 in keys:
 						gui_mapping_patho_p[key2] = copy.deepcopy(default_gui_mapping)
 						gui_mapping_patho_p[key2]['filters'][0]['display_text'] = key2
 						gui_mapping_patho_p[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"
@@ -311,7 +318,9 @@ def make_gui(vcf_info, mapping):
 						gui_mapping_patho_p[key2]['filters'][0]['values'] = "get_from_es()"
 						gui_mapping_patho_p[key2]['panel']  = 'Pathogenicity Predictions'
 						gui_mapping_patho_p[key2]['sub_panel']  = 'Predictions'
-					elif key2 in pathogenicity_score_fields:
+						seen[key2] = {}	
+				for key2 in pathogenicity_score_fields:
+					if key2 in keys: 
 						gui_mapping_patho_s[key2] = copy.deepcopy(default_gui_mapping)
 						gui_mapping_patho_s[key2]['filters'][0]['display_text'] = key2
 						gui_mapping_patho_s[key2]['filters'].append(copy.deepcopy(gui_mapping_patho_s[key2]['filters'][0]))
@@ -323,8 +332,9 @@ def make_gui(vcf_info, mapping):
 						gui_mapping_patho_s[key2]['filters'][1]['form_type'] = "CharField"			
 						gui_mapping_patho_s[key2]['panel']  = 'Pathogenicity Predictions'
 						gui_mapping_patho_s[key2]['sub_panel']  = 'Scores'
-						
-					elif key2 in disease_association_fields:
+						seen[key2] = {}
+				for  key2 in disease_association_fields:
+					if key2 in keys:
 						gui_mapping_disease[key2] = copy.deepcopy(default_gui_mapping)
 						if key2 in ['COSMIC_ID']:
 							gui_mapping_disease[key2]['filters'].append(copy.deepcopy(gui_mapping_disease[key2]['filters'][0]))
@@ -339,6 +349,10 @@ def make_gui(vcf_info, mapping):
 							gui_mapping_disease[key2]['filters'][1]['form_type'] = "ChoiceField"
 							gui_mapping_disease[key2]['filters'][1]['path'] = key
 							gui_mapping_disease[key2]['panel'] = 'Disease Associations'
+							seen[key2] = {}
+				unmapped = [key for key in keys if key not in seen]
+				for key2 in unmapped:
+					gui_mapping_others[key2] = copy.deepcopy(default_gui_mapping)
 			else:
 				if key in pathogenicity_score_fields or key.startswith('CADD') or key.startswith('GERP') or key.startswith('DANN'):
 					gui_mapping_patho_s[key] = default_gui_mapping
@@ -362,7 +376,8 @@ def make_gui(vcf_info, mapping):
 				elif key in disease_association_fields:
 					gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
 					gui_mapping_disease[key]['filters'][0]['display_text'] = key
-					gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+					gui_mapping_disease[key]['filters'][0]['form_type'] = "MultipleChoiceField"
+					gui_mapping_disease[key]['filters'][0]["widget_type"] = "SelectMultiple"
 					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
 					gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
 					gui_mapping_disease[key]['panel'] = 'Disease Associations'
