@@ -229,7 +229,6 @@ def are_variants_compound_heterozygous(variant_genotypes):
 
 
 def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, father_id, mother_id, child_id):
-    compound_heterozygous_variants = []
     saved_hits = {}
     variant_genotypes = []
     for ele in helpers.scan(es,
@@ -245,7 +244,6 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
         saved_hits[es_id] = ele.copy()
 
         variant_id = result.get('Variant')
-        length_results = len(result.get('sample'))
         variant_genotype = get_genotypes(
             result.get('sample'), father_id, mother_id, child_id)
 
