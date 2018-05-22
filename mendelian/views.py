@@ -1,23 +1,22 @@
-from django.views.generic.base import TemplateView
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django.views import View
-from django.http import QueryDict
+from datetime import datetime
+import pprint
+
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.http import QueryDict
+from django.shortcuts import get_object_or_404, render
+from django.views import View
+from django.views.generic.base import TemplateView
 
-from datetime import datetime
-
-from core.utils import get_values_from_es
-
-
-from core.models import Dataset, Study
-from core.views import AppHomeView, BaseSearchView
-from core.utils import BaseSearchElasticsearch
-from mendelian.forms import FamilyForm, MendelianAnalysisForm, KindredForm
-from mendelian.utils import MendelianSearchElasticsearch, MendelianElasticSearchQueryExecutor, MendelianElasticsearchResponseParser
 import core.forms as core_forms
 import core.models as core_models
+from core.models import Dataset, Study
+from core.utils import BaseSearchElasticsearch, get_values_from_es
+from core.views import AppHomeView, BaseSearchView
+from mendelian.forms import FamilyForm, KindredForm, MendelianAnalysisForm
+from mendelian.utils import (MendelianElasticSearchQueryExecutor,
+                             MendelianElasticsearchResponseParser,
+                             MendelianSearchElasticsearch)
 
 
 class MendelianHomeView(AppHomeView):
@@ -39,16 +38,15 @@ class KindredSnippetView(View):
 
     def generate_kindred_form(self, dataset_obj):
         family_ids = get_values_from_es(dataset_obj.es_index_name,
-                       dataset_obj.es_type_name,
-                       dataset_obj.es_host,
-                       dataset_obj.es_port,
-                       'Family_ID',
-                       'sample')
+                                        dataset_obj.es_type_name,
+                                        dataset_obj.es_host,
+                                        dataset_obj.es_port,
+                                        'Family_ID',
+                                        'sample')
         number_of_families = len(family_ids)
         kindred_form = self.form_class(number_of_families)
 
         return kindred_form
-
 
     def get_kindred_form_response(self, request, dataset_obj):
         cache_name = 'kindred_form_for_{}'.format(dataset_obj.id)
@@ -78,15 +76,14 @@ class FamilySnippetView(View):
 
     def generate_family_form(self, dataset_obj):
         sample_ids = get_values_from_es(dataset_obj.es_index_name,
-                       dataset_obj.es_type_name,
-                       dataset_obj.es_host,
-                       dataset_obj.es_port,
-                       'sample_ID',
-                       'sample')
+                                        dataset_obj.es_type_name,
+                                        dataset_obj.es_host,
+                                        dataset_obj.es_port,
+                                        'sample_ID',
+                                        'sample')
         family_form = self.form_class(sample_ids)
 
         return family_form
-
 
     def get_family_form_response(self, request, dataset_obj):
         cache_name = 'family_form_for_{}'.format(dataset_obj.id)
@@ -109,6 +106,7 @@ class FamilySnippetView(View):
             request, dataset_obj)
         return family_form_response
 
+
 class MendelianSearchView(BaseSearchView):
     search_elasticsearch_class = MendelianSearchElasticsearch
     elasticsearch_query_executor_class = MendelianElasticSearchQueryExecutor
@@ -119,11 +117,11 @@ class MendelianSearchView(BaseSearchView):
     def validate_additional_forms(self, request):
         # Validate Family Form
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
-                       self.dataset_obj.es_type_name,
-                       self.dataset_obj.es_host,
-                       self.dataset_obj.es_port,
-                       'Family_ID',
-                       'sample')
+                                        self.dataset_obj.es_type_name,
+                                        self.dataset_obj.es_host,
+                                        self.dataset_obj.es_port,
+                                        'Family_ID',
+                                        'sample')
         number_of_families = len(family_ids)
 
         POST_data = QueryDict(request.POST['form_data'])
@@ -142,6 +140,12 @@ class MendelianSearchView(BaseSearchView):
         else:
             raise ValidationError('Invalid Mendelian Analysis!')
 
+    def get_kwargs(self, request):
+        kwargs = super().get_kwargs(request)
+        kwargs.update({'mendelian_analysis_type': self.mendelian_analysis_type,
+                       'number_of_kindred': self.number_of_kindred})
+
+        return kwargs
 
     def post(self, request, *args, **kwargs):
         self.start_time = datetime.now()
@@ -149,17 +153,7 @@ class MendelianSearchView(BaseSearchView):
         self.validate_request_data(request)
         self.validate_additional_forms(request)
 
-        kwargs = {
-            'dataset_obj': self.dataset_obj,
-            'filter_form_data': self.filter_form_data,
-            'attribute_form_data': self.attribute_form_data,
-            'attribute_order': self.attribute_order,
-            'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
-            'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
-            'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
-            'mendelian_analysis_type': self.mendelian_analysis_type,
-            'number_of_kindred': self.number_of_kindred,
-        }
+        kwargs = self.get_kwargs(request)
 
         search_elasticsearch_obj = self.search_elasticsearch_class(**kwargs)
         search_elasticsearch_obj.search()
@@ -170,7 +164,8 @@ class MendelianSearchView(BaseSearchView):
         context = {}
         context['header'] = header
         context['results'] = results
-        context['total_time'] = int((datetime.now()-self.start_time).total_seconds() * 1000)
+        context['total_time'] = int((datetime.now() - self.start_time).total_seconds() * 1000)
         context['elasticsearch_response_time'] = elasticsearch_response_time
+        context['save_search_form'] = None
 
         return render(request, self.template_name, context)

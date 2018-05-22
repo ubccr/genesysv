@@ -1,17 +1,17 @@
-from collections import defaultdict
-import memcache
-import json
-import requests
-import pprint
-from natsort import natsorted
-import elasticsearch
-from operator import itemgetter, attrgetter, methodcaller
-import itertools
 import copy
+import itertools
+import json
+import pprint
+from collections import defaultdict
+from operator import itemgetter
+
 import elasticsearch
+import memcache
 from django.core import serializers
+from natsort import natsorted
 
 from core import models as core_models
+#from core import forms as core_forms
 
 
 def flush_memcache():
@@ -518,6 +518,8 @@ class BaseElasticSearchQueryDSL:
         self.nested_filters_applied = {}
         self.nested_attribute_fields = []
         self.non_nested_attribute_fields = []
+        self.filters_used = {}
+        self.attributes_selected = []
         self.base_query_body = None
         self.base_query_header = None
 
@@ -562,6 +564,9 @@ class BaseElasticSearchQueryDSL:
         _, header = zip(*header)
         self.base_query_header = header
 
+        for ele in header:
+            self.attributes_selected.append('%d' % (ele.id))
+
     def generate_base_query_from_filters(self):
         es_filter = ElasticSearchFilter()
         keys = self.filter_form_data.keys()
@@ -576,6 +581,7 @@ class BaseElasticSearchQueryDSL:
             if not data:
                 continue
 
+            self.filters_used[key] = data
             filter_field_pk = filter_field_obj.id
             es_name = filter_field_obj.es_name
             path = filter_field_obj.path
@@ -759,6 +765,12 @@ class BaseElasticSearchQueryDSL:
     def get_non_nested_attribute_fields(self):
         return self.non_nested_attribute_fields
 
+    def get_filters_used(self):
+        return self.filters_used
+
+    def get_attributes_selected(self):
+        return self.attributes_selected
+
 
 class BaseElasticSearchQueryExecutor:
 
@@ -803,7 +815,7 @@ class BaseElasticsearchResponseParser:
 
     def subset_dict(self, input, keys):
 
-        return {key: input[key] for key in keys if input.get(key) != None}
+        return {key: input[key] for key in keys if input.get(key) is not None}
 
     def merge_two_dicts(self, x, y):
         z = x.copy()
@@ -928,6 +940,8 @@ class BaseSearchElasticsearch:
         self.elasticsearch_response_time = None
         self.nested_attribute_fields = None
         self.non_nested_attribute_fields = None
+        self.filters_used = None
+        self.attributes_selected = None
         self.search_log_id = None
 
     def run_elasticsearch_dsl(self):
@@ -938,6 +952,8 @@ class BaseSearchElasticsearch:
         self.query_body = elasticsearch_dsl.get_query_body()
         self.nested_attribute_fields = elasticsearch_dsl.get_nested_attribute_fields()
         self.non_nested_attribute_fields = elasticsearch_dsl.get_non_nested_attribute_fields()
+        self.filters_used = elasticsearch_dsl.get_filters_used()
+        self.attributes_selected = elasticsearch_dsl.get_attributes_selected()
 
     def run_elasticsearch_query_executor(self):
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
@@ -967,10 +983,8 @@ class BaseSearchElasticsearch:
             query=query_body_json,
             nested_attribute_fields=nested_attribute_fields_json,
             non_nested_attribute_fields=non_nested_attribute_fields_json,
-            dict_filter_fields=None,
-            used_keys=None,
-            filters_used=None,
-            attributes_selected='',
+            filters_used=self.filters_used,
+            attributes_selected=self.attributes_selected
         )
 
         if self.user.is_authenticated:
@@ -997,6 +1011,12 @@ class BaseSearchElasticsearch:
     def get_search_log_id(self):
         return self.search_log_id
 
+    def get_filters_used(self):
+        return self.filters_used
+
+    def get_attributes_selected(self):
+        return self.attributes_selected
+
 
 class BaseDownloadAllResults:
     fields_to_skip_flattening = []
@@ -1015,10 +1035,9 @@ class BaseDownloadAllResults:
 
         if self.search_log_obj.non_nested_attribute_fields:
             self.non_nested_attribute_fields = json.loads(
-            self.search_log_obj.non_nested_attribute_fields)
+                self.search_log_obj.non_nested_attribute_fields)
         else:
             non_nested_attribute_fields = []
-
 
     def merge_two_dicts(self, x, y):
         z = x.copy()
@@ -1031,7 +1050,6 @@ class BaseDownloadAllResults:
             output.append(self.merge_two_dicts(x, y))
 
         return output
-
 
     def generate_row(self, header, tmp_source):
         tmp = []
@@ -1048,12 +1066,12 @@ class BaseDownloadAllResults:
         es = elasticsearch.Elasticsearch(
             host=self.search_log_obj.dataset.es_host)
         for hit in elasticsearch.helpers.scan(es,
-                                query=self.query_body,
-                                scroll=u'5m',
-                                size=1000,
-                                preserve_order=False,
-                                index=self.search_log_obj.dataset.es_index_name,
-                                doc_type=self.search_log_obj.dataset.es_type_name):
+                                              query=self.query_body,
+                                              scroll=u'5m',
+                                              size=1000,
+                                              preserve_order=False,
+                                              index=self.search_log_obj.dataset.es_index_name,
+                                              doc_type=self.search_log_obj.dataset.es_type_name):
             tmp_source = hit['_source']
             es_id = hit['_id']
             inner_hits = hit.get('inner_hits')
@@ -1071,8 +1089,6 @@ class BaseDownloadAllResults:
 
                         if tmp_hit_dict:
                             tmp_source[key].append(tmp_hit_dict)
-
-
 
             row = self.generate_row(self.header, tmp_source)
             yield row

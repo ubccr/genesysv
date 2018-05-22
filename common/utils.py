@@ -25,4 +25,3 @@ class Echo(object):
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
-

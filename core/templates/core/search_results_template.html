@@ -1,11 +1,14 @@
-{% load crispy_forms_tags %}
-{% load core_tags %}
-{% load staticfiles %}
-{% load humanize %}
+{% load crispy_forms_tags %} 
+{% load core_tags %} 
+{% load staticfiles %} 
+{% load humanize %} 
 
 {% block well %}
 <div class="well">
   <div class="pull-right">
+    {% if user.is_authenticated %}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
+    {% endif %}
     <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
     <form id="download-result-form" role="form" method="POST" action="">
       {% csrf_token %}
@@ -15,9 +18,9 @@
   </div>
   <div class="clearfix"></div>
 </div>
-{% endblock %}
+{% endblock %} 
 
-{% block content %}
+{% block content %} {{search_log_id}}
 <div class="panel panel-primary">
   <div class="panel-body">
     <div class="table-responsive">
@@ -40,15 +43,32 @@
           {% endfor %}
         </tbody>
       </table>
-      Total Time: <strong>{{total_time}} ms</strong>
-      {% if elasticsearch_response_time %}
-        <br> Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong>
-      {% endif %}
+      Total Time: <strong>{{total_time}} ms</strong> {% if elasticsearch_response_time %}
+      <br> Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong> {% endif %}
     </div>
   </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="saveResultsModal" tabindex="-1" role="dialog" aria-labelledby="saveResultsModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="saveResultsModalLabel">Save Search</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" action="{% url 'save-search' %}" method="POST">
+          {% csrf_token %} {% crispy save_search_form %}
+          <input type="submit" class="btn btn-submit btn-primary col-md-offset-2">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-$(document).ready(function () {
+$(document).ready(function() {
 
   $('#result-table').DataTable({
     "iDisplayLength": 25,

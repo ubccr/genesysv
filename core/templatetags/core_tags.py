@@ -51,4 +51,3 @@ def get_value_from_dict_core(dict_data, element):
             return output
         else:
             return data
-

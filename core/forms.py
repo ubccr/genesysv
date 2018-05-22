@@ -1,10 +1,9 @@
 from django import forms
-from core.models import Study, Dataset
 from django.db.models import Q
+from django.contrib.auth.models import User
+from crispy_forms.helper import FormHelper
 
-
-from core.models import AttributeField, FilterField, FilterFieldChoice
-
+from core.models import FilterField, FilterFieldChoice, Dataset, Study, SavedSearch
 
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 
@@ -15,14 +14,11 @@ class StudyForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         user_group_ids = [group.id for group in user.groups.all()]
-        # user_dataset = Dataset.objects.all()
         user_dataset = Dataset.objects.select_related('study').filter(
             Q(allowed_groups__in=user_group_ids) | Q(is_public=True)).distinct()
         user_studies = [ele.study.id for ele in user_dataset]
-        # print(user_studies)
         STUDY_CHOICES = [(ele.id, ele.name)
                          for ele in Study.objects.filter(id__in=user_studies)]
-        # STUDY_CHOICES = [] #Fixme
         STUDY_CHOICES.insert(0, ('', '---'))
         self.fields['study'] = forms.ChoiceField(
             label='Study', choices=STUDY_CHOICES)
@@ -51,7 +47,7 @@ class AnalysisTypeForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         ANALYSIS_TYPE_CHOICES = [(analysis.id, analysis.name)
-                           for analysis in dataset_obj.analysis_type.all()]
+                                 for analysis in dataset_obj.analysis_type.all()]
         ANALYSIS_TYPE_CHOICES.insert(0, ('', '---'))
         self.fields['analysis_type'] = forms.ChoiceField(
             label='Analysis Type', choices=ANALYSIS_TYPE_CHOICES)
@@ -201,3 +197,33 @@ class AttributeForm(forms.Form):
             field_name = '%d' % (field.id)
             self.fields[field_name] = forms.BooleanField(
                 label=label, required=False)
+
+
+class SaveSearchForm(forms.ModelForm):
+
+    def __init__(self, user, dataset, filters_used, attributes_selected, *args, **kwargs):
+        super(SaveSearchForm, self).__init__(*args, **kwargs)
+        self.fields['user'].initial = User.objects.get(id=user.id)
+        self.fields['dataset'].initial = dataset
+        self.fields['filters_used'].initial = filters_used
+        self.fields['attributes_selected'].initial = attributes_selected
+
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_tag = False  # don't render form DOM element
+        helper.render_unmentioned_fields = True  # render all fields
+        helper.label_class = 'col-md-2'
+        helper.field_class = 'col-md-10'
+        return helper
+
+    class Meta:
+        model = SavedSearch
+        fields = '__all__'
+        widgets = {
+            'user': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'dataset': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'filters_used': forms.HiddenInput(attrs={'readonly': 'readonly', }),
+            'attributes_selected': forms.HiddenInput(attrs={'readonly': 'readonly', 'required': True}),
+            'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),
+        }

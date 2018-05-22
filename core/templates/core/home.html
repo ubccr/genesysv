@@ -284,6 +284,7 @@ $("#step1-study-select").on("change", function (event) {
   var study_id = $(this).find('option:selected').val();
   var study_text = $(this).find('option:selected').text();
   if (study_id != '---') {
+    $("#study___p").text(study_text);
     $('#filter___p').html("");
     $('#attribute___p').html("");
     $("#step1-dataset-select").html(blank_select_dataset);

@@ -1,13 +1,18 @@
-from core.utils import BaseElasticSearchQueryDSL, BaseSearchElasticsearch, BaseSearchElasticsearch, BaseElasticSearchQueryExecutor, BaseElasticsearchResponseParser, get_values_from_es
-from core.models import AttributeField
-import elasticsearch
-from elasticsearch import helpers
-from collections import deque, Counter
+import copy
 import datetime
 import pprint
 import sys
+from collections import Counter, deque
+
+import elasticsearch
+from elasticsearch import helpers
 from natsort import natsorted
-import copy
+
+from core.models import AttributeField
+from core.utils import (BaseElasticSearchQueryDSL,
+                        BaseElasticSearchQueryExecutor,
+                        BaseElasticsearchResponseParser,
+                        BaseSearchElasticsearch, get_values_from_es)
 
 thismodule = sys.modules[__name__]
 
@@ -48,6 +53,7 @@ def get_genes_es(dataset_es_index_name,
                             doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
+
 
 def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
 
@@ -190,6 +196,7 @@ def get_genotypes(sample_array, father_id, mother_id, child_id):
     else:
         return None
 
+
 def are_variants_compound_heterozygous(variant_genotypes):
     compound_heterozygous_found = False
     gt_pair_whose_reverse_to_find = None
@@ -284,7 +291,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
     def add_autosomal_dominant_query_string(self, child_id):
         query_body = copy.deepcopy(self.query_body)
-        if not 'query' in query_body:
+        if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
                     "path": "sample",
@@ -292,7 +299,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": { "sample.Sample_ID": child_id}}
+                                {"term": {"sample.Sample_ID": child_id}}
                             ]
                         }
                     }
@@ -307,7 +314,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         "query": {
                             "bool": {
                                 "filter": [
-                                    {"term,": { "sample.Sample_ID": child_id}},
+                                    {"term": {"sample.Sample_ID": child_id}},
                                 ]
                             }
                         }
@@ -318,7 +325,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
     def add_autosomal_recessive_query_string(self, child_id):
         query_body = copy.deepcopy(self.query_body)
-        if not 'query' in query_body:
+        if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
                     "path": "sample",
@@ -362,7 +369,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
     def add_denovo_query_string(self, child_id):
         query_body = copy.deepcopy(self.query_body)
-        if not 'query' in query_body:
+        if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
                     "path": "sample",
@@ -395,7 +402,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
     def add_child_ids_query_string(self, child_ids):
         query_body = copy.deepcopy(self.query_body)
-        if not 'query' in query_body:
+        if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
                     "path": "sample",
@@ -425,11 +432,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 }
             )
         return query_body
-
-
-
-
-
 
     def non_gene_based_search(self):
         function = getattr(thismodule, self.mendelian_analysis_function)
@@ -467,7 +469,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
                 source = hit['_source']
 
-                analysis_output = function(source.get('sample'), family.get('father_id'), family.get('mother_id'), family.get('child_id'))
+                analysis_output = function(source.get('sample'), family.get('father_id'),
+                                           family.get('mother_id'), family.get('child_id'))
                 if analysis_output:
                     result = hit.copy()
                     result['_source']['father_gt'] = analysis_output[0]
@@ -485,7 +488,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
             family_results[family_id] = tmp_results
         return family_results
-
 
     def gene_based_search(self):
         es = elasticsearch.Elasticsearch(
@@ -516,7 +518,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             }
             for gene in genes:
                 query_body = copy.deepcopy(self.query_body)
-                if not 'query' in query_body:
+                if 'query' not in query_body:
                     query_body['query'] = {"bool": {
                         "filter": [
                             {
@@ -598,7 +600,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             family_results[family_id] = tmp_results
         return family_results
 
-
     def excecute_elasticsearch_query(self):
 
         if self.mendelian_analysis_function in ['is_autosomal_dominant', 'is_autosomal_recessive', 'is_denovo']:
@@ -613,6 +614,7 @@ class MendelianElasticsearchResponseParser(BaseElasticsearchResponseParser):
     maximum_table_size = 4000
     fields_to_skip_flattening = ['FILTER', 'QUAL']
 
+
 class MendelianSearchElasticsearch(BaseSearchElasticsearch):
 
     def __init__(self, *args, **kwargs):
@@ -620,7 +622,6 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
         self.mendelian_analysis_type = kwargs.get('mendelian_analysis_type')
         self.number_of_kindred = kwargs.get('number_of_kindred')
         self.family_dict = None
-
 
     def add_sample_to_source(self):
         if 'sample' not in self.query_body.get('_source'):
@@ -681,23 +682,23 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
 
         body = body_template % (Family_ID)
         results = es.search(index=dataset_es_index_name,
-                                doc_type=dataset_es_type_name,
-                                body=body, request_timeout=120)
+                            doc_type=dataset_es_type_name,
+                            body=body, request_timeout=120)
 
         result = results['hits']['hits'][0]['inner_hits']['sample']['hits']['hits'][0]["_source"]
-        father_id  = result.get('Father_ID')
-        mother_id  = result.get('Mother_ID')
-        child_id  = result.get('Sample_ID')
+        father_id = result.get('Father_ID')
+        mother_id = result.get('Mother_ID')
+        child_id = result.get('Sample_ID')
         return (father_id, mother_id, child_id)
 
     def get_family_dict(self):
 
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
-                       self.dataset_obj.es_type_name,
-                       self.dataset_obj.es_host,
-                       self.dataset_obj.es_port,
-                       'Family_ID',
-                       'sample')
+                                        self.dataset_obj.es_type_name,
+                                        self.dataset_obj.es_host,
+                                        self.dataset_obj.es_port,
+                                        'Family_ID',
+                                        'sample')
         family_dict = {}
         for family_id in family_ids:
             father_id, mother_id, child_id = self._get_family(self.dataset_obj.es_index_name,
@@ -708,7 +709,6 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
             family_dict[family_id] = {'father_id': father_id, 'mother_id': mother_id, 'child_id': child_id}
 
         self.family_dict = family_dict
-
 
     def apply_kindred_filtering(self, elasticsearch_response):
         results = {

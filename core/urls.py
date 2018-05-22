@@ -1,4 +1,5 @@
 from django.urls import include, path
+
 import core.views as core_views
 
 urlpatterns = (
@@ -14,4 +15,5 @@ urlpatterns = (
     path('additional-form-router/<int:dataset_id>/<int:analysis_type_id>', core_views.AdditionalFormRouterView.as_view(), name='additional-form-router'),
     path('base-search/', core_views.BaseSearchView.as_view(), name='base-search'),
     path('base-download/<int:search_log_id>', core_views.BaseDownloadView.as_view(), name='base-download'),
+    path('save_search/', core_views.save_search, name='save-search'),
 )

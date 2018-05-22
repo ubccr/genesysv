@@ -1,5 +1,6 @@
 from django.contrib import admin
-from microbiome.models import (DownloadRequest)
+
+from microbiome.models import DownloadRequest
 
 
 @admin.register(DownloadRequest)

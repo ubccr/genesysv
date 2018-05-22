@@ -1,5 +1,7 @@
 from django.urls import include, path
-from mendelian.views import FamilySnippetView, MendelianHomeView, MendelianSearchView
+
+from mendelian.views import (FamilySnippetView, MendelianHomeView,
+                             MendelianSearchView)
 
 urlpatterns = (
     path('<int:study_id>', MendelianHomeView.as_view(), name='mendelian-home'),

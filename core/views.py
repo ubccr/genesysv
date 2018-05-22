@@ -1,28 +1,43 @@
+import csv
+import json
 from collections import deque
 from datetime import datetime
-import json
-import csv
-
 from pprint import pprint
 
-from django.views.generic.edit import CreateView
-from django.views.generic.detail import DetailView
-from django.views.generic.base import TemplateView
-from django.views import View
-from django.http import JsonResponse
-from django.http import StreamingHttpResponse, HttpResponseForbidden
-from django.utils.html import mark_safe
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
 from django.core.cache import cache
-from django.http import HttpResponse
-from django.http import QueryDict
 from django.core.exceptions import ValidationError
+from django.http import (HttpResponse, HttpResponseForbidden, JsonResponse,
+                         QueryDict, StreamingHttpResponse, HttpResponseServerError)
+from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render
+from django.utils.html import mark_safe
+from django.views import View
+from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 
 from common.utils import Echo
-from core.models import Dataset, AnalysisType, AttributeTab, FilterTab, Study, SearchLog
 from core.apps import CoreConfig
-from core.forms import StudyForm, DatasetForm, AnalysisTypeForm, AttributeForm, AttributeFormPart, FilterForm, FilterFormPart
+from core.forms import (
+    StudyForm,
+    DatasetForm,
+    AnalysisTypeForm,
+    AttributeForm,
+    AttributeFormPart,
+    FilterForm,
+    FilterFormPart,
+    SaveSearchForm)
+
+from core.models import (
+    Study,
+    Dataset,
+    FilterTab,
+    AttributeTab,
+    AnalysisType,
+    SavedSearch,
+    SearchLog)
+
+
 from core.utils import (
     BaseElasticSearchQueryDSL,
     BaseElasticSearchQueryExecutor,
@@ -30,6 +45,7 @@ from core.utils import (
     BaseSearchElasticsearch,
     BaseDownloadAllResults,
 )
+
 
 class MainPageView(TemplateView):
     template_name = "core/home.html"
@@ -204,8 +220,6 @@ class SearchRouterView(View):
 
     def post(self, request):
         POST_data = QueryDict(request.POST['form_data'])
-        dataset_id = POST_data.get('dataset')
-        dataset_obj = get_object_or_404(Dataset, pk=dataset_id)
         analysis_type_id = POST_data.get('analysis_type')
         analysis_type_obj = get_object_or_404(AnalysisType, pk=analysis_type_id)
         app_name = analysis_type_obj.app_name.name
@@ -223,6 +237,7 @@ class SearchRouterView(View):
             return_view = BaseSearchView
 
         return return_view().post(request)
+
 
 class AdditionalFormRouterView(View):
 
@@ -295,11 +310,8 @@ class BaseSearchView(TemplateView):
         else:
             raise ValidationError('Invalid Attribute Form!')
 
-    def post(self, request, *args, **kwargs):
-        self.start_time = datetime.now()
 
-        self.validate_request_data(request)
-
+    def get_kwargs(self, request):
         kwargs = {
             'user': request.user,
             'dataset_obj': self.dataset_obj,
@@ -309,15 +321,33 @@ class BaseSearchView(TemplateView):
             'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
             'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
             'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
-
-
         }
+
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        self.start_time = datetime.now()
+
+        self.validate_request_data(request)
+
+        kwargs = self.get_kwargs(request)
+
         search_elasticsearch_obj = self.search_elasticsearch_class(**kwargs)
         search_elasticsearch_obj.search()
         header = search_elasticsearch_obj.get_header()
         results = search_elasticsearch_obj.get_results()
         elasticsearch_response_time = search_elasticsearch_obj.get_elasticsearch_response_time()
         search_log_id = search_elasticsearch_obj.get_search_log_id()
+        filters_used = search_elasticsearch_obj.get_filters_used()
+        attributes_selected = search_elasticsearch_obj.get_attributes_selected()
+
+        if request.user.is_authenticated:
+            save_search_form = SaveSearchForm(request.user,
+                                              self.dataset_obj,
+                                              filters_used,
+                                              attributes_selected)
+        else:
+            save_search_form = None
 
         if self.call_get_context and request.user.is_authenticated:
             kwargs.update({'user_obj': request.user})
@@ -330,12 +360,12 @@ class BaseSearchView(TemplateView):
         context['results'] = results
         context['elasticsearch_response_time'] = elasticsearch_response_time
         context['search_log_id'] = search_log_id
+        context['save_search_form'] = save_search_form
 
         context['total_time'] = int(
             (datetime.now() - self.start_time).total_seconds() * 1000)
 
         return render(request, self.template_name, context)
-
 
 
 class BaseDownloadView(View):
@@ -344,11 +374,8 @@ class BaseDownloadView(View):
         search_log_obj = get_object_or_404(
             SearchLog, pk=self.kwargs.get('search_log_id'))
 
-
         if request.user != search_log_obj.user:
             return HttpResponseForbidden()
-
-
         download_obj = BaseDownloadAllResults(search_log_obj)
         rows = download_obj.yield_rows()
         # rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
@@ -359,3 +386,24 @@ class BaseDownloadView(View):
         response['Content-Disposition'] = 'attachment; filename="search_results.csv"'
 
         return response
+
+
+def save_search(request):
+    if request.method == 'POST':
+        dataset = Dataset.objects.get(id=request.POST.get('dataset'))
+        filters_used = request.POST.get('filters_used')
+        attributes_selected = request.POST.get('attributes_selected')
+        form = SaveSearchForm(request.user, dataset,
+                              filters_used, attributes_selected, request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = data.get('user')
+            dataset = data.get('dataset')
+            filters_used = data.get('filters_used')
+            attributes_selected = data.get('attributes_selected')
+            description = data.get('description')
+            SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used,
+                                       attributes_selected=attributes_selected, description=description)
+            return redirect('saved-search-list')
+        else:
+            return HttpResponseServerError()

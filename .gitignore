@@ -20,3 +20,4 @@ static/r_outputs/
 utils/import_exceptions*
 std*
 *benchmark*.txt
+venv

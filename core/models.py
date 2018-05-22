@@ -1,11 +1,11 @@
+from django.contrib.auth.models import Group, User
 from django.db import models
-from django.contrib.auth.models import User, Group
-
 from sortedm2m.fields import SortedManyToManyField
-
 
 from common.models import TimeStampedModel
 from core.utils import flush_memcache
+
+import json
 
 
 class AppName(TimeStampedModel):
@@ -343,8 +343,6 @@ class SearchLog(TimeStampedModel):
     query = models.TextField()
     nested_attribute_fields = models.TextField(null=True, blank=True)
     non_nested_attribute_fields = models.TextField(null=True, blank=True)
-    dict_filter_fields = models.TextField(null=True, blank=True)
-    used_keys = models.TextField(null=True, blank=True)
     filters_used = models.TextField(null=True, blank=True)
     attributes_selected = models.TextField()
 
@@ -388,4 +386,4 @@ class SavedSearch(TimeStampedModel):
     class Meta:
         unique_together = ('dataset', 'user', 'filters_used',
                            'attributes_selected')
-        verbose_name_plural = 'Searches'
+        verbose_name_plural = 'Saved Searches'

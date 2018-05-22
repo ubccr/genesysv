@@ -1,8 +1,8 @@
+from django.contrib.auth.models import Group, User
 from django.db import models
-from common.models import TimeStampedModel
-from django.contrib.auth.models import User, Group
 
 import core
+from common.models import TimeStampedModel
 
 
 class DownloadRequest(TimeStampedModel):
@@ -32,4 +32,3 @@ class DownloadRequest(TimeStampedModel):
             ("can_approve_download_request", "Can approve download request"),
             ("can_view_all_download_requests", "Can view all download requests"),
         )
-

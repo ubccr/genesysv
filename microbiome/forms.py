@@ -1,7 +1,8 @@
-from django.forms import ModelForm
 from django import forms
-from microbiome.models import DownloadRequest
+from django.forms import ModelForm
+
 import core
+from microbiome.models import DownloadRequest
 
 
 class DownloadRequestForm(ModelForm):
@@ -20,4 +21,3 @@ class DownloadRequestForm(ModelForm):
             'search_log': forms.HiddenInput(attrs={'readonly': 'readonly'}),
             'status': forms.HiddenInput(attrs={'readonly': 'readonly', }),
         }
-

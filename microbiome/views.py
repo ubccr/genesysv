@@ -1,19 +1,19 @@
+import csv
+
+from django.http import (HttpResponse, HttpResponseForbidden,
+                         HttpResponseServerError, QueryDict,
+                         StreamingHttpResponse)
+from django.shortcuts import get_object_or_404, redirect
 from django.views import View
-from django.shortcuts import redirect
-from django.http import HttpResponse, HttpResponseServerError
-from django.http import HttpResponseForbidden
-from django.http import StreamingHttpResponse
-from django.shortcuts import get_object_or_404
-from django.http import QueryDict
 from django.views.generic.list import ListView
 
-import csv
 import core
 from common.utils import Echo
 
 from .forms import DownloadRequestForm
-from .utils import DownloadAllResultsAsOTUTable
 from .models import DownloadRequest
+from .utils import DownloadAllResultsAsOTUTable
+
 
 class MicrobiomeSearchView(core.views.BaseSearchView):
     template_name = "microbiome/search_results_template.html"
@@ -21,7 +21,7 @@ class MicrobiomeSearchView(core.views.BaseSearchView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['download_request_form'] = DownloadRequestForm(kwargs.get('user_obj'), kwargs.get('search_log_obj') )
+        context['download_request_form'] = DownloadRequestForm(kwargs.get('user_obj'), kwargs.get('search_log_obj'))
         return context
 
 
@@ -47,6 +47,7 @@ class OtuDownloadView(View):
 
         return response
 
+
 class DownloadRequestListView(ListView):
     model = DownloadRequest
     template_name = 'microbiome/download_request_list.html'
@@ -58,6 +59,7 @@ class DownloadRequestListView(ListView):
         else:
             return DownloadRequest.objects.filter(user=self.request.user)
 
+
 class DownloadRequestReviewListView(ListView):
     model = DownloadRequest
     template_name = 'microbiome/download_request_review_list.html'
@@ -67,6 +69,7 @@ class DownloadRequestReviewListView(ListView):
 
         return DownloadRequest.objects.filter(status='Pending')
 
+
 def approve_download_request(request, download_request_id):
     if request.method == 'GET':
 
@@ -74,13 +77,14 @@ def approve_download_request(request, download_request_id):
             return HttpResponseForbidden()
 
         download_request_obj = get_object_or_404(
-                DownloadRequest, pk=download_request_id)
+            DownloadRequest, pk=download_request_id)
 
         download_request_obj.status = 'Approved'
         download_request_obj.save()
         print(download_request_obj.status)
 
         return redirect('download-request-review-list')
+
 
 def deny_download_request(request, download_request_id):
     if request.method == 'GET':
@@ -89,12 +93,13 @@ def deny_download_request(request, download_request_id):
             return HttpResponseForbidden()
 
         download_request_obj = get_object_or_404(
-                DownloadRequest, pk=download_request_id)
+            DownloadRequest, pk=download_request_id)
 
         download_request_obj.status = 'Denied'
         download_request_obj.save()
 
         return redirect('download-request-review-list')
+
 
 def request_download(request, search_log_id):
 
@@ -106,7 +111,6 @@ def request_download(request, search_log_id):
         POST_data = QueryDict(request.POST['form_data'])
         form = DownloadRequestForm(user_obj, search_log_obj, POST_data)
         if form.is_valid():
-            print('Form is valid')
             data = form.cleaned_data
             user = data.get('user')
             search_log = data.get('search_log')

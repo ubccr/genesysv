@@ -1,33 +1,18 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-import elasticsearch
 import json
-from pprint import pprint
 import re
 from collections import OrderedDict
+from pprint import pprint
+
+import elasticsearch
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+
+from core.models import (AnalysisType, AppName, AttributeField, AttributePanel,
+                         AttributeSubPanel, AttributeTab, Dataset,
+                         ESFilterType, FilterField, FilterFieldChoice,
+                         FilterPanel, FilterSubPanel, FilterTab, FormType,
+                         SearchOptions, Study, WidgetType)
 from core.utils import get_values_from_es
-from core.models import (
-    AppName,
-    AnalysisType,
-    ESFilterType,
-    FormType,
-    WidgetType,
-    Study,
-    Dataset,
-    SearchOptions,
-    FilterField,
-    FilterFieldChoice,
-    AttributeField,
-    FilterPanel,
-    FilterSubPanel,
-    FilterTab,
-    AttributePanel,
-    AttributeSubPanel,
-    AttributeTab,
-
-
-)
-
 
 FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
 

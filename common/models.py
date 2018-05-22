@@ -1,5 +1,5 @@
+from django.contrib.auth.models import Group, User
 from django.db import models
-from django.contrib.auth.models import User, Group
 
 
 class TimeStampedModel(models.Model):
@@ -12,4 +12,3 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         abstract = True
-
