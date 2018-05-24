@@ -40,6 +40,10 @@
         "null_value": -999.99,
         "type": "float"
       },
+      "CCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "CHROM": {
         "type": "keyword"
       },
@@ -186,14 +190,22 @@
         "null_value": -999.99,
         "type": "float"
       },
-      "ExcessHet": {
-        "null_value": -999.99,
-        "type": "float"
-      },
       "FILTER": {
         "type": "keyword"
       },
       "FS": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "GQ_MEAN": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "GQ_STDDEV": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "HWP": {
         "null_value": -999.99,
         "type": "float"
       },
@@ -233,6 +245,10 @@
         "null_value": -999.99,
         "type": "float"
       },
+      "NCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "POS": {
         "type": "integer"
       },
@@ -241,10 +257,6 @@
         "type": "float"
       },
       "QUAL": {
-        "type": "float"
-      },
-      "RAW_MQ": {
-        "null_value": -999.99,
         "type": "float"
       },
       "REF": {
@@ -352,10 +364,6 @@
           "PL": {
             "null_value": "NA",
             "type": "keyword"
-          },
-          "RGQ": {
-            "null_value": -999,
-            "type": "integer"
           },
           "SB": {
             "null_value": -999,

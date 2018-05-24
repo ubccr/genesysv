@@ -40,15 +40,30 @@
         "null_value": -999.99,
         "type": "float"
       },
+      "CCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "CHROM": {
         "type": "keyword"
       },
-      "CLIN_SIG": {
-        "null_value": "NA",
-        "type": "keyword"
+      "CLIN_SIG_nested": {
+        "properties": {
+          "CLIN_SIG": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
-      "COSMIC_ID": {
-        "type": "keyword"
+      "COSMIC_nested": {
+        "properties": {
+          "COSMIC_ID": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
       "CSQ_nested": {
         "properties": {
@@ -186,14 +201,28 @@
         "null_value": -999.99,
         "type": "float"
       },
-      "ExcessHet": {
+      "FILTER_nested": {
+        "properties": {
+          "FILTER": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
+      },
+      "FS": {
         "null_value": -999.99,
         "type": "float"
       },
-      "FILTER": {
-        "type": "keyword"
+      "GQ_MEAN": {
+        "null_value": -999.99,
+        "type": "float"
       },
-      "FS": {
+      "GQ_STDDEV": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "HWP": {
         "null_value": -999.99,
         "type": "float"
       },
@@ -233,6 +262,10 @@
         "null_value": -999.99,
         "type": "float"
       },
+      "NCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "POS": {
         "type": "integer"
       },
@@ -241,10 +274,6 @@
         "type": "float"
       },
       "QUAL": {
-        "type": "float"
-      },
-      "RAW_MQ": {
-        "null_value": -999.99,
         "type": "float"
       },
       "REF": {
@@ -276,8 +305,14 @@
         "null_value": "NA",
         "type": "keyword"
       },
-      "dbSNP_ID": {
-        "type": "keyword"
+      "dbSNP_nested": {
+        "properties": {
+          "dbSNP_ID": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
       "gnomAD_AF": {
         "null_value": -999.99,
@@ -352,10 +387,6 @@
           "PL": {
             "null_value": "NA",
             "type": "keyword"
-          },
-          "RGQ": {
-            "null_value": -999,
-            "type": "integer"
           },
           "SB": {
             "null_value": -999,

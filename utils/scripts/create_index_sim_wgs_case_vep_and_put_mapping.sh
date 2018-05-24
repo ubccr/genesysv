@@ -55,15 +55,30 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
+      "CCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "CHROM": {
         "type": "keyword"
       },
-      "CLIN_SIG": {
-        "null_value": "NA",
-        "type": "keyword"
+      "CLIN_SIG_nested": {
+        "properties": {
+          "CLIN_SIG": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
-      "COSMIC_ID": {
-        "type": "keyword"
+      "COSMIC_nested": {
+        "properties": {
+          "COSMIC_ID": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
       "CSQ_nested": {
         "properties": {
@@ -201,14 +216,28 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
-      "ExcessHet": {
+      "FILTER_nested": {
+        "properties": {
+          "FILTER": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
+      },
+      "FS": {
         "null_value": -999.99,
         "type": "float"
       },
-      "FILTER": {
-        "type": "keyword"
+      "GQ_MEAN": {
+        "null_value": -999.99,
+        "type": "float"
       },
-      "FS": {
+      "GQ_STDDEV": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "HWP": {
         "null_value": -999.99,
         "type": "float"
       },
@@ -248,6 +277,10 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
+      "NCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "POS": {
         "type": "integer"
       },
@@ -256,10 +289,6 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
         "type": "float"
       },
       "QUAL": {
-        "type": "float"
-      },
-      "RAW_MQ": {
-        "null_value": -999.99,
         "type": "float"
       },
       "REF": {
@@ -291,8 +320,14 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
         "null_value": "NA",
         "type": "keyword"
       },
-      "dbSNP_ID": {
-        "type": "keyword"
+      "dbSNP_nested": {
+        "properties": {
+          "dbSNP_ID": {
+            "null_value": "NA",
+            "type": "keyword"
+          }
+        },
+        "type": "nested"
       },
       "gnomAD_AF": {
         "null_value": -999.99,
@@ -367,10 +402,6 @@ curl -XPUT 'localhost:9200/sim_wgs_case_vep/_mapping/sim_wgs_case_vep_?pretty' -
           "PL": {
             "null_value": "NA",
             "type": "keyword"
-          },
-          "RGQ": {
-            "null_value": -999,
-            "type": "integer"
           },
           "SB": {
             "null_value": -999,

@@ -55,6 +55,10 @@ curl -XPUT 'localhost:9200/sim_wes_case_vep/_mapping/sim_wes_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
+      "CCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "CHROM": {
         "type": "keyword"
       },
@@ -201,14 +205,22 @@ curl -XPUT 'localhost:9200/sim_wes_case_vep/_mapping/sim_wes_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
-      "ExcessHet": {
-        "null_value": -999.99,
-        "type": "float"
-      },
       "FILTER": {
         "type": "keyword"
       },
       "FS": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "GQ_MEAN": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "GQ_STDDEV": {
+        "null_value": -999.99,
+        "type": "float"
+      },
+      "HWP": {
         "null_value": -999.99,
         "type": "float"
       },
@@ -248,6 +260,10 @@ curl -XPUT 'localhost:9200/sim_wes_case_vep/_mapping/sim_wes_case_vep_?pretty' -
         "null_value": -999.99,
         "type": "float"
       },
+      "NCC": {
+        "null_value": -999,
+        "type": "integer"
+      },
       "POS": {
         "type": "integer"
       },
@@ -256,10 +272,6 @@ curl -XPUT 'localhost:9200/sim_wes_case_vep/_mapping/sim_wes_case_vep_?pretty' -
         "type": "float"
       },
       "QUAL": {
-        "type": "float"
-      },
-      "RAW_MQ": {
-        "null_value": -999.99,
         "type": "float"
       },
       "REF": {
@@ -367,10 +379,6 @@ curl -XPUT 'localhost:9200/sim_wes_case_vep/_mapping/sim_wes_case_vep_?pretty' -
           "PL": {
             "null_value": "NA",
             "type": "keyword"
-          },
-          "RGQ": {
-            "null_value": -999,
-            "type": "integer"
           },
           "SB": {
             "null_value": -999,
