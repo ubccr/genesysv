@@ -294,20 +294,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				tmp_dict2 = {}
 
 				for key2, val2 in csq_dict2_global.items():
-					if key2 == "AF":
-						if '&' in val2:
-							val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
-						elif val2 == '':
-							val2 = -999.00
-						tmp_dict2[key2] = float(val2)
-					elif key2 == 'SOMATIC':
-						continue
-					elif key2 == 'Existing_variation':
-						if 'COSM' in val2:
-							tmp_dict2.update({'COSMIC_ID' : re.sub(r'rs\d+&', '', val2)})
-						elif val2.startswith('rs'):
-							tmp_dict2['dbSNP_ID'] = val2.replace(r'COSM\d+', '')
-					elif vcf_info['csq_dict_global'][key2]['type'] == 'integer':
+					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
 						if val2 == '':
 							tmp_dict2[key2] = -999
 						else:
@@ -327,8 +314,27 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								log.write("casting to float error:  %s, %s\n" % (key2, val2))
 								continue
 					else:
-						if val2 == '':
-							tmp_dict2[key2] = None
+						if key2 == "AF":
+							if '&' in val2:
+								val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
+							elif val2 == '':
+								val2 = -999.99
+							tmp_dict2[key2] = float(val2)
+						elif key2 == 'SOMATIC':
+							continue
+						elif key2 == 'Existing_variation' and val2 != '':
+							tmp_variants = val2.split('&')
+							cosmic_ids = [item for item in tmp_variants if item.startswith('COSM')]
+							dbsnp_ids = [item for item in tmp_variants if item.startswith('rs')]
+							result['COSMIC_ID'] = cosmic_ids
+							result['dbSNP_ID'] = dbsnp_ids
+						elif key2 == 'CLIN_SIG' and val2 != '':
+							result[key2] = val2.split('&')
+						else:
+							if val2 == '':
+								result[key2] = 'NA'
+							else:
+								result[key2] = val2
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
@@ -538,6 +544,9 @@ def process_line_data(variant_lines, log, f, vcf_info):
 		# in the first 8 field of vcf format, POS and QUAL are of non-string type, so convert them to the right type
 		data_fixed['POS'] = int(data_fixed['POS'])
 		data_fixed['QUAL'] = float(data_fixed['QUAL'])
+
+		# FIlTER field may contain multiple valuse, so parse them
+		data_fixed['FILTER'] = data_fixed['FILTER'].split(';')
 
 		result.update(data_fixed)
 

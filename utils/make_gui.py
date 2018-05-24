@@ -3,9 +3,9 @@ import copy
 from collections import ChainMap
 from collections import OrderedDict
 
-mapping = json.load(open("utils/scripts/sim_wes_case_vep_mapping.json", 'r'))
-mapping = mapping['sim_wes_case_vep_']['properties']
-vcf_info = json.load(open("utils/SIM_WES_variants_vep_vcf_info.json", 'r'))
+mapping = json.load(open("utils/scripts/mendeliantest_mapping.json", 'r'))
+mapping = mapping['mendeliantest_']['properties']
+vcf_info = json.load(open("utils/mendelian_test_three_families_vcf_info.json", 'r'))
 
 annot = 'vep'
 
@@ -130,7 +130,7 @@ def make_gui(vcf_info, mapping):
 			gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
 			gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
 
-	to_exclude = ['ID', 'Ensembl_Gene_ID', 'culprit', 'Ensembl_Protein_ID','US', 'COSMIC_ID', 'CLIN_SIG', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']
+	to_exclude = ['ID', 'Ensembl_Gene_ID', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']
 	keys = sorted([key for key in mapping if key not in gui_mapping_var and key not in to_exclude])
 	for key in keys:
 		if key in info_dict and 'Description' in info_dict[key]:
@@ -211,7 +211,7 @@ def make_gui(vcf_info, mapping):
 				if key2 == 'AD':
 		
 					del gui_mapping_sample[key2]
-				elif key2 in ['Sample_ID', 'GT', 'PGT']:
+				elif key2 in ['Sample_ID', 'GT', 'PGT', 'Family_ID', 'Father_ID', 'Mother_ID', 'Sex', 'Phenotype']:
 					gui_mapping_sample[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
 					gui_mapping_sample[key2]['filters'][0]['values'] = "get_from_es()"
 					gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = ""
@@ -220,38 +220,37 @@ def make_gui(vcf_info, mapping):
 				elif key2 == 'group':
 					gui_mapping_sample[key2]['filters'][0]['widget_type'] = "Select"
 					gui_mapping_sample[key2]['filters'][0]['form_type'] = "ChoiceField"
-				elif mapping['sample']['properties'][key2]['type'] == 'integer':
+				elif mapping['sample']['properties'][key2]['type'] == 'integer' or mapping['sample']['properties'][key2]['type'] == 'float':
 					if key2 == 'PL': # keep it as string type
-						pass
+						gui_mapping_sample[key2]['filters'][0]["tooltip"] = format_dict[key2]['Description']
+						
 					else:
 						gui_mapping_sample[key2]['filters'][0]["es_filter_type"] = "nested_filter_range_gte"
 						gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = "(>=)"
 						if key2.startswith('AD_'):
 							gui_mapping_sample[key2]['filters'][0]["tooltip"] = format_dict['AD']['Description']
-				
+						else:
+							gui_mapping_sample[key2]['filters'][0]["tooltip"] = format_dict[key2]['Description']
+						 
 		elif key.startswith("dbSNP"):
 			gui_mapping_var['dbSNP_ID'] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_var['dbSNP_ID']['filters'].append(copy.deepcopy(gui_mapping_var['dbSNP_ID']['filters'][0]))
 			gui_mapping_var['dbSNP_ID']['filters'][0]['display_text'] = 'dbSNP ID'
 			gui_mapping_var['dbSNP_ID']['filters'][0]['widget_type'] = "UploadField"
 			gui_mapping_var['dbSNP_ID']['filters'][0]['form_type'] = "CharField"
-			gui_mapping_var['dbSNP_ID']['filters'][0]['es_filter_type'] = "nested_filter_terms"
-			gui_mapping_var['dbSNP_ID']['filters'][0]['path'] = key
-			gui_mapping_var['dbSNP_ID']['filters'][1]['display_text'] = 'Variants in dbSNP'
+			gui_mapping_var['dbSNP_ID']['filters'][0]['es_filter_type'] = "filter_terms"
+			gui_mapping_var['dbSNP_ID']['filters'][1]['display_text'] = 'Limit Variants to dbSNP'
 			gui_mapping_var['dbSNP_ID']['filters'][1]['widget_type'] = "Select"
-			gui_mapping_var['dbSNP_ID']['filters'][1]['es_filter_type'] = "nested_filter_exists"
+			gui_mapping_var['dbSNP_ID']['filters'][1]['es_filter_type'] = "filter_exists"
 			gui_mapping_var['dbSNP_ID']['filters'][1]['form_type'] = "ChoiceField"
 			gui_mapping_var['dbSNP_ID']['panel'] = "Variant Related Information"
-			gui_mapping_var['dbSNP_ID']['filters'][1]['path'] = key
 		else:
 			if key not in pathogenicity_score_fields and key not in disease_association_fields:
 				gui_mapping_others[key] = copy.deepcopy(default_gui_mapping)
 
-	done_list = ['FILTER_nested', 'dbSNP_nested', 'sample']
-	['COSMIC_nested', 'CLIN_SIG_nested']
-	to_exclude = [item for item in to_exclude if item not in ['COSMIC_nested', 'CLIN_SIG_nested']]
-	to_exlude2 = to_exclude + done_list
-	keys = sorted([key for key in mapping if key not in summary_statistics_fields and key not in variant_quality_related_fields and key not in minor_allele_freq_fields and key not in variant_related_fields and key not in to_exlude2])
+	to_exclude.append('sample')
+	
+	keys = sorted([key for key in mapping if key not in summary_statistics_fields and key not in variant_quality_related_fields and key not in minor_allele_freq_fields and key not in variant_related_fields and key not in to_exclude])
 	if annot == 'vep':
 		for key in keys:
 			if key in info_dict and 'Description' in info_dict[key]:
@@ -335,46 +334,40 @@ def make_gui(vcf_info, mapping):
 				unmapped = [key for key in keys if key not in seen]
 				for key2 in unmapped:
 					gui_mapping_others[key2] = copy.deepcopy(default_gui_mapping)
-			elif key == 'COSMIC_nested':
-				gui_mapping_disease['COSMIC_ID'] = copy.deepcopy(default_gui_mapping)
-				gui_mapping_disease['COSMIC_ID']['filters'].append(copy.deepcopy(gui_mapping_disease['COSMIC_ID']['filters'][0]))
-				gui_mapping_disease['COSMIC_ID']['filters'][0]['display_text'] = 'COSMIC ID'
-				gui_mapping_disease['COSMIC_ID']['filters'][0]['widget_type'] = "UploadField"
-				gui_mapping_disease['COSMIC_ID']['filters'][0]['form_type'] = "CharField"
-				gui_mapping_disease['COSMIC_ID']['filters'][0]['es_filter_type'] = "nested_filter_terms"
-				gui_mapping_disease['COSMIC_ID']['filters'][0]['path'] = key	
-				gui_mapping_disease['COSMIC_ID']['filters'][1]['display_text'] = 'Limit Variants to COSMIC'
-				gui_mapping_disease['COSMIC_ID']['filters'][1]['widget_type'] = "Select"
-				gui_mapping_disease['COSMIC_ID']['filters'][1]['es_filter_type'] = "nested_filter_exists"
-				gui_mapping_disease['COSMIC_ID']['filters'][1]['form_type'] = "ChoiceField"
-				gui_mapping_disease['COSMIC_ID']['filters'][1]['path'] = key
-				gui_mapping_disease['COSMIC_ID']['panel'] = 'Disease Associations'
-			elif key == 'CLIN_SIG_nested':
-				gui_mapping_disease['CLIN_SIG'] = copy.deepcopy(default_gui_mapping)
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['display_text'] = 'Clinvar Significance'
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['widget_type'] = "SelectMultiple"
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['form_type'] = "MultipleChoiceField"
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['es_filter_type'] = "nested_filter_terms"
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['values'] = "get_from_es()"
-				gui_mapping_disease['CLIN_SIG']['filters'][0]['path'] = key	
-				gui_mapping_disease['CLIN_SIG']['panel'] = 'Disease Associations'
+			elif key == 'COSMIC_ID':
+				gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+				gui_mapping_disease[key]['filters'].append(copy.deepcopy(gui_mapping_disease[key]['filters'][0]))
+				gui_mapping_disease[key]['filters'][0]['display_text'] = 'COSMIC ID'
+				gui_mapping_disease[key]['filters'][0]['widget_type'] = "UploadField"
+				gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+				gui_mapping_disease[key]['filters'][1]['display_text'] = 'Limit Variants to COSMIC'
+				gui_mapping_disease[key]['filters'][1]['widget_type'] = "Select"
+				gui_mapping_disease[key]['filters'][1]['es_filter_type'] = "filter_exists"
+				gui_mapping_disease[key]['filters'][1]['form_type'] = "ChoiceField"
+				gui_mapping_disease[key]['panel'] = 'Disease Associations'
+			elif key == 'CLIN_SIG':
+				gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+				gui_mapping_disease[key]['filters'][0]['display_text'] = 'Clinvar Significance'
+				gui_mapping_disease[key]['filters'][0]['widget_type'] = "SelectMultiple"
+				gui_mapping_disease[key]['filters'][0]['form_type'] = "MultipleChoiceField"
+				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+				gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_disease[key]['panel'] = 'Disease Associations'
 				
 			else:
 				if key in pathogenicity_score_fields or key.startswith('CADD') or key.startswith('GERP') or key.startswith('DANN'):
-					gui_mapping_patho_s[key] = default_gui_mapping
+					gui_mapping_patho_s[key] = copy.deepcopy(default_gui_mapping)
 					if '++' in key:
 						oldkey = key
 						key = key.replace('++', 'plusplus')
-						gui_mapping_patho_s[key] = gui_mapping_patho_s[oldkey]
+						gui_mapping_patho_s[key] = copy.deepcopy(gui_mapping_patho_s[oldkey])
 						del gui_mapping_patho_s[oldkey]
 					
-					gui_mapping_patho_s[key]['filters'].append(copy.deepcopy(gui_mapping_patho_s[key]['filters'][0]))
 					gui_mapping_patho_s[key]['filters'][0]['form_type'] = "CharField"
 					gui_mapping_patho_s[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
 					gui_mapping_patho_s[key]['filters'][0]['in_line_tooltip'] = "(>=)"
 					gui_mapping_patho_s[key]['filters'][0]['widget_type'] = "TextInput"
-					gui_mapping_patho_s[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
-					gui_mapping_patho_s[key]['filters'][1]['in_line_tooltip'] = "(<=)"
 						
 					gui_mapping_patho_s[key]['panel'] = 'Pathogenicity Predictions'
 					gui_mapping_patho_s[key]['sub_panel'] = 'Scores'
