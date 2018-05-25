@@ -3,9 +3,9 @@ import copy
 from collections import ChainMap
 from collections import OrderedDict
 
-mapping = json.load(open("utils/scripts/mendeliantest_mapping.json", 'r'))
-mapping = mapping['mendeliantest_']['properties']
-vcf_info = json.load(open("utils/mendelian_test_three_families_vcf_info.json", 'r'))
+mapping = json.load(open("utils/scripts/sim_wes_case_vep_mapping.json", 'r'))
+mapping = mapping['sim_wes_case_vep_']['properties']
+vcf_info = json.load(open("utils/SIM_WES_variants_vep_vcf_info.json", 'r'))
 
 annot = 'vep'
 
@@ -211,7 +211,7 @@ def make_gui(vcf_info, mapping):
 				if key2 == 'AD':
 		
 					del gui_mapping_sample[key2]
-				elif key2 in ['Sample_ID', 'GT', 'PGT', 'Family_ID', 'Father_ID', 'Mother_ID', 'Sex', 'Phenotype']:
+				elif key2 in ['Sample_ID', 'GT', 'PGT', 'Family_ID', 'Father_ID', 'Mother_ID', 'Sex', 'Phenotype', 'Mother_Genotype', 'Father_Genotype', 'Mother_Phenotype', 'Father_Genotype']:
 					gui_mapping_sample[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
 					gui_mapping_sample[key2]['filters'][0]['values'] = "get_from_es()"
 					gui_mapping_sample[key2]['filters'][0]["in_line_tooltip"] = ""
@@ -294,10 +294,17 @@ def make_gui(vcf_info, mapping):
 							gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"	
 							if key2 == 'Gene':
 								gui_mapping_gene[key2]['filters'][0]['display_text'] = 'Entrez Gene ID'
-						elif key2 in ['Feature_type', 'BIOTYPE']:
+						elif key2 in ['Feature_type', 'BIOTYPE', 'DOMAINS']:
 							gui_mapping_gene[key2]['filters'][0]['values'] = "get_from_es()"
 							gui_mapping_gene[key2]['filters'][0]["form_type"] = "MultipleChoiceField"
 							gui_mapping_gene[key2]['filters'][0]["widget_type"] = "SelectMultiple"
+						elif key2 == 'DISTANCE':
+							gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "nested_filter_range_lte"
+							gui_mapping_gene[key2]['filters'][0]['in_line_tooltip'] = "(<=)"
+						elif key2.endswith('_position'):
+							gui_mapping_gene[key2]['filters'][0]['in_line_tooltip'] = "(=)"
+
+						gui_mapping_gene[key2]['filters'][0]['es_filter_type'] = "nested_filter_terms"
 						gui_mapping_gene[key2]['filters'][0]['path'] = key
 						gui_mapping_gene[key2]['panel']  = 'Gene Related Information'
 						seen[key2] = {}
@@ -321,10 +328,10 @@ def make_gui(vcf_info, mapping):
 						gui_mapping_patho_s[key2]['filters'][0]['path'] = key
 						
 						if key2 == 'SIFT_score':
-							gui_mapping_patho_s[key2]['filters'][0]['es_filter_type'] = "filter_range_lt"
-							gui_mapping_patho_s[key2]['filters'][0]['in_line_tooltip'] = "(<)"
+							gui_mapping_patho_s[key2]['filters'][0]['es_filter_type'] = "nested_filter_range_lte"
+							gui_mapping_patho_s[key2]['filters'][0]['in_line_tooltip'] = "(<=)"
 						else:
-							gui_mapping_patho_s[key2]['filters'][0]['es_filter_type'] = "filter_range_gte"
+							gui_mapping_patho_s[key2]['filters'][0]['es_filter_type'] = "nested_filter_range_gte"
 							gui_mapping_patho_s[key2]['filters'][0]['in_line_tooltip'] = "(>=)"
 							
 						gui_mapping_patho_s[key2]['panel']  = 'Pathogenicity Predictions'
