@@ -21,6 +21,7 @@ import elasticsearch
 from collections import deque
 from elasticsearch import helpers
 import time
+from make_gui import make_gui
 
 parser = argparse.ArgumentParser(description='Parse vcf file(s) and create ElasticSearch mapping and index from the parsed data')
 required = parser.add_argument_group('required named arguments')
@@ -48,7 +49,7 @@ else:
 hostname = args.hostname
 port = args.port
 index_name = args.index
-type_name = index_name + '_' #'gdwtest'
+type_name = index_name + '_'
 
 excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
@@ -240,7 +241,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			del tmp_dict[item]
 
 	for key, val in tmp_dict.items():
-		if key == 'CSQ':
+		if key == 'CSQ' and args.annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
 			csq_list = []
@@ -968,9 +969,7 @@ def make_es_mapping(vcf_info):
 	}
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
-	print(dir_path)
 	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
-	print(dir_path)
 	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name) 
 	
 	with open(create_index_script, 'w') as fp:
@@ -1029,7 +1028,7 @@ if __name__ == '__main__':
 
 	print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
 
-	create_index_script, _ = make_es_mapping(vcf_info)
+	create_index_script, mapping_file = make_es_mapping(vcf_info)
 
 	# prepare for elasticsearch 
 	if es.indices.exists(index_name):
@@ -1042,7 +1041,7 @@ if __name__ == '__main__':
 	print("Response: '%s'" % res.decode('ascii'))
 
 	# before creating index, make a gui mapping file
-	#make_gui(vcf_info, mapping)	
+	make_gui(out_vcf_info, mapping_file, type_name, args.annot)
 
 	for infile in output_files:
 		print("Indexing file %s" % infile)
