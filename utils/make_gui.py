@@ -3,9 +3,9 @@ import copy
 from collections import ChainMap
 from collections import OrderedDict
 
-mapping = json.load(open("utils/scripts/sim_wes_case_vep_mapping.json", 'r'))
-mapping = mapping['sim_wes_case_vep_']['properties']
-vcf_info = json.load(open("utils/SIM_WES_variants_vep_vcf_info.json", 'r'))
+mapping = json.load(open("utils/scripts/mendeliantest_mapping.json", 'r'))
+mapping = mapping['mendeliantest_']['properties']
+vcf_info = json.load(open("utils/mendelian_test_three_families_vcf_info.json", 'r'))
 
 annot = 'vep'
 
