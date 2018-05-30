@@ -135,7 +135,7 @@ def process_vcf_header(vcf):
 					if desc_:
 						if line.startswith('##INFO'):
 							# Annovar put VERYTHING as string type, so correct it
-							if id_.group(1).startswith('ExAC_') or id_.group(1).endswith('score') or id_.group(1).endswith('SCORE') or id_.group(1).endswith('_frequency') or id_.group(1).startswith('CADD') or id_.group(1).startswith('Eigen-') or id_.group(1).startswith('GERP++'):
+							if id_.group(1).startswith('gnomAD_') or id_.group(1).startswith('ExAC_') or id_.group(1).endswith('score') or id_.group(1).endswith('SCORE') or id_.group(1).endswith('_frequency') or id_.group(1).startswith('CADD') or id_.group(1).startswith('Eigen-') or id_.group(1).startswith('GERP++'):
 								info_dict[id_.group(1)] = {'type' : 'float', 'Description' : desc_.group(1)}
 							else:
 								info_dict[id_.group(1).replace('.', '_')] = {'type' : type_.group(1).lower(), 'Description' : desc_.group(1)}
@@ -457,7 +457,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				result[key] = val
 			else:
 				result[key] = None
-		else: # string type
+		elif 'cosmic' in key:
+		  	if val == '.':
+		  		val = None
+		  	result['COSMIC_ID'] = val
+		else: # other string type
 			if val =='.':
 				val = None
 			else:
@@ -578,6 +582,9 @@ def process_line_data(variant_lines, log, f, vcf_info):
 
 		# FIlTER field may contain multiple valuse, so parse them
 		data_fixed['FILTER'] = data_fixed['FILTER'].split(';')
+
+		# the ID field comes with the original VCF, may not be up-to-date, so delete it
+		del data_fixed['ID']
 
 		result.update(data_fixed)
 
@@ -1009,7 +1016,7 @@ if __name__ == '__main__':
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
 	
-	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=40)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=200)
 
 
 	# insert pedegree data if ped file is specified
@@ -1041,7 +1048,7 @@ if __name__ == '__main__':
 	print("Response: '%s'" % res.decode('ascii'))
 
 	# before creating index, make a gui mapping file
-	make_gui(out_vcf_info, mapping_file, type_name, args.annot)
+#make_gui(out_vcf_info, mapping_file, type_name, args.annot)
 
 	for infile in output_files:
 		print("Indexing file %s" % infile)
