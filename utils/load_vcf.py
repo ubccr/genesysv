@@ -22,6 +22,7 @@ from collections import deque
 from elasticsearch import helpers
 import time
 from make_gui import make_gui
+import sqlite3
 
 parser = argparse.ArgumentParser(description='Parse vcf file(s) and create ElasticSearch mapping and index from the parsed data')
 required = parser.add_argument_group('required named arguments')
@@ -31,6 +32,8 @@ required.add_argument("--annot", help="Type of variant consequence annotation. V
 required.add_argument("--hostname", help="ElasticSearch hostname", required=True)
 required.add_argument("--port", help="ElasticSearch host port number", required=True)
 required.add_argument("--index", help="ElasticSearch index name", required=True)
+required.add_argument("--study_name", help="Name of the project", required=True)
+required.add_argument("--dataset_name", help="Name of the dataset", required=True)
 required.add_argument("--num_cores", help="Number of cpu cores to use. Default to the number of cpu cores of the system", required=False)
 required.add_argument("--ped", help="Pedigree file in the format of '#Family Subject Father  Mother  Sex     Phenotype", required=False)
 required.add_argument("--control_vcf", help="vcf file from control study. Must be compressed with bgzip and indexed with grabix", required=False)
@@ -51,7 +54,7 @@ port = args.port
 index_name = args.index
 type_name = index_name + '_'
 
-excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE']
+excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE', 'culprit']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
 
 def check_commandline(args):
@@ -135,7 +138,7 @@ def process_vcf_header(vcf):
 					if desc_:
 						if line.startswith('##INFO'):
 							# Annovar put VERYTHING as string type, so correct it
-							if id_.group(1).startswith('gnomAD_') or id_.group(1).startswith('ExAC_') or id_.group(1).endswith('score') or id_.group(1).endswith('SCORE') or id_.group(1).endswith('_frequency') or id_.group(1).startswith('CADD') or id_.group(1).startswith('Eigen-') or id_.group(1).startswith('GERP++'):
+							if id_.group(1).startswith('gnomAD_') or id_.group(1).startswith('ExAC_') or id_.group(1).endswith('score') or id_.group(1).endswith('SCORE') or id_.group(1).endswith('_frequency') or id_.group(1).startswith('CADD') and id_.group(1).endswith('score') or id_.group(1).startswith('Eigen-') or id_.group(1).startswith('GERP++'):
 								info_dict[id_.group(1)] = {'type' : 'float', 'Description' : desc_.group(1)}
 							else:
 								info_dict[id_.group(1).replace('.', '_')] = {'type' : type_.group(1).lower(), 'Description' : desc_.group(1)}
@@ -148,8 +151,8 @@ def process_vcf_header(vcf):
 							pass
 							#print("Should not reach here %s" % line)
 					else:
-						pass
 						print("header1 %s", line)
+						continue
 
 				else:
 					if contig_:
@@ -291,6 +294,8 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					else:
 						if val2 == '':
 							csq_dict2_local[key2] = None
+						else:
+							csq_dict2_local[key2] = val2.split('&')
 
 				tmp_dict2 = {}
 
@@ -317,7 +322,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					else:
 						if key2 == "AF":
 							if '&' in val2:
-								val2 = val2.split('&')[0] # to deal with situations like "AF, 0.1860&0.0423"
+								val2 = val2.split('&') # to deal with situations like "AF, 0.1860&0.0423"
 							elif val2 == '':
 								val2 = -999.99
 							tmp_dict2[key2] = float(val2)
@@ -329,7 +334,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							dbsnp_ids = [item for item in tmp_variants if item.startswith('rs')]
 							result['COSMIC_ID'] = cosmic_ids
 							result['dbSNP_ID'] = dbsnp_ids
-						elif key2 == 'CLIN_SIG' and val2 != '':
+						elif key2 in ['CLIN_SIG', 'MAX_AF_POPS'] and val2 != '':
 							result[key2] = val2.split('&')
 						else:
 							if val2 == '':
@@ -447,20 +452,33 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					result[key] = -999.99
 				#log.write("Parsing problem: %s %s. value is assigned with -999.99\n" % (key, val))
 				continue
-		elif key == 'snp138NonFlagged':
-			if val == '.':
-				result[key] = None
-			else:
-				result[key] = val	
 		elif 'snp' in key:
-			if val.startswith('rs'):
-				result[key] = val
+			if key == 'snp138NonFlagged':
+				if val == '.':
+					result[key] = None
+				else:
+					result[key] = val	
 			else:
-				result[key] = None
+				if val == '.':
+					val = None
+				result['dbSNP_ID'] = val
+		elif key == 'dbSNP_ID':
+			continue # skip because Annovar does not popup this field for unknown reason
+		elif key == 'COSMIC_ID':
+			continue # same reason as above
+		elif key in ['CLINSIG', 'CLNDBN', 'CLNDSDBID', 'CLNDSDB', 'CLNACC'] and val != '.':
+		  	result[key] = val.split('|')
 		elif 'cosmic' in key:
-		  	if val == '.':
-		  		val = None
-		  	result['COSMIC_ID'] = val
+			if val == '.':
+				cosmic_id = None
+				occurrence = None
+			else:
+				cosmic_id, occurrence = val.split("\\x3b")
+				cosmic_id = cosmic_id.split('\\x3d')[1]
+				occurrence = occurrence.split('\\x3d')[1]
+
+			result['COSMIC_ID'] = cosmic_id.split(',')
+			result['COSMIC_Occurrence'] = occurrence.split(',')
 		else: # other string type
 			if val =='.':
 				val = None
@@ -502,9 +520,9 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 					sample_data_dict['AD_ref'] = int(sample_data_dict['AD_ref'])
 					sample_data_dict['AD_alt'] = int(sample_data_dict['AD_alt'])
 				else:
-					log.write("Unknown type: %s, %s\n" % (key, val))
-					continue
-					#sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
+#log.write("Unknown type: %s, %s\n" % (key, val))
+#				continue
+					sample_data_dict[key] = val # this is the Phred scalled genotype likely hood, 10^(-log(n/10), no need to split them, just present as is
 			elif key == 'DP':
 				if val == '.':
 					sample_data_dict[key] = -999
@@ -871,6 +889,8 @@ def make_es_mapping(vcf_info):
 		mapping[type_name]["properties"]['AAChange_refGene'] = refGene_annot
 		mapping[type_name]["properties"]['AAChange_ensGene'] = ensGene_annot
 	
+		mapping[type_name]["properties"].update({"COSMIC_Occurrence" : {"type" : "keyword", "null_value" : 'NA'}})
+
 		excluded_list.append('AAChange_refGene')
 		excluded_list.append('AAChange_ensGene')
 		excluded_list.append('ANNOVAR_DATE')
@@ -911,15 +931,11 @@ def make_es_mapping(vcf_info):
 				info_dict2[key]["null_value"] = -999
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
-		elif info_dict2[key]['type'] == 'string':
-			m = p.match(key)
-
-			if key == 'snp138NonFlagged' or re.search(p, key):
+		else:
+			if key in ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged'] or re.search(p, key):
  				info_dict2[key]= {'type' : 'keyword'}
 			else:
 				info_dict2[key]= {'type' : 'keyword', 'null_value' : 'NA'}
-		else:
-			info_dict2[key]["type"] = 'text'
 
 	info_dict2['Variant'] = {"type" : "keyword"}
 	info_dict2['VariantType'] = {"type" : "keyword"}
@@ -964,7 +980,7 @@ def make_es_mapping(vcf_info):
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 7,
+		"number_of_shards": 5,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.merge.policy.max_merge_at_once": 7,
@@ -1012,7 +1028,10 @@ if __name__ == '__main__':
 		vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
 
 	# below are for develpong gui code only, remove after done
+	dir_path = os.path.dirname(os.path.realpath(__file__))
 	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
+	out_vcf_info = os.path.join(dir_path,  'config', out_vcf_info)
+
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
 	
@@ -1047,8 +1066,6 @@ if __name__ == '__main__':
 	res = check_output(["bash", create_index_script])
 	print("Response: '%s'" % res.decode('ascii'))
 
-	# before creating index, make a gui mapping file
-#make_gui(out_vcf_info, mapping_file, type_name, args.annot)
 
 	for infile in output_files:
 		print("Indexing file %s" % infile)
@@ -1059,7 +1076,7 @@ if __name__ == '__main__':
 				tmp = json.loads(line)
 				data.append(tmp)
 				if len(data) % 5000 == 0:
-					deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
+					deque(helpers.parallel_bulk(es, data, thread_count=num_cpus, raise_on_exception=False), maxlen=0)
 					data = []
 
 		# leftover data
@@ -1070,3 +1087,33 @@ if __name__ == '__main__':
 	total2 = t2 - t0
 	print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))	
 		
+	#  make a gui mapping file
+	print("Creating Web user interface, please wait ...")	
+	gui_config_file = make_gui(out_vcf_info, mapping_file, type_name, args.annot)
+
+	# make sure the destination dataset not exists
+	conn = sqlite3.connect('../db.sqlite3')
+	c = conn.cursor()
+	query = "DELETE FROM search_study WHERE name = " + args.dataset_name
+	try:
+		c.execute(query)
+	except:
+		pass
+	conn.commit()
+	conn.close()
+
+	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gdw.settings")
+	try:
+		from django.core.management import execute_from_command_line
+	except ImportError:
+		try:
+			import django
+		except ImportError:
+			raise ImportError(
+				"Couldn't import Django. Are you sure it's installed and "
+				"available on your PYTHONPATH environment variable? Did you "
+				"forget to activate a virtual environment?"
+			)
+		raise
+	command = ['manage.py', 'create_gui_from_es_mapping', '--hostname', hostname, '--port', port, '--index', index_name, '--type', type_name, '--study', args.study_name, '--dataset', args.dataset_name, '--gui', gui_config_file]
+	execute_from_command_line(command)
