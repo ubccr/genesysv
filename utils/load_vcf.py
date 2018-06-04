@@ -1046,16 +1046,11 @@ def get_order_of_import(ele, vcf_gui_mapping_order):
         return len(vcf_gui_mapping_order)+1
 
 def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapping):
-
-#es = elasticsearch.Elasticsearch(host=hostname, port=port)
-
 	mapping = elasticsearch.client.IndicesClient.get_mapping(es, index=index_name, doc_type=type_name)
 	# mapping = mapping[options.get('study]')['mappings'][options.get('dataset]['properties']
 	mapping = mapping[index_name]['mappings'][type_name]['properties']
-
-
-
 	nested_fields = []
+	
 	for var_name, var_info in mapping.items():
 		if var_info.get('type') == 'nested':
 			nested_fields.append(var_name)
@@ -1068,11 +1063,7 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 		for inner_key, inner_value in value['properties'].items():
 			mapping[inner_key] = inner_value
 
-
-
-
 	vcf_gui_mapping = json.load(open(gui_mapping, 'r'), object_pairs_hook=OrderedDict)
-
 
 	print("*"*80+"\n")
 	print('Study Name: %s' %(study))
@@ -1081,7 +1072,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 	print('Dataset ES Type Name: %s' %(type_name))
 	print('Dataset ES Host: %s' %(hostname))
 	print('Dataset ES Port: %s' %(port))
-
 
 	### Verify Study against Django models
 	study_obj, created = Study.objects.get_or_create(name=study, description=study)
@@ -1097,10 +1087,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 							is_public=True)
 
 	SearchOptions.objects.get_or_create(dataset=dataset_obj)
-
-
-
-
 
 	import_order = sorted(list(mapping), key=lambda ele: get_order_of_import(ele, list(vcf_gui_mapping)))
 
@@ -1119,7 +1105,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 		panel_name = gui_info.get('panel').strip()
 		sub_panel_name = gui_info.get('sub_panel','').strip()
 		filters = gui_info.get('filters')
-
 
 		for filter_field in filters:
 
@@ -1176,8 +1161,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 						print('Failed to evaluate %s' %(tmp_str))
 						raise(e)
 
-
-
 			form_type_obj = FormType.objects.get(name=field_form_type)
 			widget_type_obj = WidgetType.objects.get(name=field_widget_type)
 			es_filter_type_obj = ESFilterType.objects.get(name=field_es_filter_type)
@@ -1189,8 +1172,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 
 			if not filter_tab_obj.filter_panels.filter(id=filter_panel_obj.id):
 					filter_tab_obj.filter_panels.add(filter_panel_obj)
-
-
 
 			filter_field_obj, created = FilterField.objects.get_or_create(dataset=dataset_obj,
 														   display_text=field_display_text,
@@ -1245,10 +1226,8 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 					attribute_sub_panel_obj.attribute_fields.add(attribute_field_obj)
 
 			else:
-
 				if not filter_panel_obj.filter_fields.filter(id=filter_field_obj.id):
 					filter_panel_obj.filter_fields.add(filter_field_obj)
-
 
 				if not attribute_panel_obj.attribute_fields.filter(id=attribute_field_obj.id):
 					attribute_panel_obj.attribute_fields.add(attribute_field_obj)
@@ -1274,10 +1253,10 @@ if __name__ == '__main__':
 		vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
 		vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
 
-	# below are for develpong gui code only, remove after done
+	# save the gui config file
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
-	out_vcf_info = os.path.join(dir_path,  'config', out_vcf_info)
+	out_vcf_info = os.path.join(os.getcwd(),  'config', out_vcf_info)
 
 	with open(out_vcf_info, 'w') as f:
 		json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
