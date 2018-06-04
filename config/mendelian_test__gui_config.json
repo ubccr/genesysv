@@ -1,0 +1,1406 @@
+{
+    "Variant": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "Variant",
+                "form_type": "CharField",
+                "in_line_tooltip": "(e.g. 1_115252204_C_T)",
+                "es_filter_type": "filter_term"
+            }
+        ]
+    },
+    "CHROM": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "CHROM",
+                "form_type": "MultipleChoiceField",
+                "es_filter_type": "filter_terms",
+                "values": "get_from_es()"
+            }
+        ]
+    },
+    "POS": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "POS",
+                "form_type": "CharField",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "POS",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "REF": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "REF",
+                "form_type": "CharField",
+                "es_filter_type": "filter_term"
+            }
+        ]
+    },
+    "ALT": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "ALT",
+                "form_type": "CharField",
+                "es_filter_type": "filter_term"
+            }
+        ]
+    },
+    "QUAL": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "QUAL",
+                "form_type": "CharField",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            }
+        ]
+    },
+    "FILTER": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "FILTER",
+                "form_type": "MultipleChoiceField",
+                "es_filter_type": "filter_term",
+                "values": "get_from_es()"
+            }
+        ]
+    },
+    "VariantType": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "Select",
+                "display_text": "VariantType",
+                "form_type": "ChoiceField",
+                "es_filter_type": "filter_term",
+                "values": "get_from_es()"
+            }
+        ]
+    },
+    "dbSNP_ID": {
+        "panel": "Variant Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "UploadField",
+                "display_text": "dbSNP_ID",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(One ID per line)",
+                "es_filter_type": "filter_terms"
+            },
+            {
+                "widget_type": "Select",
+                "display_text": "Limit Variants to dbSNP_ID",
+                "form_type": "ChoiceField",
+                "es_filter_type": "filter_exists"
+            }
+        ]
+    },
+    "COSMIC_ID": {
+        "panel": "Disease Associations",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "UploadField",
+                "display_text": "COSMIC_ID",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(One ID per line)",
+                "es_filter_type": "filter_terms"
+            },
+            {
+                "widget_type": "Select",
+                "display_text": "Limit Variants to COSMIC_ID",
+                "form_type": "ChoiceField",
+                "es_filter_type": "filter_exists"
+            }
+        ]
+    },
+    "AC": {
+        "panel": "Summary Statistics Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AC",
+                "form_type": "CharField",
+                "tooltip": "Allele count in genotypes, for each ALT allele, in the same order as listed",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "AC",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "AF": {
+        "panel": "Summary Statistics Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AF",
+                "form_type": "CharField",
+                "tooltip": "Allele Frequency, for each ALT allele, in the same order as listed",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "AF",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "AN": {
+        "panel": "Summary Statistics Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AN",
+                "form_type": "CharField",
+                "tooltip": "Total number of alleles in called genotypes",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "AN",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "DP": {
+        "panel": "Summary Statistics Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "DP",
+                "form_type": "CharField",
+                "tooltip": "Approximate read depth; some reads may have been filtered",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "DP",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "FS": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "FS",
+                "form_type": "CharField",
+                "tooltip": "Phred-scaled p-value using Fisher's exact test to detect strand bias",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "FS",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "OND": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "OND",
+                "form_type": "CharField",
+                "tooltip": "Overall non-diploid ratio (alleles/(alleles+non-alleles))",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "OND",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "HRun": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "HRun",
+                "form_type": "CharField",
+                "tooltip": "Largest Contiguous Homopolymer Run of Variant Allele In Either Direction",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "HRun",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "ABHom": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "ABHom",
+                "form_type": "CharField",
+                "tooltip": "Allele Balance for homs (A/(A+O))",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "ABHom",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "ABHet": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "ABHet",
+                "form_type": "CharField",
+                "tooltip": "Allele Balance for hets (ref/(ref+alt))",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "ABHet",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "InbreedingCoeff": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "InbreedingCoeff",
+                "form_type": "CharField",
+                "tooltip": "Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "InbreedingCoeff",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "MQRankSum": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "MQRankSum",
+                "form_type": "CharField",
+                "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "MQRankSum",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "BaseQRankSum": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "BaseQRankSum",
+                "form_type": "CharField",
+                "tooltip": "Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "BaseQRankSum",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "MQ": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "MQ",
+                "form_type": "CharField",
+                "tooltip": "RMS Mapping Quality",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "MQ",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "QD": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "QD",
+                "form_type": "CharField",
+                "tooltip": "Variant Confidence/Quality by Depth",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "QD",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "ReadPosRankSum": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "ReadPosRankSum",
+                "form_type": "CharField",
+                "tooltip": "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "ReadPosRankSum",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "HaplotypeScore": {
+        "panel": "Variant Quality Metrix",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "HaplotypeScore",
+                "form_type": "CharField",
+                "tooltip": "Consistency of the site with at most two segregating haplotypes",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            },
+            {
+                "widget_type": "TextInput",
+                "display_text": "HaplotypeScore",
+                "form_type": "CharField",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "filter_range_lte"
+            }
+        ]
+    },
+    "Gene": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "UploadField",
+                "display_text": "Entrez Gene ID",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(One ID per line)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "SYMBOL": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "UploadField",
+                "display_text": "SYMBOL",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(One ID per line)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "BIOTYPE": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "BIOTYPE",
+                "form_type": "MultipleChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Feature": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "UploadField",
+                "display_text": "Feature",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(One ID per line)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Feature_type": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Feature_type",
+                "form_type": "MultipleChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "miRNA": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "miRNA",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "EXON": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "EXON",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "INTRON": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "INTRON",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "CDS_position": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "CDS_position",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(=)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "cDNA_position": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "cDNA_position",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(=)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Protein_position": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "Protein_position",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(=)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Amino_acids": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "Amino_acids",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "DISTANCE": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "DISTANCE",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "HGNC_ID": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "HGNC_ID",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "HGVSc": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "HGVSc",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "HGVSp": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "HGVSp",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "STRAND": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "STRAND",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "SWISSPROT": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "SWISSPROT",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Codons": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "Codons",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "DOMAINS": {
+        "panel": "Gene Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "DOMAINS",
+                "form_type": "MultipleChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Consequence": {
+        "panel": "Functional Consequences",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Consequence",
+                "form_type": "MultipleChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "gnomAD_AMR_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_AMR_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "MAX_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "MAX_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_NFE_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_NFE_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "AMR_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AMR_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_OTH_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_OTH_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_EAS_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_EAS_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_ASJ_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_ASJ_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "EA_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "EA_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "EAS_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "EAS_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_FIN_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_FIN_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "AFR_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AFR_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_SAS_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_SAS_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "AA_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AA_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "SAS_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "SAS_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "MAX_AF_POPS": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "MAX_AF_POPS",
+                "form_type": "MultipleChoiceField",
+                "es_filter_type": "filter_term",
+                "values": "get_from_es()"
+            }
+        ]
+    },
+    "EUR_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "1000 Genomes Project (Aug. 2015)",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "EUR_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "gnomAD_AFR_AF": {
+        "panel": "Minor Allele Frequency (MAF)",
+        "sub_panel": "gnomAD Allele Frequency",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "gnomAD_AFR_AF",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(<)",
+                "es_filter_type": "filter_range_lt"
+            }
+        ]
+    },
+    "IMPACT": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Predictions",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "Select",
+                "display_text": "IMPACT",
+                "form_type": "ChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "SIFT_pred": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Predictions",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "Select",
+                "display_text": "SIFT_pred",
+                "form_type": "ChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "PolyPhen_pred": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Predictions",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "Select",
+                "display_text": "PolyPhen_pred",
+                "form_type": "ChoiceField",
+                "path": "CSQ_nested",
+                "values": "get_from_es()",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "CADD_RAW": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Scores",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "CADD_RAW",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            }
+        ]
+    },
+    "CADD_PHRED": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Scores",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "CADD_PHRED",
+                "form_type": "CharField",
+                "tooltip": "",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "filter_range_gte"
+            }
+        ]
+    },
+    "PolyPhen_score": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Scores",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "PolyPhen_score",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "nested_filter_range_gte"
+            }
+        ]
+    },
+    "SIFT_score": {
+        "panel": "Pathogenicity Predictions",
+        "sub_panel": "Scores",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "SIFT_score",
+                "form_type": "CharField",
+                "path": "CSQ_nested",
+                "in_line_tooltip": "(<=)",
+                "es_filter_type": "nested_filter_range_lte"
+            }
+        ]
+    },
+    "CLIN_SIG": {
+        "panel": "Disease Associations",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "CLIN_SIG",
+                "form_type": "MultipleChoiceField",
+                "es_filter_type": "filter_terms",
+                "values": "get_from_es()"
+            }
+        ]
+    },
+    "Sample_ID": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Sample_ID",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Phenotype": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Phenotype",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Sex": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Sex",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "GT": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "GT",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "AD_ref": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AD_ref",
+                "form_type": "CharField",
+                "path": "sample",
+                "tooltip": "Allelic depths for the ref and alt alleles in the order listed",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "nested_filter_range_gte"
+            }
+        ]
+    },
+    "AD_alt": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "AD_alt",
+                "form_type": "CharField",
+                "path": "sample",
+                "tooltip": "Allelic depths for the ref and alt alleles in the order listed",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "nested_filter_range_gte"
+            }
+        ]
+    },
+    "GQ": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "GQ",
+                "form_type": "CharField",
+                "path": "sample",
+                "tooltip": "Genotype Quality",
+                "in_line_tooltip": "(>=)",
+                "es_filter_type": "nested_filter_range_gte"
+            }
+        ]
+    },
+    "PL": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "PL",
+                "form_type": "CharField",
+                "path": "sample",
+                "es_filter_type": "filter_term"
+            }
+        ]
+    },
+    "Family_ID": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Family_ID",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Mother_ID": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Mother_ID",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Father_ID": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Father_ID",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Mother_Genotype": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Mother_Genotype",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Father_Genotype": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Father_Genotype",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Mother_Phenotype": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Mother_Phenotype",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Father_Phenotype": {
+        "panel": "Sample Related Information",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "SelectMultiple",
+                "display_text": "Father_Phenotype",
+                "form_type": "MultipleChoiceField",
+                "path": "sample",
+                "values": "get_from_es()",
+                "in_line_tooltip": "",
+                "es_filter_type": "nested_filter_terms"
+            }
+        ]
+    },
+    "Dels": {
+        "panel": "Other",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "Dels",
+                "form_type": "CharField",
+                "es_filter_type": "filter_term",
+                "tooltip": "Fraction of Reads Containing Spanning Deletions"
+            }
+        ]
+    },
+    "SB": {
+        "panel": "Other",
+        "tab": "Basic",
+        "filters": [
+            {
+                "widget_type": "TextInput",
+                "display_text": "SB",
+                "form_type": "CharField",
+                "es_filter_type": "filter_term",
+                "tooltip": "Strand Bias"
+            }
+        ]
+    }
+}

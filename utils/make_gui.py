@@ -5,7 +5,7 @@ import copy
 from collections import OrderedDict
 
 
-def make_gui(vcf_info_file, mapping_file, type_name, annot):
+def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 	mapping = json.load(open(mapping_file, 'r'))
 	mapping = mapping[type_name]['properties']
 	vcf_info = json.load(open(vcf_info_file, 'r'))
@@ -27,7 +27,7 @@ def make_gui(vcf_info_file, mapping_file, type_name, annot):
 	gui_mapping_others = OrderedDict()
 
 	# annotation independent fields
-	variant_related_fields = ['Variant', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'VariantType', 'cytoBand']
+	variant_related_fields = ['Variant', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'VariantType', 'cytoBand']
 
 	variant_quality_related_fields = ['OND', 'HRun', 'ABHom', 'ABHet', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
 	
@@ -146,6 +146,8 @@ def make_gui(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 				gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
+			elif key == 'ID':
+				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(from original VCF)"
 			seen[key] = ''
 			
 	for key in variant_quality_related_fields:
@@ -580,6 +582,8 @@ def make_gui(vcf_info_file, mapping_file, type_name, annot):
 		json.dump(result, f, sort_keys=False, indent=4, ensure_ascii=True)
 
 	return(outputfile)
+
+
 
 if __name__ == '__main__':
 	vcf_info_file = 'mendelian_test_six_families_vcf_info.json' #sim_control_three_samples_random_100000_vcf_info.json' #sim_control.hg19_multianno_vcf_info.json'
