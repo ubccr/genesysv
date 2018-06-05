@@ -1,16 +1,16 @@
+import json
+from collections import defaultdict
+from pprint import pprint
+from urllib.parse import parse_qs
+
+import elasticsearch
+from crispy_forms.helper import FormHelper
 from django import forms
 from django.contrib.auth.models import User
-from search.models import Study, Dataset, FilterFieldChoice
 from django.db.models import Q
-from crispy_forms.helper import FormHelper
-from pprint import pprint
-from collections import defaultdict
-from urllib.parse import parse_qs
-import elasticsearch
-import json
-from common.utils import filter_array_dicts, must_not_array_dicts
-from search.models import SampleReadDepth
 
+from common.utils import filter_array_dicts, must_not_array_dicts
+from search.models import Dataset, FilterFieldChoice, SampleReadDepth, Study
 
 result_summary_template = """Whole [----] sequencing of this individual's genome was performed and resulted
     in %s/%s/%s percent coverage at 15/20/40(X).

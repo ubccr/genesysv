@@ -1,6 +1,7 @@
 import math
 from urllib.parse import parse_qs
 
+
 def main():
     from pprint import pprint
     import re

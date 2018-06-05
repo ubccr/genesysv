@@ -1,7 +1,9 @@
-from django import template
-from django.utils.html import mark_safe
-from django.template import Context, Template, loader
 import json
+
+from django import template
+from django.template import Context, Template, loader
+from django.utils.html import mark_safe
+
 register = template.Library()
 
 @register.filter(name='splitpipe')
@@ -114,8 +116,8 @@ def get_gbrowser_link(variant):
     usage example {{ your_dict|get_value_from_dict:your_key }}
     """
     if variant:
-        chromosome = variant.split('-')[0]
-        start = int(variant.split('-')[1])
+        chromosome = variant.split('_')[0]
+        start = int(variant.split('_')[1])
         if 'chr' in chromosome.lower():
             position ="%s:%d-%d" %(chromosome, start-25, start+25)
         else:
@@ -127,8 +129,8 @@ def get_gbrowser_link(variant):
 @register.filter('get_decipher_link')
 def get_decipher_link(variant):
     if variant:
-        chromosome = variant.split('-')[0]
-        position = int(variant.split('-')[1])
+        chromosome = variant.split('_')[0]
+        position = int(variant.split('_')[1])
 
         if 'chr' in chromosome.lower():
             chromosome = int(chromosome.replace('chr',''))
@@ -184,4 +186,3 @@ def get_value_from_dict_search(dict_data, element):
             return output
         else:
             return data
-

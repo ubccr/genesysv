@@ -56,7 +56,7 @@ $(document).on("click", "input[type=checkbox][id*=attribute_group]", (function(e
             p_ele = $(document.getElementById(p_id));
             $(p_ele).remove();
             $("#attribute___p").append(p_text);
-            $("#li-step4").removeClass("disabled");
+            $("#li-step-submit").removeClass("disabled");
 
     } else {
         attribute_id = checkbox.id
@@ -67,7 +67,7 @@ $(document).on("click", "input[type=checkbox][id*=attribute_group]", (function(e
         if (checked.length == 0) {
             $('input[type="submit"]').each(function() {
             $( this ).addClass( "disabled" );
-            $("#li-step4").addClass("disabled");
+            $("#li-step-submit").addClass("disabled");
             });
             $('.submit_via_ajax_button').each(function() {
                 $( this ).addClass( "disabled" );
@@ -119,7 +119,7 @@ $(document).on("click", '.select-all', (function(event){
                 $( this ).removeClass( "disabled" );
        })
        $("#user-alert-div").empty();
-       $("#li-step4").removeClass("disabled");
+       $("#li-step-submit").removeClass("disabled");
   }));
 
 
@@ -143,7 +143,7 @@ $(document).on("click", '.select-all', (function(event){
 
             })
       }
-     // $("#li-step4").addClass("disabled");
+     // $("#li-step-submit").addClass("disabled");
   }));
 
 

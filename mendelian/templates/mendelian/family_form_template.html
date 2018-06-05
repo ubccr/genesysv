@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{{family_form|crispy}}
+
+
+<script>
+$(document).ready(function () {
+  $("#id_mother_id").prop('disabled', 'disabled')
+  $("#id_child_id").prop('readonly', true);
+});
+
+
+
+$("#id_father_id").on("change", function (event) {
+  var selected_father_id = $("#id_father_id option:selected").text()
+  var remaining_values = $.map($('#id_father_id option'), function (ele) {
+    if (ele.value && ele.value != selected_father_id) {
+      return ele.value;
+    }
+
+  });
+  var mother_id_select = $('#id_mother_id');
+  mother_id_select.empty();
+  var arrayLength = remaining_values.length;
+  var list = '<option value="">---Select ID---</option>';
+  for (var i = 0; i < arrayLength; i++) {
+    list += "<option value='" + remaining_values[i] + "'>" + remaining_values[i] + "</option>";
+  }
+  mother_id_select.html(list);
+  $("#id_mother_id").prop('disabled', false)
+  $("#id_child_id").val('');
+});
+
+$("#id_mother_id").on("change", function (event) {
+  var selected_mother_id = $("#id_mother_id option:selected").text()
+  var value = $.map($('#id_mother_id option'), function (ele) {
+    if (ele.value && ele.value != selected_mother_id) {
+      return ele.value;
+    }
+
+  });
+
+  $("#id_child_id").val(value);
+  // $("#id_child_id").removeAttr('disabled');
+});
+</script>

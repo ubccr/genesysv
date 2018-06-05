@@ -1,11 +1,11 @@
-import re
-from collections import defaultdict, deque, Counter
-import hashlib
-import sys
-import os
-import statistics
 import binascii
 import gzip
+import hashlib
+import os
+import re
+import statistics
+import sys
+from collections import Counter, defaultdict, deque
 
 
 def AA_parser(input_string):

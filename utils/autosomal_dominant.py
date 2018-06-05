@@ -1,8 +1,7 @@
-from elasticsearch import Elasticsearch
-from elasticsearch import helpers
-
-from pprint import pprint
 import json
+from pprint import pprint
+
+from elasticsearch import Elasticsearch, helpers
 
 es = Elasticsearch(['http://199.109.193.178:9200/'])
 doc = {
@@ -21,7 +20,7 @@ doc = {
 #                     "bool" : {
 #                         "filter" : [
 #                             { "match" : {"sample.sample_id" : "1805"} }
-#                             { "match" : {"sample.sample_GT" : "1805"} }
+#                             { "match" : {"sample.GT" : "1805"} }
 #                         ]
 #                     }
 #                 }
@@ -41,13 +40,8 @@ query_string = """
             "query" : {
                 "bool" : {
                     "filter" : [
-                        { "match" : {"sample.sample_ID" : "%s"} }
-                    ],
-                    "must_not" : [
-                        { "match" : {"sample.sample_GT" : "0/0"} },
-                        { "match" : {"sample.sample_GT" : "0|0"} },
-                        { "match" : {"sample.sample_GT" : "1/1"} },
-                        { "match" : {"sample.sample_GT" : "1|1"} }
+                        { "term" : {"sample.Sample_ID" : "%s"} },
+                        { "terms" : {"sample.GT" : ["0/1", "0|1", "1|0"] }}
                     ]
                 }
             }
@@ -68,20 +62,22 @@ child_id = "4805"
 def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
 
     looking_for_ids = (father_id, mother_id, child_id)
-    mother_gt = father_gt = child_gt = None
+    mother_gt = father_gt = child_gt = 'N/A'
     for ele in sample_array:
 
-        sample_id = ele.get('sample_ID')
+        sample_id = ele.get('Sample_ID')
 
         if sample_id not in looking_for_ids:
             continue
 
         if sample_id == father_id:
-            father_gt = ele.get('sample_GT')
+            father_gt = ele.get('GT')
         elif sample_id == mother_id:
-            mother_gt = ele.get('sample_GT')
+            mother_gt = ele.get('GT')
         elif sample_id == child_id:
-            child_gt = ele.get('sample_GT')
+            child_gt = ele.get('GT')
+            if child_gt not in ['0/1', '0|1', '1|0']:
+                return None
 
     if not all( (father_gt, mother_gt, child_gt)):
         return None
@@ -94,7 +90,7 @@ def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
     father_genotype == '0/0' or '0|0',
     affected child_genotype == '0/1'  or '0|1' or '1|0'.
     """
-    if  mother_gt in ['0/1', '0|1', '1|0',] and father_gt in ['0/0', '0|0',]:
+    if  mother_gt in ['0/1', '0|1', '1|0',] and father_gt == 'N/A':
         case_1 = True
 
     # Case 2
@@ -103,8 +99,14 @@ def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
     father_genotype == '0/1' or '0|1' or '1|0',
     affected child_genotype == '0/1'  or '0|1' or '1|0'.
     """
-    if  mother_gt in ['0/0', '0|0',] and father_gt in ['0/1', '0|1', '1|0',]:
+    if  mother_gt == 'N/A' and father_gt in ['0/1', '0|1', '1|0',]:
         case_2 = True
+
+
+    if child_gt == 'N/A':
+        print('How did this happen?')
+        pprint(sample_array)
+        return None
 
     if any((case_1, case_2)):
         return (father_gt, mother_gt, child_gt)
@@ -119,8 +121,8 @@ for ele in helpers.scan(es,
                 scroll=u'5m',
                 size=10000,
                 preserve_order=False,
-                index='trio_trim',
-                doc_type='trio_trim'):
+                index='test1',
+                doc_type='test1_'):
 
     result = ele['_source']
     autosomal_dominant = is_autosomal_dominant(result.get('sample'), father_id, mother_id, child_id)

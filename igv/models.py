@@ -1,11 +1,12 @@
-from django.db import models
 from django.contrib.auth.models import Group
+from django.db import models
+
 from common.models import TimeStampedModel
 
 
 class AnnotationReference(TimeStampedModel):
     dataset = models.OneToOneField(
-        'search.Dataset',
+        'core.Dataset',
         on_delete=models.CASCADE,
         unique=True
     )
@@ -25,7 +26,7 @@ class AnnotationReference(TimeStampedModel):
 
 class SampleBamInfo(TimeStampedModel):
     dataset = models.ForeignKey(
-        'search.Dataset',
+        'core.Dataset',
         on_delete=models.CASCADE,
     )
     bam_server = models.URLField()

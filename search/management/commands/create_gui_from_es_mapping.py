@@ -1,12 +1,13 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-from search.models import *
-from search.models import *
-import elasticsearch
 import json
-from pprint import pprint
 import re
 from collections import OrderedDict
+from pprint import pprint
+
+import elasticsearch
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+
+from search.models import *
 from search.utils import get_from_es
 
 

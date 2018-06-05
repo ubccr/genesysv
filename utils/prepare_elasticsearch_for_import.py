@@ -1,12 +1,13 @@
 import argparse
-import os
 import json
+import os
 import re
-from urllib.parse import parse_qs
 from collections import deque
-from pprint import pprint
-from utils import *
 from operator import itemgetter
+from pprint import pprint
+from urllib.parse import parse_qs
+
+from utils import *
 
 
 def generate_es_mapping(hostname,

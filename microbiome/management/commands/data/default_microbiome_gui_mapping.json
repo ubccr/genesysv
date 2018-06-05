@@ -1,0 +1,318 @@
+{
+  "BANK_BUDS": {
+    "filters": [
+      {
+        "display_text": "BANK BUDS",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Labels",
+    "tab": "Basic"
+  },
+  "BMlabid": {
+    "filters": [
+      {
+        "display_text": "BMlabid",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Labels",
+    "tab": "Basic"
+  },
+  "sampletype": {
+    "filters": [
+      {
+        "display_text": "sampletype",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Labels",
+    "tab": "Basic"
+  },
+  "cdcdef4pd_b": {
+    "filters": [
+      {
+        "display_text": "cdcdef4pd_b",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Labels",
+    "tab": "Basic"
+  },
+  "Hit_count": {
+    "filters": [
+      {
+        "display_text": "Hit Count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Hit Count",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Hit_rate": {
+    "filters": [
+      {
+        "display_text": "Hit Rate",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Hit Rate",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Joined_count": {
+    "filters": [
+      {
+        "display_text": "Joined Count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Joined Count",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Merge_rate": {
+    "filters": [
+      {
+        "display_text": "Merge Rate",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Merge Rate",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Pass_count": {
+    "filters": [
+      {
+        "display_text": "Pass Count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Pass Count",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Pass_rate": {
+    "filters": [
+      {
+        "display_text": "Pass Rate",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Pass Rate",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "Raw_count": {
+    "filters": [
+      {
+        "display_text": "Raw Count",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Raw Count",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "value": {
+    "filters": [
+      {
+        "display_text": "Value",
+        "es_filter_type": "filter_range_gte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(>=)",
+        "widget_type": "TextInput"
+      },
+      {
+        "display_text": "Value",
+        "es_filter_type": "filter_range_lte",
+        "form_type": "CharField",
+        "in_line_tooltip": "(<=)",
+        "widget_type": "TextInput"
+      }
+    ],
+    "panel": "Search by Rate, Count, or Value",
+    "tab": "Basic"
+  },
+  "kingdom": {
+    "filters": [
+      {
+        "display_text": "Kingdom",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "phylum": {
+    "filters": [
+      {
+        "display_text": "Phylum",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "class": {
+    "filters": [
+      {
+        "display_text": "Class",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "order": {
+    "filters": [
+      {
+        "display_text": "Order",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "family": {
+    "filters": [
+      {
+        "display_text": "Family",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "genus": {
+    "filters": [
+      {
+        "display_text": "Genus",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+  "species": {
+    "filters": [
+      {
+        "display_text": "Species",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  },
+    "taxonomy": {
+    "filters": [
+      {
+        "display_text": "Taxonomy",
+        "es_filter_type": "filter_terms",
+        "form_type": "MultipleChoiceField",
+        "values": "get_values_from_es()",
+        "widget_type": "SelectMultiple"
+      }
+    ],
+    "panel": "Search by Taxonomy",
+    "tab": "Basic"
+  }
+}

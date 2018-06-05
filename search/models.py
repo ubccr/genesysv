@@ -1,10 +1,11 @@
-from django.db import models
-from common.models import TimeStampedModel
-from sortedm2m.fields import SortedManyToManyField
-import memcache
-
-from django.contrib.auth.models import User, Group
 import json
+
+import memcache
+from django.contrib.auth.models import Group, User
+from django.db import models
+from sortedm2m.fields import SortedManyToManyField
+
+from common.models import TimeStampedModel
 
 
 def flush_memcache():

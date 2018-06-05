@@ -1,15 +1,15 @@
-from django import forms
-from django.contrib.auth.models import User
-from .models import FilterField, FilterFieldChoice, Dataset, Study, FilterSubPanel, AttributeField
-from django.db.models import Q
-from crispy_forms.helper import FormHelper
 from datetime import date
-from django.core.exceptions import ValidationError
-from django.forms import ModelForm
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
-from .models import SavedSearch, VariantReviewStatus
+from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.forms import ModelForm
 
+from .models import (AttributeField, Dataset, FilterField, FilterFieldChoice,
+                     FilterSubPanel, SavedSearch, Study, VariantReviewStatus)
 
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 

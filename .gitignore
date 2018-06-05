@@ -2,6 +2,7 @@
 report.*
 *.DS_Store
 *.pyc
+.Rhistory
 db.sqlite3
 migrations/
 static/bokeh_outputs
@@ -19,3 +20,4 @@ static/r_outputs/
 utils/import_exceptions*
 std*
 *benchmark*.txt
+venv

@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
-from search.models import Dataset
-import elasticsearch
-from search.utils import get_es_result
-from .forms import SampleSelectForm
-from .models import SampleBamInfo, AnnotationReference
-from django.conf import settings
-from .utils import generate_url
 import json
-from pprint import pprint
 import time
+from pprint import pprint
+
+import elasticsearch
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import redirect, render
+
+from core.models import Dataset
+from core.utils import get_es_document
+
+from .forms import SampleSelectForm
+from .models import AnnotationReference, SampleBamInfo
+from .utils import generate_url
 
 
 def get_sample_ids(result):
@@ -66,7 +69,7 @@ def igvview(request):
             index_name = request.POST.get('index_name')
             type_name = request.POST.get('type_name')
             es = elasticsearch.Elasticsearch(host=dataset.es_host)
-            result = get_es_result(es, index_name, type_name, variant_id)
+            result = get_es_document(es, index_name, type_name, variant_id)
             sample_ids = get_sample_ids(result)
 
             sample_select_form = SampleSelectForm(sample_ids)

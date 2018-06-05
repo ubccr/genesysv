@@ -1,7 +1,8 @@
-from natsort import natsorted
-import elasticsearch
 from pprint import pprint
+
+import elasticsearch
 from elasticsearch import helpers
+from natsort import natsorted
 
 
 class ElasticSearchFilter():

@@ -1,58 +1,27 @@
-def filter_array_dicts(array, key, values, comparison_type):
-    output = []
-    # print(values)
-    for ele in array:
-        tmp = ele.get(key)
-        if not tmp:
-            continue
-        # print(tmp)
-        for val in values:
-            if comparison_type == "lt":
-                if float(tmp) < float(val):
-                    output.append(ele)
-
-            elif comparison_type == "lte":
-                if float(tmp) <= float(val):
-                    output.append(ele)
-
-            elif comparison_type == "gt":
-                if float(tmp) > float(val):
-                    output.append(ele)
-
-            elif comparison_type == "gte":
-                if float(tmp) >= float(val):
-                    output.append(ele)
-
-            elif comparison_type == "equal":
-                if val in tmp.split():
-                    output.append(ele)
-
-            elif comparison_type == "default":
-                for ele_tmp in tmp.split('_'):
-                    if val.lower() in ele_tmp.lower():
-                        output.append(ele)
-                        break
-            else:
-                if val in tmp:
-                    output.append(ele)
-
-    return output
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 
-def must_not_array_dicts(array, key, values, comparison_type):
-    output = []
-    # print(values)
-    for ele in array:
-        tmp = ele.get(key)
-        if not tmp:
-            continue
-        # print(tmp)
-        for val in values:
-            if comparison_type == "equal":
-                if val != tmp.split():
-                    output.append(ele)
-            else:
-                if val not in tmp:
-                    output.append(ele)
+def import_from_settings(attr, *args):
+    """
+    Load an attribute from the django settings.
+    :raises:
+        ImproperlyConfigured
+    src: https://github.com/mozilla/mozilla-django-oidc
+    """
+    try:
+        if args:
+            return getattr(settings, attr, args[0])
+        return getattr(settings, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Setting {0} not found'.format(attr))
 
-    return output
+
+class Echo(object):
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value

@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.gzip import gzip_page
 from datetime import datetime
+
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.views.decorators.gzip import gzip_page
+
 from news.models import News
 
 

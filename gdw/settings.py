@@ -46,16 +46,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'crispy_forms',
-    'search',
+    'core',
+    'common',
+    'complex',
+    'mendelian',
+    'microbiome',
+    # 'search',
     # 'pybamview',
-    'subject_report',
+    # 'subject_report',
     'tinymce',
-    'beacon',
-    'msea',
     'igv',
     'news',
     'sortedm2m',
-    'inheritance_analysis'
 ]
 
 MIDDLEWARE = [
@@ -91,9 +93,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gdw.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -128,12 +127,9 @@ CACHES = {
 }
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.10/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -141,9 +137,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = './static_root/'
@@ -157,5 +150,6 @@ LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-
 HTML_MINIFY = True
+
+ALLOW_MULTIPLE_ANALYSIS_TYPE = False

@@ -1,13 +1,16 @@
 import json
+import os
 from itertools import repeat
 from pprint import pprint
+
+import elasticsearch
 from bokeh.io import save
-from bokeh.models import Legend, HoverTool, Arrow, VeeHead, Label
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file, ColumnDataSource
+from bokeh.models import Arrow, HoverTool, Label, Legend, VeeHead
 from bokeh.palettes import brewer
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 from django.conf import settings
-import os
+
 #from bokeh.models import HoverTool
 
 
@@ -25,7 +28,6 @@ def format_domain_for_R(results):
     formatted_results['symbol'] = formatted_results['symbol'][0]
     return formatted_results
 
-import elasticsearch
 
 
 def generate_variant_bplot(msea_type_name, gene, rs_id, vset, es_host, es_port):

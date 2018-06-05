@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from search.models import *
-from pybamview.models import SampleBamInfo
 
+from pybamview.models import SampleBamInfo
+from search.models import *
 
 
 class Command(BaseCommand):
@@ -27,4 +27,3 @@ class Command(BaseCommand):
                                                           rd_40x=rd_40x,
                                                           rd_50x=rd_50x,
                                                           variant_count=variant_count)
-
