@@ -1,12 +1,14 @@
 import argparse
-from tqdm import tqdm
-from utils import *
-from pprint import pprint
-import json
-import sys
 import copy
-import os
 import gzip
+import json
+import os
+import sys
+from pprint import pprint
+
+from tqdm import tqdm
+
+from utils import *
 
 # Global STATIC Variables
 HEADER = '\033[95m'

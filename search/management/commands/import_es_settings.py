@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from search.models import *
 
 FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")

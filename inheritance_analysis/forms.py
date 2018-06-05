@@ -1,7 +1,8 @@
 from django import forms
-from search.models import Dataset
-from .models import InheritanceAnalysisRequest
 
+from search.models import Dataset
+
+from .models import InheritanceAnalysisRequest
 from .utils import get_user_ids_associated_with_group
 
 

@@ -6,45 +6,26 @@ from pprint import pprint
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.http import (HttpResponse, HttpResponseForbidden, JsonResponse,
-                         QueryDict, StreamingHttpResponse, HttpResponseServerError)
-from django.shortcuts import render, redirect
-from django.shortcuts import get_object_or_404, render
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import (HttpResponse, HttpResponseForbidden,
+                         HttpResponseServerError, JsonResponse, QueryDict,
+                         StreamingHttpResponse)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
-from django.core.serializers.json import DjangoJSONEncoder
 
 from common.utils import Echo
-from core.utils import get_es_document
 from core.apps import CoreConfig
-from core.forms import (
-    StudyForm,
-    DatasetForm,
-    AnalysisTypeForm,
-    AttributeForm,
-    AttributeFormPart,
-    FilterForm,
-    FilterFormPart,
-    SaveSearchForm)
-
-from core.models import (
-    Study,
-    Dataset,
-    FilterTab,
-    AttributeTab,
-    AnalysisType,
-    SavedSearch,
-    SearchLog)
-
-
-from core.utils import (
-    BaseElasticSearchQueryDSL,
-    BaseElasticSearchQueryExecutor,
-    BaseElasticsearchResponseParser,
-    BaseSearchElasticsearch,
-    BaseDownloadAllResults,
-)
+from core.forms import (AnalysisTypeForm, AttributeForm, AttributeFormPart,
+                        DatasetForm, FilterForm, FilterFormPart,
+                        SaveSearchForm, StudyForm)
+from core.models import (AnalysisType, AttributeTab, Dataset, FilterTab,
+                         SavedSearch, SearchLog, Study)
+from core.utils import (BaseDownloadAllResults, BaseElasticSearchQueryDSL,
+                        BaseElasticSearchQueryExecutor,
+                        BaseElasticsearchResponseParser,
+                        BaseSearchElasticsearch, get_es_document)
 
 
 class MainPageView(TemplateView):
@@ -486,5 +467,3 @@ class BaseDocumentView(TemplateView):
         context['result'] = result
 
         return context
-
-

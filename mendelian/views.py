@@ -1,6 +1,6 @@
-from datetime import datetime
-import pprint
 import json
+import pprint
+from datetime import datetime
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -9,16 +9,11 @@ from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.generic.base import TemplateView
 
-from core.forms import (
-    StudyForm,
-    DatasetForm,
-    AnalysisTypeForm,
-    AttributeForm,
-    AttributeFormPart,
-    FilterForm,
-    FilterFormPart,
-    SaveSearchForm)
+import complex.views as complex_views
 import core.models as core_models
+from core.forms import (AnalysisTypeForm, AttributeForm, AttributeFormPart,
+                        DatasetForm, FilterForm, FilterFormPart,
+                        SaveSearchForm, StudyForm)
 from core.models import Dataset, Study
 from core.utils import BaseSearchElasticsearch, get_values_from_es
 from core.views import AppHomeView, BaseSearchView
@@ -26,8 +21,6 @@ from mendelian.forms import FamilyForm, KindredForm, MendelianAnalysisForm
 from mendelian.utils import (MendelianElasticSearchQueryExecutor,
                              MendelianElasticsearchResponseParser,
                              MendelianSearchElasticsearch)
-
-import complex.views as complex_views
 
 
 class MendelianHomeView(AppHomeView):

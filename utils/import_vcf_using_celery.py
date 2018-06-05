@@ -1,23 +1,25 @@
 import argparse
-from collections import deque, Counter
-from datetime import datetime
-import elasticsearch
-from elasticsearch import helpers
-from es_celery.tasks import post_data, update_refresh_interval
 import hashlib
 import json
 import math
 import os
-from pprint import pprint
 import re
-import requests
 import statistics
 import sys
 import tempfile
 import time
+from collections import Counter, deque
+from datetime import datetime
+from pprint import pprint
+
+import elasticsearch
+import requests
+from elasticsearch import helpers
 from tqdm import tqdm
+
+from es_celery.tasks import post_data, update_refresh_interval
 from utils import *
-import sys
+
 # sys.stdout = open('stdout_import_vcf_using_celery.txt', 'a')
 # sys.stderr = open('stderr_import_vcf_using_celery.txt', 'a')
 

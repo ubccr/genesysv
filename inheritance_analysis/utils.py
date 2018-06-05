@@ -1,9 +1,10 @@
-from timeit import default_timer as timer
 import gzip
 import json
+from pprint import pprint as pp
+from timeit import default_timer as timer
+
 import elasticsearch
 import pandas
-from pprint import pprint as pp
 
 
 def get_user_ids_associated_with_group(user):

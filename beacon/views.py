@@ -1,10 +1,12 @@
-from django.shortcuts import render, HttpResponse
-from .forms import BeaconQueryForm
-from django.http import JsonResponse
+import elasticsearch
 import requests
 from django.conf import settings
-import elasticsearch
+from django.http import JsonResponse
+from django.shortcuts import HttpResponse, render
+
 from search.models import Dataset
+
+from .forms import BeaconQueryForm
 
 
 def beacon(request):

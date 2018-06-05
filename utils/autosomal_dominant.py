@@ -1,8 +1,7 @@
-from elasticsearch import Elasticsearch
-from elasticsearch import helpers
-
-from pprint import pprint
 import json
+from pprint import pprint
+
+from elasticsearch import Elasticsearch, helpers
 
 es = Elasticsearch(['http://199.109.193.178:9200/'])
 doc = {

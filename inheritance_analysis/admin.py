@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import InheritanceAnalysisRequest, FamilyPedigree
+
+from .models import FamilyPedigree, InheritanceAnalysisRequest
 
 # Register your models here.
 

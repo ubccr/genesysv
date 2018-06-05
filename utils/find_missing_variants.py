@@ -1,10 +1,11 @@
 import argparse
-from tqdm import tqdm
-from utils import *
-from pprint import pprint
-import elasticsearch
 from collections import deque
+from pprint import pprint
 
+import elasticsearch
+from tqdm import tqdm
+
+from utils import *
 
 # Global STATIC Variables
 HEADER = '\033[95m'

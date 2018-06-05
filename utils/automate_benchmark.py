@@ -1,7 +1,7 @@
+import socket
 import subprocess
 import sys
 from datetime import datetime
-import socket
 
 sys.stdout = open('stdout_automate_benchmark.txt', 'a')
 sys.stderr = open('stderr_automate_benchmark.txt', 'a')

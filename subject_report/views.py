@@ -1,16 +1,18 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from formtools.wizard.views import SessionWizardView
-from .forms import *
-import jinja2
 import os
-from jinja2 import Template
 import subprocess
-from django.conf import settings
-from django.views.static import serve
 from pprint import pprint
+
+import jinja2
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.views.static import serve
+from formtools.wizard.views import SessionWizardView
+from jinja2 import Template
+
 from common.utils import filter_array_dicts
+
+from .forms import *
 
 
 def generate_predictor_results_array(array1, array2):

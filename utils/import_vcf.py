@@ -1,19 +1,21 @@
 import argparse
-from collections import deque, Counter
-from datetime import datetime
-import elasticsearch
-from elasticsearch import helpers
 import hashlib
 import json
 import math
 import os
-from pprint import pprint
 import re
-import requests
 import statistics
 import sys
 import time
+from collections import Counter, deque
+from datetime import datetime
+from pprint import pprint
+
+import elasticsearch
+import requests
+from elasticsearch import helpers
 from tqdm import tqdm
+
 from utils import *
 
 # Global Variables

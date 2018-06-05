@@ -1,10 +1,13 @@
+import re
+
+from crispy_forms.helper import FormHelper
 from django import forms
 from django.contrib.auth.models import User
-from search.models import Study, Dataset
 from django.db.models import Q
-from crispy_forms.helper import FormHelper
+
+from search.models import Dataset, Study
+
 from .models import ReferenceSequence, Study
-import re
 
 
 class StudyForm(forms.Form):

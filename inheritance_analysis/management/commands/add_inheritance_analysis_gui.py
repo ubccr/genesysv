@@ -1,13 +1,16 @@
-from django.core.management.base import BaseCommand
+import json
+from collections import defaultdict
 from pprint import pprint
+
+import elasticsearch
+from django.core.management.base import BaseCommand
+from tqdm import tqdm
+
 from inheritance_analysis.models import InheritanceAnalysisRequest
 from msea.models import Gene
-from collections import defaultdict
-import json
-import elasticsearch
-from tqdm import tqdm
 from search.models import *
 from search.utils import get_from_es
+
 
 class Command(BaseCommand):
 

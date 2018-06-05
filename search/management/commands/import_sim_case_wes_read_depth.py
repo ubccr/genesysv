@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from search.models import *
-from pybamview.models import SampleBamInfo
 
+from pybamview.models import SampleBamInfo
+from search.models import *
 
 
 class Command(BaseCommand):

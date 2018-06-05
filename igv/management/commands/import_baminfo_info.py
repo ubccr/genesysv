@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from search.models import Dataset
+
 from igv.models import AnnotationReference, SampleBamInfo
+from search.models import Dataset
 
 
 class Command(BaseCommand):

@@ -1,8 +1,10 @@
-from es_celery.celery import app
-import requests
-import time
 import os
+import time
+
 import elasticsearch
+import requests
+
+from es_celery.celery import app
 
 
 @app.task()
@@ -43,4 +45,3 @@ def post_data(hostname, port, index, type, filename):
 def update_refresh_interval(hostname, port, index_name, refresh_interval):
     es = elasticsearch.Elasticsearch(host=hostname, port=port)
     es.indices.put_settings(index=index_name, body={"refresh_interval": refresh_interval})
-

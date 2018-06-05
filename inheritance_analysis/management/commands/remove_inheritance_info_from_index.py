@@ -1,12 +1,13 @@
-from django.core.management.base import BaseCommand
-from pprint import pprint
-from search.models import Dataset
-from collections import defaultdict
 import json
-import elasticsearch
-from tqdm import tqdm
-from elasticsearch.helpers import scan
+from collections import defaultdict
+from pprint import pprint
 
+import elasticsearch
+from django.core.management.base import BaseCommand
+from elasticsearch.helpers import scan
+from tqdm import tqdm
+
+from search.models import Dataset
 
 inheritance_field_query = json.loads(
 '''

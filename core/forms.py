@@ -1,9 +1,10 @@
-from django import forms
-from django.db.models import Q
-from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
+from django import forms
+from django.contrib.auth.models import User
+from django.db.models import Q
 
-from core.models import FilterField, FilterFieldChoice, Dataset, Study, SavedSearch
+from core.models import (Dataset, FilterField, FilterFieldChoice, SavedSearch,
+                         Study)
 
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 

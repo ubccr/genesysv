@@ -1,24 +1,22 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.db.models import Q
-from django.conf import settings
-
-import subprocess
 import datetime
+import glob
 import hashlib
-import datetime
+import json
 import os
 import re
-import requests
-import json
-import glob
+import subprocess
 
-from .models import *
-from .utils import generate_variant_bplot
-from django.views.decorators.gzip import gzip_page
-from .forms import GeneForm, VariantForm, StudyForm
-from .models import Gene, ReferenceSequence
+import requests
 from django.conf import settings
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.views.decorators.gzip import gzip_page
+
+from .forms import GeneForm, StudyForm, VariantForm
+from .models import *
+from .models import Gene, ReferenceSequence
+from .utils import generate_variant_bplot
 
 
 def msea_home(request):

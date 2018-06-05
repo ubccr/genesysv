@@ -1,5 +1,6 @@
-import core
 from django.shortcuts import get_object_or_404
+
+import core
 from complex.utils import ComplexElasticsearchResponseParser
 
 
@@ -14,5 +15,3 @@ class ComplexDocumentView(core.views.BaseDocumentView):
         dataset_obj = get_object_or_404(core.models.Dataset, pk=self.kwargs.get('dataset_id'))
         variant_id = self.kwargs.get('variant_id')
         return context
-
-

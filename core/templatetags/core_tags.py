@@ -32,4 +32,3 @@ def get_value_from_dict_core(dict_data, element, app_name):
             return output
         else:
             return data
-

@@ -1,52 +1,47 @@
-from django.shortcuts import render, redirect, reverse
-from django.urls import reverse_lazy
-from django.http import HttpResponse, JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
-from django.views.decorators.gzip import gzip_page
-from django.http import StreamingHttpResponse
-from datetime import datetime
-from functools import lru_cache
-from django.http import QueryDict
-from .utils import ElasticSearchFilter
-from elasticsearch import Elasticsearch
-from elasticsearch import helpers
-from .forms import ESFilterForm, ESFilterFormPart, ESAttributeFormPart, ESAttributeForm
-import requests
-import json
-from .models import *
-from .forms import *
-from pprint import pprint
-from operator import itemgetter, attrgetter, methodcaller
-import itertools
-from django.core import serializers
-import csv
-from .utils import get_es_result
-import elasticsearch
-from django.views.generic import (
-    ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-)
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseForbidden
-from django.conf import settings
-import itertools
-import hashlib
-from collections import deque
-from igv.models import SampleBamInfo
-from django.db.models import Q
-from django.views.generic.edit import UpdateView
-from django.http import HttpResponseForbidden
-from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.cache import cache
-from django.views.decorators.cache import cache_page
-from collections import defaultdict
-import multiprocessing
-from functools import partial
 import copy
+import csv
+import hashlib
+import itertools
+import json
+import multiprocessing
+from collections import defaultdict, deque
+from datetime import datetime
+from functools import lru_cache, partial
+from operator import attrgetter, itemgetter, methodcaller
+from pprint import pprint
 
-from .utils import is_denovo, is_autosomal_dominant, is_autosomal_recessive, get_compound_heterozygous_variants_for_gene, get_from_es, get_genes_es
+import elasticsearch
+import requests
+from django.conf import settings
+from django.core import serializers
+from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import connection
+from django.db.models import Q
+from django.http import (HttpResponse, HttpResponseForbidden, JsonResponse,
+                         QueryDict, StreamingHttpResponse)
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.urls import reverse_lazy
+from django.views.decorators.cache import cache_page
+from django.views.decorators.gzip import gzip_page
+from django.views.generic import (CreateView, DeleteView, DetailView, FormView,
+                                  ListView, UpdateView)
+from django.views.generic.edit import UpdateView
+from elasticsearch import Elasticsearch, helpers
 
-from .forms import VariantStatusReviewUpdateForm, ReviewStatusForm
+from igv.models import SampleBamInfo
+
+from .forms import *
+from .forms import (ESAttributeForm, ESAttributeFormPart, ESFilterForm,
+                    ESFilterFormPart, ReviewStatusForm,
+                    VariantStatusReviewUpdateForm)
+from .models import *
+from .utils import (ElasticSearchFilter,
+                    get_compound_heterozygous_variants_for_gene, get_es_result,
+                    get_from_es, get_genes_es, is_autosomal_dominant,
+                    is_autosomal_recessive, is_denovo)
 
 # CONSTANTS
 REVIEW_STATUS_CHOICES = (
@@ -56,7 +51,6 @@ REVIEW_STATUS_CHOICES = (
     ('not_reviewed', '--'),
 )
 
-from django.db import connection
 
 
 class SqlPrintMiddleware:

@@ -1,15 +1,15 @@
-from django.shortcuts import render, redirect, reverse
-from django.views.generic import (
-    ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-)
-from django.db import IntegrityError
-
-from io import TextIOWrapper
-from .utils import validate_ped, get_user_ids_associated_with_group, get_datasets_associated_with_user
 import json
+from io import TextIOWrapper
 
-from .models import *
+from django.db import IntegrityError
+from django.shortcuts import redirect, render, reverse
+from django.views.generic import (CreateView, DeleteView, DetailView, FormView,
+                                  ListView, UpdateView)
+
 from .forms import PEDFileUploadForm
+from .models import *
+from .utils import (get_datasets_associated_with_user,
+                    get_user_ids_associated_with_group, validate_ped)
 
 
 class InheritanceAnalysisRequestListView(ListView):

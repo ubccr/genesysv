@@ -1,7 +1,7 @@
-from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Div
 from crispy_forms.bootstrap import FormActions, StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Div, Layout, Submit
+from django import forms
 
 CHROMOSOME_CHOICES = [(str(i), str(i)) for i in range(1, 22)]
 CHROMOSOME_CHOICES.extend((('X', 'X'), ('Y', 'Y'), ('M', 'M')))

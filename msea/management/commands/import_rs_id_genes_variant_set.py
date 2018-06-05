@@ -1,10 +1,12 @@
-from django.db import transaction
-from tqdm import tqdm
-from collections import deque
-import sys
 import os
 import statistics
+import sys
+from collections import deque
+
 from django.core.management.base import BaseCommand
+from django.db import transaction
+from tqdm import tqdm
+
 from msea.models import *
 
 VARIANT_FILE_TYPE_CHOICES = (('ass', 'All Silent SNVs'),

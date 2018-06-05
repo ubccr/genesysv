@@ -1,11 +1,11 @@
+import json
+
 from django.contrib.auth.models import Group, User
 from django.db import models
 from sortedm2m.fields import SortedManyToManyField
 
 from common.models import TimeStampedModel
 from core.utils import flush_memcache
-
-import json
 
 
 class AppName(TimeStampedModel):

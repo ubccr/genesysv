@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 from common.models import TimeStampedModel
 from search.models import Dataset

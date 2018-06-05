@@ -1,7 +1,9 @@
-from django import template
-from django.utils.html import mark_safe
-from django.template import Context, Template, loader
 import json
+
+from django import template
+from django.template import Context, Template, loader
+from django.utils.html import mark_safe
+
 register = template.Library()
 
 @register.filter(name='splitpipe')
@@ -184,4 +186,3 @@ def get_value_from_dict_search(dict_data, element):
             return output
         else:
             return data
-
