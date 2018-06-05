@@ -32,7 +32,7 @@ else:
     SECRET_KEY = get_random_string(50, chars)
 
 
-ALLOWED_HOSTS = ['localhost', '128.205.41.50', '128.205.40.3', '128.205.245.200']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -55,8 +55,8 @@ INSTALLED_APPS = [
     # 'pybamview',
     # 'subject_report',
     'tinymce',
-    'igv',
-    'news',
+    #'igv',
+    #'news',
     'sortedm2m',
 ]
 
