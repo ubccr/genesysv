@@ -10,13 +10,13 @@ from django.http import (HttpResponse, HttpResponseForbidden, JsonResponse,
                          QueryDict, StreamingHttpResponse, HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, render
-from django.utils.html import mark_safe
 from django.views import View
 from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
+from django.core.serializers.json import DjangoJSONEncoder
 
 from common.utils import Echo
+from core.utils import get_es_document
 from core.apps import CoreConfig
 from core.forms import (
     StudyForm,
@@ -54,6 +54,8 @@ class MainPageView(TemplateView):
         context = super().get_context_data(**kwargs)
         study_form = StudyForm(self.request.user)
         context['study_form'] = study_form
+        context['load_search'] = 'false'
+        context['information_json'] = 'false'
         return context
 
 
@@ -259,6 +261,7 @@ class BaseSearchView(TemplateView):
     start_time = None
     study_obj = None
     dataset_obj = None
+    analysis_type_obj = None
     filter_form_data = None
     attribute_form_data = None
     attribute_order = None
@@ -293,7 +296,16 @@ class BaseSearchView(TemplateView):
         else:
             raise ValidationError('Invalid dataset!')
         self.dataset_obj = Dataset.objects.prefetch_related(
-            'attributefield_set').filter(id=dataset_id)[0]
+            'attributefield_set').get(id=dataset_id)
+
+        # Validate Analysis Type Form
+        analysis_type_form = AnalysisTypeForm(self.dataset_obj, request.user, POST_data)
+        if analysis_type_form.is_valid():
+            analysis_type_id = analysis_type_form.cleaned_data['analysis_type']
+        else:
+            raise ValidationError('Invalid analysis type!')
+
+        self.analysis_type_obj = AnalysisType.objects.get(id=analysis_type_id)
 
         # Validate Filter Form
         filter_form = FilterForm(self.dataset_obj, POST_data, prefix='filter_')
@@ -310,11 +322,11 @@ class BaseSearchView(TemplateView):
         else:
             raise ValidationError('Invalid Attribute Form!')
 
-
     def get_kwargs(self, request):
         kwargs = {
             'user': request.user,
             'dataset_obj': self.dataset_obj,
+            'analysis_type_obj': self.analysis_type_obj,
             'filter_form_data': self.filter_form_data,
             'attribute_form_data': self.attribute_form_data,
             'attribute_order': self.attribute_order,
@@ -344,6 +356,8 @@ class BaseSearchView(TemplateView):
         if request.user.is_authenticated:
             save_search_form = SaveSearchForm(request.user,
                                               self.dataset_obj,
+                                              self.analysis_type_obj,
+                                              '',
                                               filters_used,
                                               attributes_selected)
         else:
@@ -358,12 +372,11 @@ class BaseSearchView(TemplateView):
 
         context['header'] = header
         context['results'] = results
+        context['total_time'] = int((datetime.now() - self.start_time).total_seconds() * 1000)
         context['elasticsearch_response_time'] = elasticsearch_response_time
         context['search_log_id'] = search_log_id
         context['save_search_form'] = save_search_form
-
-        context['total_time'] = int(
-            (datetime.now() - self.start_time).total_seconds() * 1000)
+        context['app_name'] = self.analysis_type_obj.app_name.name
 
         return render(request, self.template_name, context)
 
@@ -378,7 +391,6 @@ class BaseDownloadView(View):
             return HttpResponseForbidden()
         download_obj = BaseDownloadAllResults(search_log_obj)
         rows = download_obj.yield_rows()
-        # rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -390,20 +402,89 @@ class BaseDownloadView(View):
 
 def save_search(request):
     if request.method == 'POST':
-        dataset = Dataset.objects.get(id=request.POST.get('dataset'))
-        filters_used = request.POST.get('filters_used')
-        attributes_selected = request.POST.get('attributes_selected')
-        form = SaveSearchForm(request.user, dataset,
-                              filters_used, attributes_selected, request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            user = data.get('user')
-            dataset = data.get('dataset')
-            filters_used = data.get('filters_used')
-            attributes_selected = data.get('attributes_selected')
-            description = data.get('description')
-            SavedSearch.objects.create(user=user, dataset=dataset, filters_used=filters_used,
-                                       attributes_selected=attributes_selected, description=description)
-            return redirect('saved-search-list')
+        print('test')
+        try:
+            dataset_obj = Dataset.objects.get(id=request.POST.get('dataset'))
+            analysis_type_obj = AnalysisType.objects.get(id=request.POST.get('analysis_type'))
+            additional_information = request.POST.get('additional_information')
+            print('additional_information', additional_information, type(additional_information))
+            filters_used = request.POST.get('filters_used')
+            attributes_selected = request.POST.get('attributes_selected')
+            form = SaveSearchForm(request.user, dataset_obj, analysis_type_obj, additional_information,
+                                  filters_used, attributes_selected, request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                user = data.get('user')
+                dataset = data.get('dataset')
+                analysis_type = data.get('analysis_type')
+                additional_information = data.get('additional_information')
+                filters_used = data.get('filters_used')
+                attributes_selected = data.get('attributes_selected')
+                description = data.get('description')
+                SavedSearch.objects.create(user=user,
+                                            dataset=dataset,
+                                            analysis_type=analysis_type,
+                                            additional_information=additional_information,
+                                            filters_used=filters_used,
+                                            attributes_selected=attributes_selected,
+                                            description=description)
+                return redirect('saved-search-list')
+            else:
+                print('form invalid')
+                print(form.errors)
+        except Exception as e:
+            print(e)
+
         else:
             return HttpResponseServerError()
+
+
+class SavedSearchListView(ListView):
+
+    model = SavedSearch
+    context_object_name = 'saved_search_list'
+
+    def get_queryset(self, **kwargs):
+        return SavedSearch.objects.filter(user=self.request.user)
+
+
+
+
+class RetrieveSavedSearchView(TemplateView):
+    template_name = "core/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        saved_search_obj = get_object_or_404(SavedSearch, pk=self.kwargs.get('saved_search_id'))
+        information = {}
+        information['study'] = saved_search_obj.dataset.study.id
+        information['dataset'] = saved_search_obj.dataset.id
+        information['analysis_type'] = saved_search_obj.analysis_type.id
+        information['additional_information'] = None
+        information['filters_used'] = saved_search_obj.get_filters_used
+        information['attributes_selected'] = saved_search_obj.get_attributes_selected
+
+        information_json = json.dumps(information, cls=DjangoJSONEncoder)
+
+        context = {}
+        study_form = StudyForm(self.request.user)
+        context['study_form'] = study_form
+        context['information_json'] = information_json
+        context['load_search'] = 'true'
+
+        return context
+
+class BaseDocumentView(TemplateView):
+    template_name = "core/document.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        result = get_es_document(dataset_obj, document_id)
+        print(result)
+        context['result'] = result
+
+        return context
+
+

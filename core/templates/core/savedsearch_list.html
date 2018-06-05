@@ -1,0 +1,43 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load crispy_forms_tags %} 
+
+
+{% block title %} 
+Saved Search List
+{% endblock %} 
+
+{% block content %}
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Study</th>
+          <th>Dataset</th>
+          <th>Analysis Type</th>
+          <th>Additional Information</th>
+          <th>Filters Used</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ele in saved_search_list %}
+        <tr>
+          <td>{{ ele.dataset.study.description }}</td>
+          <td>{{ ele.dataset.description }}</td>
+          <td>{{ ele.analysis_type.name }}</td>
+          <td>{{ ele.get_additional_information }}</td>
+          <td>{{ ele.get_filters_used }}</td>
+          <td>{{ ele.description }}</td>
+          <td style="white-space:nowrap;">
+              <a href="{% url 'retrieve-saved-search' ele.id %}"><i class="fa fa-search fa-lg" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
+              <a href="#"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -36,7 +36,7 @@
           {% for row in results %}
           <tr>
             {% for element in header %}
-            <td>{{ row|get_value_from_dict_core:element|safe }}
+            <td>{% get_value_from_dict_core row element app_name %}
             </td>
             {% endfor %}
           </tr>

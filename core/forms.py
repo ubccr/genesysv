@@ -201,10 +201,12 @@ class AttributeForm(forms.Form):
 
 class SaveSearchForm(forms.ModelForm):
 
-    def __init__(self, user, dataset, filters_used, attributes_selected, *args, **kwargs):
+    def __init__(self, user, dataset, analysis_type, additional_information, filters_used, attributes_selected, *args, **kwargs):
         super(SaveSearchForm, self).__init__(*args, **kwargs)
         self.fields['user'].initial = User.objects.get(id=user.id)
         self.fields['dataset'].initial = dataset
+        self.fields['analysis_type'].initial = analysis_type
+        self.fields['additional_information'].initial = additional_information
         self.fields['filters_used'].initial = filters_used
         self.fields['attributes_selected'].initial = attributes_selected
 
@@ -223,6 +225,8 @@ class SaveSearchForm(forms.ModelForm):
         widgets = {
             'user': forms.HiddenInput(attrs={'readonly': 'readonly'}),
             'dataset': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'analysis_type': forms.HiddenInput(attrs={'readonly': 'readonly'}),
+            'additional_information': forms.HiddenInput(attrs={'readonly': 'readonly'}),
             'filters_used': forms.HiddenInput(attrs={'readonly': 'readonly', }),
             'attributes_selected': forms.HiddenInput(attrs={'readonly': 'readonly', 'required': True}),
             'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),

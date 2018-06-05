@@ -15,5 +15,8 @@ urlpatterns = (
     path('additional-form-router/<int:dataset_id>/<int:analysis_type_id>', core_views.AdditionalFormRouterView.as_view(), name='additional-form-router'),
     path('base-search/', core_views.BaseSearchView.as_view(), name='base-search'),
     path('base-download/<int:search_log_id>', core_views.BaseDownloadView.as_view(), name='base-download'),
-    path('save_search/', core_views.save_search, name='save-search'),
+    path('save-search/', core_views.save_search, name='save-search'),
+    path('saved-search-list/', core_views.SavedSearchListView.as_view(), name='saved-search-list'),
+    path('retrieve-saved-search/<int:saved_search_id>', core_views.RetrieveSavedSearchView.as_view(), name='retrieve-saved-search'),
+    path('core-document-view/<int:dataset_id>/<document_id>/', core_views.BaseDocumentView.as_view(), name='core-document-view'),
 )

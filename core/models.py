@@ -166,6 +166,7 @@ class AttributeField(TimeStampedModel):
     path = models.CharField(max_length=255, null=True, blank=True)
     place_in_panel = models.CharField(max_length=255)
     is_visible = models.BooleanField(default=True)
+    is_link_field = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('dataset', 'es_name', 'path')
@@ -351,19 +352,25 @@ class SearchLog(TimeStampedModel):
 
 
 class SavedSearch(TimeStampedModel):
-    dataset = models.ForeignKey(
-        'Dataset',
-        on_delete=models.CASCADE,
-    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
     )
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    analysis_type = models.ForeignKey(
+        'AnalysisType',
+        on_delete=models.CASCADE,
+    )
+    additional_information = models.TextField(null=True, blank=True)
     filters_used = models.TextField(null=True, blank=True)
     attributes_selected = models.TextField()
     description = models.TextField()
 
-    def _get_filters_used(self):
+    @property
+    def get_filters_used(self):
         if self.filters_used.strip():
             filters_used = json.loads(self.filters_used)
             output = []
@@ -373,17 +380,26 @@ class SavedSearch(TimeStampedModel):
             return output
         else:
             return None
-    get_filters_used = property(_get_filters_used)
 
-    def _get_attributes_selected(self):
+    @property
+    def get_attributes_selected(self):
         if self.attributes_selected.strip():
-            attributes_selected = json.loads(self.attributes_selected)
+            attributes_selected = eval(self.attributes_selected)
             return attributes_selected
         else:
             return None
-    get_attributes_selected = property(_get_attributes_selected)
+
+    @property
+    def get_additional_information(self):
+        if self.additional_information.strip():
+            additional_information = json.loads(self.additional_information)
+            output = []
+            for key, val in additional_information.items():
+                if val:
+                    output.append((key, filter_field_obj.display_text, val))
+            return output
+        else:
+            return None
 
     class Meta:
-        unique_together = ('dataset', 'user', 'filters_used',
-                           'attributes_selected')
         verbose_name_plural = 'Saved Searches'

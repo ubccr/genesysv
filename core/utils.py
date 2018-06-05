@@ -72,8 +72,9 @@ def get_values_from_es(dataset_es_index_name,
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
-def get_es_document(es, index_name, type_name, es_id):
-    result = es.get(index=index_name, doc_type=type_name, id=es_id)
+def get_es_document(dataset_obj, document_id):
+    es = elasticsearch.Elasticsearch(host=dataset_obj.es_host)
+    result = es.get(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, id=document_id)
     return result["_source"]
 
 
@@ -766,7 +767,7 @@ class BaseElasticSearchQueryDSL:
         return self.non_nested_attribute_fields
 
     def get_filters_used(self):
-        return self.filters_used
+        return json.dumps(self.filters_used)
 
     def get_attributes_selected(self):
         return self.attributes_selected

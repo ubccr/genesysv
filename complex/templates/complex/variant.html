@@ -1,0 +1,88 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load crispy_forms_tags %} 
+{% load common_tags %} 
+{% block title %} 
+Variant 
+{% endblock %} 
+
+{% block content %}
+<div class="col-md-6">
+<div class="panel panel-primary">
+<div class="panel-heading">
+    <h3 class="panel-title">Variant Information</h3>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-condensed">
+    <tbody>
+        <tr>
+            <td>Variant</td>
+            <td><strong>{{ result.Variant }}</strong>
+                <br><a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a>
+                <br><a target="_blank" href="{{ result.Variant|get_decipher_link }}"> (Open in Decipher)</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Chromosome</td>
+            <td><strong>{{ result.CHROM }}</strong></td>
+        </tr>
+        <tr>
+            <td>Start</td>
+            <td><strong>{{ result.POS }}</strong></td>
+        </tr>
+        <tr>
+            <td>Reference Allele</td>
+            <td><strong>{{ result.REF }}</strong></td>
+        </tr>
+        <tr>
+            <td>Alternate Allele</td>
+            <td><strong>{{ result.ALT }}</strong></td>
+        </tr>
+        <tr>
+            <td>Mutation Type</td>
+            <td><strong>{{ result|get_value_from_dict:"VariantType" }}</strong></td>
+        </tr>
+        <tr>
+            <td>Cytoband</td>
+            <td><strong>{{ result|get_value_from_dict:"cytoBand" }}</strong></td>
+        </tr>
+        <tr>
+            {% if result.FILTER %}
+                <td>GATK Filter Status</td>
+                <td><strong>{{ result.FILTER }}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.QUAL %}
+            <tr>
+                <td>GATK Quality Score</td>
+                <td><strong>{{ result.QUAL }}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.ID %}
+            <tr>
+                <td>ID</td>
+                <td><strong>{{result.ID}}</strong></td>
+            </tr>
+        {% endif %}
+        {% if result.avsnp142 %}
+            <tr>
+                <td>avsnp142</td>
+                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.avsnp142}}"><strong>{{ result.avsnp142 }}</strong></a></td>
+            </tr>
+        {% endif %}
+        {% if result.snp138NonFlagged %}
+            <tr>
+                <td>snp138NonFlagged</td>
+                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.snp138NonFlagged}}"><strong>{{ result.snp138NonFlagged }}</strong></a></td>
+            </tr>
+        {% endif %}
+
+
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+</div>
+{% endblock %}

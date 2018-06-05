@@ -161,12 +161,15 @@ class AttributeSubPanelAdmin(admin.ModelAdmin):
 @admin.register(AttributeField)
 class AttributeFieldAdmin(admin.ModelAdmin):
     list_display = ('display_text',)
+    list_filter = ('dataset',)
+    search_fields = ('display_text',)
 
 
 @admin.register(SearchLog)
 class SearchLogAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'created', 'dataset', 'filters_used')
     list_filter = ('user', 'dataset',)
+
 
 @admin.register(SearchOptions)
 class SearchOptionsAdmin(admin.ModelAdmin):
@@ -176,5 +179,5 @@ class SearchOptionsAdmin(admin.ModelAdmin):
 
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'dataset', 'filters_used',
+    list_display = ('pk', 'user', 'dataset', 'analysis_type', 'additional_information', 'filters_used',
                     'attributes_selected', 'description')

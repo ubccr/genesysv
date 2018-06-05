@@ -1,4 +1,11 @@
-{% extends "base.html" %} {% load staticfiles %} {% load crispy_forms_tags %} {% block title %} Search {% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load crispy_forms_tags %} 
+{% block title %} 
+Search 
+{% endblock %} 
+
+{% block content %}
 <script>
 $("#main-nav-bar > ul > li.active").removeClass("active");
 $("#navbarId-Home-Menu").addClass("active");
@@ -182,19 +189,34 @@ $("#navbarId-Home").addClass("active");
 <!-- End <div id="genericdiv"> -->
 <div class="clearfix"></div>
 <div id="results_div">Hello!</div>
+
 <!-- Variables for JS manipulation -->
+<input id="load_search" type="hidden" name="load_search" value="{{load_search|safe}}">
 <input id="study_loaded" type="hidden" name="study_loaded" value="false">
 <input id="dataset_loaded" type="hidden" name="dataset_loaded" value="false">
+<input id="analysis_type_loaded" type="hidden" name="analysis_type_loaded" value="false">
+<input id="additional_information_loaded" type="hidden" name="additional_information_loaded" value="false">
 <input id="filters_loaded" type="hidden" name="filters_loaded" value="false">
 <input id="attributes_loaded" type="hidden" name="attributes_loaded" value="false">
+<input id="automated_submit" type="hidden" name="automated_submit" value="false">
+
 <script>
+  var data = {{ information_json|safe }};
+</script>
+
+<script>
+
+
 $(document).ready(function () {
-  $("#attribute___p").sortable();
-  $("#attribute___p").disableSelection();
+  console.log(data);
   $("#results_div").hide()
   $("#step1-additional-information").hide()
-  $('#study_loaded').val(true).trigger("change");
+  $("#attribute___p").sortable();
+  $("#attribute___p").disableSelection();
   var dataset_id;
+  if ($("#load_search").val() == "true") {
+    $("#id_study").val(data['study']).trigger("change");
+  }
 });
 
 function getCookie(name) {
@@ -232,6 +254,14 @@ $("#dataset_loaded").on('change', function () {
   if ($("#dataset_loaded").val() == "true" && $("#load_search").val() == "true") {
     $("#id_dataset").val(data['dataset']).trigger("change");
     $("#dataset_loaded").removeAttr('id');
+  }
+});
+
+$("#analysis_type_loaded").on('change', function () {
+  console.log('lksdjflksd')
+  if ($("#analysis_type_loaded").val() == "true" && $("#load_search").val() == "true") {
+    $("#id_analysis_type").val(data['analysis_type']).trigger("change");
+    $("#analysis_type_loaded").removeAttr('id');
     $(".next-step").click();
   }
 });
@@ -392,6 +422,7 @@ function get_analysis_type(dataset_id) {
       url: "/core/analysis-type-snippet/" + dataset_id,
       success: function (data) {
         $('#step1-analysis-type-select').html(data);
+        $('#analysis_type_loaded').val(true).trigger("change");
       }
     }
 
@@ -454,6 +485,14 @@ function get_attribute(dataset_id) {
 
   );
 };
+
+
+  $("#automated_submit").on("change", function() {
+      if($("#filters_loaded").length == 0 && $("#attributes_loaded").length == 0) {
+              $("#loading_div").hide()
+              submit_via_ajax()
+      }
+  });
 
 function submit_via_ajax() {
   $('#results_div').html('<button class="btn btn-info text-center"><i class="fa fa-refresh fa-spin fa-fw"></i> Searching...</button>');

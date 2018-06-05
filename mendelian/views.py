@@ -1,5 +1,6 @@
 from datetime import datetime
 import pprint
+import json
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -8,7 +9,15 @@ from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.generic.base import TemplateView
 
-import core.forms as core_forms
+from core.forms import (
+    StudyForm,
+    DatasetForm,
+    AnalysisTypeForm,
+    AttributeForm,
+    AttributeFormPart,
+    FilterForm,
+    FilterFormPart,
+    SaveSearchForm)
 import core.models as core_models
 from core.models import Dataset, Study
 from core.utils import BaseSearchElasticsearch, get_values_from_es
@@ -17,6 +26,8 @@ from mendelian.forms import FamilyForm, KindredForm, MendelianAnalysisForm
 from mendelian.utils import (MendelianElasticSearchQueryExecutor,
                              MendelianElasticsearchResponseParser,
                              MendelianSearchElasticsearch)
+
+import complex.views as complex_views
 
 
 class MendelianHomeView(AppHomeView):
@@ -27,7 +38,7 @@ class MendelianHomeView(AppHomeView):
         study_obj = get_object_or_404(Study, pk=self.kwargs.get('study_id'))
         context['study_obj'] = get_object_or_404(
             Study, pk=self.kwargs.get('study_id'))
-        context['dataset_form'] = core_forms.DatasetForm(study_obj, self.request.user)
+        context['dataset_form'] = DatasetForm(study_obj, self.request.user)
         context['mendelian_analysis_form'] = MendelianAnalysisForm()
         return context
 
@@ -111,11 +122,9 @@ class MendelianSearchView(BaseSearchView):
     search_elasticsearch_class = MendelianSearchElasticsearch
     elasticsearch_query_executor_class = MendelianElasticSearchQueryExecutor
     elasticsearch_response_parser_class = MendelianElasticsearchResponseParser
-    mendelian_analysis_type = None
-    number_of_kindred = None
+    additional_information = {}
 
     def validate_additional_forms(self, request):
-        # Validate Family Form
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
                                         self.dataset_obj.es_type_name,
                                         self.dataset_obj.es_host,
@@ -124,27 +133,19 @@ class MendelianSearchView(BaseSearchView):
                                         'sample')
         number_of_families = len(family_ids)
 
-        POST_data = QueryDict(request.POST['form_data'])
-        kindred_form = KindredForm(number_of_families, POST_data)
+        kindred_form = KindredForm(number_of_families, request.POST)
         if kindred_form.is_valid():
-            self.number_of_kindred = kindred_form.cleaned_data['number_of_kindred']
+            if kindred_form.cleaned_data['number_of_kindred'].strip():
+                self.additional_information = {'number_of_kindred': kindred_form.cleaned_data['number_of_kindred']}
         else:
             raise ValidationError('Invalid Kindred form!')
 
-        analysis_type_form = core_forms.AnalysisTypeForm(self.dataset_obj, request.user, POST_data)
-
-        if analysis_type_form.is_valid():
-            analysis_type_id = analysis_type_form.cleaned_data['analysis_type']
-            analysis_type_obj = get_object_or_404(core_models.AnalysisType, pk=analysis_type_id)
-            self.mendelian_analysis_type = analysis_type_obj.name
-        else:
-            raise ValidationError('Invalid Mendelian Analysis!')
 
     def get_kwargs(self, request):
         kwargs = super().get_kwargs(request)
-        kwargs.update({'mendelian_analysis_type': self.mendelian_analysis_type,
-                       'number_of_kindred': self.number_of_kindred})
-
+        if self.additional_information:
+            kwargs.update(self.additional_information)
+        kwargs.update({'mendelian_analysis_type': self.analysis_type_obj.name})
         return kwargs
 
     def post(self, request, *args, **kwargs):
@@ -160,12 +161,36 @@ class MendelianSearchView(BaseSearchView):
         header = search_elasticsearch_obj.get_header()
         results = search_elasticsearch_obj.get_results()
         elasticsearch_response_time = search_elasticsearch_obj.get_elasticsearch_response_time()
+        search_log_id = search_elasticsearch_obj.get_search_log_id()
+        filters_used = search_elasticsearch_obj.get_filters_used()
+        attributes_selected = search_elasticsearch_obj.get_attributes_selected()
 
-        context = {}
+        if request.user.is_authenticated:
+            save_search_form = SaveSearchForm(request.user,
+                                              self.dataset_obj,
+                                              self.analysis_type_obj,
+                                              json.dumps(self.additional_information),
+                                              filters_used,
+                                              attributes_selected)
+        else:
+            save_search_form = None
+
+        if self.call_get_context and request.user.is_authenticated:
+            kwargs.update({'user_obj': request.user})
+            kwargs.update({'search_log_obj': SearchLog.objects.get(id=search_log_id)})
+            context = self.get_context_data(**kwargs)
+        else:
+            context = {}
+
         context['header'] = header
         context['results'] = results
         context['total_time'] = int((datetime.now() - self.start_time).total_seconds() * 1000)
         context['elasticsearch_response_time'] = elasticsearch_response_time
-        context['save_search_form'] = None
-
+        context['search_log_id'] = search_log_id
+        context['save_search_form'] = save_search_form
+        context['app_name'] = self.analysis_type_obj.app_name.name
         return render(request, self.template_name, context)
+
+
+class MendelianDocumentView(complex_views.ComplexDocumentView):
+    pass
