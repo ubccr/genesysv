@@ -55,12 +55,9 @@ INSTALLED_APPS = [
     # 'pybamview',
     # 'subject_report',
     'tinymce',
-    # 'beacon',
-    # 'msea',
     'igv',
     'news',
     'sortedm2m',
-    # 'inheritance_analysis'
 ]
 
 MIDDLEWARE = [
@@ -141,7 +138,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = './static_root/'
 STATIC_PATH = os.path.join(BASE_DIR, 'static')
@@ -154,8 +150,6 @@ LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-
 HTML_MINIFY = True
-
 
 ALLOW_MULTIPLE_ANALYSIS_TYPE = False

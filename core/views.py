@@ -383,12 +383,10 @@ class BaseDownloadView(View):
 
 def save_search(request):
     if request.method == 'POST':
-        print('test')
         try:
             dataset_obj = Dataset.objects.get(id=request.POST.get('dataset'))
             analysis_type_obj = AnalysisType.objects.get(id=request.POST.get('analysis_type'))
             additional_information = request.POST.get('additional_information')
-            print('additional_information', additional_information, type(additional_information))
             filters_used = request.POST.get('filters_used')
             attributes_selected = request.POST.get('attributes_selected')
             form = SaveSearchForm(request.user, dataset_obj, analysis_type_obj, additional_information,
@@ -463,7 +461,6 @@ class BaseDocumentView(TemplateView):
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
         document_id = self.kwargs.get('document_id')
         result = get_es_document(dataset_obj, document_id)
-        print(result)
         context['result'] = result
 
         return context
