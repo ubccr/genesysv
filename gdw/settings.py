@@ -32,7 +32,7 @@ else:
     SECRET_KEY = get_random_string(50, chars)
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '128.205.40.177']
 
 
 # Application definition

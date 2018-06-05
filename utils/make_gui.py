@@ -121,16 +121,16 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 			if key == 'CHROM':
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
-				gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
+				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
 				gui_mapping_var[key]['filters'][0]["es_filter_type"] = "filter_terms"
 			elif key == 'FILTER':
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
-				gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
+				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
 			elif key == 'VariantType':
 				gui_mapping_var[key]['filters'][0]["form_type"] = "ChoiceField"
 				gui_mapping_var[key]['filters'][0]['widget_type'] = "Select"
-				gui_mapping_var[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_var[key]['filters'][0]['values'] = "get_values_from_es()"
 			elif key == 'POS':
 				gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
 				gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
@@ -145,7 +145,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 			elif key == 'cytoBand':
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
-				gui_mapping_var[key]['filters'][0]["values"] = "get_from_es()"
+				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
 			elif key == 'ID':
 				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(from original VCF)"
 			seen[key] = ''
@@ -188,7 +188,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 			else:
 				gui_mapping_maf[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_maf[key]['filters'][0]["form_type"] = "MultipleChoiceField"
-				gui_mapping_maf[key]['filters'][0]["values"] = "get_from_es()"
+				gui_mapping_maf[key]['filters'][0]["values"] = "get_values_from_es()"
 			
 			if '1000g2015aug_' in key or key in ['MAX_AF', 'AA_AF', 'EA_AF', 'EUR_AF', 'AFR_AF', 'EAS_AF', 'ERR_AF', 'AMR_AF', 'SAS_AF']:
 				gui_mapping_maf[key]['sub_panel'] = '1000 Genomes Project (Aug. 2015)'
@@ -238,7 +238,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				del gui_mapping_sample[key]
 			elif key in ['Sample_ID', 'GT', 'PGT', 'Family_ID', 'Father_ID', 'Mother_ID', 'Sex', 'Phenotype', 'Mother_Genotype', 'Father_Genotype', 'Mother_Phenotype', 'Father_Phenotype']:
 				gui_mapping_sample[key]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
-				gui_mapping_sample[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_sample[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_sample[key]['filters'][0]["in_line_tooltip"] = ""
 				gui_mapping_sample[key]['filters'][0]['widget_type'] = "SelectMultiple"
 				gui_mapping_sample[key]['filters'][0]['form_type'] = "MultipleChoiceField"
@@ -292,7 +292,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_func[key]['filters'][0]['es_filter_type'] = "nested_filter_terms"
 				gui_mapping_func[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 				gui_mapping_func[key]['filters'][0]["widget_type"] = "SelectMultiple" 
-				gui_mapping_func[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_func[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_func[key]['filters'][0]['path'] = 'CSQ_nested'
 				gui_mapping_func[key]['panel']  = 'Functional Consequences'
 				seen[key] = ''
@@ -307,7 +307,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 					if key == 'Gene':
 						gui_mapping_gene[key]['filters'][0]['display_text'] = 'Entrez Gene ID'
 				elif key in ['Feature_type', 'BIOTYPE', 'DOMAINS']:
-					gui_mapping_gene[key]['filters'][0]['values'] = "get_from_es()"
+					gui_mapping_gene[key]['filters'][0]['values'] = "get_values_from_es()"
 					gui_mapping_gene[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 					gui_mapping_gene[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				elif key == 'DISTANCE':
@@ -328,7 +328,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_patho_p[key]['filters'][0]['form_type'] = "ChoiceField"
 				gui_mapping_patho_p[key]['filters'][0]["widget_type"] = "Select"
 				gui_mapping_patho_p[key]['filters'][0]['path'] = 'CSQ_nested'
-				gui_mapping_patho_p[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_patho_p[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_patho_p[key]['panel']  = 'Pathogenicity Predictions'
 				gui_mapping_patho_p[key]['sub_panel']  = 'Predictions'
 				seen[key] = ''	
@@ -375,7 +375,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_disease[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 				gui_mapping_disease[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
-				gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_disease[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_disease[key]['panel'] = 'Disease Associations'
 				seen[key] = ''
 				
@@ -392,7 +392,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_func[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 				gui_mapping_func[key]['filters'][0]['tooltip'] = tooltip
 				gui_mapping_func[key]['filters'][0]["widget_type"] = "SelectMultiple" 
-				gui_mapping_func[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_func[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_func[key]['panel']  = 'Functional Consequences'
 				
 				if 'ensGene' in key:
@@ -496,7 +496,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_patho_p[key]['filters'][0]["display_text"] = key
 				gui_mapping_patho_p[key]['filters'][0]['es_filter_type'] = "filter_terms"
 				gui_mapping_patho_p[key]['filters'][0]['tooltip'] = tooltip
-				gui_mapping_patho_p[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_patho_p[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_patho_p[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_patho_p[key]['filters'][0]['form_type'] = "MultipleChoiceField"
 				gui_mapping_patho_p[key]['panel'] = 'Pathogenicity Predictions'
@@ -541,7 +541,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
 					gui_mapping_disease[key]['filters'][0]['form_type'] = "ChoiceField"
 					gui_mapping_disease[key]['filters'][0]["widget_type"] = "Select"
-					gui_mapping_disease[key]['filters'][0]['values'] = "get_from_es()"
+					gui_mapping_disease[key]['filters'][0]['values'] = "get_values_from_es()"
 					
 				gui_mapping_disease[key]['panel'] = 'Disease Associations'
 				seen[key] = ''
@@ -552,7 +552,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				else:
 					tooltip = ""
 				gui_mapping_intvar[key] = copy.deepcopy(default_gui_mapping)
-				gui_mapping_intvar[key]['filters'][0]['values'] = "get_from_es()"
+				gui_mapping_intvar[key]['filters'][0]['values'] = "get_values_from_es()"
 				gui_mapping_intvar[key]['filters'][0]['tooltip'] = tooltip
 				gui_mapping_intvar[key]['panel'] = 'ACMG/AMP InterVar Criteria'
 				seen[key] = ''
