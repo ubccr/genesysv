@@ -21,3 +21,6 @@ utils/import_exceptions*
 std*
 *benchmark*.txt
 venv
+tmp/*
+config/*
+utils/scripts/*
