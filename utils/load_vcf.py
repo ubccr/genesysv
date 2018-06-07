@@ -342,8 +342,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							try:
 								tmp_dict2[key2] = float(val2)
 							except ValueError:
-								log.write("casting to float error:  %s, %s\n" % (key2, val2))
-								continue
+								try:
+									tmp_dict2[key2] = float(val2.split('&')[0])
+								except ValueError:
+									log.write("casting to float error:  %s, %s\n" % (key2, val2))
+									continue
 					else:
 						if key2 == "AF":
 							if '&' in val2:
