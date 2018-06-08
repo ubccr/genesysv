@@ -32,12 +32,7 @@ else:
     SECRET_KEY = get_random_string(50, chars)
 
 
-<<<<<<< HEAD
 ALLOWED_HOSTS = ['localhost', '128.205.41.50', 'bigdw.ccr.buffalo.edu']
-=======
-ALLOWED_HOSTS = ['*']
->>>>>>> 188e54ebaa3f9fd810931afa2dcac9dc5ff629ba
-
 
 # Application definition
 
