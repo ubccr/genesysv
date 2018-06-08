@@ -17,7 +17,7 @@ class KindredForm(forms.Form):
     def __init__(self, number_of_families, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        KINDRED_CHOICES = [(str(ele), '> ' + str(ele)) for ele in range(1, number_of_families)]
+        KINDRED_CHOICES = [(ele, '> ' + str(ele)) for ele in range(1, number_of_families)]
         KINDRED_CHOICES.insert(0, ('', '---No Kindred Filtering---'))
         self.fields['number_of_kindred'] = forms.ChoiceField(
             label='Number of Kindred', required=False, choices=KINDRED_CHOICES)

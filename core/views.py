@@ -229,7 +229,7 @@ class AdditionalFormRouterView(View):
         analysis_type_obj = get_object_or_404(AnalysisType, pk=analysis_type_id)
         dataset_id = kwargs.get('dataset_id')
 
-        if analysis_type_obj.name in ['autosomal_dominant', 'autosomal_recessive', 'compound_heterozygous', 'denovo']:
+        if analysis_type_obj.name in ['autosomal_dominant', 'autosomal_recessive', 'denovo']:
             from mendelian.views import KindredSnippetView
             return KindredSnippetView().get(request, dataset_id=dataset_id)
         else:
@@ -251,10 +251,8 @@ class BaseSearchView(TemplateView):
     elasticsearch_response_parser_class = BaseElasticsearchResponseParser
     search_elasticsearch_class = BaseSearchElasticsearch
 
-    def validate_request_data(self, request):
+    def validate_request_data(self, request, POST_data):
 
-        # Get all FORM POST Data
-        POST_data = QueryDict(request.POST['form_data'])
 
         # Get Study Object
         study_form = StudyForm(request.user, POST_data)
@@ -321,7 +319,10 @@ class BaseSearchView(TemplateView):
     def post(self, request, *args, **kwargs):
         self.start_time = datetime.now()
 
-        self.validate_request_data(request)
+
+         # Get all FORM POST Data
+        POST_data = QueryDict(request.POST['form_data'])
+        self.validate_request_data(request, POST_data)
 
         kwargs = self.get_kwargs(request)
 
