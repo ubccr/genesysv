@@ -5,7 +5,7 @@ import copy
 from collections import OrderedDict
 
 
-def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
+def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control):
 	mapping = json.load(open(mapping_file, 'r'))
 	mapping = mapping[type_name]['properties']
 	vcf_info = json.load(open(vcf_info_file, 'r'))
@@ -27,16 +27,25 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 	gui_mapping_others = OrderedDict()
 
 	# annotation independent fields
-	variant_related_fields = ['Variant', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'VariantType', 'cytoBand']
+	variant_related_fields = ['Variant', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'VariantType', 'cytoBand']
 
-	variant_quality_related_fields = ['OND', 'HRun', 'ABHom', 'ABHet', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
-	
+	variant_quality_related_fields = ['QUAL', 'FILTER', 'DP', 'OND', 'HRun', 'ABHom', 'ABHet', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
+
 	summary_statistics_fields = sorted(['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'DP', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ])
-	summary_statistics_fields_case =  [item + '_case' for item in summary_statistics_fields]
-	summary_statistics_fields_control = [item + '_control' for item in summary_statistics_fields]
-	summary_statistics_fields = summary_statistics_fields + summary_statistics_fields_case
-	summary_statistics_fields = summary_statistics_fields + summary_statistics_fields_control
 	
+	if case_control is True:
+		variant_related_fields = variant_related_fields + ['QUAL_case', 'QUAL_control', 'FILTER_case', 'FILTER_control']
+		variant_related_fields = [item for item in variant_related_fields if item not in ['QUAL', 'FILTER']]
+
+		variant_quality_related_fields_case = [item + '_case' for item in variant_quality_related_fields]
+		variant_quality_related_fields_control = [item + '_control' for item in variant_quality_related_fields]
+		variant_quality_related_fields = variant_quality_related_fields_case + variant_quality_related_fields_control
+
+		summary_statistics_fields_case = [item + '_case' for item in summary_statistics_fields]
+		summary_statistics_fields_control = [item + '_control' for item in summary_statistics_fields]
+		summary_statistics_fields = summary_statistics_fields_case + summary_statistics_fields_control
+
+
 	if annot == 'vep':
 		minor_allele_freq_fields = [key for key in mapping if '_AF' in key]
 	
@@ -87,10 +96,18 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 								'SiPhy_29way_logOdds', 'SiPhy_29way_logOdds_rankscore', 'wgRna', 'targetScanS']
 		intervar_fields = ["BS1", "BS2", "BS3", "BS4", "BA1", "BP1", "BP2","BP3", "BP4", "BP5", "BP6", "BP7", "PVS1", "PS1", "PS2", "PS3", "PS4", "PM1", "PM2", "PM3", "PM4", "PM5", "PM6", "PP1", "PP2", "PP3", "PP4", "PP5"]
 
-	sample_related_fields = ['Sample_ID', 'Phenotype', 'Sex', 'GT', 'PGT', 'PID', 'AD', 'AD_ref', 'AD_alt', 'MIN_DP', 'GQ', 'PGQ', 'PL', 'SB', 'Family_ID', 'Mother_ID', 'Father_ID', 'Mother_Genotype', 'Father_Genotype', 'Mother_Phenotype', 'Father_Phenotype']	
+	sample_related_fields = ['Sample_ID', 'Phenotype', 'Sex', 'GT', 'PGT', 'PID', 'AD', 'AD_ref', 'AD_alt', 'DP', 'MIN_DP', 'GQ', 'PGQ', 'PL', 'SB', 'group', 'Family_ID', 'Mother_ID', 'Father_ID', 'Mother_Genotype', 'Father_Genotype', 'Mother_Phenotype', 'Father_Phenotype']	
 	boolean_fields = ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged']
 	
-	to_exclude = ['ID', 'sample', 'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CSQ', 'END', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'ALLELE_END']
+	to_exclude = ['sample', 'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CCC_case', 'CCC_control', 'CSQ', 'END', 'END_case', 'END_control', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
+
+	# remove features that are converted to *_case and *_control
+	if case_control is True:
+		tmp = variant_related_fields + variant_quality_related_fields + summary_statistics_fields
+		features_to_remove = [item for item in tmp if item.endswith('_case')]
+		features_to_remove = [re.sub('_case', '', item) for item in features_to_remove]
+		to_exclude += features_to_remove
+
 	keys_in_es_mapping = [key for key in mapping if key not in to_exclude]
 	for key in mapping:
 		if mapping[key]['type'] == 'nested':
@@ -156,8 +173,9 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				tooltip = info_dict[key]['Description']
 			else:
 				tooltip = ""
+			gui_mapping_qc[key] = copy.deepcopy(default_gui_mapping)
+
 			if mapping[key]['type'] == 'integer' or mapping[key]['type'] == 'float':
-				gui_mapping_qc[key] = copy.deepcopy(default_gui_mapping)	
 				gui_mapping_qc[key]['filters'][0]['display_text'] = key
 				gui_mapping_qc[key]['filters'].append(copy.deepcopy(gui_mapping_qc[key]['filters'][0]))
 				gui_mapping_qc[key]['filters'][0]['form_type'] = "CharField"
@@ -167,9 +185,14 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 				gui_mapping_qc[key]['filters'][0]['widget_type'] = "TextInput"
 				gui_mapping_qc[key]['filters'][1]['es_filter_type'] = "filter_range_lte"
 				gui_mapping_qc[key]['filters'][1]['in_line_tooltip'] = "(<=)"
+			elif key.startswith('FILTER'):
+				gui_mapping_qc[key]['filters'][0]['display_text'] = key
+				gui_mapping_qc[key]['filters'][0]["widget_type"] = "SelectMultiple"
+				gui_mapping_qc[key]['filters'][0]["form_type"] = "MultipleChoiceField"
+				gui_mapping_qc[key]['filters'][0]["values"] = "get_values_from_es()"
 
-				gui_mapping_qc[key]['panel']  = 'Variant Quality Metrix'
-				seen[key] = ''	
+			gui_mapping_qc[key]['panel']  = 'Variant Quality Metrix'
+			seen[key] = ''	
 	for key in minor_allele_freq_fields:
 		if key in keys_in_es_mapping:
 			if key in info_dict and 'Description' in info_dict[key]:
@@ -233,6 +256,8 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 			gui_mapping_sample[key]['panel'] = 'Sample Related Information'
 			gui_mapping_sample[key]['filters'][0]['display_text'] = key
 			gui_mapping_sample[key]['filters'][0]['path'] = 'sample'
+			gui_mapping_sample[key]['filters'][0]['es_filter_type'] = "nested_filter_term"
+			
 			
 			if key == 'AD':
 				del gui_mapping_sample[key]
@@ -245,6 +270,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 			elif key == 'group':
 				gui_mapping_sample[key]['filters'][0]['widget_type'] = "Select"
 				gui_mapping_sample[key]['filters'][0]['form_type'] = "ChoiceField"
+				gui_mapping_sample[key]['filters'][0]['values'] = "get_values_from_es()"
 			elif mapping['sample']['properties'][key]['type'] == 'integer' or mapping['sample']['properties'][key]['type'] == 'float':
 				if key == 'PL': # keep it as string type
 					gui_mapping_sample[key]['filters'][0]["tooltip"] = format_dict[key]['Description']
@@ -586,8 +612,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot):
 
 
 if __name__ == '__main__':
-	vcf_info_file = 'mendelian_test_six_families_vcf_info.json' #sim_control_three_samples_random_100000_vcf_info.json' #sim_control.hg19_multianno_vcf_info.json'
-	mapping_file = 'scripts/mendelian_six_mapping.json' #sim_control_3s_mapping.json'
-	type_name = 'mendelian_six_' #sim_control_3s_' #sim_control_3s_'
+	vcf_info_file = 'config/test_case_vcf_info.json' #config/test_case_vcf_info.json' #mendelian_test_six_families_vcf_info.json' #sim_control_three_samples_random_100000_vcf_info.json' #sim_control.hg19_multianno_vcf_info.json'
+
+	mapping_file = 'utils/scripts/test_case_control_vep_mapping.json' #mendelian_six_mapping.json' #sim_control_3s_mapping.json'
+	type_name = 'test_case_control_vep_' #sim_control_3s_' #sim_control_3s_'
 	annot = 'vep' #annovar'
-	make_gui(vcf_info_file, mapping_file, type_name, annot)
+	case_control = True
+	make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
