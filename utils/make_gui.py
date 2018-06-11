@@ -3,7 +3,7 @@ import os
 import re
 import copy
 from collections import OrderedDict
-
+import utils
 
 def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control):
 	mapping = json.load(open(mapping_file, 'r'))
@@ -26,24 +26,18 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	gui_mapping_sample = OrderedDict()
 	gui_mapping_others = OrderedDict()
 
-	# annotation independent fields
-	variant_related_fields = ['Variant', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'VariantType', 'cytoBand']
-
-	variant_quality_related_fields = ['QUAL', 'FILTER', 'DP', 'OND', 'HRun', 'ABHom', 'ABHet', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
-
-	summary_statistics_fields = sorted(['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'DP', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ])
 	
 	if case_control is True:
-		variant_related_fields = variant_related_fields + ['QUAL_case', 'QUAL_control', 'FILTER_case', 'FILTER_control']
-		variant_related_fields = [item for item in variant_related_fields if item not in ['QUAL', 'FILTER']]
+		VARIANT_RELATED_FIELDS = utils.VARIANT_RELATED_FIELDS + ['QUAL_case', 'QUAL_control', 'FILTER_case', 'FILTER_control']
+		VARIANT_RELATED_FIELDS = [item for item in VARIANT_RELATED_FIELDS if item not in ['QUAL', 'FILTER']]
 
-		variant_quality_related_fields_case = [item + '_case' for item in variant_quality_related_fields]
-		variant_quality_related_fields_control = [item + '_control' for item in variant_quality_related_fields]
-		variant_quality_related_fields = variant_quality_related_fields_case + variant_quality_related_fields_control
+		VARIANT_QUALITY_RELATED_FIELDS_case = [item + '_case' for item in utils.VARIANT_QUALITY_RELATED_FIELDS]
+		VARIANT_QUALITY_RELATED_FIELDS_control = [item + '_control' for item in utils.VARIANT_QUALITY_RELATED_FIELDS]
+		VARIANT_QUALITY_RELATED_FIELDS = VARIANT_QUALITY_RELATED_FIELDS_case + VARIANT_QUALITY_RELATED_FIELDS_control
 
-		summary_statistics_fields_case = [item + '_case' for item in summary_statistics_fields]
-		summary_statistics_fields_control = [item + '_control' for item in summary_statistics_fields]
-		summary_statistics_fields = summary_statistics_fields_case + summary_statistics_fields_control
+		SUMMARY_STATISTICS_FIELDS_case = [item + '_case' for item in utils.SUMMARY_STATISTICS_FIELDS]
+		SUMMARY_STATISTICS_FIELDS_control = [item + '_control' for item in utils.SUMMARY_STATISTICS_FIELDS]
+		SUMMARY_STATISTICS_FIELDS = SUMMARY_STATISTICS_FIELDS_case + SUMMARY_STATISTICS_FIELDS_control
 
 
 	if annot == 'vep':
@@ -103,7 +97,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 	# remove features that are converted to *_case and *_control
 	if case_control is True:
-		tmp = variant_related_fields + variant_quality_related_fields + summary_statistics_fields
+		tmp = VARIANT_RELATED_FIELDS + VARIANT_QUALITY_RELATED_FIELDS + SUMMARY_STATISTICS_FIELDS
 		features_to_remove = [item for item in tmp if item.endswith('_case')]
 		features_to_remove = [re.sub('_case', '', item) for item in features_to_remove]
 		to_exclude += features_to_remove
@@ -129,7 +123,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 							}
 
 	# annotation independent fields
-	for key in variant_related_fields:
+	for key in VARIANT_RELATED_FIELDS:
 		if key in keys_in_es_mapping:
 			gui_mapping_var[key] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_var[key]['panel'] = "Variant Related Information"
@@ -167,7 +161,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(from original VCF)"
 			seen[key] = ''
 			
-	for key in variant_quality_related_fields:
+	for key in VARIANT_QUALITY_RELATED_FIELDS:
 		if key in keys_in_es_mapping:
 			if key in info_dict and 'Description' in info_dict[key]:
 				tooltip = info_dict[key]['Description']
@@ -194,6 +188,9 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 			gui_mapping_qc[key]['panel']  = 'Variant Quality Metrix'
 			seen[key] = ''	
 	for key in minor_allele_freq_fields:
+		if key.endswith('_case' or key.endswith('_control')): # the '_case' and '_control' are added in the make_es_mapping funtion in load_vcf.pl
+			continue
+
 		if key in keys_in_es_mapping:
 			if key in info_dict and 'Description' in info_dict[key]:
 				tooltip = info_dict[key]['Description']
@@ -226,7 +223,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 			gui_mapping_maf[key]['panel']  = 'Minor Allele Frequency (MAF)'
 			seen[key] = ''
-	for key in summary_statistics_fields:
+	for key in SUMMARY_STATISTICS_FIELDS:
 		if key in keys_in_es_mapping:
 			if key in info_dict and 'Description' in info_dict[key]:
 				tooltip = info_dict[key]['Description']
@@ -347,6 +344,8 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_gene[key]['panel']  = 'Gene Related Information'
 				seen[key] = ''
 		for key in pathogenicity_prediction_fields:
+			if key.endswith('_case') or key.endswith('_control'):
+				continue
 			if key in keys_in_es_mapping:
 				gui_mapping_patho_p[key] = copy.deepcopy(default_gui_mapping)
 				gui_mapping_patho_p[key]['filters'][0]['display_text'] = key
@@ -359,6 +358,8 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_patho_p[key]['sub_panel']  = 'Predictions'
 				seen[key] = ''	
 		for key in pathogenicity_score_fields:
+			if key.endswith('_case') or key.endswith('_control'):
+				continue
 			if key in keys_in_es_mapping:
 				gui_mapping_patho_s[key] = copy.deepcopy(default_gui_mapping)
 				gui_mapping_patho_s[key]['filters'][0]['display_text'] = key
@@ -600,8 +601,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	result = OrderedDict()
 	
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
-		
-		result.update(dict_)
+		for key, val in dict_.items():
+			#print("Key: %s, Val: %s" % (key, val))	
+			result[key] = val
+		#result.update(dict_)
 	
 	outputfile = os.path.join("config", type_name + '_gui_config.json')
 	with open(outputfile, 'w') as f:
@@ -612,10 +615,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 
 if __name__ == '__main__':
-	vcf_info_file = 'config/test_case_vcf_info.json' #config/test_case_vcf_info.json' #mendelian_test_six_families_vcf_info.json' #sim_control_three_samples_random_100000_vcf_info.json' #sim_control.hg19_multianno_vcf_info.json'
+	vcf_info_file = 'config/SIM_WES_Resistant_hg19_multianno_5000_vcf_info.json'
 
-	mapping_file = 'utils/scripts/test_case_control_vep_mapping.json' #mendelian_six_mapping.json' #sim_control_3s_mapping.json'
-	type_name = 'test_case_control_vep_' #sim_control_3s_' #sim_control_3s_'
-	annot = 'vep' #annovar'
+	mapping_file = 'utils/scripts/sim_case_control_annovar_mapping.json'
+	type_name = 'sim_case_control_annovar_' 
+	annot = 'annovar'
 	case_control = True
 	make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)

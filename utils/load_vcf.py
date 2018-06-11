@@ -23,6 +23,7 @@ from collections import deque
 from elasticsearch import helpers
 import time
 from make_gui import make_gui_config
+import utils
 import sqlite3
 
 import django
@@ -316,6 +317,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			del tmp_dict[item]
 
 	for key, val in tmp_dict.items():
+		if key not in  vcf_info['info_dict']:
+			log.write("Key not exists: %s" % key)
+			continue
 		if key == 'CSQ' and args.annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
@@ -549,8 +553,8 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		  	result[key] = val.split('|')
 		elif 'cosmic' in key:
 			if val == '.':
-				cosmic_id = None
-				occurrence = None
+				cosmic_id = 'NA'
+				occurrence = 'NA'
 			else:
 				cosmic_id, occurrence = val.split("\\x3b")
 				cosmic_id = cosmic_id.split('\\x3d')[1]
@@ -991,12 +995,15 @@ def make_es_mapping(vcf_info):
 			del format_dict2[key]['Description']
 
 	keys = [key	for key in info_dict2]
-	keys = [x for x in keys if x not in excluded_list]
+	keys = [x for x in keys if (x in utils.SUMMARY_STATISTICS_FIELDS or x in utils.VARIANT_QUALITY_RELATED_FIELDS) and x not in excluded_list]
 
+	# Perhaps we have to hand made a list of attributes that are meaningful to have "_case" and "_control" appended
 	if args.control_vcf:
 		for key in keys:
+			
 			info_dict2[key + '_case'] = info_dict2[key]
 			info_dict2[key + '_control'] = info_dict2[key]
+			print("Problem! %s\n" % key)
 			del info_dict2[key]
 			format_dict2.update({'group' : {"type" : "keyword"}})
 		# add QUAL and FILTER
