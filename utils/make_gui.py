@@ -38,7 +38,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 		SUMMARY_STATISTICS_FIELDS_case = [item + '_case' for item in utils.SUMMARY_STATISTICS_FIELDS]
 		SUMMARY_STATISTICS_FIELDS_control = [item + '_control' for item in utils.SUMMARY_STATISTICS_FIELDS]
 		SUMMARY_STATISTICS_FIELDS = SUMMARY_STATISTICS_FIELDS_case + SUMMARY_STATISTICS_FIELDS_control
-
+	else:
+		VARIANT_RELATED_FIELDS = utils.VARIANT_RELATED_FIELDS
+		VARIANT_QUALITY_RELATED_FIELDS = utils.VARIANT_QUALITY_RELATED_FIELDS
+		SUMMARY_STATISTICS_FIELDS = utils.SUMMARY_STATISTICS_FIELDS
 
 	if annot == 'vep':
 		minor_allele_freq_fields = [key for key in mapping if '_AF' in key]
