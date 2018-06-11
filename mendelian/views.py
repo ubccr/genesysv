@@ -117,7 +117,7 @@ class MendelianSearchView(BaseSearchView):
     elasticsearch_response_parser_class = MendelianElasticsearchResponseParser
     additional_information = {}
 
-    def validate_additional_forms(self, request):
+    def validate_additional_forms(self, request, POST_data):
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
                                         self.dataset_obj.es_type_name,
                                         self.dataset_obj.es_host,
@@ -125,10 +125,10 @@ class MendelianSearchView(BaseSearchView):
                                         'Family_ID',
                                         'sample')
         number_of_families = len(family_ids)
-
-        kindred_form = KindredForm(number_of_families, request.POST)
+        data = {}
+        kindred_form = KindredForm(number_of_families, POST_data)
         if kindred_form.is_valid():
-            if kindred_form.cleaned_data['number_of_kindred'].strip():
+            if kindred_form.cleaned_data['number_of_kindred']:
                 self.additional_information = {'number_of_kindred': kindred_form.cleaned_data['number_of_kindred']}
         else:
             raise ValidationError('Invalid Kindred form!')
@@ -144,8 +144,10 @@ class MendelianSearchView(BaseSearchView):
     def post(self, request, *args, **kwargs):
         self.start_time = datetime.now()
 
-        self.validate_request_data(request)
-        self.validate_additional_forms(request)
+        # Get all FORM POST Data
+        POST_data = QueryDict(request.POST['form_data'])
+        self.validate_request_data(request, POST_data)
+        self.validate_additional_forms(request, POST_data)
 
         kwargs = self.get_kwargs(request)
 

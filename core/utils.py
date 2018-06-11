@@ -427,7 +427,7 @@ class ElasticSearchFilter:
                             nested["nested"]["inner_hits"][
                                 "_source"].append(ele)
 
-                    query_string["query"]["bool"]["filter"].append(nested)
+                query_string["query"]["bool"]["filter"].append(nested)
 
         if self.get_nested_filter_range_gte():
             nested_filter_range_gte = self.get_nested_filter_range_gte()
@@ -443,7 +443,6 @@ class ElasticSearchFilter:
 
                 if nested_path_exists:
                     query_string["query"]["bool"]["filter"].remove(nested)
-
                 for field_name, value in nested_filter_range_gte[path]:
                     path_fieldname = "%s.%s" % (path, field_name)
                     nested["nested"]["query"]["bool"]["filter"].append(
@@ -453,7 +452,7 @@ class ElasticSearchFilter:
                             nested["nested"]["inner_hits"][
                                 "_source"].append(ele)
 
-                    query_string["query"]["bool"]["filter"].append(nested)
+                query_string["query"]["bool"]["filter"].append(nested)
 
         if self.get_filter_exists():
             filter_exists = self.get_filter_exists()
@@ -496,7 +495,7 @@ class ElasticSearchFilter:
                             nested["nested"]["inner_hits"][
                                 "_source"].append(ele)
 
-                    query_string["query"]["bool"]["filter"].append(nested)
+                query_string["query"]["bool"]["filter"].append(nested)
 
         if self.get_source():
             query_string["_source"] = sorted(list(set(self.get_source())))
