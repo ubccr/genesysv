@@ -55,56 +55,43 @@ def get_genes_es(dataset_es_index_name,
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
-def is_autosomal_dominant(sample_array, father_id, mother_id, child_id):
+def is_autosomal_dominant(sample_information):
 
-    looking_for_ids = (father_id, mother_id, child_id)
-    mother_gt = father_gt = child_gt = 'N/A'
-    for ele in sample_array:
 
-        sample_id = ele.get('Sample_ID')
+    # If Mendelian - autosomal dominant selected:
+    #  If Mother is affected (Phenotype == 2):
+    #       Then filter by this rule:
+    #                                   mother_genotype == '0/1' or '0|1' or '1|0',
+    #                                   father_genotype == '0/0' or '0|0',
+    #                                   affected child_genotype == '0/1'  or '0|1' or '1|0'.
 
-        if sample_id not in looking_for_ids:
-            continue
+    # If Father is affected (Phenotype  == 2):
+    #                                   mother_genotype == '0/0' or '0|0',
+    #                                   father_genotype == '0/1' or '0|1' or '1|0',
+    #                                   affected child_genotype == '0/1'  or '0|1' or '1|0'.
+    # If only the child is affected (Phenotype == 2):
+    #       Then follow the de novo rules.
 
-        if sample_id == father_id:
-            father_gt = ele.get('GT')
-        elif sample_id == mother_id:
-            mother_gt = ele.get('GT')
-        elif sample_id == child_id:
-            child_gt = ele.get('GT')
-            if child_gt not in ['0/1', '0|1', '1|0']:
-                return None
 
-    if not all((father_gt, mother_gt, child_gt)):
-        return None
 
-    case_1 = case_2 = False
+    # Case Mother (Phenotype == 2)
+    if sample_information.get('Mother_Phenotype') == '2':
+        if sample_information.get('Mother_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
+            return True
+        else:
+            return False
 
-    # Case 1
-    """
-    mother_genotype == '0/1' or '0|1' or '1|0',
-    father_genotype == '0/0' or '0|0',
-    affected child_genotype == '0/1'  or '0|1' or '1|0'.
-    """
-    if mother_gt in ['0/1', '0|1', '1|0', ] and father_gt == 'N/A':
-        case_1 = True
-
-    # Case 2
-    """
-    mother_genotype == '0/0' or '0|0',
-    father_genotype == '0/1' or '0|1' or '1|0',
-    affected child_genotype == '0/1'  or '0|1' or '1|0'.
-    """
-    if mother_gt == 'N/A' and father_gt in ['0/1', '0|1', '1|0', ]:
-        case_2 = True
-
-    if child_gt == 'N/A':
-        return None
-
-    if any((case_1, case_2)):
-        return (father_gt, mother_gt, child_gt)
+    # Case Father (Phenotype == 2)
+    elif sample_information.get('Father_Phenotype') == '2':
+        if sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
+            return True
+        else:
+            return False
     else:
-        return None
+        if sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
+            return True
+        else:
+            return False
 
 
 def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
@@ -205,11 +192,6 @@ def are_variants_compound_heterozygous(variant_genotypes):
         father_gt = ele[2]
         mother_gt = ele[3]
 
-        sum_digits = sum([int(char)
-                          for char in father_gt + mother_gt if char.isdigit()])
-
-        if sum_digits != 1:
-            continue
 
         if not gt_pair_whose_reverse_to_find:
             gt_pair_whose_reverse_to_find = [father_gt, mother_gt]
@@ -231,6 +213,7 @@ def are_variants_compound_heterozygous(variant_genotypes):
 def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, father_id, mother_id, child_id):
     saved_hits = {}
     variant_genotypes = []
+
     for ele in helpers.scan(es,
                             query=query,
                             scroll=u'5m',
@@ -239,22 +222,32 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
                             index=dataset_obj.es_index_name,
                             doc_type=dataset_obj.es_type_name):
 
+
         result = ele['_source']
         es_id = ele['_id']
         saved_hits[es_id] = ele.copy()
 
+        inner_hits_sample = ele['inner_hits']['sample']['hits']['hits']
+        sample_data = extract_sample_inner_hits_as_array(inner_hits_sample)[0]
+
+        father_gt = sample_data.get('Father_Genotype')
+        mother_gt = sample_data.get('Mother_Genotype')
+        child_gt = sample_data.get('GT')
+
+        sum_digits = sum([int(char)
+                          for char in father_gt + mother_gt if char.isdigit()])
+        if sum_digits != 1:
+            continue
+
+        variant_genotype = [father_gt, mother_gt, child_gt]
         variant_id = result.get('Variant')
-        variant_genotype = get_genotypes(
-            result.get('sample'), father_id, mother_id, child_id)
 
         if variant_genotype:
-            saved_hits[es_id]['_source']['father_gt'] = variant_genotype[0]
-            saved_hits[es_id]['_source']['mother_gt'] = variant_genotype[1]
-            saved_hits[es_id]['_source']['child_gt'] = variant_genotype[2]
-            saved_hits[es_id]['_source']['family_id'] = family_id
             variant_genotype.insert(0, variant_id)
             variant_genotype.insert(0, es_id)
             variant_genotypes.append(variant_genotype)
+
+
     results = []
     if len(variant_genotypes) > 1:
         found_compound_heterozygous = are_variants_compound_heterozygous(
@@ -268,6 +261,39 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
     else:
         return None
 
+def filter_using_inner_hits(source_data, inner_hits_data):
+
+    inner_hit_candidates = []
+    for ele in inner_hits_data['hits']['hits']:
+        data = ele['_source']
+        inner_hit_keys = sorted(data.keys())
+        test_string = ''.join(["%s:%s" %(key, str(data[key])) for key in inner_hit_keys if key.strip()])
+        inner_hit_candidates.append(test_string)
+
+    output = []
+    for ele in source_data:
+        test_string = ''.join(["%s:%s" %(key, str(ele[key])) for key in inner_hit_keys if key.strip()])
+        if test_string in inner_hit_candidates:
+            output.append(ele)
+
+    return output
+
+
+def filter_source_by_family_id(sample_data, family_id):
+    output = []
+    for ele in sample_data:
+        if ele.get('Family_ID') == family_id:
+            output.append(ele)
+
+    return output
+
+
+def extract_sample_inner_hits_as_array(inner_hits_sample):
+    output = []
+    for ele in inner_hits_sample:
+        output.append(ele.get('_source'))
+
+    return output
 
 class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
     # pass
@@ -287,38 +313,70 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         elif self.mendelian_analysis_type == 'compound_heterozygous':
             self.mendelian_analysis_function = 'is_compound_heterozygous_for_gene'
 
-    def add_autosomal_dominant_query_string(self, child_id):
+    def add_autosomal_dominant_query_string(self, family_id, child_id):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
+                   "inner_hits": {},
                     "path": "sample",
                     "score_mode": "none",
                     "query": {
                         "bool": {
                             "filter": [
+                                {"term": {"sample.Family_ID": family_id}},
                                 {"term": {"sample.Sample_ID": child_id}}
-                            ]
+                            ],
+                                "should": [
+                                    {"terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
+                                ],
+                                "minimum_should_match": 1
                         }
                     }
                 }
             }
         elif query_body['query']['bool']['filter']:
-            query_body['query']['bool']['filter'].append(
-                {
-                    "nested": {
-                        "path": "sample",
-                        "score_mode": "none",
-                        "query": {
-                            "bool": {
-                                "filter": [
-                                    {"term": {"sample.Sample_ID": child_id}},
+            filter_array  = query_body['query']['bool']['filter']
+            filter_array_copy = copy.deepcopy(filter_array)
+            sample_array = None
+            for ele in filter_array:
+                if 'nested' in ele and ele['nested']['path'] == 'sample':
+                    filter_array_copy.remove(ele)
+                    sample_array = ele
+
+            if sample_array:
+                sample_array['nested']['inner_hits'] = {}
+                sample_array['nested']['query']['bool']['filter'].append({"term": {"sample.Family_ID": family_id}})
+                sample_array['nested']['query']['bool']['filter'].append({"term": {"sample.Sample_ID": child_id}})
+                sample_array['nested']['query']['bool']['minimum_should_match'] = 1
+                sample_array['nested']['query']['bool']['should'] = [
+                                {"terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
                                 ]
+
+                filter_array_copy.append(sample_array)
+                query_body['query']['bool']['filter'] = filter_array_copy
+            else:
+                query_body['query']['bool']['filter'].append(
+                    {
+                        "nested": {
+                            "inner_hits": {},
+                            "path": "sample",
+                            "score_mode": "none",
+                            "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"term": {"sample.Family_ID": family_id}},
+                                        {"term": {"sample.Sample_ID": child_id}}
+                                    ],
+                                    "should": [
+                                        {"terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
                             }
                         }
                     }
-                }
-            )
+                )
         return query_body
 
     def add_autosomal_recessive_query_string(self, child_id):
@@ -326,6 +384,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
+                    "inner_hits": {},
                     "path": "sample",
                     "score_mode": "none",
                     "query": {
@@ -335,34 +394,60 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     "sample.Sample_ID": child_id}}
                             ],
                             "should": [
-                                {"terms": {"sample.GT": ["1/1", "1|1"]}}
+                                { "terms" : {"sample.GT" : ["1/1", "1|1"]} },
+                                { "terms" : {"sample.Mother_Genotype" : ["0/1", "0|1", "1|0"]} },
+                                { "terms" : {"sample.Father_Genotype" : ["0/1", "0|1", "1|0"]} }
                             ],
-                            "minimum_should_match": 1
+                            "minimum_should_match": 3
                         }
                     }
                 }
             }
         elif query_body['query']['bool']['filter']:
-            query_body['query']['bool']['filter'].append(
-                {
-                    "nested": {
-                        "path": "sample",
-                        "score_mode": "none",
-                        "query": {
-                            "bool": {
-                                "filter": [
-                                    {"term": {
-                                        "sample.Sample_ID": child_id}}
-                                ],
-                                "should": [
-                                    {"terms": {"sample.GT": ["1/1", "1|1"]}}
-                                ],
-                                "minimum_should_match": 1
+            filter_array  = query_body['query']['bool']['filter']
+            filter_array_copy = copy.deepcopy(filter_array)
+            sample_array = None
+            for ele in filter_array:
+                if 'nested' in ele and ele['nested']['path'] == 'sample':
+                    filter_array_copy.remove(ele)
+                    sample_array = ele
+
+            if sample_array:
+                sample_array['nested']['inner_hits'] = {}
+                sample_array['nested']['query']['bool']['filter'].append({'term': {'sample.Sample_ID': child_id}})
+                sample_array['nested']['query']['bool']['minimum_should_match'] = 3
+                sample_array['nested']['query']['bool']['should'] = [
+                                { "terms" : {"sample.GT" : ["1/1", "1|1"]} },
+                                { "terms" : {"sample.Mother_Genotype" : ["0/1", "0|1", "1|0"]} },
+                                { "terms" : {"sample.Father_Genotype" : ["0/1", "0|1", "1|0"]} }
+                                ]
+
+                filter_array_copy.append(sample_array)
+                query_body['query']['bool']['filter'] = filter_array_copy
+            else:
+                query_body['query']['bool']['filter'].append(
+                    {
+                        "nested": {
+                            "inner_hits": {},
+                            "path": "sample",
+                            "score_mode": "none",
+                            "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"term": {
+                                            "sample.Sample_ID": child_id}}
+                                    ],
+                                    "should": [
+                                        { "terms" : {"sample.GT" : ["1/1", "1|1"]} },
+                                        { "terms" : {"sample.Mother_Genotype" : ["0/1", "0|1", "1|0"]} },
+                                        { "terms" : {"sample.Father_Genotype" : ["0/1", "0|1", "1|0"]} }
+                                    ],
+                                    "minimum_should_match": 3
+                                }
                             }
                         }
                     }
-                }
-            )
+                )
         return query_body
 
     def add_denovo_query_string(self, child_id):
@@ -370,32 +455,71 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         if 'query' not in query_body:
             query_body['query'] = {
                 "nested": {
+                    "inner_hits": {},
                     "path": "sample",
                     "score_mode": "none",
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": {"sample.Sample_ID": child_id}}
-                            ]
+                                {"term": {"sample.Sample_ID": child_id}},
+                                { "term" : {"sample.Mother_Genotype" : "0/0"} },
+                                { "term" : {"sample.Father_Genotype" : "0/0"} }
+                            ],
+                            "should" : [
+                                { "terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
+                            ],
+                            "minimum_should_match": 1
                         }
                     }
                 }
             }
         elif query_body['query']['bool']['filter']:
-            query_body['query']['bool']['filter'].append(
-                {"nested": {
-                    "path": "sample",
-                    "score_mode": "none",
-                    "query": {
-                            "bool": {
-                                "filter": [
-                                    {"term": {"sample.Sample_ID": child_id}}
+            filter_array  = query_body['query']['bool']['filter']
+            filter_array_copy = copy.deepcopy(filter_array)
+            sample_array = None
+            for ele in filter_array:
+                if 'nested' in ele and ele['nested']['path'] == 'sample':
+                    filter_array_copy.remove(ele)
+                    sample_array = ele
+
+            if sample_array:
+                sample_array['nested']['inner_hits'] = {}
+                sample_array['nested']['query']['bool']['filter'].append({'term': {'sample.Sample_ID': child_id}})
+                sample_array['nested']['query']['bool']['filter'].append(
+                    { "term" : {"sample.Mother_Genotype" : "0/0"} })
+                sample_array['nested']['query']['bool']['filter'].append(
+                    { "term" : {"sample.Father_Genotype" : "0/0"} })
+                sample_array['nested']['query']['bool']['minimum_should_match'] = 1
+                sample_array['nested']['query']['bool']['should'] = [
+                                { "terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
                                 ]
-                            }
+
+                filter_array_copy.append(sample_array)
+                query_body['query']['bool']['filter'] = filter_array_copy
+
+            else:
+                query_body['query']['bool']['filter'].append(
+                    {"nested": {
+                        "inner_hits": {},
+                        "path": "sample",
+                        "score_mode": "none",
+                        "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"term": {"sample.Sample_ID": child_id}},
+                                        { "term" : {"sample.Mother_Genotype" : "0/0"} },
+                                        { "term" : {"sample.Father_Genotype" : "0/0"} }
+                                    ],
+                                    "should" : [
+                                        { "terms" : {"sample.GT" : ["0/1", "0|1", "1|0"]} }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                        }
                     }
-                }
-                }
-            )
+                    }
+                )
+
         return query_body
 
     def add_child_ids_query_string(self, child_ids):
@@ -429,16 +553,25 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 }
                 }
             )
+
         return query_body
 
     def non_gene_based_search(self):
         function = getattr(thismodule, self.mendelian_analysis_function)
         family_results = {}
-
+        results = {
+                "took": None,
+                "hits": {
+                    "total": None,
+                    "hits": deque()
+                }
+            }
+        count = 0
+        start_time = datetime.datetime.now()
         for family_id, family in self.family_dict.items():
 
             if self.mendelian_analysis_type == 'autosomal_dominant':
-                query_body = self.add_autosomal_dominant_query_string(family.get('child_id'))
+                query_body = self.add_autosomal_dominant_query_string(family_id, family.get('child_id'))
             elif self.mendelian_analysis_type == 'autosomal_recessive':
                 query_body = self.add_autosomal_recessive_query_string(family.get('child_id'))
             elif self.mendelian_analysis_type == 'denovo':
@@ -446,16 +579,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
             es = elasticsearch.Elasticsearch(
                 host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
-            tmp_results = {
-                "took": None,
-                "hits": {
-                    "total": None,
 
-                    "hits": deque()
-                }
-            }
-            count = 0
-            start_time = datetime.datetime.now()
             for hit in helpers.scan(
                     es,
                     query=query_body,
@@ -466,98 +590,81 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     doc_type=self.dataset_obj.es_type_name):
 
                 source = hit['_source']
+                inner_hits_sample = hit['inner_hits']['sample']['hits']['hits']
+                sample_data = extract_sample_inner_hits_as_array(inner_hits_sample)
+                sample_data = filter_source_by_family_id(sample_data, family_id)
 
-                analysis_output = function(source.get('sample'), family.get('father_id'),
-                                           family.get('mother_id'), family.get('child_id'))
-                if analysis_output:
-                    result = hit.copy()
-                    result['_source']['father_gt'] = analysis_output[0]
-                    result['_source']['mother_gt'] = analysis_output[1]
-                    result['_source']['child_gt'] = analysis_output[2]
-                    result['_source']['family_id'] = family_id
-                    tmp_results['hits']['hits'].append(result)
-                    count += 1
+                if self.mendelian_analysis_type == 'autosomal_dominant':
+                    if len(sample_data)> 1:
+                        print('error!')
+                        continue
 
-            elapsped_time = int(
-                (datetime.datetime.now() - start_time).total_seconds() * 1000)
+                    if not is_autosomal_dominant(sample_data[0]):
+                        continue
 
-            tmp_results['took'] = elapsped_time
-            tmp_results['hits']['total'] = count
+                tmp_results = hit.copy()
+                tmp_results['_source']['sample'] = sample_data
+                tmp_results['inner_hits']['sample']['hits']['hits'] = [{'_nested': {'field': 'sample'}, '_source': sample_data[0]}]
+                results['hits']['hits'].append(tmp_results)
+                count += 1
 
-            family_results[family_id] = tmp_results
-        return family_results
 
-    def gene_based_search(self):
-        es = elasticsearch.Elasticsearch(
-            host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
+        elapsped_time = int((datetime.datetime.now() - start_time).total_seconds() * 1000)
 
-        child_ids = [values.get('child_id') for key, values in self.family_dict.items()]
-        query_body = self.add_child_ids_query_string(child_ids)
+        results['took'] = elapsped_time
+        results['hits']['total'] = count
 
-        genes = get_genes_es(self.dataset_obj.es_index_name,
-                             self.dataset_obj.es_type_name,
-                             self.dataset_obj.es_host,
-                             self.dataset_obj.es_port,
-                             'SYMBOL',
-                             'CSQ_nested',
-                             query_body)
+        return results
 
-        count = 0
-        start_time = datetime.datetime.now()
-        family_results = {}
-        for family_id, family in self.family_dict.items():
-            tmp_results = {
-                "took": None,
-                "hits": {
-                    "total": None,
+    def is_gene_in_query_body(self):
+        csq_nested_array = None
+        for ele in self.query_body['query']['bool']['filter']:
+            if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                csq_nested_array = ele
+                break
 
-                    "hits": deque()
-                }
-            }
-            for gene in genes:
-                query_body = copy.deepcopy(self.query_body)
-                if 'query' not in query_body:
-                    query_body['query'] = {"bool": {
-                        "filter": [
-                            {
-                                "nested": {
-                                    "path": "CSQ_nested",
-                                    "query": {
-                                        "bool": {
-                                            "filter": [
-                                                {
-                                                    "term": {
-                                                        "CSQ_nested.SYMBOL": gene
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "nested": {
-                                    "path": "sample",
-                                    "query": {
-                                        "bool": {
-                                            "filter": [
-                                                {
-                                                    "terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}
-                                                },
-                                                {
-                                                    "term": {"sample.Sample_ID": family.get('child_id')}
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }}
-                elif query_body['query']['bool']['filter']:
-                    query_body['query']['bool']['filter'].extend(
+        if csq_nested_array:
+            for ele in csq_nested_array['nested']['query']['bool']['filter']:
+                if 'term' not in ele:
+                    continue
+                if ele['term'].get('CSQ_nested.SYMBOL'):
+                    return ele['term'].get('CSQ_nested.SYMBOL')
+            return False
+        else:
+            return False
+
+
+    def add_gene_to_query_body(self, gene):
+        query_body = copy.deepcopy(self.query_body)
+        filter_array  = query_body['query']['bool']['filter']
+        filter_array_copy = copy.deepcopy(filter_array)
+        csq_nested_array = None
+        for ele in filter_array:
+            if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                filter_array_copy.remove(ele)
+                csq_nested_array = ele
+
+        if csq_nested_array:
+
+            # is gene already specified?
+            for ele in csq_nested_array['nested']['query']['bool']['filter']:
+                if 'term' not in ele:
+                    continue
+                if ele['term'].get('CSQ_nested.SYMBOL'):
+                    return query_body
+
+            csq_nested_array['nested']['inner_hits'] = {}
+            csq_nested_array['nested']['query']['bool']['filter'].append({"term": {"CSQ_nested.SYMBOL": gene}})
+
+            filter_array_copy.append(csq_nested_array)
+            query_body['query']['bool']['filter'] = filter_array_copy
+
+
+        else:
+            query_body['query']['bool']['filter'].extend(
                         ({
                             "nested": {
+                                "inner_hits": {},
                                 "path": "CSQ_nested",
                                 "query": {
                                     "bool": {
@@ -571,32 +678,130 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     }
                                 }
                             }
-                        },
+                        })
+                    )
+
+
+        return query_body
+
+
+    def gene_based_search(self):
+        es = elasticsearch.Elasticsearch(
+            host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
+
+        child_ids = [values.get('child_id') for key, values in self.family_dict.items()]
+
+        if self.is_gene_in_query_body():
+            genes = [self.is_gene_in_query_body(),]
+
+        else:
+            genes = get_genes_es(self.dataset_obj.es_index_name,
+                                 self.dataset_obj.es_type_name,
+                                 self.dataset_obj.es_host,
+                                 self.dataset_obj.es_port,
+                                 'SYMBOL',
+                                 'CSQ_nested',
+                                 self.query_body)
+
+        count = 0
+        start_time = datetime.datetime.now()
+        results = {
+            "took": None,
+            "hits": {
+                "total": None,
+                "hits": deque()
+            }
+        }
+        for family_id, family in self.family_dict.items():
+            print(family_id)
+
+            for gene in genes:
+                if not self.is_gene_in_query_body():
+                    query_body = self.add_gene_to_query_body(gene)
+                else:
+                    query_body = copy.deepcopy(self.query_body)
+
+
+                if 'query' not in query_body:
+                    query_body['query'] = {"bool": {
+                        "filter": [
                             {
-                            "nested": {
-                                "path": "sample",
-                                "query": {
-                                    "bool": {
-                                        "filter": [
-                                            {
-                                                "terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}
-                                            },
-                                            {
-                                                "term": {"sample.Sample_ID": family.get('child_id')}
-                                            }
-                                        ]
+                                "nested": {
+                                    "path": "sample",
+                                    "query": {
+                                        "bool": {
+                                            "filter": [
+                                                {"terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}},
+                                                {"term": {"sample.Sample_ID": family.get('child_id')}},
+                                                {"term": {"sample.Family_ID": family_id}}
+                                            ],
+                                            "must_not": [
+                                                {"term": {"sample.Father_Genotype": "NA"}},
+                                                {"term": {"sample.Mother_Genotype": "NA"}}
+                                            ]
+                                        }
                                     }
                                 }
                             }
-                        })
-                    )
-                results = is_compound_heterozygous_for_gene(
+                        ]
+                    }}
+                elif query_body['query']['bool']['filter']:
+                    filter_array  = query_body['query']['bool']['filter']
+                    filter_array_copy = copy.deepcopy(filter_array)
+                    sample_array = None
+                    for ele in filter_array:
+                        if 'nested' in ele and ele['nested']['path'] == 'sample':
+                            filter_array_copy.remove(ele)
+                            sample_array = ele
+                    if sample_array:
+                        sample_array['nested']['inner_hits'] = {}
+                        sample_array['nested']['query']['bool']['filter'].append(
+                            {"terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}})
+                        sample_array['nested']['query']['bool']['filter'].append(
+                            {"term": {"sample.Sample_ID": family.get('child_id')}})
+
+                        if 'must_not' not in sample_array['nested']['query']['bool']:
+                            sample_array['nested']['query']['bool']['must_not'] = [
+                                                {"term": {"sample.Father_Genotype": "NA"}},
+                                                {"term": {"sample.Mother_Genotype": "NA"}}
+                                            ]
+                        else:
+                            sample_array['nested']['query']['bool']['must_not'].append(
+                                {"term": {"sample.Father_Genotype": "NA"}})
+                            sample_array['nested']['query']['bool']['must_not'].append(
+                                {"term": {"sample.Mother_Genotype": "NA"}})
+
+                        filter_array_copy.append(sample_array)
+                        query_body['query']['bool']['filter'] = filter_array_copy
+
+                    else:
+                        query_body['query']['bool']['filter'].append(
+                            ({
+                                "nested": {
+                                    "inner_hits": {},
+                                    "path": "sample",
+                                    "query": {
+                                        "bool": {
+                                            "filter": [
+                                                {"terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}},
+                                                {"term": {"sample.Sample_ID": family.get('child_id')}},
+                                                {"term": {"sample.Family_ID": family_id}}
+                                            ],
+                                            "must_not": [
+                                                {"term": {"sample.Father_Genotype": "NA"}},
+                                                {"term": {"sample.Mother_Genotype": "NA"}}
+                                            ]
+                                        }
+                                    }
+                                }
+                            })
+                        )
+                compound_heterozygous_results = is_compound_heterozygous_for_gene(
                     es, self.dataset_obj, gene, query_body, family_id, family.get('father_id'), family.get('mother_id'), family.get('child_id'))
-                if results:
+                if compound_heterozygous_results:
                     count += 1
-                    tmp_results['hits']['hits'].extend(results)
-            family_results[family_id] = tmp_results
-        return family_results
+                    results['hits']['hits'].extend(compound_heterozygous_results)
+        return results
 
     def excecute_elasticsearch_query(self):
 
@@ -610,7 +815,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
 class MendelianElasticsearchResponseParser(BaseElasticsearchResponseParser):
     maximum_table_size = 4000
-    fields_to_skip_flattening = ['FILTER', 'QUAL']
 
 
 class MendelianSearchElasticsearch(BaseSearchElasticsearch):
@@ -709,42 +913,32 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
         self.family_dict = family_dict
 
     def apply_kindred_filtering(self, elasticsearch_response):
-        results = {
-            "took": None,
-            "hits": {
-                "total": None,
-
-                "hits": deque()
-            }
-        }
 
         if not self.number_of_kindred:
-            for family_id, values in elasticsearch_response.items():
-                variants = values['hits']['hits']
-                results['hits']['hits'].extend(variants)
-            return results
-
+            return elasticsearch_response
         else:
-            es_ids = []
-            for family_id, values in elasticsearch_response.items():
-                variants = values['hits']['hits']
-                es_ids.extend([ele.get('_id') for ele in variants])
+            results = {
+                "took": None,
+                "hits": {
+                    "total": None,
 
+                    "hits": deque()
+                }
+            }
+            es_ids = [variant.get('_id') for variant in elasticsearch_response['hits']['hits']]
             es_id_counter = Counter(es_ids)
 
-            for family_id, values in elasticsearch_response.items():
-                variants = values['hits']['hits']
-                for variant in variants:
-                    if es_id_counter.get(variant.get('_id')) > int(self.number_of_kindred):
-                        results['hits']['hits'].append(variant)
+            for variant in elasticsearch_response['hits']['hits']:
+                if es_id_counter.get(variant.get('_id')) > int(self.number_of_kindred):
+                    results['hits']['hits'].append(variant)
 
             return results
 
     def run_elasticsearch_query_executor(self):
 
-        self.add_gt_header_fields()
-        self.add_family_id_header_fields()
-        self.add_sample_to_source()
+        # self.add_gt_header_fields()
+        # self.add_family_id_header_fields()
+        # self.add_sample_to_source()
         self.get_family_dict()
 
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
