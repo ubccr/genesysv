@@ -1081,14 +1081,14 @@ def make_es_mapping(vcf_info):
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 5,
+		"number_of_shards": 7,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.write.wait_for_active_shards": 1,
 		"index.mapping.ignore_malformed": "true",
-		"index.merge.policy.max_merge_at_once": 5,
-		"index.merge.scheduler.max_thread_count": 5,
-		"index.merge.scheduler.max_merge_count": 5,
+		"index.merge.policy.max_merge_at_once": 7,
+		"index.merge.scheduler.max_thread_count": 7,
+		"index.merge.scheduler.max_merge_count": 7,
 		"index.merge.policy.floor_segment": "100mb",
 		"index.merge.policy.segments_per_tier": 25,
 		"index.merge.policy.max_merged_segment": "10gb"
