@@ -533,8 +533,7 @@ class BaseElasticSearchQueryDSL:
                 if path:
                     if path not in self.nested_attributes_selected:
                         self.nested_attributes_selected[path] = []
-                    self.nested_attributes_selected[
-                        path].append('%s.%s' % (path, es_name))
+                    self.nested_attributes_selected[path].append('%s.%s' % (path, es_name))
 
                     if path not in self.nested_attribute_fields:
                         self.nested_attribute_fields.append(path)
@@ -772,6 +771,12 @@ class BaseElasticSearchQueryDSL:
     def get_attributes_selected(self):
         return self.attributes_selected
 
+    def get_non_nested_attributes_selected(self):
+        return self.non_nested_attributes_selected
+
+    def get_nested_attributes_selected(self):
+        return self.nested_attributes_selected
+
 
 class BaseElasticSearchQueryExecutor:
 
@@ -920,29 +925,28 @@ class BaseElasticsearchResponseParser:
         else:
             return self.results[:self.maximum_table_size]
 
-
 class BaseSearchElasticsearch:
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.get('user')
         self.dataset_obj = kwargs.get('dataset_obj')
+        self.analysis_type_obj = kwargs.get('analysis_type_obj')
         self.filter_form_data = kwargs.get('filter_form_data')
         self.attribute_form_data = kwargs.get('attribute_form_data')
         self.attribute_order = kwargs.get('attribute_order')
-        self.elasticsearch_dsl_class = kwargs.get(
-            'elasticsearch_dsl_class')
-        self.elasticsearch_query_executor_class = kwargs.get(
-            'elasticsearch_query_executor_class')
-        self.elasticsearch_response_parser_class = kwargs.get(
-            'elasticsearch_response_parser_class')
-        self.header = None
+        self.elasticsearch_dsl_class = kwargs.get('elasticsearch_dsl_class')
+        self.elasticsearch_query_executor_class = kwargs.get('elasticsearch_query_executor_class')
+        self.elasticsearch_response_parser_class = kwargs.get('elasticsearch_response_parser_class')
+        self.header = kwargs.get('header', None)
         self.results = None
-        self.query_body = None
+        self.query_body = kwargs.get('query_body', None)
         self.elasticsearch_response_time = None
-        self.nested_attribute_fields = None
-        self.non_nested_attribute_fields = None
+        self.nested_attribute_fields = kwargs.get('nested_attribute_fields', None)
+        self.non_nested_attribute_fields = kwargs.get('non_nested_attribute_fields', None)
         self.filters_used = None
         self.attributes_selected = None
+        self.non_nested_attributes_selected = None
+        self.nested_attributes_selected = None
         self.search_log_id = None
 
     def run_elasticsearch_dsl(self):
@@ -955,6 +959,8 @@ class BaseSearchElasticsearch:
         self.non_nested_attribute_fields = elasticsearch_dsl.get_non_nested_attribute_fields()
         self.filters_used = elasticsearch_dsl.get_filters_used()
         self.attributes_selected = elasticsearch_dsl.get_attributes_selected()
+        self.non_nested_attributes_selected = elasticsearch_dsl.get_non_nested_attributes_selected()
+        self.nested_attributes_selected = elasticsearch_dsl.get_nested_attributes_selected()
 
     def run_elasticsearch_query_executor(self):
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
@@ -980,12 +986,14 @@ class BaseSearchElasticsearch:
 
         search_log_obj = core_models.SearchLog.objects.create(
             dataset=self.dataset_obj,
+            analysis_type=self.analysis_type_obj,
             header=header_json,
             query=query_body_json,
             nested_attribute_fields=nested_attribute_fields_json,
             non_nested_attribute_fields=non_nested_attribute_fields_json,
             filters_used=self.filters_used,
-            attributes_selected=self.attributes_selected
+            attributes_selected=self.attributes_selected,
+
         )
 
         if self.user.is_authenticated:
@@ -1020,6 +1028,7 @@ class BaseSearchElasticsearch:
 
 
 class BaseDownloadAllResults:
+    flatten_nested = True
     fields_to_skip_flattening = []
 
     def __init__(self, search_log_obj):
@@ -1032,13 +1041,16 @@ class BaseDownloadAllResults:
             self.nested_attribute_fields = json.loads(
                 self.search_log_obj.nested_attribute_fields)
         else:
-            nested_attribute_fields = []
+            self.nested_attribute_fields = []
 
         if self.search_log_obj.non_nested_attribute_fields:
             self.non_nested_attribute_fields = json.loads(
                 self.search_log_obj.non_nested_attribute_fields)
         else:
-            non_nested_attribute_fields = []
+            self.non_nested_attribute_fields.non_nested_attribute_fields = []
+
+    def subset_dict(self, input, keys):
+        return {key: input[key] for key in keys if input.get(key) is not None}
 
     def merge_two_dicts(self, x, y):
         z = x.copy()
@@ -1090,18 +1102,20 @@ class BaseDownloadAllResults:
 
                         if tmp_hit_dict:
                             tmp_source[key].append(tmp_hit_dict)
+            self.results = [tmp_source,]
 
-            row = self.generate_row(self.header, tmp_source)
-            yield row
+            if self.flatten_nested:
+                self.flatten_nested_results()
+
+            for idx, result in enumerate(self.results):
+                row = self.generate_row(self.header, result)
+                yield row
 
     def flatten_nested_results(self):
-
         if self.nested_attribute_fields:
             flattened_results = []
             results_count = 0
             for idx, result in enumerate(self.results):
-                if results_count > self.maximum_table_size:
-                    break
                 combined = False
                 combined_nested = None
                 for idx, path in enumerate(self.nested_attribute_fields):
@@ -1117,16 +1131,13 @@ class BaseDownloadAllResults:
                         combined = True
                         continue
                     else:
-                        combined_nested = list(itertools.product(
-                            combined_nested, result[path]))
-                        combined_nested = self.merge_two_dicts_array(
-                            combined_nested)
+                        combined_nested = list(itertools.product(combined_nested, result[path]))
+                        combined_nested = self.merge_two_dicts_array(combined_nested)
 
-                tmp_non_nested = self.subset_dict(
-                    result, self.non_nested_attribute_fields)
+                tmp_non_nested = self.subset_dict(result, self.non_nested_attribute_fields)
+
                 if combined_nested:
-                    tmp_output = list(itertools.product(
-                        [tmp_non_nested, ], combined_nested))
+                    tmp_output = list(itertools.product([tmp_non_nested, ], combined_nested))
 
                     for x, y in tmp_output:
                         tmp = self.merge_two_dicts(x, y)
@@ -1143,7 +1154,14 @@ class BaseDownloadAllResults:
                     if result not in flattened_results:
                         flattened_results.append(result)
                         results_count += 1
-        else:
-            flattened_results = self.results
 
-        self.flattened_results = flattened_results
+            self.results = flattened_results
+
+
+    def get_results(self):
+        self.extract_nested_results_from_elasticsearch_response()
+        if self.flatten_nested:
+            self.flatten_nested_results()
+            return self.flattened_results[:self.maximum_table_size]
+        else:
+            return self.results[:self.maximum_table_size]

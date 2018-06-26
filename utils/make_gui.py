@@ -1,7 +1,7 @@
+import copy
 import json
 import os
 import re
-import copy
 from collections import OrderedDict
 import utils
 

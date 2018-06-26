@@ -167,8 +167,9 @@ class AttributeFieldAdmin(admin.ModelAdmin):
 
 @admin.register(SearchLog)
 class SearchLogAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'created', 'dataset', 'filters_used')
+    list_display = ('pk', 'user', 'created', 'dataset', 'analysis_type', 'filters_used', 'non_nested_attribute_fields', 'nested_attribute_fields', )
     list_filter = ('user', 'dataset',)
+
 
 
 @admin.register(SearchOptions)

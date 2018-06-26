@@ -222,6 +222,27 @@ class SearchRouterView(View):
         return return_view().post(request)
 
 
+class DownloadRouterView(View):
+
+    def get(self, request, *args, **kwargs):
+        search_log_id = kwargs.get('search_log_id')
+        search_log_obj = get_object_or_404(SearchLog, pk=search_log_id)
+
+        app_name = search_log_obj.analysis_type.app_name.name
+
+        # if app_name == 'microbiome':
+        #     from microbiome.views import MicrobiomeSearchView
+        #     return_view = MicrobiomeSearchView
+        if app_name == 'complex':
+            return_view = BaseDownloadView
+        elif app_name == 'mendelian':
+            from mendelian.views import MendelianDownloadView
+            return_view = MendelianDownloadView
+        # else:
+        #     return_view = BaseSearchView
+
+        return return_view().get(request, **{'search_log_id': search_log_id})
+
 class AdditionalFormRouterView(View):
 
     def get(self, request, *args, **kwargs):
@@ -252,7 +273,6 @@ class BaseSearchView(TemplateView):
     search_elasticsearch_class = BaseSearchElasticsearch
 
     def validate_request_data(self, request, POST_data):
-
 
         # Get Study Object
         study_form = StudyForm(request.user, POST_data)
@@ -319,8 +339,7 @@ class BaseSearchView(TemplateView):
     def post(self, request, *args, **kwargs):
         self.start_time = datetime.now()
 
-
-         # Get all FORM POST Data
+        # Get all FORM POST Data
         POST_data = QueryDict(request.POST['form_data'])
         self.validate_request_data(request, POST_data)
 
@@ -351,7 +370,6 @@ class BaseSearchView(TemplateView):
             context = self.get_context_data(**kwargs)
         else:
             context = {}
-
         context['header'] = header
         context['results'] = results
         context['total_time'] = int((datetime.now() - self.start_time).total_seconds() * 1000)
@@ -367,7 +385,7 @@ class BaseDownloadView(View):
 
     def get(self, request, *args, **kwargs):
         search_log_obj = get_object_or_404(
-            SearchLog, pk=self.kwargs.get('search_log_id'))
+            SearchLog, pk=kwargs.get('search_log_id'))
 
         if request.user != search_log_obj.user:
             return HttpResponseForbidden()
@@ -428,8 +446,6 @@ class SavedSearchListView(ListView):
         return SavedSearch.objects.filter(user=self.request.user)
 
 
-
-
 class RetrieveSavedSearchView(TemplateView):
     template_name = "core/home.html"
 
@@ -440,7 +456,7 @@ class RetrieveSavedSearchView(TemplateView):
         information['study'] = saved_search_obj.dataset.study.id
         information['dataset'] = saved_search_obj.dataset.id
         information['analysis_type'] = saved_search_obj.analysis_type.id
-        information['additional_information'] = None
+        information['additional_information'] = saved_search_obj.additional_information
         information['filters_used'] = saved_search_obj.get_filters_used
         information['attributes_selected'] = saved_search_obj.get_attributes_selected
 
@@ -453,6 +469,7 @@ class RetrieveSavedSearchView(TemplateView):
         context['load_search'] = 'true'
 
         return context
+
 
 class BaseDocumentView(TemplateView):
     template_name = "core/document.html"
