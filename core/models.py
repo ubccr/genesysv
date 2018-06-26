@@ -331,14 +331,18 @@ class DocumentReviewStatusHistory(models.Model):
 
 
 class SearchLog(TimeStampedModel):
-    dataset = models.ForeignKey(
-        'Dataset',
-        on_delete=models.CASCADE,
-    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         null=True, blank=True
+    )
+    dataset = models.ForeignKey(
+        'Dataset',
+        on_delete=models.CASCADE,
+    )
+    analysis_type = models.ForeignKey(
+        'AnalysisType',
+        on_delete=models.CASCADE,
     )
     header = models.TextField()
     query = models.TextField()
@@ -346,6 +350,9 @@ class SearchLog(TimeStampedModel):
     non_nested_attribute_fields = models.TextField(null=True, blank=True)
     filters_used = models.TextField(null=True, blank=True)
     attributes_selected = models.TextField()
+    nested_attributes_selected = models.TextField(null=True, blank=True)
+    non_nested_attributes_selected = models.TextField()
+    additional_information = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.query
@@ -396,7 +403,7 @@ class SavedSearch(TimeStampedModel):
             output = []
             for key, val in additional_information.items():
                 if val:
-                    output.append((key, filter_field_obj.display_text, val))
+                    output.append((key, 'filter_field_obj.display_text', val))
             return output
         else:
             return None

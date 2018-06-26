@@ -12,6 +12,7 @@ urlpatterns = (
     path('attribute-snippet/<int:dataset_id>',
          core_views.AttributeSnippetView.as_view(), name='attribute-snippet'),
     path('search-router/', core_views.SearchRouterView.as_view(), name='search-router'),
+    path('download-router/<int:search_log_id>', core_views.DownloadRouterView.as_view(), name='download-router'),
     path('additional-form-router/<int:dataset_id>/<int:analysis_type_id>', core_views.AdditionalFormRouterView.as_view(), name='additional-form-router'),
     path('base-search/', core_views.BaseSearchView.as_view(), name='base-search'),
     path('base-download/<int:search_log_id>', core_views.BaseDownloadView.as_view(), name='base-download'),

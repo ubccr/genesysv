@@ -1,42 +1,39 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import os
-import copy
-import sys
-import subprocess
-from subprocess import check_output
-import multiprocessing
-import gzip
+
 import argparse
-from pprint import pprint
-import multiprocessing
+import copy
+import gzip
+import json
 import logging
 import math
+import multiprocessing
+import os
 import re
-from collections import defaultdict
-from collections import OrderedDict
-import json
-from collections import deque
-import elasticsearch
-from collections import deque
-from elasticsearch import helpers
-import time
-from make_gui import make_gui_config
 import sqlite3
+import subprocess
+import sys
+import time
+from collections import OrderedDict, defaultdict, deque
+from pprint import pprint
+from subprocess import check_output
 
 import django
+import elasticsearch
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+from elasticsearch import helpers
+
+from core.models import *
+from core.models import Dataset
+from core.utils import get_values_from_es
+from make_gui import make_gui_config
 
 absproject_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(absproject_path) #here store is root folder(means parent).
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gdw.settings")
 django.setup()
 
-from core.models import Dataset
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-from core.models import *
-from core.models import *
-from core.utils import get_values_from_es
 
 
 parser = argparse.ArgumentParser(description='Parse vcf file(s) and create ElasticSearch mapping and index from the parsed data')
@@ -1424,4 +1421,3 @@ if __name__ == '__main__':
 	
 	print("*"*80+"\n")	
 	print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, port))
-	

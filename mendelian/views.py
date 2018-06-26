@@ -1,16 +1,21 @@
+import csv
 import json
 import pprint
 from datetime import datetime
 
+from django.core import serializers
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.http import QueryDict
+from django.http import (HttpResponse, HttpResponseForbidden,
+                         HttpResponseServerError, JsonResponse, QueryDict,
+                         StreamingHttpResponse)
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.generic.base import TemplateView
 
 import complex.views as complex_views
 import core.models as core_models
+from common.utils import Echo
 from core.forms import (AnalysisTypeForm, AttributeForm, AttributeFormPart,
                         DatasetForm, FilterForm, FilterFormPart,
                         SaveSearchForm, StudyForm)
@@ -125,14 +130,12 @@ class MendelianSearchView(BaseSearchView):
                                         'Family_ID',
                                         'sample')
         number_of_families = len(family_ids)
-        data = {}
         kindred_form = KindredForm(number_of_families, POST_data)
         if kindred_form.is_valid():
             if kindred_form.cleaned_data['number_of_kindred']:
                 self.additional_information = {'number_of_kindred': kindred_form.cleaned_data['number_of_kindred']}
         else:
             raise ValidationError('Invalid Kindred form!')
-
 
     def get_kwargs(self, request):
         kwargs = super().get_kwargs(request)
@@ -172,7 +175,7 @@ class MendelianSearchView(BaseSearchView):
 
         if self.call_get_context and request.user.is_authenticated:
             kwargs.update({'user_obj': request.user})
-            kwargs.update({'search_log_obj': SearchLog.objects.get(id=search_log_id)})
+            kwargs.update({'search_log_obj': core_models.SearchLog.objects.get(id=search_log_id)})
             context = self.get_context_data(**kwargs)
         else:
             context = {}
@@ -189,3 +192,85 @@ class MendelianSearchView(BaseSearchView):
 
 class MendelianDocumentView(complex_views.ComplexDocumentView):
     pass
+
+
+class MendelianDownloadView(BaseSearchView):
+    search_elasticsearch_class = MendelianSearchElasticsearch
+    elasticsearch_query_executor_class = MendelianElasticSearchQueryExecutor
+    elasticsearch_response_parser_class = MendelianElasticsearchResponseParser
+
+    def __init__(self):
+        self.search_log_obj = None
+        self.header = None
+        self.results = None
+
+
+    def get_kwargs(self, request):
+
+        if self.search_log_obj.nested_attribute_fields:
+            nested_attribute_fields = json.loads(self.search_log_obj.nested_attribute_fields)
+        else:
+            nested_attribute_fields = []
+
+        if self.search_log_obj.non_nested_attribute_fields:
+            non_nested_attribute_fields = json.loads(self.search_log_obj.non_nested_attribute_fields)
+        else:
+            non_nested_attribute_fields.non_nested_attribute_fields = []
+
+        if self.search_log_obj.additional_information:
+            additional_information = json.loads(self.search_log_obj.additional_information)
+        else:
+            additional_information = None
+
+        kwargs = {
+            'user': request.user,
+            'dataset_obj': self.search_log_obj.dataset,
+            'analysis_type_obj': self.search_log_obj.analysis_type,
+            'header': [ele.object for ele in serializers.deserialize("json", self.search_log_obj.header)],
+            'query_body': json.loads(self.search_log_obj.query),
+            'nested_attribute_fields': nested_attribute_fields,
+            'non_nested_attribute_fields': non_nested_attribute_fields,
+            'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
+            'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
+            'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
+        }
+
+        if additional_information:
+            kwargs.update(additional_information)
+        kwargs.update({'mendelian_analysis_type': self.search_log_obj.analysis_type.name})
+        return kwargs
+
+    def generate_row(self, header, tmp_source):
+        tmp = []
+        for ele in header:
+            tmp.append(str(tmp_source.get(ele.es_name, None)))
+
+        return tmp
+
+    def yield_rows(self):
+        header_keys = [ele.display_text for ele in self.header]
+        yield header_keys
+
+        for idx, result in enumerate(self.results):
+            row = self.generate_row(self.header, result)
+            yield row
+
+    def get(self, request, *args, **kwargs):
+        self.search_log_obj = get_object_or_404(core_models.SearchLog, pk=kwargs.get('search_log_id'))
+
+        if request.user != self.search_log_obj.user:
+            return HttpResponseForbidden()
+
+        kwargs = self.get_kwargs(request)
+
+        search_elasticsearch_obj = self.search_elasticsearch_class(**kwargs)
+        search_elasticsearch_obj.download()
+        self.header = search_elasticsearch_obj.get_header()
+        self.results = search_elasticsearch_obj.get_results()
+        rows = self.yield_rows()
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        response = StreamingHttpResponse((writer.writerow(row) for row in rows), content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="search_results.csv"'
+
+        return response

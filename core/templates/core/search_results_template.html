@@ -9,7 +9,7 @@
     {% if user.is_authenticated %}
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
     {% endif %}
-    <a id="download-result-button" class="btn btn-primary" role="button" href="/core/base-download/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
+    <a id="download-result-button" class="btn btn-primary" role="button" target="_blank" href="/core/download-router/{{search_log_id}}"><i class="fa fa-download" aria-hidden="true"></i> Export to CSV</a>
     <form id="download-result-form" role="form" method="POST" action="">
       {% csrf_token %}
       <input style="display: none;" type="hidden" name="search_log_obj_id" value="{{search_log_obj_id}}">
