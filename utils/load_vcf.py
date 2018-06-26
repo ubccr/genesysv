@@ -1,39 +1,44 @@
 #!/usr/bin/env python
 from __future__ import print_function
-
-import argparse
+import os
 import copy
+import sys
+import subprocess
+from subprocess import check_output
+import multiprocessing
 import gzip
-import json
+import argparse
+from pprint import pprint
+import multiprocessing
 import logging
 import math
-import multiprocessing
-import os
 import re
-import sqlite3
-import subprocess
-import sys
+from pathlib import Path
+from collections import defaultdict
+from collections import OrderedDict
+import json
+from collections import deque
+import elasticsearch
+from collections import deque
+from elasticsearch import helpers
 import time
-from collections import OrderedDict, defaultdict, deque
-from pprint import pprint
-from subprocess import check_output
+from make_gui import make_gui_config
+import utils
+import sqlite3
 
 import django
-import elasticsearch
-from django.core.exceptions import ValidationError
-from django.core.management.base import BaseCommand, CommandError
-from elasticsearch import helpers
-
-from core.models import *
-from core.models import Dataset
-from core.utils import get_values_from_es
-from make_gui import make_gui_config
 
 absproject_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(absproject_path) #here store is root folder(means parent).
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gdw.settings")
 django.setup()
 
+from core.models import Dataset
+from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import ValidationError
+from core.models import *
+from core.models import *
+from core.utils import get_values_from_es
 
 
 parser = argparse.ArgumentParser(description='Parse vcf file(s) and create ElasticSearch mapping and index from the parsed data')
@@ -68,6 +73,43 @@ type_name = index_name + '_'
 study = args.study_name
 dataset_name = args.dataset_name
 
+FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
+
+WIDGET_TYPES = ("TextInput", "Select", "SelectMultiple",
+                "Textarea", "UploadField")
+
+ES_FILTER_TYPES = ("filter_term",
+                   "filter_terms",
+                   "nested_filter_term",
+                   "nested_filter_terms",
+                   "filter_range_gte",
+                   "filter_range_gt",
+                   "filter_range_lte",
+                   "filter_range_lt",
+                   "nested_filter_range_gte",
+                   "nested_filter_range_lte",
+                   "filter_exists",
+                   "must_not_exists",
+                   "nested_filter_exists",
+                   )
+
+APP_NAMES = (
+    "core",
+    "complex",
+    "mendelian",
+    "microbiome",
+)
+
+ANALYSIS_TYPES = (
+    ("base-search", "core"),
+    ("complex","complex"),
+    ("autosomal_dominant", "mendelian"),
+    ("autosomal_recessive", "mendelian"),
+    ("compound_heterozygous", "mendelian"),
+    ("denovo", "mendelian"),
+    ("microbiome","microbiome"),
+)
+
 excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE', 'culprit']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
 
@@ -97,7 +139,16 @@ def check_commandline(args):
 		if str(out.decode('ascii').strip()) != 'yes':
 			print("Invalid control_vcf file. Please provide a bgzipped/grabix indexed vcf file.")
 			sys.exit(2)
+	# check if tabix index files exist for case/control studies
+	if args.control_vcf:
+		tbi_file_case = Path(os.path.abspath(args.vcf) + '.tbi')
+		tbi_file_control = Path(os.path.abspath(args.control_vcf) + '.tbi')
 
+		if tbi_file_case.exists() and tbi_file_control.exists():
+			pass
+		else:
+			print("Tabix indexed file(s) not found. Please index the vcf file(s) with tabix.")
+			sys.exit(2)
 
 def process_ped_file(ped_file):
 	ped_info = {}
@@ -266,6 +317,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			del tmp_dict[item]
 
 	for key, val in tmp_dict.items():
+		if key not in  vcf_info['info_dict']:
+			log.write("Key not exists: %s" % key)
+			continue
 		if key == 'CSQ' and args.annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
@@ -499,8 +553,8 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		  	result[key] = val.split('|')
 		elif 'cosmic' in key:
 			if val == '.':
-				cosmic_id = None
-				occurrence = None
+				cosmic_id = 'NA'
+				occurrence = 'NA'
 			else:
 				cosmic_id, occurrence = val.split("\\x3b")
 				cosmic_id = cosmic_id.split('\\x3d')[1]
@@ -714,7 +768,7 @@ def process_single_cohort(vcf, vcf_info):
 	return(output_json)
 
 def process_case_control(case_vcf, control_vcf, vcf_info):
-	batch_size = 500000 # reduce this number if memory is an issue
+	batch_size = 1000000 # reduce this number if memory is an issue
 	if args.interval_size:
 		batch_size = args.interval_size
 
@@ -767,9 +821,6 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 	return(output_json)
 
 def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info):
-	data_dict = defaultdict()
-	data_dict['_case'] = {}
-	data_dict['_control'] = {}
 
 	p = multiprocessing.current_process()
 
@@ -782,8 +833,9 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 	with open(outfile, 'w') as f:
 		for batch in batch_sub_list:
 			batch_count += 1
-
-			print("Pid %s processing batch  %s, %d of %d"% (p.pid, batch, batch_count, total_batches))
+			data_dict = defaultdict()
+			data_dict['_case'] = {}
+			data_dict['_control'] = {}
 
 	 		# get a chunck of line from each of the vcf files
 			output_case = check_output(["tabix", case_vcf, batch])
@@ -793,6 +845,8 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 				print("Empty batch %s" % batch)
 				continue
 			
+			print("Pid %s processing batch  %s, %d of %d"% (p.pid, batch, batch_count, total_batches))
+
 			output_case = output_case.decode('latin1')
 			output_control = output_control.decode('latin1')
 
@@ -819,8 +873,6 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 
 					data_fixed = dict(zip(vcf_info['col_header'][:7], data_dict[group][v_id][:7]))
 					
-					# make a short format of variant IDs, i.e. keep at most 9 bases for indels
-					variant = '_'.join([data_fixed['CHROM'], data_fixed['POS'], data_fixed['REF'][:10], data_fixed['ALT'][:10]])
 	
 					if v_id in seen: # alread found in case
 						# parse INFO field
@@ -840,6 +892,10 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 						result[v_id]['FILTER' + group] = data_fixed['FILTER']
 					else:
 						seen[v_id] = True
+
+						# make a short format of variant IDs, i.e. keep at most 9 bases for indels
+						variant = '_'.join([data_fixed['CHROM'], data_fixed['POS'], data_fixed['REF'][:10], data_fixed['ALT'][:10]])
+
 						result[v_id] = {}
 						result[v_id]['Variant'] = variant
 						result[v_id]['CHROM'] = data_fixed['CHROM']
@@ -939,14 +995,22 @@ def make_es_mapping(vcf_info):
 			del format_dict2[key]['Description']
 
 	keys = [key	for key in info_dict2]
-	keys = [x for x in keys if x not in excluded_list]
+	keys = [x for x in keys if (x in utils.SUMMARY_STATISTICS_FIELDS or x in utils.VARIANT_QUALITY_RELATED_FIELDS) and x not in excluded_list]
 
+	# Perhaps we have to hand made a list of attributes that are meaningful to have "_case" and "_control" appended
 	if args.control_vcf:
 		for key in keys:
+			
 			info_dict2[key + '_case'] = info_dict2[key]
 			info_dict2[key + '_control'] = info_dict2[key]
+			print("Problem! %s\n" % key)
 			del info_dict2[key]
 			format_dict2.update({'group' : {"type" : "keyword"}})
+		# add QUAL and FILTER
+		info_dict2['QUAL_case'] = {"type" : "float"}
+		info_dict2['QUAL_control'] = {"type" : "float"}
+		info_dict2['FILTER_case'] = {"type" : "keyword"}
+		info_dict2['FILTER_control'] = {"type" : "keyword"}
 
 	for key in excluded_list:
 		if key in info_dict2:
@@ -998,7 +1062,9 @@ def make_es_mapping(vcf_info):
 	# first 7 columns
 	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
-	
+	if args.control_vcf:
+		fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
+				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}}
 	mapping[type_name]["properties"].update(fixed_dict)
 	mapping[type_name]["properties"].update(info_dict2)
 
@@ -1007,17 +1073,22 @@ def make_es_mapping(vcf_info):
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
 	mapping[type_name]["properties"]["sample"].update(sample_annot) 
 
+	#remove features that have been appended with  '_case' and '_control'
+	case_control_features = [key for key in mapping[type_name]["properties"] if key.endswith('_control')]
+	features_to_remove = [re.sub('_control', '', item) for item in case_control_features]
+	mapping[type_name]["properties"] = {key:val for key, val in mapping[type_name]["properties"].items() if key not in features_to_remove }
+
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 5,
+		"number_of_shards": 7,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.write.wait_for_active_shards": 1,
 		"index.mapping.ignore_malformed": "true",
-		"index.merge.policy.max_merge_at_once": 5,
-		"index.merge.scheduler.max_thread_count": 5,
-		"index.merge.scheduler.max_merge_count": 5,
+		"index.merge.policy.max_merge_at_once": 7,
+		"index.merge.scheduler.max_thread_count": 7,
+		"index.merge.scheduler.max_merge_count": 7,
 		"index.merge.policy.floor_segment": "100mb",
 		"index.merge.policy.segments_per_tier": 25,
 		"index.merge.policy.max_merged_segment": "10gb"
@@ -1041,42 +1112,6 @@ def make_es_mapping(vcf_info):
 	return(create_index_script, mapping_file)
 
 
-FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
-
-WIDGET_TYPES = ("TextInput", "Select", "SelectMultiple",
-                "Textarea", "UploadField")
-
-ES_FILTER_TYPES = ("filter_term",
-                   "filter_terms",
-                   "nested_filter_term",
-                   "nested_filter_terms",
-                   "filter_range_gte",
-                   "filter_range_gt",
-                   "filter_range_lte",
-                   "filter_range_lt",
-                   "nested_filter_range_gte",
-                   "nested_filter_range_lte",
-                   "filter_exists",
-                   "must_not_exists",
-                   "nested_filter_exists",
-                   )
-
-APP_NAMES = (
-    "core",
-    "complex",
-    "mendelian",
-    "microbiome",
-)
-
-ANALYSIS_TYPES = (
-    ("base-search", "core"),
-    ("complex","complex"),
-    ("autosomal_dominant", "mendelian"),
-    ("autosomal_recessive", "mendelian"),
-    ("compound_heterozygous", "mendelian"),
-    ("denovo", "mendelian"),
-    ("microbiome","microbiome"),
-)
 
 def add_required_data_to_db():
     """Setup required models"""
@@ -1395,7 +1430,11 @@ if __name__ == '__main__':
 		
 	#  make a gui config file
 	print("Creating Web user interface, please wait ...")	
-	gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, args.annot)
+	case_control = False
+	if args.control_vcf:
+		case_control = True
+	
+	gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, args.annot, case_control)
 
 	# make sure the destination dataset not exists
 	conn = sqlite3.connect('db.sqlite3')
@@ -1421,3 +1460,4 @@ if __name__ == '__main__':
 	
 	print("*"*80+"\n")	
 	print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, port))
+	
