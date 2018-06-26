@@ -51,6 +51,7 @@ required.add_argument("--port", help="ElasticSearch host port number", required=
 required.add_argument("--index", help="ElasticSearch index name", required=True)
 required.add_argument("--study_name", help="Name of the project", required=True)
 required.add_argument("--dataset_name", help="Name of the dataset", required=True)
+required.add_argument("--assembly", help="Reference genome assembly version used in the project, valid value is any of 'hg19|hg38|GRCh37|GRCh38'", required=True) 
 required.add_argument("--num_cores", help="Number of cpu cores to use. Default to the number of cpu cores of the system", required=False)
 required.add_argument("--ped", help="Pedigree file in the format of '#Family Subject Father  Mother  Sex     Phenotype", required=False)
 required.add_argument("--control_vcf", help="vcf file from control study. Must be compressed with bgzip and indexed with grabix", required=False)
@@ -59,7 +60,7 @@ required.add_argument("--webserver_port", help="Port number for webser to explor
 parser.add_argument("--debug", help="Run in single CPU mode for debugging purposes", action="store_true")
 parser.add_argument("--cleanup", help="Remove temporary .json files under --tmp_dir after being indexed", action="store_true")
 parser.add_argument("--skip_parsing", help="Skip the parsing process, directly go to the indexing and GUI creating step. Useful when parsing was successful but indexing failed for various reasons", action="store_true")
-parser.add_argument("--make_gui_only", help="Only create GUI config. Used in situations where the paring and indexing were finished successfuly, but the final GUI creation failed", action="store_true")
+parser.add_argument("--gui_only", help="Only create GUI config. Used in situations where the paring and indexing were finished successfuly, but the final GUI creation failed", action="store_true")
 	
 args = parser.parse_args()
 
@@ -72,15 +73,30 @@ else:
 
 hostname = args.hostname
 port = args.port
-webserver_port = 8000
-if args.webserver_port:
-	webserver_port = args.webserver_port
+webserver_port = args.webserver_port
+if not webserver_port:
+	webserver_port = 8000
 	
+vcf = args.vcf
+control_vcf = args.control_vcf
+tmp_dir = args.tmp_dir
+annot = args.annot
 index_name = args.index
 type_name = index_name + '_'
 study = args.study_name
 dataset_name = args.dataset_name
+ped = args.ped
+interval_size = args.interval_size
+debug = args.debug
+cleanup = args.cleanup
+skip_parsing = args.skip_parsing
+gui_only = args.gui_only
+assembly = args.assembly
 
+if not assembly in ['hg19', 'hg38', 'GRCh37', 'GRCh38']:
+	print("Invalid assembly value. Supported values are 'hg19|hg38|GRCh37|GRCh38'")
+	sys.exit(2)
+	
 FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
 
 WIDGET_TYPES = ("TextInput", "Select", "SelectMultiple",
@@ -121,9 +137,8 @@ ANALYSIS_TYPES = (
 excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE', 'culprit']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
 
-def check_commandline(args):
+def check_commandline(vcf, control_vcf, annot):
 	# check if valid annotation type is specified
-	annot = args.annot
 	if annot == 'vep':
 		annot_type = 'vep'
 	elif annot == 'annovar':
@@ -133,24 +148,24 @@ def check_commandline(args):
 		sys.exit(2)
 
 	# check if valid vcf file specified
-	vcf = os.path.abspath(args.vcf)
+	vcf = os.path.abspath(vcf)
 	out = check_output(["grabix", "check", vcf])
 
 	if str(out.decode('ascii').strip()) != 'yes':
 		print("Invalid vcf file. Please provide a bgzipped/grabix indexed vcf file.")
 		sys.exit(2)
 	
-	if args.control_vcf:
-		control_vcf = os.path.abspath(args.control_vcf)
+	if control_vcf:
+		control_vcf = os.path.abspath(control_vcf)
 		out = check_output(["grabix", "check", control_vcf])
 	
 		if str(out.decode('ascii').strip()) != 'yes':
 			print("Invalid control_vcf file. Please provide a bgzipped/grabix indexed vcf file.")
 			sys.exit(2)
 	# check if tabix index files exist for case/control studies
-	if args.control_vcf:
-		tbi_file_case = Path(os.path.abspath(args.vcf) + '.tbi')
-		tbi_file_control = Path(os.path.abspath(args.control_vcf) + '.tbi')
+	if control_vcf:
+		tbi_file_case = Path(os.path.abspath(vcf) + '.tbi')
+		tbi_file_control = Path(os.path.abspath(control_vcf) + '.tbi')
 
 		if tbi_file_case.exists() and tbi_file_control.exists():
 			pass
@@ -266,9 +281,9 @@ def process_vcf_header(vcf):
 	for key in contig_dict:
 		if key in valid_chrs:
 			chr2len[key] = int(contig_dict[key]['length'])
-	if args.annot == 'vep':
+	if annot == 'vep':
 		return([num_header_lines, csq_fields, col_header, chr2len, info_dict, format_dict, contig_dict, csq_dict_local, csq_dict_global])
-	elif args.annot == 'annovar':
+	elif annot == 'annovar':
 		return([num_header_lines, col_header, chr2len, info_dict, format_dict, contig_dict])
 
 def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
@@ -403,7 +418,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 	for key, val in tmp_dict['info_dict'].items():
 		if key in key_type_dict:
 			vcf_info['info_dict'][key].update(key_type_dict[key])
-	if args.annot == 'vep':
+	if annot == 'vep':
 		for key, val in tmp_dict['csq_dict_local'].items():
 			if key in key_type_dict_csq:
 				vcf_info['csq_dict_local'][key].update(key_type_dict_csq[key])
@@ -471,7 +486,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		if key not in  vcf_info['info_dict']:
 			log.write("Key not exists: %s" % key)
 			continue
-		if key == 'CSQ' and args.annot == 'vep':
+		if key == 'CSQ' and annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
 			csq_list = []
@@ -756,7 +771,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 		if sample_data.startswith('.') or sample_data.startswith('./.'):
 			continue
 		# skip parsing hom_ref GT if no ped file is specified to save time and disk space 
-		if not args.ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0')):
+		if not ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0')):
 			continue
 			
 		format_fields = format_fields if isinstance(format_fields, list) else [format_fields]
@@ -799,7 +814,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 						continue
 
 		# add information from ped file
-		if args.ped and sample_id in  vcf_info['ped_info']:
+		if ped and sample_id in  vcf_info['ped_info']:
 			sample_data_dict['Family_ID'] = vcf_info['ped_info'][sample_id]['family']
 			sample_data_dict['Father_ID'] = vcf_info['ped_info'][sample_id]['father']
 			sample_data_dict['Mother_ID'] = vcf_info['ped_info'][sample_id]['mother']
@@ -923,7 +938,7 @@ def process_single_cohort(vcf, vcf_info):
 	processes = []
 	output_json = []
 
-	if args.debug:
+	if debug:
 		for intev in intervals: # debug
 			output_file = 'tmp/output_' + str(intev) + '.json'
 			parse_vcf(vcf, intev, output_file, vcf_info)	
@@ -931,7 +946,7 @@ def process_single_cohort(vcf, vcf_info):
 	else:
  		# dispatch subtasks to each of the processes 
 		for i in range(num_cpus):
-			output_file = os.path.join(args.tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
+			output_file = os.path.join(tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
 			proc = multiprocessing.Process(target=parse_vcf, args=[vcf, intervals[i], output_file, vcf_info])
 			proc.start()
 			processes.append(proc)
@@ -946,8 +961,8 @@ def process_single_cohort(vcf, vcf_info):
 
 def process_case_control(case_vcf, control_vcf, vcf_info):
 	batch_size = 1000000 # reduce this number if memory is an issue
-	if args.interval_size:
-		batch_size = args.interval_size
+	if interval_size:
+		batch_size = interval_size
 
 	batch_list = []
 	output_json = []
@@ -972,7 +987,7 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 	batches_per_cpu = math.ceil(len(batch_list)/num_cpus)
 	batch_start = 0
 
-	if args.debug:
+	if debug:
 		output_file = 'tmp/output_case_control_' + str(batch_list[0]) + '.json'
 		parse_case_control(case_vcf, control_vcf, [batch_list[0]], output_file, vcf_info)
 		output_json.append(output_file)
@@ -982,7 +997,7 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 			if batch_end > len(batch_list):
 				batch_end = len(batch_list)
 
-			output_file = os.path.join(args.tmp_dir, os.path.basename(control_vcf) + '.chunk_' + str(i) + '.json')
+			output_file = os.path.join(tmp_dir, os.path.basename(control_vcf) + '.chunk_' + str(i) + '.json')
 			proc = multiprocessing.Process(target=parse_case_control, args=[case_vcf, control_vcf, batch_list[batch_start:batch_end], output_file, vcf_info])
 			proc.start()
 			processes.append(proc)
@@ -1123,7 +1138,7 @@ def make_es_mapping(vcf_info):
 	mapping[type_name]["properties"] = {}
 	p = re.compile(r'snp\d+')
 
-	if args.annot == 'vep':
+	if annot == 'vep':
 		csq_dict_global =vcf_info['csq_dict_global']
 		csq_dict_local = vcf_info['csq_dict_local']
 		vcf_info['csq_dict_local'].update({'SIFT_pred' : {"type" : "keyword", "null_value" : 'NA'}})
@@ -1159,7 +1174,7 @@ def make_es_mapping(vcf_info):
 			del csq_dict_global['Existing_variation']
 		mapping[type_name]["properties"].update(csq_dict_global)
 
-	elif args.annot == 'annovar':
+	elif annot == 'annovar':
 		ensGene_dict = {"EnsembleTranscriptID" : {"type" : "keyword", "null_value" : 'NA'}}
 		ensGene_dict.update({"exon_id_eg" : {"type" : "keyword", "null_value" : 'NA'}})
 		ensGene_dict.update({"cdna_change_eg" : {"type" : "keyword", "null_value" : 'NA'}})
@@ -1196,7 +1211,7 @@ def make_es_mapping(vcf_info):
 	keys = [x for x in keys if (x in utils.SUMMARY_STATISTICS_FIELDS or x in utils.VARIANT_QUALITY_RELATED_FIELDS) and x not in excluded_list]
 
 	# Perhaps we have to hand made a list of attributes that are meaningful to have "_case" and "_control" appended
-	if args.control_vcf:
+	if control_vcf:
 		for key in keys:
 			
 			info_dict2[key + '_case'] = info_dict2[key]
@@ -1246,7 +1261,7 @@ def make_es_mapping(vcf_info):
 		format_dict2.update({'AD_alt' : {"type" : "integer", "null_value" : -999}})
 		del format_dict2['AD']
 	
-	if args.ped:
+	if ped:
 		format_dict2.update({'Family_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
 		format_dict2.update({'Father_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
 		format_dict2.update({'Mother_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
@@ -1260,7 +1275,7 @@ def make_es_mapping(vcf_info):
 	# first 7 columns
 	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
-	if args.control_vcf:
+	if control_vcf:
 		fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}}
 	mapping[type_name]["properties"].update(fixed_dict)
@@ -1546,123 +1561,25 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
 
 if __name__ == '__main__':
 	t0 = time.time() # get program start time
-	
+	t1 = time.time()
+
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
 	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name) 
-	out_vcf_info = os.path.basename(args.vcf).replace('.vcf.gz', '') + '_vcf_info.json'
+	out_vcf_info = os.path.basename(vcf).replace('.vcf.gz', '') + '_vcf_info.json'
 	out_vcf_info = os.path.join(os.getcwd(),  'config', out_vcf_info)
 	output_files = []
 
-	if not args.skip_parsing:
-		check_commandline(args)
-
-		# read and process vcf header section to get various field names and data types
-		rv = process_vcf_header(args.vcf)
-
-		
-		if args.annot == 'vep':
-			vcf_info = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv))
-		elif args.annot == 'annovar':
-			vcf_info = dict(zip([ 'num_header_lines', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict'], rv))
-
-		if args.control_vcf:
-			rv2 = process_vcf_header(args.control_vcf)
-			vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
-			vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
-
-		# read 5000 lines of data to verify data types for each field extracted from vcf header by the above function
-		vcf_info = process_vcf_data(args.vcf, 5000, vcf_info)
-
-
-		with open(out_vcf_info, 'w') as f:
-			json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
-
-		# insert pedegree data if ped file is specified
-		if args.ped:
-			ped_info = process_ped_file(args.ped)
-			vcf_info['ped_info'] = ped_info
-
-		# determine which work flow to choose, i.e. single cohort or case-control analysis
-		if args.control_vcf:
-			output_files = process_case_control(args.vcf, args.control_vcf, vcf_info)
-		else:
-			output_files = process_single_cohort(args.vcf, vcf_info)
-
-		t1 = time.time()
-		total = t1-t0
-
-		print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
-
-		
-		create_index_script, mapping_file = make_es_mapping(vcf_info)
-
-	else:
-				
-		for i in range(num_cpus):
-			output_file = os.path.join(args.tmp_dir, os.path.basename(args.vcf) + '.chunk_' + str(i) + '.json')
-			output_files.append(output_file)
-
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=40)
 	es.cluster.health(wait_for_status='yellow')
-
-	# prepare for elasticsearch 
-	if es.indices.exists(index_name):
-		print("deleting '%s' index..." % index_name)
-		res = es.indices.delete(index = index_name)
-		print("response: '%s'" % res)
-
-	print("creating '%s' index..." % index_name)
-	res = check_output(["bash", create_index_script])
-	print("Response: '%s'" % res.decode('ascii'))
-
-
-	for infile in output_files:
-		print("Indexing file %s" % infile)
-		data = []
-
-		with open(infile, 'r') as fp:
-			for line in fp:
-				tmp = json.loads(line)
-				data.append(tmp)
-				if len(data) % 1000 == 0:
-					try:
-						deque(helpers.parallel_bulk(es, data, thread_count=num_cpus, raise_on_exception=False), maxlen=0)
-						data = []
-					except ValueError as e:
-						print("Failed indexing %s" % e)
-						continue
-		# leftover data
-		try:
-			deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
-		except:
-			continue
-
 	
-	t2 = time.time()
-	total1 = t2 - t1
-	total2 = t2 - t0
-	
-	print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))	
-		
-	#  make a gui config file
-	print("Creating Web user interface, please wait ...")	
-	case_control = False
-	if args.control_vcf:
-		case_control = True
-	
-	gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, args.annot, case_control)
+	# append assembly version to dataset name
+	dataset_name += '_' + assembly
 
 	# make sure the destination dataset not exists
 	conn = sqlite3.connect('db.sqlite3')
 	c = conn.cursor()
 	
-	# append assembly version to dataset name
-	# first check if assembly value exists
-	if 'assembly' in vcf_info['contig_dict']:
-		dataset_name += '_' + vcf_info['contig_dict']['assembly']
-	elif reference:
-		dataset_name += '_' + reference
 	
 	query = "DELETE FROM core_dataset WHERE name = '" + dataset_name + "'"
 	try:
@@ -1672,14 +1589,117 @@ if __name__ == '__main__':
 
 	conn.commit()
 	conn.close()
-	
-	make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
-	
-	print("*"*80+"\n")	
-	print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
-	
+
+	if gui_only:
+		gui_mapping = os.path.join("config", type_name + '_gui_config.json')
+		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)	
+	else:
+		case_control = False
+		if control_vcf:
+			case_control = True
+		
+		if not skip_parsing:
+			check_commandline(vcf, control_vcf, annot)
+
+			# read and process vcf header section to get various field names and data types
+			rv = process_vcf_header(vcf)
+
+			
+			if annot == 'vep':
+				vcf_info = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv))
+			elif annot == 'annovar':
+				vcf_info = dict(zip([ 'num_header_lines', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict'], rv))
+
+			if control_vcf:
+				rv2 = process_vcf_header(control_vcf)
+				vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
+				vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
+
+			# read 5000 lines of data to verify data types for each field extracted from vcf header by the above function
+			vcf_info = process_vcf_data(vcf, 5000, vcf_info)
+
+
+			with open(out_vcf_info, 'w') as f:
+				json.dump(vcf_info, f, sort_keys=True, indent=4, ensure_ascii=True)
+
+			# insert pedegree data if ped file is specified
+			if ped:
+				ped_info = process_ped_file(ped)
+				vcf_info['ped_info'] = ped_info
+
+			# determine which work flow to choose, i.e. single cohort or case-control analysis
+			if control_vcf:
+				output_files = process_case_control(vcf, control_vcf, vcf_info)
+			else:
+				output_files = process_single_cohort(vcf, vcf_info)
+
+			t1 = time.time()
+			total = t1-t0
+
+			print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
+
+			
+			create_index_script, mapping_file = make_es_mapping(vcf_info)
+
+		else:
+					
+			for i in range(num_cpus):
+				output_file = os.path.join(tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
+				output_files.append(output_file)
+
+
+		# prepare for elasticsearch 
+		if es.indices.exists(index_name):
+			print("deleting '%s' index..." % index_name)
+			res = es.indices.delete(index = index_name)
+			print("response: '%s'" % res)
+
+		print("creating '%s' index..." % index_name)
+		res = check_output(["bash", create_index_script])
+		print("Response: '%s'" % res.decode('ascii'))
+
+
+		for infile in output_files:
+			print("Indexing file %s" % infile)
+			data = []
+
+			with open(infile, 'r') as fp:
+				for line in fp:
+					tmp = json.loads(line)
+					data.append(tmp)
+					if len(data) % 1000 == 0:
+						try:
+							deque(helpers.parallel_bulk(es, data, thread_count=num_cpus, raise_on_exception=False), maxlen=0)
+							data = []
+						except ValueError as e:
+							print("Failed indexing %s" % e)
+							continue
+			# leftover data
+			try:
+				deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
+			except:
+				continue
+
+		
+		t2 = time.time()
+		total1 = t2 - t1
+		total2 = t2 - t0
+		
+		print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))	
+			
+		#  make a gui config file
+		print("Creating Web user interface, please wait ...")	
+		
+		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control)
+
+		
+		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+		
+		print("*"*80+"\n")	
+		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
+		
 	# clean up
-	if args.cleanup:
+	if cleanup:
 		for infile in output_files:
 			print("Deleting %s..." % infile)
 			os.remove(infile)
