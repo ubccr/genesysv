@@ -789,7 +789,6 @@ class BaseElasticSearchQueryExecutor:
         self.elasticsearch_response = None
 
     def excecute_elasticsearch_query(self):
-        pprint.pprint(self.query_body)
         es = elasticsearch.Elasticsearch(
             host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
         response = es.search(
@@ -800,7 +799,6 @@ class BaseElasticSearchQueryExecutor:
             terminate_after=self.elasticsearch_terminate_after)
 
 
-        pprint.pprint(response)
         self.elasticsearch_response = response
 
     def get_elasticsearch_response(self):
