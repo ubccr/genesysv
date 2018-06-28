@@ -81,11 +81,12 @@ def get_es_document(dataset_obj, document_id):
 
 class ElasticSearchFilter:
 
-    def __init__(self):
+    def __init__(self, inner_hit_size=100):
         self.query_string = {}
         self.size = 400
         self.source = []
         self.inner_hits_source = {}
+        self.inner_hit_size = inner_hit_size
 
         self.filter_term = []
         self.filter_terms = []
@@ -250,6 +251,7 @@ class ElasticSearchFilter:
                     }
                 },
                 "inner_hits": {
+                    "size": self.inner_hit_size,
                     "_source": []
                 }
             }
@@ -787,7 +789,7 @@ class BaseElasticSearchQueryExecutor:
         self.elasticsearch_response = None
 
     def excecute_elasticsearch_query(self):
-
+        pprint.pprint(self.query_body)
         es = elasticsearch.Elasticsearch(
             host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
         response = es.search(
@@ -797,6 +799,8 @@ class BaseElasticSearchQueryExecutor:
             request_timeout=120,
             terminate_after=self.elasticsearch_terminate_after)
 
+
+        pprint.pprint(response)
         self.elasticsearch_response = response
 
     def get_elasticsearch_response(self):
