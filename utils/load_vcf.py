@@ -565,21 +565,21 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						if val2 == '':
 							tmp_dict2[key2] = -999.99
 						else:
-							try:
+							tmp = val2.split('&')
+							if len(tmp) > 1:
+								tmp_dict2[key2] = [float(item) for item in tmp]
+							else:
 								tmp_dict2[key2] = float(val2)
-							except ValueError:
-								try:
-									tmp_dict2[key2] = float(val2.split('&')[0])
-								except ValueError:
-									log.write("casting to float error:  %s, %s\n" % (key2, val2))
-									continue
 					else:
 						if key2 == "AF":
-							if '&' in val2:
-								val2 = val2.split('&') # to deal with situations like "AF, 0.1860&0.0423"
-							elif val2 == '':
-								val2 = -999.99
-							tmp_dict2[key2] = float(val2)
+							if val2 == '':
+								tmp_dict2[key2] = -999.99
+							else:
+								tmp = val2.split('&')
+								if len(tmp) > 1:
+									tmp_dict2[key2] = [float(item) for item in tmp]
+								else:
+									tmp_dict2[key2] = tmp[0]
 						elif key2 == 'SOMATIC':
 							continue
 						elif key2 == 'Existing_variation':
