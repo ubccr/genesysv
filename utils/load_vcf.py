@@ -537,7 +537,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						if val2 == '':
 							csq_dict2_local[key2] = 'NA'
 						else:
-							csq_dict2_local[key2] = val2.split('&')
+							tmp = val2.split('&')
+							if len(tmp) > 1:
+								csq_dict2_local[key2] = tmp
+							else:
+								csq_dict2_local[key2] = tmp[0]
 					else:
 						if val2 == '':
 							csq_dict2_local[key2] = 'NA'
@@ -584,11 +588,17 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								cosmic_ids = [item for item in tmp_variants if item.startswith('COSM')]
 								dbsnp_ids = [item for item in tmp_variants if item.startswith('rs')]
 								if len(cosmic_ids) > 0:
-									result['COSMIC_ID'] = cosmic_ids
+									if len(cosmic_ids) > 1:
+										result['COSMIC_ID'] = cosmic_ids
+									else:
+										result['COSMIC_ID'] = cosmic_ids[0]
 								else:
 									result['COSMIC_ID'] = None
 								if len(dbsnp_ids) > 0:
-									result['dbSNP_ID'] = dbsnp_ids[0] # only keep the first rsID if multiple exist
+									if len(dbsnp_ids) > 1:
+										result['dbSNP_ID'] = dbsnp_ids # use array value
+									else:
+										result['dbSNP_ID'] = dbsnp_ids[0] # use scalar value
 								else:
 									if 'dbSNP_ID' in result and result['dbSNP_ID'] is not None:
 										continue
@@ -601,11 +611,16 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								else:
 									result['dbSNP_ID'] = None
 						elif key2 in ['CLIN_SIG', 'MAX_AF_POPS'] and val2 != '':
-							result[key2] = val2.split('&')
+							tmp = val2.split('&')
+							if len(tmp) > 1:
+								result[key2] = tmp
+							else:
+								result[key2] = tmp[0]
 						else:
 							if val2 == '':
 								result[key2] = 'NA'
 							else:
+								# need to know delimiters used in order to split
 								result[key2] = val2
 
 				del csq_dict2_local['SIFT']
@@ -746,8 +761,16 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				cosmic_id = cosmic_id.split('\\x3d')[1]
 				occurrence = occurrence.split('\\x3d')[1]
 
-			result['COSMIC_ID'] = cosmic_id.split(',')
-			result['COSMIC_Occurrence'] = occurrence.split(',')
+			tmp = cosmic_id.split(',')
+			if len(tmp) > 1:
+				result['COSMIC_ID'] = tmp
+			else:
+				result['COSMIC_ID'] = tmp[0]
+			tmp = occurrence.split(',')
+			if len(tmp) > 1:
+				result['COSMIC_Occurrence'] = tmp
+			else:
+				result['COSMIC_Occurrence'] = tmp[0]
 		else: # other string type
 			if val =='.':
 				val = 'NA'
@@ -872,7 +895,11 @@ def process_line_data(variant_lines, log, f, vcf_info):
 		data_fixed['QUAL'] = float(data_fixed['QUAL'])
 
 		# FIlTER field may contain multiple valuse, so parse them
-		data_fixed['FILTER'] = data_fixed['FILTER'].split(';')
+		tmp = data_fixed['FILTER'].split(';')
+		if len(tmp) > 1:
+			data_fixed['FILTER'] = tmp
+		else:
+			data_fixed['FILTER'] = tmp[0]
 	
 		if data_fixed['ID'] == '.':
 			data_fixed['ID'] = 'NA'
