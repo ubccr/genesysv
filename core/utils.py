@@ -954,7 +954,7 @@ class BaseSearchElasticsearch:
         self.filters_used = None
         self.attributes_selected = None
         self.non_nested_attributes_selected = None
-        self.nested_attributes_selected = None
+        self.nested_attributes_selected = kwargs.get('nested_attributes_selected', None)
         self.search_log_id = None
 
     def run_elasticsearch_dsl(self):
@@ -971,6 +971,7 @@ class BaseSearchElasticsearch:
         self.nested_attributes_selected = elasticsearch_dsl.get_nested_attributes_selected()
 
     def run_elasticsearch_query_executor(self):
+        pprint.pprint(self.nested_attributes_selected)
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
             self.dataset_obj, self.query_body)
         self.elasticsearch_response = elasticsearch_query_executor.get_elasticsearch_response()
@@ -992,6 +993,9 @@ class BaseSearchElasticsearch:
         non_nested_attribute_fields_json = json.dumps(
             self.non_nested_attribute_fields) if self.non_nested_attribute_fields else None
 
+        nested_attributes_selected_json = json.dumps(
+            self.nested_attributes_selected) if self.nested_attributes_selected else None
+
         search_log_obj = core_models.SearchLog.objects.create(
             dataset=self.dataset_obj,
             analysis_type=self.analysis_type_obj,
@@ -1001,7 +1005,7 @@ class BaseSearchElasticsearch:
             non_nested_attribute_fields=non_nested_attribute_fields_json,
             filters_used=self.filters_used,
             attributes_selected=self.attributes_selected,
-
+            nested_attributes_selected=nested_attributes_selected_json
         )
 
         if self.user.is_authenticated:

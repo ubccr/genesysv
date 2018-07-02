@@ -222,6 +222,11 @@ class MendelianDownloadView(BaseSearchView):
         else:
             additional_information = None
 
+        if self.search_log_obj.nested_attributes_selected:
+            nested_attributes_selected = json.loads(self.search_log_obj.nested_attributes_selected)
+        else:
+            nested_attributes_selected = None
+
         kwargs = {
             'user': request.user,
             'dataset_obj': self.search_log_obj.dataset,
@@ -230,6 +235,7 @@ class MendelianDownloadView(BaseSearchView):
             'query_body': json.loads(self.search_log_obj.query),
             'nested_attribute_fields': nested_attribute_fields,
             'non_nested_attribute_fields': non_nested_attribute_fields,
+            'nested_attributes_selected': nested_attributes_selected,
             'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
             'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
             'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
