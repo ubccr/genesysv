@@ -720,21 +720,22 @@ class BaseElasticSearchQueryDSL:
         possible_paths = [
             ele for ele in attributes_paths if ele in filter_paths]
 
+        nested_attributes_selected_copy = copy.deepcopy(self.nested_attributes_selected)
         if self.nested_filters_applied:
             inner_hits_source_fields = copy.deepcopy(
                 self.nested_filters_applied)
             for pp_ele in possible_paths:
                 if pp_ele not in inner_hits_source_fields[pp_ele]:
-                    for ele in self.nested_attributes_selected[pp_ele]:
+                    for ele in nested_attributes_selected_copy[pp_ele]:
                         if ele not in inner_hits_source_fields[pp_ele]:
                             inner_hits_source_fields[pp_ele].extend(
-                                self.nested_attributes_selected[pp_ele])
-                    self.nested_attributes_selected.pop(pp_ele)
+                                nested_attributes_selected_copy[pp_ele])
+                    nested_attributes_selected_copy.pop(pp_ele)
 
         source_fields.extend(self.non_nested_attributes_selected)
 
-        if self.nested_attributes_selected:
-            for nested_attribute_selected_key, nested_attribute_selected_value in self.nested_attributes_selected.items():
+        if nested_attributes_selected_copy:
+            for nested_attribute_selected_key, nested_attribute_selected_value in nested_attributes_selected_copy.items():
                 source_fields.extend(nested_attribute_selected_value)
 
         for field in source_fields:
@@ -798,7 +799,6 @@ class BaseElasticSearchQueryExecutor:
             request_timeout=120,
             terminate_after=self.elasticsearch_terminate_after)
 
-
         self.elasticsearch_response = response
 
     def get_elasticsearch_response(self):
@@ -814,10 +814,11 @@ class BaseElasticsearchResponseParser:
     maximum_table_size = 400
     fields_to_skip_flattening = []
 
-    def __init__(self, elasticsearch_response, non_nested_attribute_fields, nested_attribute_fields):
+    def __init__(self, elasticsearch_response, non_nested_attribute_fields, nested_attribute_fields, nested_attributes_selected):
         self.elasticsearch_response = elasticsearch_response
         self.non_nested_attribute_fields = non_nested_attribute_fields
         self.nested_attribute_fields = nested_attribute_fields
+        self.nested_attributes_selected = nested_attributes_selected
         self.results = []
         self.flattened_results = []
 
@@ -838,12 +839,15 @@ class BaseElasticsearchResponseParser:
         return output
 
     def extract_nested_results_from_elasticsearch_response(self):
+        nested_fields = []
+        for key, val in self.nested_attributes_selected.items():
+            nested_fields.extend([ele.split('.')[1] for ele in val])
+
         hits = self.elasticsearch_response['hits']['hits']
         for hit in hits:
             tmp_source = hit['_source']
             es_id = hit['_id']
             inner_hits = hit.get('inner_hits')
-
             tmp_source['es_id'] = es_id
             if inner_hits:
                 for key, value in inner_hits.items():
@@ -859,7 +863,8 @@ class BaseElasticsearchResponseParser:
                         else:
                             # for Elasticsearch 6
                             for hit_key, hit_value in hit['_source'].items():
-                                tmp_hit_dict[hit_key] = hit_value
+                                if hit_key in nested_fields:
+                                    tmp_hit_dict[hit_key] = hit_value
 
                         if tmp_hit_dict:
                             tmp_source[key].append(tmp_hit_dict)
@@ -927,6 +932,7 @@ class BaseElasticsearchResponseParser:
         else:
             return self.results[:self.maximum_table_size]
 
+
 class BaseSearchElasticsearch:
 
     def __init__(self, *args, **kwargs):
@@ -972,7 +978,7 @@ class BaseSearchElasticsearch:
 
     def run_elasticsearch_response_parser_class(self):
         elasticsearch_response_parser = self.elasticsearch_response_parser_class(
-            self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields)
+            self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields, self.nested_attributes_selected)
         self.results = elasticsearch_response_parser.get_results()
 
     def log_search(self):
@@ -1104,7 +1110,7 @@ class BaseDownloadAllResults:
 
                         if tmp_hit_dict:
                             tmp_source[key].append(tmp_hit_dict)
-            self.results = [tmp_source,]
+            self.results = [tmp_source, ]
 
             if self.flatten_nested:
                 self.flatten_nested_results()
@@ -1158,7 +1164,6 @@ class BaseDownloadAllResults:
                         results_count += 1
 
             self.results = flattened_results
-
 
     def get_results(self):
         self.extract_nested_results_from_elasticsearch_response()
