@@ -74,6 +74,9 @@ ANALYSIS_TYPES = (
     ("autosomal_recessive", "mendelian"),
     ("compound_heterozygous", "mendelian"),
     ("denovo", "mendelian"),
+    ("x_linked_denovo", "mendelian"),
+    ("x_linked_dominant", "mendelian"),
+    ("x_linked_recessive", "mendelian"),
     ("microbiome","microbiome"),
 )
 def add_required_data_to_db():
