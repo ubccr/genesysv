@@ -27,6 +27,7 @@ import sqlite3
 from collections import OrderedDict
 import utils
 import django
+import pickle
 
 absproject_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(absproject_path) #here store is root folder(means parent).
@@ -680,17 +681,18 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	result = OrderedDict()
 	
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
-		for key, val in dict_.items():
+	#	for key, val in dict_.items():
 			#print("Key: %s, Val: %s" % (key, val))	
-			result[key] = val
-		#result.update(dict_)
+	#		result[key] = val
+		result.update(dict_)
 	
-	outputfile = os.path.join("config", type_name + '_gui_config.json')
-	with open(outputfile, 'w') as f:
-		json.dump(result, f, sort_keys=False, indent=4, ensure_ascii=True)
+#	outputfile = os.path.join("config", type_name + '_gui_config.json')
+	#with open(outputfile, 'w') as f:
+	#json.dump(result, f, sort_keys=False, indent=4, ensure_ascii=True)
+#	pickle.dump(result, open(outputfile, 'wb'))
 
-	return(outputfile)
-
+#	return(outputfile)
+	return(result)
 
 def add_required_data_to_db():
     """Setup required models"""
@@ -715,7 +717,7 @@ def get_order_of_import(ele, vcf_gui_mapping_order):
     else:
         return len(vcf_gui_mapping_order)+1
 
-def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapping):
+def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_mapping):
 
         add_required_data_to_db()
 
@@ -738,8 +740,8 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
             for inner_key, inner_value in value['properties'].items():
                 mapping[inner_key] = inner_value
 
-        vcf_gui_mapping = json.load(
-            open(gui_mapping, 'r'), object_pairs_hook=OrderedDict)
+        #vcf_gui_mapping = pickle.load(
+         #   open(gui_mapping, 'rb'))
 
         print("*" * 80 + "\n")
         print('Study Name: %s' % (study))
@@ -761,6 +763,9 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
                                                              es_host=hostname,
                                                              es_port=port,
                                                              is_public=True)
+
+        a = AnalysisType.objects.filter(name__in=['complex', 'autosomal_dominant', 'autosomal_recessive', 'compound_heterozygous', 'denovo', 'x_linked_denovo', 'x_linked_dominant', 'x_linked_recessive'])
+        dataset_obj.analysis_type.add(*a)
 
         SearchOptions.objects.get_or_create(dataset=dataset_obj)
 
