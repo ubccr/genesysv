@@ -131,6 +131,9 @@ ANALYSIS_TYPES = (
     ("autosomal_recessive", "mendelian"),
     ("compound_heterozygous", "mendelian"),
     ("denovo", "mendelian"),
+	("x_linked_dominant", "mendelian"),
+	("x_linked_recessive", "mendelian"),
+	("x_linked_denovo", "mendelian"),
     ("microbiome","microbiome"),
 )
 
@@ -195,8 +198,6 @@ def process_vcf_header(vcf):
 	csq_fields = []
 	col_header = []
 	chr2len = {} 
-	global reference
-	reference = 'NA'
 
 	# compile some patterns
 	p = re.compile(r'^##.*?=<(.*)>$')	
@@ -245,12 +246,6 @@ def process_vcf_header(vcf):
 				else:
 					if contig_:
 						contig_dict[id_.group(1)] = {'length' : contig_.group(1), 'assembly' : contig_.group(2)}
-			# get reference file name
-			m5 = p5.match(line)
-			if m5:
-				reference = m5.group(1)
-				if reference in ['19', '38']:
-					reference = 'hg' + reference
 						
 	if 'CSQ' in info_dict:
 		val = info_dict['CSQ']['Description']
@@ -425,7 +420,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 		for key, val in tmp_dict['csq_dict_global'].items():
 			if key in key_type_dict_csq:
 				vcf_info['csq_dict_global'][key].update(key_type_dict_csq[key])
-	for key, val in tmp_dict['format_dict']:
+	for key, val in tmp_dict['format_dict'].items():
 	 	if key in key_type_dict_format:
 	 		vcf_info['format_dict'][key].update(key_type_dict_format[key])
 
@@ -475,7 +470,10 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 	
 def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 	p = re.compile(r'^(.*?)\((.*)\)') # for parsing SIFT and PolyPhen predition and score
-			
+	tag_fields = [item for item in info_fields if not '=' in item]
+	for tag in tag_fields:
+		result[tag] = 'Yes'	
+
 	tmp = [info for info in info_fields if '=' in info]
 	tmp_dict = {d[0].replace('.', '_'):d[1] for d in [item.split('=') for item in tmp]}
 	for item in excluded_list:
@@ -771,6 +769,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				result['COSMIC_Occurrence'] = tmp
 			else:
 				result['COSMIC_Occurrence'] = tmp[0]
+		elif key == 'VT':
+			result['VariantType'] = val
+
 		else: # other string type
 			if val =='.':
 				val = 'NA'
@@ -1265,6 +1266,8 @@ def make_es_mapping(vcf_info):
 				info_dict2[key]["null_value"] = -999
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
+		elif info_dict2[key]['type'] == 'Flag':
+			info_dict2[key]["null_value"] = 'No'
 		else:
 			if key in ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged'] or re.search(p, key):
  				info_dict2[key]= {'type' : 'keyword'}
@@ -1423,6 +1426,8 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
                                                              es_host=hostname,
                                                              es_port=port,
                                                              is_public=True)
+        a = AnalysisType.objects.filter(name__in=['complex', 'autosomal_domiant', 'autosomal_recessive', 'compound_heterozygous', 'denovo', 'x_linked_denovo', 'x_linked_dominant', 'x_linked_recessive'])
+        dataset_obj.analysis_type.add(*a)
 
         SearchOptions.objects.get_or_create(dataset=dataset_obj)
 
@@ -1597,7 +1602,7 @@ if __name__ == '__main__':
 	out_vcf_info = os.path.join(os.getcwd(),  'config', out_vcf_info)
 	output_files = []
 
-	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=40)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=400)
 	es.cluster.health(wait_for_status='yellow')
 	
 	# append assembly version to dataset name
