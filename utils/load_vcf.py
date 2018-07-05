@@ -22,7 +22,7 @@ import elasticsearch
 from collections import deque
 from elasticsearch import helpers
 import time
-from make_gui import make_gui_config
+from make_gui import make_gui_config, make_gui
 import utils
 import sqlite3
 from utils import *
@@ -1426,7 +1426,7 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, gui_mapp
                                                              es_host=hostname,
                                                              es_port=port,
                                                              is_public=True)
-        a = AnalysisType.objects.filter(name__in=['complex', 'autosomal_domiant', 'autosomal_recessive', 'compound_heterozygous', 'denovo', 'x_linked_denovo', 'x_linked_dominant', 'x_linked_recessive'])
+        a = AnalysisType.objects.filter(name__in=['complex', 'autosomal_dominant', 'autosomal_recessive', 'compound_heterozygous', 'denovo', 'x_linked_denovo', 'x_linked_dominant', 'x_linked_recessive'])
         dataset_obj.analysis_type.add(*a)
 
         SearchOptions.objects.get_or_create(dataset=dataset_obj)
