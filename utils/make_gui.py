@@ -681,17 +681,8 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	result = OrderedDict()
 	
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
-	#	for key, val in dict_.items():
-			#print("Key: %s, Val: %s" % (key, val))	
-	#		result[key] = val
 		result.update(dict_)
 	
-#	outputfile = os.path.join("config", type_name + '_gui_config.json')
-	#with open(outputfile, 'w') as f:
-	#json.dump(result, f, sort_keys=False, indent=4, ensure_ascii=True)
-#	pickle.dump(result, open(outputfile, 'wb'))
-
-#	return(outputfile)
 	return(result)
 
 def add_required_data_to_db():
@@ -739,9 +730,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
         for key, value in popped_nested_fields.items():
             for inner_key, inner_value in value['properties'].items():
                 mapping[inner_key] = inner_value
-
-        #vcf_gui_mapping = pickle.load(
-         #   open(gui_mapping, 'rb'))
 
         print("*" * 80 + "\n")
         print('Study Name: %s' % (study))
@@ -934,15 +922,16 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
 if __name__ == '__main__':
 	hostname= 'localhost'
 	port = 9200
-	
 
-	vcf_info_file = 'config/SIM_WES_Resistant_hg19_multianno_5000_vcf_info.json'
-	mapping_file = 'utils/scripts/sim_case_control_annovar_mapping.json'
-	type_name = 'sim_case_control_annovar_' 
-	annot = 'annovar'
-	case_control = True
+	vcf_info_file = 'config/G1K_ALL_phase3_vep_vcf_info.json'
+	mapping_file = 'utils/scripts/g1k_phase3_all_vep_hg19_mapping.json'
+	index_name = os.path.basename(mapping_file)
+	index_name = re.sub('_mapping.json', '', index_name)
+	type_name = index_name + '_' 
+	annot = 'vep' #annovar'
+	case_control = False #True
 
-	make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
+	gui_mapping = make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=400)
@@ -950,11 +939,8 @@ if __name__ == '__main__':
 	conn = sqlite3.connect('db.sqlite3')
 	c = conn.cursor()
 	
-	index_name = 'g1k_phase3_all_vep'
 	study = 'DEMO'
-	dataset_name = 'g1k_phase3_all_vep_hg19'
-	type_name = 'g1k_phase3_all_vep_'
-	gui_mapping = 'config/g1k_phase3_all_vep__gui_config.json'
+	dataset_name = index_name
 	webserver_port = 8000
 
 	query = "DELETE FROM core_dataset WHERE name = '" + dataset_name + "'"
