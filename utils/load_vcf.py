@@ -97,45 +97,6 @@ if not assembly in ['hg19', 'hg38', 'GRCh37', 'GRCh38']:
 	print("Invalid assembly value. Supported values are 'hg19|hg38|GRCh37|GRCh38'")
 	sys.exit(2)
 	
-FORM_TYPES = ("CharField", "ChoiceField", "MultipleChoiceField")
-
-WIDGET_TYPES = ("TextInput", "Select", "SelectMultiple",
-                "Textarea", "UploadField")
-
-ES_FILTER_TYPES = ("filter_term",
-                   "filter_terms",
-                   "nested_filter_term",
-                   "nested_filter_terms",
-                   "filter_range_gte",
-                   "filter_range_gt",
-                   "filter_range_lte",
-                   "filter_range_lt",
-                   "nested_filter_range_gte",
-                   "nested_filter_range_lte",
-                   "filter_exists",
-                   "must_not_exists",
-                   "nested_filter_exists",
-                   )
-
-APP_NAMES = (
-    "core",
-    "complex",
-    "mendelian",
-    "microbiome",
-)
-
-ANALYSIS_TYPES = (
-    ("base-search", "core"),
-    ("complex","complex"),
-    ("autosomal_dominant", "mendelian"),
-    ("autosomal_recessive", "mendelian"),
-    ("compound_heterozygous", "mendelian"),
-    ("denovo", "mendelian"),
-	("x_linked_dominant", "mendelian"),
-	("x_linked_recessive", "mendelian"),
-	("x_linked_denovo", "mendelian"),
-    ("microbiome","microbiome"),
-)
 
 excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE', 'culprit']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
