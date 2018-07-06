@@ -753,7 +753,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 		sample_data_dict = {}
 		
 		# do not waste time and storage for no GT
-		if sample_data.startswith('.') or sample_data.startswith('./.'):
+		if sample_data.startswith('.|.') or sample_data.startswith('./.') or sample_data.startswith('0|.') or sample_data.startswith('.|0') or sample_data.startswith('0/.'):
 			continue
 		# skip parsing hom_ref GT if no ped file is specified to save time and disk space 
 		if not ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0')):
