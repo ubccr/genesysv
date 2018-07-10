@@ -127,7 +127,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 		functional_consequence_fields = ['Consequence']
 		pathogenicity_score_fields = ["CADD_RAW", "CADD_PHRED", "PolyPhen_score", "SIFT_score"]		
 		pathogenicity_prediction_fields = ["IMPACT", "SIFT_pred", "PolyPhen_pred"]
-		disease_association_fields = ['PUBMED', 'PHENO', 'CLIN_SIG']
+		disease_association_fields = ['COSMIC_ID', 'PUBMED', 'PHENO', 'CLIN_SIG']
 		conservation_fields = []
 		intervar_fields = []
 	elif annot == 'annovar':
@@ -160,7 +160,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 								'MetaSVM_pred', 'MetaLR_pred', 'M-CAP_pred', 'fathmm-MKL_coding_pred', 'EFIN_Swiss_Prot_Prediction']
 		minor_allele_freq_fields = [key for key in mapping if 'gnomAD_' in key or 'ExAC_' in key or '1000g2015aug_' in key or 'esp6500' in key or 'nci60' in key] 
 		
-		disease_association_fields = ['Associated_disease', 'COSMIC_Occurrence', 'ICGC_Id', 'ICGC_Occurrence',  'gwasCatalog', 'Tumor_site', 'CLINSIG', 'CLNDBN', 'CLNDSDBID', 'CLNDSDB', 'CLNACC'] 
+		disease_association_fields = ['Associated_disease', 'COSMIC_Occurrence', 'ICGC_Id', 'ICGC_Occurrence',  'gwasCatalog', 'Tumor_site', 'CLINSIG', 'CLNDBN', 'CLNDSDBID', 'CLNDSDB', 'CLNACC', 'COSMIC_ID', 'snp138NonFlagged'] 
 
 		conservation_fields = ['PhastCons_46V', 'PhyloP_100V', 'PhyloP_46V', 'PhastCons_100V', 'tfbsConsSites',
 								'phyloP100way_vertebrate', 'phyloP100way_vertebrate_rankscore', 
@@ -209,6 +209,12 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 			gui_mapping_var[key]['panel'] = "Variant Related Information"
 			gui_mapping_var[key]['filters'][0]["display_text"] = key
 
+			if key in info_dict and 'Description' in info_dict[key]:
+				tooltip = info_dict[key]['Description']
+			else:
+				tooltip = ""
+			gui_mapping_var[key]['filters'][0]['tooltip'] = tooltip
+
 			if key == 'CHROM':
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
@@ -218,11 +224,11 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
-			elif key == 'VariantType':
+			elif key in ['VariantType', 'SVTYPE']:
 				gui_mapping_var[key]['filters'][0]["form_type"] = "ChoiceField"
 				gui_mapping_var[key]['filters'][0]['widget_type'] = "Select"
 				gui_mapping_var[key]['filters'][0]['values'] = "get_values_from_es()"
-			elif key == 'POS':
+			elif key in ['POS', 'END', 'MLEN', 'MEND', 'MSTART', 'SVLEN', 'CIPOS', 'CIEND']:
 				gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
 				gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_range_gte"
 				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(>=)"
@@ -239,6 +245,22 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
 			elif key == 'ID':
 				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(from original VCF)"
+			elif key in ['EX_TARGET', 'IMPRECISE', 'MULTI_ALLELIC']:	
+				gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_terms"
+				gui_mapping_var[key]['filters'][0]['form_type'] = "ChoiceField"
+				gui_mapping_var[key]['filters'][0]["widget_type"] = "Select"
+				gui_mapping_var[key]['filters'][0]['values'] = "get_values_from_es()"
+			elif key in boolean_fields:
+					gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
+					gui_mapping_var[key]['filters'][0]['display_text'] = key
+					gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
+					gui_mapping_var[key]['filters'][0]['widget_type'] = "UploadField"
+					gui_mapping_var[key]['filters'][0]['form_type'] = "CharField"
+					gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_terms"
+					gui_mapping_var[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+					gui_mapping_var[key]['filters'][1]['widget_type'] = "Select"
+					gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_exists"
+					gui_mapping_var[key]['filters'][1]['form_type'] = "ChoiceField"
 			seen[key] = ''
 			
 	for key in VARIANT_QUALITY_RELATED_FIELDS:
@@ -279,16 +301,16 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				
 			gui_mapping_maf[key] = copy.deepcopy(default_gui_mapping)
 			gui_mapping_maf[key]['filters'][0]['display_text'] = key
-			if mapping[key]['type'] == 'float':
+			if key == "MAX_AF_POPS":
+				gui_mapping_maf[key]['filters'][0]["widget_type"] = "SelectMultiple"
+				gui_mapping_maf[key]['filters'][0]["form_type"] = "MultipleChoiceField"
+				gui_mapping_maf[key]['filters'][0]["values"] = "get_values_from_es()"
+			else:
 				gui_mapping_maf[key]['filters'][0]['form_type'] = "CharField"
 				gui_mapping_maf[key]['filters'][0]['es_filter_type'] = "filter_range_lt"
 				gui_mapping_maf[key]['filters'][0]['in_line_tooltip'] = "(<)"
 				gui_mapping_maf[key]['filters'][0]['tooltip'] = tooltip
 				gui_mapping_maf[key]['filters'][0]['widget_type'] = "TextInput"
-			else:
-				gui_mapping_maf[key]['filters'][0]["widget_type"] = "SelectMultiple"
-				gui_mapping_maf[key]['filters'][0]["form_type"] = "MultipleChoiceField"
-				gui_mapping_maf[key]['filters'][0]["values"] = "get_values_from_es()"
 			
 			if '1000g2015aug_' in key or key in ['MAX_AF', 'AA_AF', 'EA_AF', 'EUR_AF', 'AFR_AF', 'EAS_AF', 'ERR_AF', 'AMR_AF', 'SAS_AF']:
 				gui_mapping_maf[key]['sub_panel'] = '1000 Genomes Project (Aug. 2015)'
@@ -361,30 +383,6 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 						gui_mapping_sample[key]['filters'][0]["tooltip"] = format_dict[key]['Description']
 			seen[key] = ''
 
-	for key in boolean_fields:
-		if key in keys_in_es_mapping:
-			if key in info_dict and 'Description' in info_dict[key]:
-				tooltip = info_dict[key]['Description']
-			else:
-				tooltip = ""
-			gui_mapping_var[key] = copy.deepcopy(default_gui_mapping)
-			gui_mapping_var[key]['filters'].append(copy.deepcopy(gui_mapping_var[key]['filters'][0]))
-			gui_mapping_var[key]['filters'][0]['display_text'] = key
-			gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
-			gui_mapping_var[key]['filters'][0]['widget_type'] = "UploadField"
-			gui_mapping_var[key]['filters'][0]['form_type'] = "CharField"
-			gui_mapping_var[key]['filters'][0]['tooltip'] = tooltip
-			gui_mapping_var[key]['filters'][0]['es_filter_type'] = "filter_terms"
-			gui_mapping_var[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
-			gui_mapping_var[key]['filters'][1]['widget_type'] = "Select"
-			gui_mapping_var[key]['filters'][1]['es_filter_type'] = "filter_exists"
-			gui_mapping_var[key]['filters'][1]['form_type'] = "ChoiceField"
-			
-			if key.startswith("dbSNP"):
-				gui_mapping_var[key]['panel'] = "Variant Related Information"
-			elif key.startswith("COSMIC") or key in ["snp138NonFlagged", "CLINSIG", "CLIN_SIG"]:
-				gui_mapping_var[key]['panel'] = "Disease Associations"
-			seen[key] = ''
 
 	# Annotation specific fields
 	if annot == 'vep':
@@ -477,14 +475,27 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				seen[key] = ''
 		for key in disease_association_fields:
 			if key in keys_in_es_mapping:
-				gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
-				gui_mapping_disease[key]['filters'][0]['display_text'] = key
-				gui_mapping_disease[key]['filters'][0]['form_type'] = "MultipleChoiceField"
-				gui_mapping_disease[key]['filters'][0]["widget_type"] = "SelectMultiple"
-				gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
-				gui_mapping_disease[key]['filters'][0]['values'] = "get_values_from_es()"
-				gui_mapping_disease[key]['panel'] = 'Disease Associations'
-				seen[key] = ''
+					gui_mapping_disease[key] = copy.deepcopy(default_gui_mapping)
+					gui_mapping_disease[key]['panel'] = 'Disease Associations'
+					if key in boolean_fields:
+						gui_mapping_disease[key]['filters'].append(copy.deepcopy(gui_mapping_disease[key]['filters'][0]))
+						gui_mapping_disease[key]['filters'][0]['display_text'] = key
+						gui_mapping_disease[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
+						gui_mapping_disease[key]['filters'][0]['widget_type'] = "UploadField"
+						gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+						gui_mapping_disease[key]['filters'][0]['tooltip'] = tooltip
+						gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+						gui_mapping_disease[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+						gui_mapping_disease[key]['filters'][1]['widget_type'] = "Select"
+						gui_mapping_disease[key]['filters'][1]['es_filter_type'] = "filter_exists"
+						gui_mapping_disease[key]['filters'][1]['form_type'] = "ChoiceField"
+					else:
+						gui_mapping_disease[key]['filters'][0]['display_text'] = key
+						gui_mapping_disease[key]['filters'][0]['form_type'] = "MultipleChoiceField"
+						gui_mapping_disease[key]['filters'][0]["widget_type"] = "SelectMultiple"
+						gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+						gui_mapping_disease[key]['filters'][0]['values'] = "get_values_from_es()"
+					seen[key] = ''
 				
 	elif annot == 'annovar':
 		for key in functional_consequence_fields:
@@ -644,6 +655,18 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 				if key in ['CLNACC', 'ICGC_Id', 'ICGC_Occurrence', 'CLNDBN', 'CLNDSDBID', 'CLNDSDB' ]:
 					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_term"
+				elif key in boolean_fields:
+					gui_mapping_disease[key]['filters'].append(copy.deepcopy(gui_mapping_disease[key]['filters'][0]))
+					gui_mapping_disease[key]['filters'][0]['display_text'] = key
+					gui_mapping_disease[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
+					gui_mapping_disease[key]['filters'][0]['widget_type'] = "UploadField"
+					gui_mapping_disease[key]['filters'][0]['form_type'] = "CharField"
+					gui_mapping_disease[key]['filters'][0]['tooltip'] = tooltip
+					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
+					gui_mapping_disease[key]['filters'][1]['display_text'] = 'Limit Variants to ' + key
+					gui_mapping_disease[key]['filters'][1]['widget_type'] = "Select"
+					gui_mapping_disease[key]['filters'][1]['es_filter_type'] = "filter_exists"
+					gui_mapping_disease[key]['filters'][1]['form_type'] = "ChoiceField"
 				else:
 					gui_mapping_disease[key]['filters'][0]['es_filter_type'] = "filter_terms"
 					gui_mapping_disease[key]['filters'][0]['form_type'] = "ChoiceField"
@@ -682,7 +705,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
 		result.update(dict_)
-	
+
+	with open("test_gui.json", 'w') as fp:
+		json.encoder.c_make_encoder = None	
+		json.dump(result, fp, sort_keys=True, indent=2, ensure_ascii=False)
 	return(result)
 
 def add_required_data_to_db():
@@ -923,9 +949,9 @@ if __name__ == '__main__':
 	hostname= 'localhost'
 	port = 9200
 
-	vcf_info_file = 'config/G1K_ALL_phase3_vep_vcf_info.json'
-	mapping_file = 'utils/scripts/g1k_phase3_all_vep_hg19_mapping.json'
-	index_name = os.path.basename(mapping_file)
+	vcf_info_file = 'config/G1K_ALL_phase3_vep_vcf_info.json' #AshkenazimTrio_VEP_vcf_info.json' #G1K_ALL_phase3_vep_vcf_info.json'
+	mapping_file = 'utils/scripts/g1k_phase3_all_vep_hg19_mapping.json' #AshkenazimTrio_vep_mapping.json' #g1k_phase3_all_vep_hg19_mapping.json'
+	index_name = os.path.basename(mapping_file) #NB: only takes all lower case letters
 	index_name = re.sub('_mapping.json', '', index_name)
 	type_name = index_name + '_' 
 	annot = 'vep' #annovar'
@@ -934,7 +960,7 @@ if __name__ == '__main__':
 	gui_mapping = make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 
 
-	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=400)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=400, read_timeout=400)
 	# make sure the destination dataset not exists
 	conn = sqlite3.connect('db.sqlite3')
 	c = conn.cursor()
