@@ -1227,7 +1227,7 @@ def make_es_mapping(vcf_info):
 				info_dict2[key]["null_value"] = -999
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
-		elif info_dict2[key]['type'] == 'Flag':
+		elif info_dict2[key]['type'] == 'flag':
 			info_dict2[key]["null_value"] = 'No'
 		else:
 			if key in ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged'] or re.search(p, key):
