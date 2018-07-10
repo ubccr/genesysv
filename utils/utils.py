@@ -10,7 +10,7 @@ from collections import Counter, defaultdict, deque
 
 VARIANT_RELATED_FIELDS = ['Variant', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'VariantType', 'cytoBand', 'SVTYPE', 'SVLEN', 'END', 'MLEN', 'TSD', 'IMPRECISE', 'MULTI_ALLELIC', 'MEINFO', 'MSTART', 'MEND', 'EX_TARGET', 'CIPOS', 'CIEND', 'dbSNP_ID']
 VARIANT_QUALITY_RELATED_FIELDS = ['QUAL', 'FILTER', 'DP', 'OND', 'HRun', 'ABHom', 'ABHet', 'ExcessHet', 'RAW_MQ', 'InbreedingCoeff', 'MQRankSum', 'MQ0', 'BaseQRankSum', 'HWP', 'FS', 'FS','ClippingRankSum', 'MQ', 'QD', 'ReadPosRankSum', 'HaplotypeScore', 'VQSLOD', 'SOR']
-SUMMARY_STATISTICS_FIELDS = ['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'DP', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ]
+SUMMARY_STATISTICS_FIELDS = ['AC', 'AF', 'AN', 'MLEAC', 'MLEAF', 'FS', 'GQ_MEAN', 'GQ_STDDEV' ]
 
 def AA_parser(input_string):
     output_array = []

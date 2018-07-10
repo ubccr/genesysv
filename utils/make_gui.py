@@ -173,7 +173,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 	sample_related_fields = ['Sample_ID', 'Phenotype', 'Sex', 'GT', 'PGT', 'PID', 'AD', 'AD_ref', 'AD_alt', 'DP', 'MIN_DP', 'GQ', 'PGQ', 'PL', 'SB', 'group', 'Family_ID', 'Mother_ID', 'Father_ID', 'Mother_Genotype', 'Father_Genotype', 'Mother_Phenotype', 'Father_Phenotype']	
 	boolean_fields = ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged']
 	
-	to_exclude = ['sample', 'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CCC_case', 'CCC_control', 'CSQ', 'END', 'END_case', 'END_control', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
+	to_exclude = ['sample', 'avsnp147', 'Status', 'integrated_confidence_value', 'RGQ', 'MCAP', 'GTEx_V6_tissue', 'GTEx_V6_gene', 'Codon_sub', 'Eigen_coding_or_noncoding', 'OXPHOS_Complex', 'Gene_pos', 'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CCC_case', 'CCC_control', 'CSQ', 'END', 'END_case', 'END_control', 'DB', 'MQ0', 'ANNOVAR_DATE', 'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
 
 	# remove features that are converted to *_case and *_control
 	if case_control is True:
