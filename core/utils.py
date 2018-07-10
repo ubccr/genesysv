@@ -9,6 +9,7 @@ import elasticsearch
 import memcache
 from django.core import serializers
 from natsort import natsorted
+from collections import OrderedDict
 
 from core import models as core_models
 
@@ -842,7 +843,6 @@ class BaseElasticsearchResponseParser:
         nested_fields = []
         for key, val in self.nested_attributes_selected.items():
             nested_fields.extend([ele.split('.')[1] for ele in val])
-
         hits = self.elasticsearch_response['hits']['hits']
         for hit in hits:
             tmp_source = hit['_source']
@@ -851,20 +851,13 @@ class BaseElasticsearchResponseParser:
             tmp_source['es_id'] = es_id
             if inner_hits:
                 for key, value in inner_hits.items():
-                    if key not in tmp_source:
-                        tmp_source[key] = []
+                    tmp_source[key] = []
                     hits_hits_array = inner_hits[key]['hits']['hits']
                     for hit in hits_hits_array:
                         tmp_hit_dict = {}
-                        if hit['_source'].get(key):
-                            # for Elasticsearch 5
-                            for hit_key, hit_value in hit['_source'][key].items():
+                        for hit_key, hit_value in hit['_source'].items():
+                            if hit_key in nested_fields:
                                 tmp_hit_dict[hit_key] = hit_value
-                        else:
-                            # for Elasticsearch 6
-                            for hit_key, hit_value in hit['_source'].items():
-                                if hit_key in nested_fields:
-                                    tmp_hit_dict[hit_key] = hit_value
 
                         if tmp_hit_dict:
                             tmp_source[key].append(tmp_hit_dict)
@@ -876,6 +869,7 @@ class BaseElasticsearchResponseParser:
             flattened_results = []
             results_count = 0
             for idx, result in enumerate(self.results):
+
                 if results_count > self.maximum_table_size:
                     break
                 combined = False
@@ -911,6 +905,8 @@ class BaseElasticsearchResponseParser:
                         for field_to_skip in self.fields_to_skip_flattening:
                             if result.get(field_to_skip):
                                 tmp[field_to_skip] = result[field_to_skip]
+
+
 
                         if tmp not in flattened_results:
                             flattened_results.append(tmp)

@@ -578,7 +578,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     sample_array['nested']['inner_hits'] = {}
                     sample_array['nested']['query']['bool']['filter'].append({'term': {'sample.Sample_ID': child_id}})
                     sample_array['nested']['query']['bool']['must_not'] = [
-                        {"terms": {"sample.GT": ["0/0", "0|0", "0"]}},
+                        {"terms": {"sample.GT": ["0/0", "0|0", "0", " 0/1"]}},
                         {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                         {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
                     ]
@@ -600,7 +600,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                             {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
                                         ],
                                         "must_not": [
-                                            {"terms": {"sample.GT": ["0/0", "0|0", "0"]}}
+                                            {"terms": {"sample.GT": ["0/0", "0|0", "0", " 0/1"]}}
                                         ]
                                     }
                                 }
@@ -1164,6 +1164,10 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         {"terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}})
                     sample_array['nested']['query']['bool']['filter'].append(
                         {"term": {"sample.Sample_ID": family.get('child_id')}})
+                    sample_array['nested']['query']['bool']['filter'].append(
+                        {"term": {"sample.Phenotype": 2}})
+                    sample_array['nested']['query']['bool']['filter'].append(
+                        {"term": {"sample.Family_ID": family_id}})
 
                     if 'must_not' not in sample_array['nested']['query']['bool']:
                         sample_array['nested']['query']['bool']['must_not'] = [
@@ -1190,7 +1194,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         "filter": [
                                             {"terms": {"sample.GT": ["0|1", "1|0", "0/1", "1/0"]}},
                                             {"term": {"sample.Sample_ID": family.get('child_id')}},
-                                            {"term": {"sample.Family_ID": family_id}}
+                                            {"term": {"sample.Family_ID": family_id}},
+                                            {"term": {"sample.Phenotype": 2}}
                                         ],
                                         "must_not": [
                                             {"term": {"sample.Father_Genotype": "NA"}},
