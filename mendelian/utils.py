@@ -71,22 +71,20 @@ def is_autosomal_dominant(sample_information):
     # If only the child is affected (Phenotype == 2):
     #       Then follow the de novo rules.
 
-    # Case Mother (Phenotype == 2)
-    if sample_information.get('Mother_Phenotype') == '2':
-        if sample_information.get('Mother_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
-            return True
-        else:
-            return False
+    if sample_information.get('Phenotype') == '2':
+        # Case Mother (Phenotype == 2)
+        if sample_information.get('Mother_Phenotype') == '2':
+            if sample_information.get('Mother_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
+                return True
+            else:
+                return False
 
-    # Case Father (Phenotype == 2)
-    elif sample_information.get('Father_Phenotype') == '2':
-        if sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
-            return True
-        else:
-            return False
-    elif sample_information.get('Phenotype') == '2':
-        if sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
-            return True
+        # Case Father (Phenotype == 2)
+        elif sample_information.get('Father_Phenotype') == '2':
+            if sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
+                return True
+            else:
+                return False
         else:
             return False
     else:
@@ -97,6 +95,8 @@ def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
 
     looking_for_ids = (father_id, mother_id, child_id)
     mother_gt = father_gt = child_gt = None
+    mother_pt = father_pt = child_pt = None
+
     for ele in sample_array:
 
         sample_id = ele.get('Sample_ID')
@@ -110,17 +110,24 @@ def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
             mother_gt = ele.get('GT')
         elif sample_id == child_id:
             child_gt = ele.get('GT')
+            child_pt = ele.get('Phenotype')
+            father_pt = ele.get('Father_Phenotype')
+            mother_pt = ele.get('Mother_Phenotype')
+            if child_pt == '1' or father_pt == '2' or mother_pt == '2':
+               return None
             if child_gt not in ['1/1', '1|1']:
                 return None
 
     if not all((father_gt, mother_gt, child_gt)):
         return None
-
     if child_gt == 'N/A':
         return None
 
     # Rule
     """
+    affected child_phenotype == 2
+    mother_phenotype == 1
+    father_phenotype == 1
     mother_genotype == '0/1' or '0|1' or '1|0',
     father_genotype == '0/1' or '0|1' or '1|0',
     affected child_genotype == '1/1' or '1|1'.
@@ -135,7 +142,7 @@ def is_denovo(sample_array, father_id, mother_id, child_id):
     looking_for_ids = (father_id, mother_id, child_id)
     mother_gt = father_gt = child_gt = 'N/A'
     for ele in sample_array:
-
+        print(ele)
         sample_id = ele.get('Sample_ID')
 
         if sample_id not in looking_for_ids:
@@ -147,7 +154,10 @@ def is_denovo(sample_array, father_id, mother_id, child_id):
             return None
         elif sample_id == child_id:
             child_gt = ele.get('GT')
-            if child_gt not in ['0/1', '0|1', '0|1']:
+            mother_pt = ele.get('Mother_Phenotype')
+            father_pt = ele.get('Father_Phenotype')
+
+            if child_gt not in ['0/1', '0|1', '0|1'] or mother_pt == '1' or father_pt == '1':
                 None
 
     if child_gt == 'N/A':
@@ -228,6 +238,13 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
         ele_copy = ele.copy()
         ele_copy['_source']['sample'] = [sample_data]
         saved_hits[es_id] = ele_copy
+
+        father_pt = sample_data.get('Father_Phenotype')
+        mother_pt = sample_data.get('Mother_Phenotype')
+
+        sum_digits = sum([int(char) for char in father_pt + mother_pt if char.isdigits()])
+        if sum_digits != 2:
+            continue
 
         father_gt = sample_data.get('Father_Genotype')
         mother_gt = sample_data.get('Mother_Genotype')
@@ -395,7 +412,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                 {"term": {"sample.Sample_ID": child_id}},
                                 {"terms": {"sample.GT": ["1/1", "1|1"]}},
                                 {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                {"term": {"sample.Father_Phenotype": "1"}},
+                                {"term": {"sample.Mother_Phenotype": "1"}}
                             ]
                         }
                     }
@@ -418,8 +437,12 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}})
                 sample_array['nested']['query']['bool']['filter'].append(
                     {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}})
-
+                sample_array['nested']['query']['bool']['filter'].append(
+                    {"term": {"sample.Father_Phenotype": "1"}})
+                sample_array['nested']['query']['bool']['filter'].append(
+                    {"term": {"sample.Mother_Phenotype": "1"}})
                 filter_array_copy.append(sample_array)
+
                 query_body['query']['bool']['filter'] = filter_array_copy
             else:
                 query_body['query']['bool']['filter'].append(
@@ -434,7 +457,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         {"term": {"sample.Sample_ID": child_id}},
                                         {"terms": {"sample.GT": ["1/1", "1|1"]}},
                                         {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                        {"term": {"sample.Father_Phenotype": "1"}},
+                                        {"term": {"sample.Mother_Phenotype": "1"}}
                                     ]
                                 }
                             }
@@ -457,7 +482,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                 {"term": {"sample.Sample_ID": child_id}},
                                 {"term": {"sample.Mother_Genotype": "0/0"}},
                                 {"term": {"sample.Father_Genotype": "0/0"}},
-                                {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
+                                {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
+                                {"term": {"sample.Mother_Phenotype": "1"}},
+                                {"term": {"sample.Father_Phenotype": "1"}}
                             ]
                         }
                     }
@@ -481,6 +508,10 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     {"term": {"sample.Father_Genotype": "0/0"}})
                 sample_array['nested']['query']['bool']['filter'].append(
                     {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}})
+                sample_array['nested']['query']['bool']['filter'].append(
+                    {"term": {"sample.Mother_Phenotype": "1"}})
+                sample_array['nested']['query']['bool']['filter'].append(
+                    {"term": {"sample.Father_Phenotype": "1"}})
 
                 filter_array_copy.append(sample_array)
                 query_body['query']['bool']['filter'] = filter_array_copy
@@ -497,6 +528,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         {"term": {"sample.Sample_ID": child_id}},
                                         {"term": {"sample.Mother_Genotype": "0/0"}},
                                         {"term": {"sample.Father_Genotype": "0/0"}},
+                                        {"term": {"sample.Mother_Phenotype": "1"}},
+                                        {"term": {"sample.Father_Phenotype": "1"}},
                                         {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
                                     ]
                                 }
@@ -556,11 +589,26 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                 "filter": [
                                     {"term": {"sample.Sample_ID": child_id}},
                                     {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                    {"term": {"sample.Mother_Phenotype": "1"}}
                                 ],
                                 "must_not": [
                                     {"terms": {"sample.GT": ["0/0", "0|0", "0"]}}
-                                ]
+                                ],
+                                "should": {
+							        "bool": {
+                                        "must": [
+                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                            {"term": {"sample.Father_Phenotype": "2"}}
+                                        ]
+                                    },
+                                    "bool": {
+                                        "must": [
+                                            {"terms": {"sample.Father_Genotype": ["0/0", "0|0", "0"]}},
+                                            {"term": {"sample.Father_Phenotype": "1"}}
+                                        ]   
+                                    }
+                               },
+                               "minimum_should_match": 1
                             }
                         }
                     }
@@ -578,9 +626,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     sample_array['nested']['inner_hits'] = {}
                     sample_array['nested']['query']['bool']['filter'].append({'term': {'sample.Sample_ID': child_id}})
                     sample_array['nested']['query']['bool']['must_not'] = [
-                        {"terms": {"sample.GT": ["0/0", "0|0", "0", " 0/1"]}},
-                        {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                        {"terms": {"sample.GT": ["0/0", "0|0", "0"]}}
                     ]
 
                     filter_array_copy.append(sample_array)
@@ -597,10 +643,25 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         "filter": [
                                             {"term": {"sample.Sample_ID": child_id}},
                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                            {"term": {"sample.Mother_Phenotype": "1"}}
                                         ],
+                                        "should": {
+							                "bool": {
+                                                "must": [
+                                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                                    {"term": {"sample.Father_Phenotype": "2"}}
+                                                ]
+                                            },
+                                            "bool": {
+                                                 "must": [
+                                                     {"terms": {"sample.Father_Genotype": ["0/0", "0|0", "0"]}},
+                                                     {"term": {"sample.Father_Phenotype": "1"}}
+                                                 ]   
+                                            }
+                                        },
+                                        "minimum_should_match": 1,
                                         "must_not": [
-                                            {"terms": {"sample.GT": ["0/0", "0|0", "0", " 0/1"]}}
+                                            {"terms": {"sample.GT": ["0/0", "0|0", "0"]}}
                                         ]
                                     }
                                 }
@@ -621,7 +682,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     {"term": {"sample.Sample_ID": child_id}},
                                     {"terms": {"sample.GT": ["1/1", "1|1"]}},
                                     {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                    {"term": {"sample.Mother_Phenotype": "1"}},
+                                    {"term": {"sample.Father_Phenotype": "2"}}
                                 ]
                             }
                         }
@@ -642,7 +705,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         {'term': {'sample.Sample_ID': child_id}},
                         {"terms": {"sample.GT": ["1/1", "1|1"]}},
                         {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                        {"term": {"sample.Mother_Phenotype": "1"}},
+                        {"term": {"sample.Father_Phenotype": "2"}}
                     )
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
@@ -659,7 +724,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                             {"term": {"sample.Sample_ID": child_id}},
                                             {"terms": {"sample.GT": ["1/1", "1|1"]}},
                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                            {"term": {"sample.Mother_Phenotype": "1"}},
+                                            {"term": {"sample.Father_Phenotype": "2"}}
                                         ]
                                     }
                                 }
@@ -685,10 +752,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                 "filter": [
                                     {"term": {"sample.Sample_ID": child_id}},
                                     {"terms": {"sample.GT": ["0/1", "0|1", "1|0", "1/1", "1|1", "1"]}},
-                                    {"term": {"sample.Father_Phenotype": "1"}},
                                     {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                                     {"term": {"sample.Mother_Phenotype": "2"}}
-                                ]
+                                ],
+                                "should": {
+                                     "bool": {
+                                         "must": [
+                                                  {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                                  {"term": {"sample.Father_Phenotype": "2"}}
+                                          ]
+                                     },
+                                     "bool": {
+                                         "must": [
+                                                  {"terms": {"sample.Father_Genotype": ["0/0", "0|0"]}},
+                                                  {"term": {"sample.Father_Phenotype": "1"}}
+                                          ]
+                                     }
+                               },
+                               "minimum_should_match": 1
                             }
                         }
                     }
@@ -704,14 +785,34 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
                 if sample_array:
                     sample_array['nested']['inner_hits'] = {}
-                    sample_array['nested']['query']['bool']['filter'].append(
+                    sample_array['nested']['query']['bool']['filter'] = [
                         {'term': {'sample.Sample_ID': child_id}},
                         {"terms": {"sample.GT": ["0/1", "0|1", "1|0", "1/1", "1|1", "1"]}},
-                        {"term": {"sample.Father_Phenotype": "1"}},
                         {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                         {"term": {"sample.Mother_Phenotype": "2"}}
-                    )
+                    ]
 
+                    sample_array['nested']['query']['bool']['minimum_should_match'] = 1
+                    sample_array['nested']['query']['bool']['should'] = [
+                           {                           
+                               "bool": {
+                                   "must": [
+                                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                        {"term": {"sample.Father_Phenotype": "2"}}
+                                   ]
+                              }
+                           }
+                    ]
+                    sample_array['nested']['query']['bool']['should'].append(
+                       {
+                               "bool": {
+                                   "must": [
+                                        {"terms": {"sample.Father_Genotype": ["0/0", "0|0"]}},
+                                        {"term": {"sample.Father_Phenotype": "1"}}
+                                   ]
+                              }
+                       }
+                    )
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
                 else:
@@ -726,10 +827,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         "filter": [
                                             {"term": {"sample.Sample_ID": child_id}},
                                             {"terms": {"sample.GT": ["0/1", "0|1", "1|0", "1/1", "1|1", "1"]}},
-                                            {"term": {"sample.Father_Phenotype": "1"}},
                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                                             {"term": {"sample.Mother_Phenotype": "2"}}
-                                        ]
+                                        ],
+                                        "should": {
+                                             "bool": {
+                                                 "must": [
+                                                     {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                                     {"term": {"sample.Father_Phenotype": "2"}}
+                                                 ]
+                                              },
+                                             "bool": {
+                                                 "must": [
+                                                     {"terms": {"sample.Father_Genotype": ["0/0", "0|0"]}},
+                                                     {"term": {"sample.Father_Phenotype": "1"}}
+                                                 ]
+                                              }
+                                        },
+                                        "minimum_should_match": 1
                                     }
                                 }
                             }
@@ -747,12 +862,36 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             "bool": {
                                 "filter": [
                                     {"term": {"sample.Sample_ID": child_id}},
-                                    {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
-                                    {"term": {"sample.Father_Phenotype": "2"}}
+                                    {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
                                 ],
                                 "should": [
-                                    {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}}
+                                    { "bool": {
+										"must": [
+                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "2"}},
+                                             {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                             {"term" : {"sample.Father_Phenotype": "2"}}
+                                        ]
+                                     }
+                                    },
+                                    { "bool": {
+                                        "must": [
+                                             {"terms": {"sample.Mother_Genotype": ["0/0", "0|0"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "1"}},
+                                             {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                             {"term" : {"sample.Father_Phenotype": "2"}}
+                                        ]
+                                      }
+                                    },
+                                    { "bool": {
+                                        "must": [
+                                             {"terms": {"sample.Mother_Genotype": ["0/1", "1|0", "0|1"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "2"}},
+                                             {"terms": {"sample.Father_Genotype": ["0/0", "0|0", "0"]}},
+                                             {"term" : {"sample.Father_Phenotype": "1"}}
+                                        ]
+                                      }
+                                    }
                                 ],
                                 "minimum_should_match": 1
                             }
@@ -770,16 +909,41 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
                 if sample_array:
                     sample_array['nested']['inner_hits'] = {}
-                    sample_array['nested']['query']['bool']['filter'].append(
+                    sample_array['nested']['query']['bool']['filter'] = [
                         {"term": {"sample.Sample_ID": child_id}},
-                        {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
-                        {"term": {"sample.Father_Phenotype": "2"}}
-                    )
+                        {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
+                    ]
                     sample_array['nested']['query']['bool']['minimum_should_match'] = 1
+                    sample_array['nested']['query']['bool']['should'] = [
+                        { "bool": {
+                                   "must": [
+                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "2"}},
+                                             {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                             {"term" : {"sample.Father_Phenotype": "2"}}
+                                           ]
+                                  }
+                        }
+                    ]
                     sample_array['nested']['query']['bool']['should'].append(
-                        {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}}
-                    )
+                        { "bool": {
+                                   "must": [
+                                             {"terms": {"sample.Mother_Genotype": ["0/0", "0|0"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "1"}},
+                                             {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                             {"term" : {"sample.Father_Phenotype": "2"}}
+                                  ]}
+                        })
+                    sample_array['nested']['query']['bool']['should'].append(
+                        { "bool": {
+                                   "must": [
+                                             {"terms": {"sample.Father_Genotype": ["0/0", "0|0"]}},
+                                             {"term" : {"sample.Father_Phenotype": "1"}},
+                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                             {"term" : {"sample.Mother_Phenotype": "2"}}
+                                  ]}
+                        })
+                    
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
                 else:
@@ -793,12 +957,36 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     "bool": {
                                         "filter": [
                                             {"term": {"sample.Sample_ID": child_id}},
-                                            {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
-                                            {"term": {"sample.Father_Phenotype": "2"}}
+                                            {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
                                         ],
                                         "should": [
-                                            {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
-                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}}
+                                         { "bool": {
+										       "must": [
+                                                  {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                                  {"term" : {"sample.Mother_Phenotype": "2"}},
+                                                  {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
+                                                  {"term" : {"sample.Father_Phenotype": "2"}}
+                                                ]
+                                           }
+                                         },
+                                         { "bool": {
+                                            "must": [
+                                                 {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                                 {"term" : {"sample.Mother_Phenotype": "2"}},
+                                                 {"terms": {"sample.Father_Genotype": ["0/0", "0|0", "0"]}},
+                                                 {"term" : {"sample.Father_Phenotype": "1"}}
+                                            ]
+                                           }
+                                         },
+                                         { "bool": {
+                                            "must": [
+                                                 {"terms": {"sample.Mother_Genotype": ["0/0", "0|0", "0"]}},
+                                                 {"term" : {"sample.Mother_Phenotype": "1"}},
+                                                 {"terms": {"sample.Father_Genotype": ["0/1", "1|0", "0|1"]}},
+                                                 {"term" : {"sample.Father_Phenotype": "2"}}
+                                            ]
+                                           }
+                                         }
                                         ],
                                         "minimum_should_match": 1
                                     }
@@ -806,7 +994,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             }
                         }
                     )
-
+        print(query_body)
         return query_body
 
     def add_x_linked_denovo_query_string(self, child_id, child_sex):
