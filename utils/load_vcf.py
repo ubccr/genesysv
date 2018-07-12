@@ -471,14 +471,14 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						else: # empty value or only pred or score are included in vep annotation	
 							if val2 =='':
 								tmp_dict[key2 + '_pred'] = 'NA'
-								tmp_dict[key2 + '_score'] = -999
+								tmp_dict[key2 + '_score'] = -999.99
 							else:
 								try:
 									x = float(val2)
 									tmp_dict[key2 + '_score'] = x
 									tmp_dict[key2 + '_pred'] = 'NA'
 								except ValueError:
-									tmp_dict[key2 + '_score'] = -999
+									tmp_dict[key2 + '_score'] = -999.99
 									tmp_dict[key2 + '_pred'] = val2
 									log.write("Value error: %s, %s\n" % (key2, val2))
 								continue
@@ -1228,6 +1228,7 @@ def make_es_mapping(vcf_info):
 		elif info_dict2[key]['type'] == 'float':
 			info_dict2[key]["null_value"] = -999.99
 		elif info_dict2[key]['type'] == 'flag':
+			info_dict2[key]['type'] = 'keyword'
 			info_dict2[key]["null_value"] = 'No'
 		else:
 			if key in ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged'] or re.search(p, key):
