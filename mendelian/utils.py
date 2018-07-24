@@ -400,7 +400,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
     def add_autosomal_recessive_query_string(self, child_id):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
-            query_body['query'] = {
+            query_body['query'] = {'bool': {'filter': []}}
+            query_body['query']['bool']['filter'].append({
                 "nested": {
                     "inner_hits": {"size": 100, },
                     "path": "sample",
@@ -418,7 +419,33 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 }
-            }
+            })
+            query_body['query']['bool']['filter'].append({
+                "nested": {
+                    "inner_hits": {"size": 100, },
+                    "path": "CSQ_nested",
+                    "score_mode": "none",
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                    {"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    }
+                            ]
+                        }
+                    }
+                }
+            })
+
+
         elif query_body['query']['bool']['filter']:
             filter_array = query_body['query']['bool']['filter']
             filter_array_copy = copy.deepcopy(filter_array)
@@ -428,6 +455,14 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     filter_array_copy.remove(ele)
                     sample_array = ele
 
+            CSQ_nested_array = None
+            for ele in filter_array:
+                if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                    filter_array_copy.remove(ele)
+                    CSQ_nested_array = ele
+
+
+            query_body['query']['bool']['filter'] = []
             if sample_array:
                 sample_array['nested']['inner_hits'] = {}
                 sample_array['nested']['query']['bool']['filter'].append({'term': {'sample.Sample_ID': child_id}})
@@ -443,7 +478,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 filter_array_copy.append(sample_array)
 
                 query_body['query']['bool']['filter'] = filter_array_copy
-            else:
+
+            if CSQ_nested_array:
+                CSQ_nested_array['nested']['inner_hits'] = {}
+                CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    })
+                filter_array_copy.append(CSQ_nested_array)
+                query_body['query']['bool']['filter'] = filter_array_copy
+
+            if not sample_array:
                 query_body['query']['bool']['filter'].append(
                     {
                         "nested": {
@@ -465,6 +517,38 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 )
+
+            if not CSQ_nested_array:
+                query_body['query']['bool']['filter'].append(
+                    {
+                        "nested": {
+                            "inner_hits": {"size": 100, },
+                            "path": "CSQ_nested",
+                            "score_mode": "none",
+                            "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                )
+
+
+
+
         return query_body
 
     def add_denovo_query_string(self, child_id):
@@ -1192,6 +1276,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             elif self.mendelian_analysis_type == 'x_linked_denovo':
                 query_body = self.add_x_linked_denovo_query_string(family.get('child_id'), family.get('child_sex'))
 
+
+            pprint.pprint(query_body)
             es = elasticsearch.Elasticsearch(
                 host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
 

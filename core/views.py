@@ -383,6 +383,8 @@ class BaseSearchView(TemplateView):
                 gene_mania_link = '<a target="_blank" href="http://genemania.org/#/search/9606/%s"><i class="fa fa-external-link-square fa-1x" aria-hidden="true"></i> GeneMANIA</a>' %('|'.join(genes))
             else:
                 gene_mania_link = None
+        else:
+            gene_mania_link = None
 
 
 
