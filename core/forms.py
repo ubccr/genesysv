@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 
 from core.models import (Dataset, FilterField, FilterFieldChoice, SavedSearch,
-                         Study)
+                         Study, DocumentReview)
 
 EXIST_CHOICES = [('', '----'), ("only", "only"), ("excluded", "excluded")]
 
@@ -232,3 +232,10 @@ class SaveSearchForm(forms.ModelForm):
             'attributes_selected': forms.HiddenInput(attrs={'readonly': 'readonly', 'required': True}),
             'description': forms.Textarea(attrs={'autofocus': 'autofocus', 'required': True}),
         }
+
+
+class DocumentReviewForm(forms.ModelForm):
+
+    class Meta:
+        model = DocumentReview
+        fields = ['status',]

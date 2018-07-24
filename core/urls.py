@@ -20,4 +20,6 @@ urlpatterns = (
     path('saved-search-list/', core_views.SavedSearchListView.as_view(), name='saved-search-list'),
     path('retrieve-saved-search/<int:saved_search_id>', core_views.RetrieveSavedSearchView.as_view(), name='retrieve-saved-search'),
     path('core-document-view/<int:dataset_id>/<document_id>/', core_views.BaseDocumentView.as_view(), name='core-document-view'),
+    path('core-document-review-create/<int:dataset_id>/<document_id>/create', core_views.DocumentReviewCreateView.as_view(), name='core-document-review-create'),
+    path('core-document-review-update/<int:dataset_id>/<document_id>/update', core_views.DocumentReviewUpdateView.as_view(), name='core-document-review-update'),
 )

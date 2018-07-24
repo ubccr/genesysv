@@ -4,6 +4,7 @@ from collections import deque
 from datetime import datetime
 from pprint import pprint
 
+from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -14,18 +15,23 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
+from django.views.generic.edit import FormView
+
 
 from common.utils import Echo
 from core.apps import CoreConfig
 from core.forms import (AnalysisTypeForm, AttributeForm, AttributeFormPart,
                         DatasetForm, FilterForm, FilterFormPart,
-                        SaveSearchForm, StudyForm)
+                        SaveSearchForm, StudyForm, DocumentReviewForm)
 from core.models import (AnalysisType, AttributeTab, Dataset, FilterTab,
-                         SavedSearch, SearchLog, Study)
+                         SavedSearch, SearchLog, Study, DocumentReview)
 from core.utils import (BaseDownloadAllResults, BaseElasticSearchQueryDSL,
                         BaseElasticSearchQueryExecutor,
                         BaseElasticsearchResponseParser,
-                        BaseSearchElasticsearch, get_es_document)
+                        BaseSearchElasticsearch, get_es_document, get_user_group_for_reviewing)
+from django.urls import reverse
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 
 class MainPageView(TemplateView):
@@ -243,6 +249,7 @@ class DownloadRouterView(View):
 
         return return_view().get(request, **{'search_log_id': search_log_id})
 
+
 class AdditionalFormRouterView(View):
 
     def get(self, request, *args, **kwargs):
@@ -271,6 +278,7 @@ class BaseSearchView(TemplateView):
     elasticsearch_query_executor_class = BaseElasticSearchQueryExecutor
     elasticsearch_response_parser_class = BaseElasticsearchResponseParser
     search_elasticsearch_class = BaseSearchElasticsearch
+    exclude_rejected_documents = None
 
     def validate_request_data(self, request, POST_data):
 
@@ -285,7 +293,7 @@ class BaseSearchView(TemplateView):
         # Get Attribute Order
         try:
             self.attribute_order = json.loads(request.POST['attribute_order'])
-        except:
+        except KeyError:
             raise ValidationError('Invalid attribute!')
 
         # Validate Dataset
@@ -294,6 +302,7 @@ class BaseSearchView(TemplateView):
             dataset_id = dataset_form.cleaned_data['dataset']
         else:
             raise ValidationError('Invalid dataset!')
+
         self.dataset_obj = Dataset.objects.prefetch_related(
             'attributefield_set').get(id=dataset_id)
 
@@ -321,7 +330,10 @@ class BaseSearchView(TemplateView):
         else:
             raise ValidationError('Invalid Attribute Form!')
 
+        self.exclude_rejected_documents = POST_data.get('exclude_rejected_documents')
+
     def get_kwargs(self, request):
+
         kwargs = {
             'user': request.user,
             'dataset_obj': self.dataset_obj,
@@ -332,6 +344,8 @@ class BaseSearchView(TemplateView):
             'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
             'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
             'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
+            'exclude_rejected_documents': self.exclude_rejected_documents,
+
         }
 
         return kwargs
@@ -341,10 +355,10 @@ class BaseSearchView(TemplateView):
 
         # Get all FORM POST Data
         POST_data = QueryDict(request.POST['form_data'])
+
         self.validate_request_data(request, POST_data)
 
         kwargs = self.get_kwargs(request)
-
         search_elasticsearch_obj = self.search_elasticsearch_class(**kwargs)
         search_elasticsearch_obj.search()
         header = search_elasticsearch_obj.get_header()
@@ -353,6 +367,24 @@ class BaseSearchView(TemplateView):
         search_log_id = search_elasticsearch_obj.get_search_log_id()
         filters_used = search_elasticsearch_obj.get_filters_used()
         attributes_selected = search_elasticsearch_obj.get_attributes_selected()
+
+
+        keys = results[0].keys()
+
+        if 'SYMBOL' in keys:
+            genes = []
+            for result in results:
+                symbol = result.get('SYMBOL')
+                if symbol == 'NA':
+                    continue
+                genes.append(result.get('SYMBOL'))
+            genes = sorted(list(set(genes)))
+            if genes:
+                gene_mania_link = '<a target="_blank" href="http://genemania.org/#/search/9606/%s"><i class="fa fa-external-link-square fa-1x" aria-hidden="true"></i> GeneMANIA</a>' %('|'.join(genes))
+            else:
+                gene_mania_link = None
+
+
 
         if request.user.is_authenticated:
             save_search_form = SaveSearchForm(request.user,
@@ -370,6 +402,14 @@ class BaseSearchView(TemplateView):
             context = self.get_context_data(**kwargs)
         else:
             context = {}
+
+        if self.exclude_rejected_documents == 'true':
+            exclude_rejected_documents_checkbox_status = "checked"
+        else:
+            exclude_rejected_documents_checkbox_status = ""
+
+        context['exclude_rejected_documents_checkbox_status'] = exclude_rejected_documents_checkbox_status
+        context['gene_mania_link'] = gene_mania_link
         context['header'] = header
         context['results'] = results
         context['total_time'] = int((datetime.now() - self.start_time).total_seconds() * 1000)
@@ -420,12 +460,12 @@ def save_search(request):
                 attributes_selected = data.get('attributes_selected')
                 description = data.get('description')
                 SavedSearch.objects.create(user=user,
-                                            dataset=dataset,
-                                            analysis_type=analysis_type,
-                                            additional_information=additional_information,
-                                            filters_used=filters_used,
-                                            attributes_selected=attributes_selected,
-                                            description=description)
+                                           dataset=dataset,
+                                           analysis_type=analysis_type,
+                                           additional_information=additional_information,
+                                           filters_used=filters_used,
+                                           attributes_selected=attributes_selected,
+                                           description=description)
                 return redirect('saved-search-list')
             else:
                 print('form invalid')
@@ -471,6 +511,7 @@ class RetrieveSavedSearchView(TemplateView):
         return context
 
 
+
 class BaseDocumentView(TemplateView):
     template_name = "core/document.html"
 
@@ -478,7 +519,122 @@ class BaseDocumentView(TemplateView):
         context = super().get_context_data(**kwargs)
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
         document_id = self.kwargs.get('document_id')
+        group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
+
+        if error_message:
+            messages.error(self.request, error_message)
+            document_review = None
+        else:
+            if DocumentReview.objects.filter(document_es_id=document_id, group=group_obj).exists():
+                document_review = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
+            else:
+                document_review = None
+
+        result = get_es_document(dataset_obj, document_id)
+        fields_to_skip = ['Variant', 'CHROM', 'POS', 'REF', 'ALT', 'VariantType', 'FILTER', 'QUAL', 'ID', 'sample']
+        context['document_review'] = document_review
+        context['document_id'] = document_id
+        context['dataset_id'] = dataset_obj.id
+        context['result'] = result
+        context['fields_to_skip'] = fields_to_skip
+        return context
+
+
+class DocumentReviewCreateView(FormView):
+    template_name = 'core/document_review_create.html'
+    form_class = DocumentReviewForm
+
+    def dispatch(self, request, *args, **kwargs):
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        group_obj, error_message = get_user_group_for_reviewing(dataset_obj, request.user)
+
+        if not error_message:
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            messages.error(request, error_message)
+            return HttpResponseRedirect(reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id}))
+
+    def get_success_url(self):
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id})
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
+        if DocumentReview.objects.filter(document_es_id=document_id, group=group_obj).exists():
+            document_review_obj = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
+            if data.get('status') == document_review_obj.status:
+                return super().form_valid(form)
+            if data.get('status') == 'Delete':
+                document_review_obj.delete()
+                return super().form_valid(form)
+            if data.get('status') != document_review_obj.status:
+                document_review_obj.status = data.get('status')
+                document_review_obj.save()
+                return super().form_valid(form)
+        else:
+            document_review_obj = DocumentReview.objects.create(
+                group=group_obj,
+                dataset=dataset_obj, document_es_id=document_id, status=data.get('status'))
+            return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
         result = get_es_document(dataset_obj, document_id)
         context['result'] = result
+        context['document_id'] = document_id
+        context['dataset_id'] = dataset_obj.id
+        return context
 
+
+class DocumentReviewUpdateView(FormView):
+    template_name = 'core/document_review_update.html'
+    form_class = DocumentReviewForm
+
+    def dispatch(self, request, *args, **kwargs):
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        group_obj, error_message = get_user_group_for_reviewing(dataset_obj, request.user)
+
+        if not error_message:
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            messages.error(request, error_message)
+            return HttpResponseRedirect(reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id}))
+
+    def get_success_url(self):
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id})
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
+        document_review_obj = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
+        if data.get('status') == document_review_obj.status:
+            return super().form_valid(form)
+        if data.get('status') == 'Delete':
+            document_review_obj.delete()
+            return super().form_valid(form)
+        if data.get('status') != document_review_obj.status:
+            document_review_obj.status = data.get('status')
+            document_review_obj.save()
+            return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
+        document_id = self.kwargs.get('document_id')
+        result = get_es_document(dataset_obj, document_id)
+        context['result'] = result
+        context['document_id'] = document_id
+        context['dataset_id'] = dataset_obj.id
         return context

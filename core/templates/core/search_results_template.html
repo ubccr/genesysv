@@ -5,6 +5,9 @@
 
 {% block well %}
 <div class="well">
+  {% if user.is_authenticated %}
+    <label class="checkbox-inline"><input id="exclude_rejected_documents_checkbox" type="checkbox" value="" {{exclude_rejected_documents_checkbox_status}}>Exclude Rejected Variants</label>
+  {% endif %}
   <div class="pull-right">
     {% if user.is_authenticated %}
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveResultsModal"><i class="fa fa-star" aria-hidden="true"></i> Save Search Results</button>
@@ -46,8 +49,11 @@
       Total Time: <strong>{{total_time}} ms</strong> {% if elasticsearch_response_time %}
       <br> Elasticsearch Took: <strong>{{elasticsearch_response_time}} ms</strong> {% endif %}
     </div>
+    {{gene_mania_link|safe}}
   </div>
 </div>
+
+
 <!-- Modal -->
 <div class="modal fade" id="saveResultsModal" tabindex="-1" role="dialog" aria-labelledby="saveResultsModalLabel">
   <div class="modal-dialog" role="document">
@@ -75,6 +81,12 @@ $(document).ready(function() {
     "bSortClasses": false
   });
 
+
 });
+
+  $("#exclude_rejected_documents_checkbox").click(function() {
+    $("#exclude_rejected_documents_input").val($(this).prop('checked'));
+    submit_via_ajax();
+  });
 </script>
 {% endblock %}

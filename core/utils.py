@@ -10,6 +10,7 @@ import memcache
 from django.core import serializers
 from natsort import natsorted
 from collections import OrderedDict
+from django.contrib.auth.models import Group
 
 from core import models as core_models
 
@@ -78,6 +79,39 @@ def get_es_document(dataset_obj, document_id):
     es = elasticsearch.Elasticsearch(host=dataset_obj.es_host)
     result = es.get(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, id=document_id)
     return result["_source"]
+
+
+def get_user_group_for_reviewing(dataset_obj, user_obj):
+    """
+    Cases:
+        1) Dataset has no group -- Do not allow reviewing
+        2) User has no group -- Do not allow reviewing
+        3) User does not have access to dataset -- Do not allow reviewing; send message in request
+        4) User has access to dataset via multiple groups -- Do not allow reviewing; send message in request
+    """
+
+    if not dataset_obj.allowed_groups.all().exists():
+        return (None, 'Dataset has no associated group. Dataset must have allowed groups to review variant.')
+
+    if not user_obj.groups.all().exists():
+        return (None, 'User has no associated group. User must belong to group for variant review.')
+
+    group_names = []
+    dataset_groups = list(dataset_obj.allowed_groups.all().values_list('name', flat=True))
+    for group in list(user_obj.groups.all().values_list('name', flat=True)):
+        if group in dataset_groups:
+            group_names.append(group)
+
+    if len(group_names) > 1:
+        return (None, 'User has access to this dataset though multiple group associations. User must belong to only one group with association to a dataset.')
+
+    if len(group_names) == 0:
+        return (None, 'User cannot access this dataset.')
+
+    if len(group_names) == 1:
+        group_obj = Group.objects.get(name=group_names[0])
+        return (group_obj, None)
+
 
 
 class ElasticSearchFilter:
@@ -952,6 +986,7 @@ class BaseSearchElasticsearch:
         self.non_nested_attributes_selected = None
         self.nested_attributes_selected = kwargs.get('nested_attributes_selected', None)
         self.search_log_id = None
+        self.exclude_rejected_documents = kwargs.get('exclude_rejected_documents')
 
     def run_elasticsearch_dsl(self):
         elasticsearch_dsl = self.elasticsearch_dsl_class(
@@ -977,6 +1012,21 @@ class BaseSearchElasticsearch:
             self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields, self.nested_attributes_selected)
         self.results = elasticsearch_response_parser.get_results()
 
+    def run_exclude_rejected_documents(self):
+        if self.user.is_authenticated and self.exclude_rejected_documents == 'true':
+            group_obj, message = get_user_group_for_reviewing(self.dataset_obj, self.user)
+            tmp_results = []
+            if group_obj:
+                for result in self.results:
+                    if core_models.DocumentReview.objects.filter(document_es_id=result.get('es_id'), group=group_obj).exists():
+                        document_review_obj = core_models.DocumentReview.objects.get(document_es_id=result.get('es_id'), group=group_obj)
+                        if document_review_obj.status != 'Rejected':
+                            tmp_results.append(result)
+                    else:
+                        tmp_results.append(result)
+
+            self.results = tmp_results
+
     def log_search(self):
 
         # convert to json
@@ -991,6 +1041,11 @@ class BaseSearchElasticsearch:
         nested_attributes_selected_json = json.dumps(
             self.nested_attributes_selected) if self.nested_attributes_selected else None
 
+        if self.exclude_rejected_documents == 'true':
+            exclude_rejected_documents = True
+        else:
+            exclude_rejected_documents = False
+
         search_log_obj = core_models.SearchLog.objects.create(
             dataset=self.dataset_obj,
             analysis_type=self.analysis_type_obj,
@@ -1000,7 +1055,8 @@ class BaseSearchElasticsearch:
             non_nested_attribute_fields=non_nested_attribute_fields_json,
             filters_used=self.filters_used,
             attributes_selected=self.attributes_selected,
-            nested_attributes_selected=nested_attributes_selected_json
+            nested_attributes_selected=nested_attributes_selected_json,
+            exclude_rejected_documents=exclude_rejected_documents
         )
 
         if self.user.is_authenticated:
@@ -1013,6 +1069,7 @@ class BaseSearchElasticsearch:
         self.run_elasticsearch_dsl()
         self.run_elasticsearch_query_executor()
         self.run_elasticsearch_response_parser_class()
+        self.run_exclude_rejected_documents()
         self.log_search()
 
     def get_header(self):
@@ -1080,6 +1137,7 @@ class BaseDownloadAllResults:
 
     def yield_rows(self):
 
+
         header_keys = [ele.display_text for ele in self.header]
         yield header_keys
 
@@ -1094,6 +1152,15 @@ class BaseDownloadAllResults:
                                               doc_type=self.search_log_obj.dataset.es_type_name):
             tmp_source = hit['_source']
             es_id = hit['_id']
+
+            if self.search_log_obj.user.is_authenticated and self.search_log_obj.exclude_rejected_documents:
+                group_obj, message = get_user_group_for_reviewing(self.search_log_obj.dataset, self.search_log_obj.user)
+                if core_models.DocumentReview.objects.filter(document_es_id=es_id, group=group_obj).exists():
+                    document_review_obj = core_models.DocumentReview.objects.get(document_es_id=es_id, group=group_obj)
+                    if document_review_obj.status == 'Rejected':
+                        continue
+
+
             inner_hits = hit.get('inner_hits')
 
             tmp_source['es_id'] = es_id
@@ -1163,6 +1230,8 @@ class BaseDownloadAllResults:
                         results_count += 1
 
             self.results = flattened_results
+
+
 
     def get_results(self):
         self.extract_nested_results_from_elasticsearch_response()
