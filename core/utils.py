@@ -940,8 +940,6 @@ class BaseElasticsearchResponseParser:
                             if result.get(field_to_skip):
                                 tmp[field_to_skip] = result[field_to_skip]
 
-
-
                         if tmp not in flattened_results:
                             flattened_results.append(tmp)
                             results_count += 1
@@ -1032,6 +1030,8 @@ class BaseSearchElasticsearch:
         # convert to json
         header_json = serializers.serialize("json", self.header)
         query_body_json = json.dumps(self.query_body)
+
+        pprint.pprint(self.query_body)
 
         nested_attribute_fields_json = json.dumps(
             self.nested_attribute_fields) if self.nested_attribute_fields else None
