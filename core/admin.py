@@ -37,7 +37,7 @@ class StudyAdmin(admin.ModelAdmin):
 @admin.register(Dataset)
 class DatasetAdmin(admin.ModelAdmin):
     list_display = ('name',)
-    filter_horizontal = ('analysis_type',)
+    filter_horizontal = ('analysis_type', 'allowed_groups')
 
 
 @admin.register(FilterTab)
@@ -182,3 +182,9 @@ class SearchOptionsAdmin(admin.ModelAdmin):
 class SavedSearchAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'dataset', 'analysis_type', 'additional_information', 'filters_used',
                     'attributes_selected', 'description')
+
+
+
+@admin.register(DocumentReview)
+class DocumentReviewAdmin(admin.ModelAdmin):
+    pass

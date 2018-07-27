@@ -290,15 +290,13 @@ class AttributeTab(TimeStampedModel):
 
 
 REVIEW_STATUS_CHOICES = (
-    ('approved', 'Approved'),
-    ('rejected', 'Rejected'),
-    ('pending', 'Pending'),
-    ('not_reviewed', 'Not Reviewed'),
+    ('Approved', 'Approved'),
+    ('Rejected', 'Rejected'),
+    ('Delete', 'Delete Status'),
 )
 
 
-class DocumentReviewStatus(TimeStampedModel):
-
+class DocumentReview(TimeStampedModel):
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
@@ -308,15 +306,16 @@ class DocumentReviewStatus(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     document_es_id = models.CharField(max_length=64)
+    description = models.CharField(max_length=64, blank=True, null=True)
     status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
 
     def __str__(self):
         return self.document_es_id
 
 
-class DocumentReviewStatusHistory(models.Model):
+class DocumentReviewHistory(TimeStampedModel):
     document_review_status = models.ForeignKey(
-        'DocumentReviewStatus',
+        'DocumentReview',
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
@@ -324,7 +323,6 @@ class DocumentReviewStatusHistory(models.Model):
         on_delete=models.CASCADE,
     )
     status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
-    modified = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = 'Document review status history'
@@ -353,6 +351,7 @@ class SearchLog(TimeStampedModel):
     nested_attributes_selected = models.TextField(null=True, blank=True)
     non_nested_attributes_selected = models.TextField()
     additional_information = models.TextField(null=True, blank=True)
+    exclude_rejected_documents = models.BooleanField(default=False)
 
     def __str__(self):
         return self.query

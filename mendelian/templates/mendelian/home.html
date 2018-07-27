@@ -64,6 +64,7 @@
     <div id="input_div">
         <form id="searchForm" role="form" method="POST" action="">
             {% csrf_token %}
+            <input id="exclude_rejected_documents_input" type="hidden" name="exclude_rejected_documents" value="false">
             <div class="col-md-8">
                 <div class="panel panel-primary">
                     <div class="panel-body">

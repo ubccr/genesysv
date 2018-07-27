@@ -1,0 +1,79 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load crispy_forms_tags %} 
+{% load common_tags %}
+{% block title %} 
+Create Document Review
+{% endblock %} 
+
+{% block content %}
+
+<h1>Updating Variant Review</h1>
+<div class="panel panel-primary">
+  <div class="panel-heading">General Information</div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table table-condensed">
+        <tbody>
+          <tr>
+            <td><strong>Dataset</strong></td>
+            <td>{{ result.Variant }}</td>
+          </tr>
+          <tr>
+            <td><strong>Variant</strong></td>
+            <td>{{ result.Variant }}</td>
+          </tr>
+          <tr>
+            <td><strong>CHROM</strong></td>
+            <td>{{ result.CHROM }}</td>
+          </tr>
+          <tr>
+            <td><strong>POS</strong></td>
+            <td>{{ result.POS }}</td>
+          </tr>
+          <tr>
+            <td><strong>REF</strong></td>
+            <td>{{ result.REF }}</td>
+          </tr>
+          <tr>
+            <td><strong>ALT</strong></td>
+            <td>{{ result.ALT }}</td>
+          </tr>
+          <tr>
+            <td><strong>Variant Type</strong></td>
+            <td>{{ result|get_value_from_dict:"VariantType" }}</td>
+          </tr>
+          <tr>
+            <td><strong>FILTER</strong></td>
+            <td>{{ result.FILTER }}</td>
+          </tr>
+          <tr>
+            <td><strong>QUAL</strong></td>
+            <td>{{ result.QUAL }}</td>
+          </tr>
+          <tr>
+            <td><strong>ID</strong></td>
+            <td>{{result.ID}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+<form action="{% url 'core-document-review-update' dataset_id document_review_id %}" method="post">
+    {% csrf_token %}
+    {{form|crispy}}
+    <input  class="btn btn-primary" type="submit" value="Save">
+    <a class="btn btn-default" role="button" href="{% url 'complex-document-view' dataset_id document_es_id %}">Cancel</a>
+</form>
+
+
+<br>
+
+
+
+
+{% endblock%}

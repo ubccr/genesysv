@@ -114,7 +114,7 @@ def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
             father_pt = ele.get('Father_Phenotype')
             mother_pt = ele.get('Mother_Phenotype')
             if child_pt == '1' or father_pt == '2' or mother_pt == '2':
-               return None
+                return None
             if child_gt not in ['1/1', '1|1']:
                 return None
 
@@ -241,7 +241,7 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
         father_pt = sample_data.get('Father_Phenotype')
         mother_pt = sample_data.get('Mother_Phenotype')
 
-        sum_digits = sum([int(char) for char in father_pt + mother_pt if char.isdigits()])
+        sum_digits = sum([int(char) for char in father_pt + mother_pt if char.isdigit()])
         if sum_digits != 2:
             continue
 
@@ -397,10 +397,11 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 )
         return query_body
 
-    def add_autosomal_recessive_query_string(self, child_id):
+    def add_autosomal_recessive_query_string(self, child_id, annotation):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
-            query_body['query'] = {
+            query_body['query'] = {'bool': {'filter': []}}
+            query_body['query']['bool']['filter'].append({
                 "nested": {
                     "inner_hits": {"size": 100, },
                     "path": "sample",
@@ -418,7 +419,52 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 }
-            }
+            })
+            if annotation == 'VEP':
+                query_body['query']['bool']['filter'].append({
+                    "nested": {
+                        "inner_hits": {"size": 100, },
+                        "path": "CSQ_nested",
+                        "score_mode": "none",
+                        "query": {
+                            "bool": {
+                                "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        }
+                                ]
+                            }
+                        }
+                    }
+                })
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
         elif query_body['query']['bool']['filter']:
             filter_array = query_body['query']['bool']['filter']
             filter_array_copy = copy.deepcopy(filter_array)
@@ -427,6 +473,14 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 if 'nested' in ele and ele['nested']['path'] == 'sample':
                     filter_array_copy.remove(ele)
                     sample_array = ele
+
+            if annotation == 'VEP':
+                CSQ_nested_array = None
+                for ele in filter_array:
+                    if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                        filter_array_copy.remove(ele)
+                        CSQ_nested_array = ele
+
 
             if sample_array:
                 sample_array['nested']['inner_hits'] = {}
@@ -443,7 +497,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 filter_array_copy.append(sample_array)
 
                 query_body['query']['bool']['filter'] = filter_array_copy
-            else:
+
+            if CSQ_nested_array and annotation == 'VEP':
+                CSQ_nested_array['nested']['inner_hits'] = {}
+                CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    })
+                filter_array_copy.append(CSQ_nested_array)
+                query_body['query']['bool']['filter'] = filter_array_copy
+
+            if not sample_array:
                 query_body['query']['bool']['filter'].append(
                     {
                         "nested": {
@@ -465,6 +536,55 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 )
+
+            if not CSQ_nested_array and annotation == 'VEP':
+                query_body['query']['bool']['filter'].append(
+                    {
+                        "nested": {
+                            "inner_hits": {"size": 100, },
+                            "path": "CSQ_nested",
+                            "score_mode": "none",
+                            "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                )
+
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
         return query_body
 
     def add_denovo_query_string(self, child_id):
@@ -569,16 +689,16 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     {"range": {"POS": {"gt": range_to_exclude_2[0], "lt": range_to_exclude_2[1]}}}
                 ]
 
-
         return query_body
 
-    def add_x_linked_recessive_query_string(self, child_id, child_sex):
+    def add_x_linked_recessive_query_string(self, child_id, child_sex, annotation):
         query_body = copy.deepcopy(self.query_body)
 
         if child_sex == '1':  # 1 == Male
 
             if 'query' not in query_body:
-                query_body['query'] = {
+                query_body['query'] = {'bool': {'filter': []}}
+                query_body['query']['bool']['filter'].append({
                     "nested": {
                         "inner_hits": {"size": 100, },
                         "path": "sample",
@@ -611,7 +731,52 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             }
                         }
                     }
-                }
+                })
+            if annotation == 'VEP':
+                query_body['query']['bool']['filter'].append({
+                    "nested": {
+                        "inner_hits": {"size": 100, },
+                        "path": "CSQ_nested",
+                        "score_mode": "none",
+                        "query": {
+                            "bool": {
+                                "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        }
+                                ]
+                            }
+                        }
+                    }
+                })
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
             elif query_body['query']['bool']['filter']:
                 filter_array = query_body['query']['bool']['filter']
                 filter_array_copy = copy.deepcopy(filter_array)
@@ -620,6 +785,13 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     if 'nested' in ele and ele['nested']['path'] == 'sample':
                         filter_array_copy.remove(ele)
                         sample_array = ele
+
+                if annotation == 'VEP':
+                    CSQ_nested_array = None
+                    for ele in filter_array:
+                        if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                            filter_array_copy.remove(ele)
+                            CSQ_nested_array = ele
 
                 if sample_array:
                     sample_array['nested']['inner_hits'] = {}
@@ -630,7 +802,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
-                else:
+
+                if CSQ_nested_array and annotation == 'VEP':
+                    CSQ_nested_array['nested']['inner_hits'] = {}
+                    CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        })
+                    filter_array_copy.append(CSQ_nested_array)
+                    query_body['query']['bool']['filter'] = filter_array_copy
+
+                if not sample_array:
                     query_body['query']['bool']['filter'].append(
                         {
                             "nested": {
@@ -641,26 +830,38 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     "bool": {
                                         "filter": [
                                             {"term": {"sample.Sample_ID": child_id}},
+                                            {"terms": {"sample.GT": ["1/1", "1|1"]}},
                                             {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                                            {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}},
+                                            {"term": {"sample.Father_Phenotype": "1"}},
                                             {"term": {"sample.Mother_Phenotype": "1"}}
-                                        ],
-                                        "should": {
-							                "bool": {
-                                                "must": [
-                                                    {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0", "1"]}},
-                                                    {"term": {"sample.Father_Phenotype": "2"}}
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    )
+                if not CSQ_nested_array and annotation == 'VEP':
+                    query_body['query']['bool']['filter'].append(
+                        {
+                            "nested": {
+                                "inner_hits": {"size": 100, },
+                                "path": "CSQ_nested",
+                                "score_mode": "none",
+                                "query": {
+                                    "bool": {
+                                        "filter": [
+                                            {"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
                                                 ]
-                                            },
-                                            "bool": {
-                                                 "must": [
-                                                     {"terms": {"sample.Father_Genotype": ["0/0", "0|0", "0"]}},
-                                                     {"term": {"sample.Father_Phenotype": "1"}}
-                                                 ]
                                             }
-                                        },
-                                        "minimum_should_match": 1,
-                                        "must_not": [
-                                            {"terms": {"sample.GT": ["0/0", "0|0", "0"]}}
+                                        }
                                         ]
                                     }
                                 }
@@ -668,9 +869,30 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     )
 
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
         elif child_sex == '2':  # 2 == female
             if 'query' not in query_body:
-                query_body['query'] = {
+                query_body['query'] = {'bool': {'filter': []}}
+                query_body['query']['bool']['filter'].append({
                     "nested": {
                         "inner_hits": {"size": 100, },
                         "path": "sample",
@@ -688,7 +910,53 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             }
                         }
                     }
-                }
+                })
+
+            if annotation == 'VEP':
+                query_body['query']['bool']['filter'].append({
+                    "nested": {
+                        "inner_hits": {"size": 100, },
+                        "path": "CSQ_nested",
+                        "score_mode": "none",
+                        "query": {
+                            "bool": {
+                                "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        }
+                                ]
+                            }
+                        }
+                    }
+                })
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
             elif query_body['query']['bool']['filter']:
                 filter_array = query_body['query']['bool']['filter']
                 filter_array_copy = copy.deepcopy(filter_array)
@@ -697,6 +965,13 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     if 'nested' in ele and ele['nested']['path'] == 'sample':
                         filter_array_copy.remove(ele)
                         sample_array = ele
+
+                if annotation == 'VEP':
+                    CSQ_nested_array = None
+                    for ele in filter_array:
+                        if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                            filter_array_copy.remove(ele)
+                            CSQ_nested_array = ele
 
                 if sample_array:
                     sample_array['nested']['inner_hits'] = {}
@@ -710,7 +985,24 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     )
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
-                else:
+
+                if CSQ_nested_array and annotation == 'VEP':
+                    CSQ_nested_array['nested']['inner_hits'] = {}
+                    CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        })
+                    filter_array_copy.append(CSQ_nested_array)
+                    query_body['query']['bool']['filter'] = filter_array_copy
+
+                if not sample_array:
                     query_body['query']['bool']['filter'].append(
                         {
                             "nested": {
@@ -732,6 +1024,54 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             }
                         }
                     )
+                if not CSQ_nested_array and annotation == 'VEP':
+                    query_body['query']['bool']['filter'].append(
+                    {
+                        "nested": {
+                            "inner_hits": {"size": 100, },
+                            "path": "CSQ_nested",
+                            "score_mode": "none",
+                            "query": {
+                                "bool": {
+                                    "filter": [
+                                        {"terms": {"CSQ_nested.Consequence":
+                                        ["frameshift_variant",
+                                            "splice_donor_variant",
+                                            "splice_acceptor_variant",
+                                            "start_lost",
+                                            "start_retained_variant",
+                                            "stop_gained",
+                                            "stop_lost"
+                                            ]
+                                        }
+                                    }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                )
+
+            if annotation == 'ANNOVAR':
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_ensGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append(
+                    {'terms': {'ExonicFunc_refGene': [
+                        'frameshift_deletion',
+                        'frameshift_insertion',
+                        'stopgain',
+                        'stoploss',
+                    ]}}
+                )
+                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+
 
         return query_body
 
@@ -1177,23 +1517,28 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         }
         count = 0
         start_time = datetime.datetime.now()
+
+        es = elasticsearch.Elasticsearch(host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
+
+        if 'CSQ_nested' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+            annotation = 'VEP'
+        elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+            annotation = 'ANNOVAR'
+
         for family_id, family in self.family_dict.items():
 
             if self.mendelian_analysis_type == 'autosomal_dominant':
                 query_body = self.add_autosomal_dominant_query_string(family_id, family.get('child_id'))
             elif self.mendelian_analysis_type == 'autosomal_recessive':
-                query_body = self.add_autosomal_recessive_query_string(family.get('child_id'))
+                query_body = self.add_autosomal_recessive_query_string(family.get('child_id'), annotation)
             elif self.mendelian_analysis_type == 'denovo':
                 query_body = self.add_denovo_query_string(family.get('child_id'))
             elif self.mendelian_analysis_type == 'x_linked_recessive':
-                query_body = self.add_x_linked_recessive_query_string(family.get('child_id'), family.get('child_sex'))
+                query_body = self.add_x_linked_recessive_query_string(family.get('child_id'), family.get('child_sex'), annotation)
             elif self.mendelian_analysis_type == 'x_linked_dominant':
                 query_body = self.add_x_linked_dominant_query_string(family.get('child_id'), family.get('child_sex'))
             elif self.mendelian_analysis_type == 'x_linked_denovo':
                 query_body = self.add_x_linked_denovo_query_string(family.get('child_id'), family.get('child_sex'))
-
-            es = elasticsearch.Elasticsearch(
-                host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
 
             for hit in helpers.scan(
                     es,
@@ -1230,28 +1575,54 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
         return results
 
-    def is_gene_in_query_body(self):
-        csq_nested_array = None
+    def is_gene_in_query_body(self, annotation):
 
-        try:
-            for ele in self.query_body['query']['bool']['filter']:
-                if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
-                    csq_nested_array = ele
-                    break
+        if annotation == 'VEP':
+            csq_nested_array = None
 
-            if csq_nested_array:
-                for ele in csq_nested_array['nested']['query']['bool']['filter']:
-                    if 'terms' not in ele:
-                        continue
-                    if ele['terms'].get('CSQ_nested.SYMBOL'):
-                        return ele['terms'].get('CSQ_nested.SYMBOL')
+            try:
+                for ele in self.query_body['query']['bool']['filter']:
+                    if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                        csq_nested_array = ele
+                        break
+
+                if csq_nested_array:
+                    for ele in csq_nested_array['nested']['query']['bool']['filter']:
+                        if 'terms' not in ele:
+                            continue
+                        if ele['terms'].get('CSQ_nested.SYMBOL'):
+                            return ele['terms'].get('CSQ_nested.SYMBOL')
+                    return False
+                else:
+                    return False
+            except KeyError:
                 return False
-            else:
-                return False
-        except KeyError:
-            return False
 
-    def add_gene_to_query_body(self, gene):
+        if annotation == 'ANNOVAR':
+            AAChange_refGene_nested_array = None
+
+            try:
+                for ele in self.query_body['query']['bool']['filter']:
+                    if 'nested' in ele and ele['nested']['path'] == 'AAChange_refGene':
+                        AAChange_refGene_nested_array = ele
+                        break
+
+                if AAChange_refGene_nested_array:
+                    for ele in AAChange_refGene_nested_array['nested']['query']['bool']['filter']:
+                        if 'terms' not in ele:
+                            continue
+                        if ele['terms'].get('CSQ_nested.SYMBOL'):
+                            return ele['terms'].get('CSQ_nested.SYMBOL')
+                    return False
+                else:
+                    return False
+            except KeyError:
+                return False
+
+        if annotation == 'ANNOVAR':
+            pass
+
+    def add_gene_to_query_body(self, gene, annotation):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
             query_body['query'] = {}
@@ -1307,9 +1678,13 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
     def gene_based_search(self):
         es = elasticsearch.Elasticsearch(
             host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
+        if 'CSQ_nested' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+                annotation = 'VEP'
+        elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+                annotation = 'ANNOVAR'
 
-        if self.is_gene_in_query_body():
-            genes = [self.is_gene_in_query_body(), ]
+        if self.is_gene_in_query_body(annotation):
+            genes = [self.is_gene_in_query_body(annotation), ]
 
         else:
             genes = get_genes_es(self.dataset_obj.es_index_name,
@@ -1332,8 +1707,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         for family_id, family in self.family_dict.items():
 
             for gene in genes:
-                if not self.is_gene_in_query_body():
-                    query_body = self.add_gene_to_query_body(gene)
+
+                if not self.is_gene_in_query_body(annotation):
+                    query_body = self.add_gene_to_query_body(gene, annotation)
                 else:
                     query_body = copy.deepcopy(self.query_body)
 
@@ -1344,6 +1720,14 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     if 'nested' in ele and ele['nested']['path'] == 'sample':
                         filter_array_copy.remove(ele)
                         sample_array = ele
+
+                if annotation == 'VEP':
+                    CSQ_nested_array = None
+                    for ele in filter_array:
+                        if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
+                            filter_array_copy.remove(ele)
+                            CSQ_nested_array = ele
+
                 if sample_array:
                     sample_array['nested']['inner_hits'] = {"size": 100, }
                     sample_array['nested']['query']['bool']['filter'].append(
@@ -1369,7 +1753,23 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
 
-                else:
+                if CSQ_nested_array and annotation == 'VEP':
+                    CSQ_nested_array['nested']['inner_hits'] = {}
+                    CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        })
+                    filter_array_copy.append(CSQ_nested_array)
+                    query_body['query']['bool']['filter'] = filter_array_copy
+
+                if not sample_array:
                     query_body['query']['bool']['filter'].append(
                         ({
                             "nested": {
@@ -1392,6 +1792,53 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             }
                         })
                     )
+                if not CSQ_nested_array and annotation == 'VEP':
+                    query_body['query']['bool']['filter'].append(
+                        {
+                            "nested": {
+                                "inner_hits": {"size": 100, },
+                                "path": "CSQ_nested",
+                                "score_mode": "none",
+                                "query": {
+                                    "bool": {
+                                        "filter": [
+                                            {"terms": {"CSQ_nested.Consequence":
+                                            ["frameshift_variant",
+                                                "splice_donor_variant",
+                                                "splice_acceptor_variant",
+                                                "start_lost",
+                                                "start_retained_variant",
+                                                "stop_gained",
+                                                "stop_lost"
+                                                ]
+                                            }
+                                        }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    )
+
+                if annotation == 'ANNOVAR':
+                    query_body['query']['bool']['filter'].append(
+                        {'terms': {'ExonicFunc_ensGene': [
+                            'frameshift_deletion',
+                            'frameshift_insertion',
+                            'stopgain',
+                            'stoploss',
+                        ]}}
+                    )
+                    query_body['query']['bool']['filter'].append(
+                        {'terms': {'ExonicFunc_refGene': [
+                            'frameshift_deletion',
+                            'frameshift_insertion',
+                            'stopgain',
+                            'stoploss',
+                        ]}}
+                    )
+                    query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                    query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
 
                 compound_heterozygous_results = is_compound_heterozygous_for_gene(
                     es, self.dataset_obj, gene, query_body, family_id, family.get('father_id'), family.get('mother_id'), family.get('child_id'))
