@@ -1,0 +1,2778 @@
+{
+  "AA_AA": {
+    "display_text": "Ancestral Allele",
+    "in_line_tooltip": null,
+    "panel": "Ancestral Allele",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AA_ALT": {
+    "display_text": "Alternate Allele",
+    "in_line_tooltip": null,
+    "panel": "Ancestral Allele",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AA_IndelType": {
+    "display_text": "Type of Indel",
+    "in_line_tooltip": null,
+    "panel": "Ancestral Allele",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AA_REF": {
+    "display_text": "Reference Allele",
+    "in_line_tooltip": null,
+    "panel": "Ancestral Allele",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AC": {
+    "display_text": "Allele Count",
+    "in_line_tooltip": "(>=)",
+    "panel": "Allele Statistics Filters",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AC_case": {
+    "display_text": "Allele Count Case",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AC_control": {
+    "display_text": "Allele Count Control",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AF": {
+    "display_text": "Allele Frequency",
+    "in_line_tooltip": "(>=)",
+    "panel": "Allele Statistics Filters",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AFR_AF": {
+    "display_text": "African Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the AFR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "AF_case": {
+    "display_text": "Allele Frequency Case",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AF_control": {
+    "display_text": "Allele Frequency Control",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ALT": {
+    "display_text": "Alternate allele",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AMR_AF": {
+    "display_text": "American Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the AMR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "AN": {
+    "display_text": "Allele Number",
+    "in_line_tooltip": "(>=)",
+    "panel": "Allele Statistics Filters",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AN_case": {
+    "display_text": "Allele Number Case",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AN_control": {
+    "display_text": "Allele Number Control",
+    "in_line_tooltip": "(>=)",
+    "panel": "Case/Control",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "BA1": {
+    "display_text": "BA1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium"
+  },
+  "BP1": {
+    "display_text": "BP1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Missense variant in a gene for which primarily truncating variants are known to cause disease"
+  },
+  "BP2": {
+    "display_text": "BP2",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder or observed in cis with a pathogenic variant in any inheritance pattern"
+  },
+  "BP3": {
+    "display_text": "BP3",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "In-frame deletions/insertions in a repetitive region without a known function"
+  },
+  "BP4": {
+    "display_text": "BP4",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Multiple lines of computational evidence suggest no impact on gene or gene product (conservation, evolutionary, splicing impact, etc.)"
+  },
+  "BP5": {
+    "display_text": "BP5",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Variant found in a case with an alternate molecular basis for disease"
+  },
+  "BP6": {
+    "display_text": "BP6",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Reputable source recently reports variant as benign, but the evidence is not available to the laboratory to perform an independent evaluation"
+  },
+  "BP7": {
+    "display_text": "BP7",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved"
+  },
+  "BS1": {
+    "display_text": "BS1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Allele frequency is greater than expected for disorder"
+  },
+  "BS2": {
+    "display_text": "BS2",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or X-linked (hemizygous) disorder, with full penetrance expected at an early age"
+  },
+  "BS3": {
+    "display_text": "BS3",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Well-established in vitro or in vivo functional studies show no damaging effect on protein function or splicing"
+  },
+  "BS4": {
+    "display_text": "BS4",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Well-established in vitro or in vivo functional studies show no damaging effect on protein function or splicing"
+  },
+  "BS5": {
+    "display_text": "BS5",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Lack of segregation in affected members of a family"
+  },
+  "BaseQRankSum_value": {
+    "display_text": "BaseQRankSum",
+    "in_line_tooltip": "(=<)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "It compares the base qualities of the data supporting the reference allele with those supporting any alternate allele"
+  },
+  "CADD": {
+    "display_text": "CADD",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious."
+  },
+  "CADD_Phred": {
+    "display_text": "CADD_Phred",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious."
+  },
+  "CHROM": {
+    "display_text": "Chromosome",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CIEND": {
+    "display_text": "Confidence interval around END",
+    "in_line_tooltip": "(>)",
+    "panel": "Confidence Interval",
+    "sub_panel": null,
+    "tooltip": "Confidence interval around END for imprecise variants"
+  },
+  "CIPOS": {
+    "display_text": "Confidence interval around POS",
+    "in_line_tooltip": "(>)",
+    "panel": "Confidence Interval",
+    "sub_panel": null,
+    "tooltip": "Confidence interval around POS for imprecise variants"
+  },
+  "CS": {
+    "display_text": "Source call set",
+    "in_line_tooltip": null,
+    "panel": "Source Call Set",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AA_AF": {
+    "display_text": "AA_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AF": {
+    "display_text": "AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AFR_AF": {
+    "display_text": "AFR_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AMR_AF": {
+    "display_text": "AMR_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Allele": {
+    "display_text": "Allele",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "EAS_AF": {
+    "display_text": "EAS_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "EA_AF": {
+    "display_text": "EA_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "EUR_AF": {
+    "display_text": "EUR_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Existing_variation": {
+    "display_text": "Existing_variation",
+    "in_line_tooltip": null,
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MAX_AF": {
+    "display_text": "MAX_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MAX_AF_POPS": {
+    "display_text": "MAX_AF_POPS",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PHENO": {
+    "display_text": "PHENO",
+    "in_line_tooltip": null,
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PUBMED": {
+    "display_text": "PUBMED",
+    "in_line_tooltip": null,
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SAS_AF": {
+    "display_text": "SAS_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SOMATIC": {
+    "display_text": "SOMATIC",
+    "in_line_tooltip": null,
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "VARIANT_CLASS": {
+    "display_text": "VARIANT_CLASS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_AF": {
+    "display_text": "gnomAD_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_AFR_AF": {
+    "display_text": "gnomAD_AFR_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_AMR_AF": {
+    "display_text": "gnomAD_AMR_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_ASJ_AF": {
+    "display_text": "gnomAD_ASJ_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_EAS_AF": {
+    "display_text": "gnomAD_EAS_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_FIN_AF": {
+    "display_text": "gnomAD_FIN_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_NFE_AF": {
+    "display_text": "gnomAD_NFE_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_OTH_AF": {
+    "display_text": "gnomAD_OTH_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "gnomAD_SAS_AF": {
+    "display_text": "gnomAD_SAS_AF",
+    "in_line_tooltip": "(<)",
+    "panel": "VEP Allele Statistics",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "APPRIS": {
+    "display_text": "APPRIS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Amino_acids": {
+    "display_text": "Amino_acids",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "BIOTYPE": {
+    "display_text": "BIOTYPE",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CANONICAL": {
+    "display_text": "CANONICAL",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CCDS": {
+    "display_text": "CCDS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CDS_position_end": {
+    "display_text": "CDS_position_end",
+    "in_line_tooltip": "(<=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CDS_position_start": {
+    "display_text": "CDS_position_start",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "CLIN_SIG": {
+    "display_text": "Clinical Significance",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Codons": {
+    "display_text": "Codons",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Consequence": {
+    "display_text": "Consequence",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "DISTANCE": {
+    "display_text": "DISTANCE",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "DOMAINS": {
+    "display_text": "DOMAINS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ENSP": {
+    "display_text": "ENSP",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "EXON": {
+    "display_text": "EXON",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "FLAGS": {
+    "display_text": "FLAGS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Feature": {
+    "display_text": "Feature",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Feature_type": {
+    "display_text": "Feature_type",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GENE_PHENO": {
+    "display_text": "GENE_PHENO",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Gene": {
+    "display_text": "Gene",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "HGNC_ID": {
+    "display_text": "HGNC_ID",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "HGVS_OFFSET": {
+    "display_text": "HGVS_OFFSET",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "HGVSc": {
+    "display_text": "HGVSc",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "HGVSp": {
+    "display_text": "HGVSp",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "HIGH_INF_POS": {
+    "display_text": "HIGH_INF_POS",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "IMPACT": {
+    "display_text": "IMPACT",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "INTRON": {
+    "display_text": "INTRON",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MOTIF_NAME": {
+    "display_text": "MOTIF_NAME",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MOTIF_POS": {
+    "display_text": "MOTIF_POS",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MOTIF_SCORE_CHANGE": {
+    "display_text": "MOTIF_SCORE_CHANGE",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PolyPhen_prediction": {
+    "display_text": "PolyPhen_prediction",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PolyPhen_score": {
+    "display_text": "PolyPhen_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Protein_position_end": {
+    "display_text": "Protein_position_end",
+    "in_line_tooltip": "(<=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Protein_position_start": {
+    "display_text": "Protein_position_start",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SIFT_prediction": {
+    "display_text": "SIFT_prediction",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SIFT_score": {
+    "display_text": "SIFT_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "STRAND": {
+    "display_text": "STRAND",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SWISSPROT": {
+    "display_text": "SWISSPROT",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SYMBOL": {
+    "display_text": "SYMBOL",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "SYMBOL_SOURCE": {
+    "display_text": "SYMBOL_SOURCE",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "TREMBL": {
+    "display_text": "TREMBL",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "TSL": {
+    "display_text": "TSL",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "UNIPARC": {
+    "display_text": "UNIPARC",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "cDNA_position_end": {
+    "display_text": "cDNA_position_end",
+    "in_line_tooltip": "(<=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "cDNA_position_start": {
+    "display_text": "cDNA_position_start",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ClippingRankSum_value": {
+    "display_text": "ClippingRankSum",
+    "in_line_tooltip": "(=<)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "This variant-level annotation tests whether there is evidence of bias in the position of alleles within the reads that support them, between the reference and alternate alleles"
+  },
+  "DANN_rankscore": {
+    "display_text": "DANN_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious."
+  },
+  "DANN_score": {
+    "display_text": "DANN_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious."
+  },
+  "DP_value": {
+    "display_text": "DP",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "Approximate read depth; some reads may have been filtered"
+  },
+  "EAS_AF": {
+    "display_text": "East Asian Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the EAS populations calculated from AC and AN, in the range (0,1)"
+  },
+  "EUR_AF": {
+    "display_text": "Europe Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the EUR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "EX_TARGET": {
+    "display_text": "EX_TARGET",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": "Indicates whether a variant is within the exon pull down target boundaries"
+  },
+  "Eigen": {
+    "display_text": "Eigen",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Eigen-PC-raw": {
+    "display_text": "Eigen-PC-raw",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Eigen-raw": {
+    "display_text": "Eigen-raw",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Eigen_coding_or_noncoding": {
+    "display_text": "Eigen coding or noncoding",
+    "in_line_tooltip": null,
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ExAC_AFR": {
+    "display_text": "ExAC AFR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African population"
+  },
+  "ExAC_ALL": {
+    "display_text": "ExAC ALL",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_AMR": {
+    "display_text": "ExAC AMR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American"
+  },
+  "ExAC_EAS": {
+    "display_text": "ExAC EAS",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian population"
+  },
+  "ExAC_FIN": {
+    "display_text": "ExAC FIN",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish population"
+  },
+  "ExAC_NFE": {
+    "display_text": "ExAC NFE",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European population"
+  },
+  "ExAC_OTH": {
+    "display_text": "ExAC OTH",
+    "in_line_tooltip": "(>=)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_SAS": {
+    "display_text": "ExAC SAS",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian population"
+  },
+  "ExAC_nonpsych_AFR": {
+    "display_text": "ExAC AFR non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African population"
+  },
+  "ExAC_nonpsych_ALL": {
+    "display_text": "ExAC ALL non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_nonpsych_AMR": {
+    "display_text": "ExAC AMR non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American"
+  },
+  "ExAC_nonpsych_EAS": {
+    "display_text": "ExAC EAS non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian"
+  },
+  "ExAC_nonpsych_FIN": {
+    "display_text": "ExAC FIN non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish population"
+  },
+  "ExAC_nonpsych_NFE": {
+    "display_text": "ExAC NFE non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European"
+  },
+  "ExAC_nonpsych_OTH": {
+    "display_text": "ExAC OTH non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_nonpsych_SAS": {
+    "display_text": "ExAC SAS non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian"
+  },
+  "ExAC_nontcga_AFR": {
+    "display_text": "ExAC AFR nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African"
+  },
+  "ExAC_nontcga_ALL": {
+    "display_text": "ExAC ALL nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_nontcga_AMR": {
+    "display_text": "ExAC AMR nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American"
+  },
+  "ExAC_nontcga_EAS": {
+    "display_text": "ExAC EAS nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian"
+  },
+  "ExAC_nontcga_FIN": {
+    "display_text": "ExAC FIN nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish"
+  },
+  "ExAC_nontcga_NFE": {
+    "display_text": "ExAC NFE nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European"
+  },
+  "ExAC_nontcga_OTH": {
+    "display_text": "ExAC OTH nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_nontcga_SAS": {
+    "display_text": "ExAC SAS nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian"
+  },
+  "ExcessHet": {
+    "display_text": "ExcessHet",
+    "in_line_tooltip": "(=<)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Phred-scaled p-value for exact test of excess heterozygosity"
+  },
+  "FATHMM_pred": {
+    "display_text": "FATHMM_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Functional analysis through Hidden Markov Model (HMM)"
+  },
+  "FILTER_value": {
+    "display_text": "GATK Filter",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "FS": {
+    "display_text": "FS",
+    "in_line_tooltip": "(=<)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Phred-scaled p-value using Fisher's exact test to detect strand bias"
+  },
+  "Func_ensGene": {
+    "display_text": "Consequence to Ensembl gene/transcript",
+    "in_line_tooltip": null,
+    "panel": "Functional Consequence",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Func_refGene": {
+    "display_text": "Consequence to RefSeq gene/transcript",
+    "in_line_tooltip": null,
+    "panel": "Functional Consequence",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GERPplusplus_RS": {
+    "display_text": "GERP++",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious"
+  },
+  "GERPplusplus_RS_rankscore": {
+    "display_text": "GERP++ rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious"
+  },
+  "GERPplusplus_gt2": {
+    "display_text": "GERP++ GT",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GTEx_V6_gene": {
+    "display_text": "GTEx_V6_gene",
+    "in_line_tooltip": null,
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GTEx_V6_tissue": {
+    "display_text": "GTEx_V6_tissue",
+    "in_line_tooltip": null,
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GenoCanyon_score": {
+    "display_text": "GenoCanyon_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GenoCanyon_score_rankscore": {
+    "display_text": "GenoCanyon_score_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ICGC_Id": {
+    "display_text": "ICGC Id",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ICGC_Occurrence_cancer_name": {
+    "display_text": "ICGC Occurrence Cancer Name",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ICGC_Occurrence_mutation_allele_count": {
+    "display_text": "ICGC Occurrence Mutation Allele Count",
+    "in_line_tooltip": "(=<)",
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ICGC_Occurrence_total_allele_count": {
+    "display_text": "ICGC Occurrence Total Allele Count",
+    "in_line_tooltip": "(=<)",
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ICGC_Occurrence_total_allele_frequency": {
+    "display_text": "ICGC Occurrence Total Allele Frequency",
+    "in_line_tooltip": "(=<)",
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ID": {
+    "display_text": "ID",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "IMPRECISE": {
+    "display_text": "IMPRECISE",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": "Imprecise structural variation"
+  },
+  "InbreedingCoeff_value": {
+    "display_text": "InbreedingCoeff",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "InterVar_automated": {
+    "display_text": "InterVar_automated",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "Interpro_domain": {
+    "display_text": "Interpro Domain",
+    "in_line_tooltip": null,
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "LRT_converted_rankscore": {
+    "display_text": "LRT_converted_rankscore",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious."
+  },
+  "LRT_pred": {
+    "display_text": "LRT_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection."
+  },
+  "LRT_score": {
+    "display_text": "LRT Score",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious."
+  },
+  "M-CAP_pred": {
+    "display_text": "M-CAP_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "M-CAP_rankscore": {
+    "display_text": "M-CAP_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "M-CAP_score": {
+    "display_text": "M-CAP score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MC": {
+    "display_text": "MC",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MCAP": {
+    "display_text": "Mendelian Clinically Applicable Pathogenicity (M-CAP) Score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MEINFO": {
+    "display_text": "MEINFO",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MLEAC_value": {
+    "display_text": "Maximum likelihood expectation (MLE) for the allele counts",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MLEAF_value": {
+    "display_text": "Maximum likelihood expectation (MLE) for the allele frequency",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MQRankSum_value": {
+    "display_text": "Mapping Quality Rank Sum Test",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities"
+  },
+  "MQ_value": {
+    "display_text": "RMS Mapping Quality",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Root Mean Square of the mapping quality of reads across all samples."
+  },
+  "MULTI_ALLELIC": {
+    "display_text": "MULTI_ALLELIC",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": "Indicates whether a site is multi-allelic"
+  },
+  "MetaLR_pred": {
+    "display_text": "MetaLR_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Logistic regression."
+  },
+  "MetaLR_rankscore": {
+    "display_text": "MetaLR_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Logistic regression. Higher scores are more deleterious."
+  },
+  "MetaLR_score": {
+    "display_text": "MetaLR_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Logistic regression. Higher scores are more deleterious."
+  },
+  "MetaSVM_pred": {
+    "display_text": "MetaSVM_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Support vector machine."
+  },
+  "MetaSVM_rankscore": {
+    "display_text": "MetaSVM_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Support vector machine. Higher scores are more deleterious."
+  },
+  "MetaSVM_score": {
+    "display_text": "MetaSVM_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Support vector machine. Higher scores are more deleterious."
+  },
+  "MutationAssessor_pred": {
+    "display_text": "MutationAssessor_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Entropy of multiple sequence alignment. H/M means functional and L/N means non-functional."
+  },
+  "MutationAssessor_score": {
+    "display_text": "MutationAssessor_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious."
+  },
+  "MutationAssessor_score_rankscore": {
+    "display_text": "MutationAssessor_score_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious."
+  },
+  "MutationTaster_converted_rankscore": {
+    "display_text": "MutationTaster_converted_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Bayes Classifier"
+  },
+  "MutationTaster_pred": {
+    "display_text": "MutationTaster_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Bayes Classifier"
+  },
+  "MutationTaster_score": {
+    "display_text": "MutationTaster_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Bayes Classifier"
+  },
+  "NS": {
+    "display_text": "NS",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "Number of samples with data"
+  },
+  "OLD_MULTIALLELIC": {
+    "display_text": "OLD_MULTIALLELIC",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "OLD_VARIANT": {
+    "display_text": "OLD_VARIANT",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PM1": {
+    "display_text": "PM1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Located in a mutational hot spot and/or critical and well-established functional domain (e.g., active site of an enzyme) without benign variation"
+  },
+  "PM2": {
+    "display_text": "PM2",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Absent from controls (or at extremely low frequency if recessive) in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium"
+  },
+  "PM3": {
+    "display_text": "PM3",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "For recessive disorders, detected in trans with a pathogenic variant"
+  },
+  "PM4": {
+    "display_text": "PM4",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Protein length changes as a result of in-frame deletions/insertions in a nonrepeat region or stop-loss variants"
+  },
+  "PM5": {
+    "display_text": "PM5",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Novel missense change at an amino acid residue where a different missense change determined to be pathogenic has been seen before"
+  },
+  "PM6": {
+    "display_text": "PM6",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Assumed de novo, but without confirmation of paternity and maternity"
+  },
+  "POS": {
+    "display_text": "Start Position",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PP1": {
+    "display_text": "PP1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Cosegregation with disease in multiple affected family members in a gene definitively known to cause the disease"
+  },
+  "PP2": {
+    "display_text": "PP2",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Missense variant in a gene that has a low rate of benign missense variation and in which missense variants are a common mechanism of disease"
+  },
+  "PP3": {
+    "display_text": "PP3",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Multiple lines of computational evidence support a deleterious effect on the gene or gene product (conservation, evolutionary, splicing impact, etc.)"
+  },
+  "PP4": {
+    "display_text": "PP4",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Patient's phenotype or family history is highly specific for a disease with a single genetic etiology"
+  },
+  "PP5": {
+    "display_text": "PP5",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Reputable source recently reports variant as pathogenic, but the evidence is not available to the laboratory to perform an independent evaluation"
+  },
+  "PROVEAN_converted_rankscore": {
+    "display_text": "PROVEAN_converted_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious."
+  },
+  "PROVEAN_pred": {
+    "display_text": "PROVEAN_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences."
+  },
+  "PROVEAN_score": {
+    "display_text": "PROVEAN_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious."
+  },
+  "PS1": {
+    "display_text": "PS1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change"
+  },
+  "PS2": {
+    "display_text": "PS2",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history"
+  },
+  "PS3": {
+    "display_text": "PS3",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "Well-established in vitro or in vivo functional studies supportive of a damaging effect on the gene or gene product"
+  },
+  "PS4": {
+    "display_text": "PS4",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "The prevalence of the variant in affected individuals is significantly increased compared with the prevalence in controls"
+  },
+  "PVS1": {
+    "display_text": "PVS1",
+    "in_line_tooltip": null,
+    "panel": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline",
+    "sub_panel": null,
+    "tooltip": "null variant (nonsense, frameshift, canonical +- 2 splice sites, initiation codon, single or multiexon deletion) in a gene where LOF is a known mechanism of disease"
+  },
+  "Polyphen2_HDIV_pred": {
+    "display_text": "Polyphen2_HDIV_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "For rare alleles at loci involved in complex diseases, etc."
+  },
+  "Polyphen2_HDIV_rankscore": {
+    "display_text": "Polyphen2_HDIV_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HDIV_score": {
+    "display_text": "Polyphen2_HDIV_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HVAR_pred": {
+    "display_text": "Polyphen2_HVAR_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "For diagnostics of Mendelian diseases."
+  },
+  "Polyphen2_HVAR_rankscore": {
+    "display_text": "Polyphen2_HVAR_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HVAR_score": {
+    "display_text": "Polyphen2_HVAR_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452)."
+  },
+  "QUAL_value": {
+    "display_text": "GATK VQSR Score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "REF": {
+    "display_text": "Reference allele",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "REVEL": {
+    "display_text": "REVEL",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "REVEL (rare exome variant ensemble learner): An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants."
+  },
+  "ReadPosRankSum_value": {
+    "display_text": "Rank Sum Test for relative positioning of REF versus ALT alleles within reads",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "This variant-level annotation tests whether there is evidence of bias in the position of alleles within the reads that support them, between the reference and alternate alleles"
+  },
+  "SAS_AF": {
+    "display_text": "South Asian Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the SAS populations calculated from AC and AN, in the range (0,1)"
+  },
+  "SIFT_converted_rankscore": {
+    "display_text": "SIFT_converted_rankscore",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)"
+  },
+  "SIFT_pred": {
+    "display_text": "SIFT pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "SIFT (Sorting Intolerant From Tolerant) predicts whether an amino acid substitution affects protein function"
+  },
+  "SIFT_score": {
+    "display_text": "SIFT_score",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)"
+  },
+  "SVLEN": {
+    "display_text": "SVLEN",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "SV length. It is only calculated for structural variation MEIs. For other types of SVs; one may calculate the SV length by INFO:END-START+1, or by finding the difference between lengthes of REF and ALT alleles"
+  },
+  "SVTYPE": {
+    "display_text": "SVTYPE",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "Type of structural variant"
+  },
+  "SiPhy_29way_logOdds": {
+    "display_text": "SiPhy_29way_logOdds",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious."
+  },
+  "SiPhy_29way_logOdds_rankscore": {
+    "display_text": "SiPhy_29way_logOdds_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious."
+  },
+  "TSD": {
+    "display_text": "TSD",
+    "in_line_tooltip": null,
+    "panel": "Other 2",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "VEST3_rankscore": {
+    "display_text": "VEST3_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious."
+  },
+  "VEST3_score": {
+    "display_text": "VEST3_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious."
+  },
+  "VT": {
+    "display_text": "VT",
+    "in_line_tooltip": null,
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "Type of structural variant"
+  },
+  "Variant": {
+    "display_text": "Variant ID",
+    "in_line_tooltip": "(e.g. 1-115252204-C-T)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "VariantType": {
+    "display_text": "Variant Type",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "avsnp147": {
+    "display_text": "dbSNP (v147) ID",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "avsnp150": {
+    "display_text": "dbSNP (v150) ID",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "clinvar_CLINSIG": {
+    "display_text": "Clinical Significance",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "clinvar_CLNDBN": {
+    "display_text": "Disease name",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "cosmic70_ID": {
+    "display_text": " cosmic70_ID",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": " Catalogue Of Somatic Mutations In Cancer (COSMIC) ID"
+  },
+  "cosmic70_OCCURENCE": {
+    "display_text": "cosmic70_OCCURENCE",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": " Catalogue Of Somatic Mutations In Cancer (COSMIC) Occurrence"
+  },
+  "cytoBand": {
+    "display_text": "CytoBand",
+    "in_line_tooltip": null,
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "dbscSNV_ADA_SCORE": {
+    "display_text": "dbscSNV_ADA_SCORE",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "dbscSNV_RF_SCORE": {
+    "display_text": "dbscSNV_RF_SCORE",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_aa_change": {
+    "display_text": "Amino acid change",
+    "in_line_tooltip": "(e.g. p.T243A)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_cDNA_change": {
+    "display_text": "cDNA change",
+    "in_line_tooltip": "(e.g. c.A727G)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_distance_to_gene": {
+    "display_text": "Distance to nearby gene",
+    "in_line_tooltip": "(bp)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_gene_id": {
+    "display_text": "Ensembl gene ID",
+    "in_line_tooltip": "(e.g. ENSG00000155657)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_location": {
+    "display_text": "Exon ID",
+    "in_line_tooltip": null,
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "ensGene_transcript_id": {
+    "display_text": "Ensembl transcript ID",
+    "in_line_tooltip": "(e.g. ENST00000460472)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "esp6500siv2_aa": {
+    "display_text": "ESP6500 AA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African American"
+  },
+  "esp6500siv2_all": {
+    "display_text": "ESP6500 ALL",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "esp6500siv2_ea": {
+    "display_text": "ESP6500 EA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "European American"
+  },
+  "fathmm-MKL_coding_pred": {
+    "display_text": "fathmm-MKL_coding_pred",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Predictions",
+    "sub_panel": null,
+    "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM."
+  },
+  "fathmm-MKL_coding_rankscore": {
+    "display_text": "fathmm-MKL_coding_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM."
+  },
+  "fathmm-MKL_coding_score": {
+    "display_text": "fathmm-MKL_coding_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM. Score >= 0.5: Deleterious; Score < 0.5: Tolerated"
+  },
+  "gwasCatalog": {
+    "display_text": "gwasCatalog",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "integrated_confidence_value": {
+    "display_text": "integrated_confidence_value",
+    "in_line_tooltip": null,
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
+  },
+  "integrated_fitCons_score": {
+    "display_text": "integrated_confidence_value",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
+  },
+  "integrated_fitCons_score_rankscore": {
+    "display_text": "integrated_fitCons_score_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
+  },
+  "phastCons100way_vertebrate": {
+    "display_text": "phastCons100way_vertebrate",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phastCons100way_vertebrate_rankscore": {
+    "display_text": "phastCons100way_vertebrate_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phastCons20way_mammalian": {
+    "display_text": "phastCons20way_mammalian",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious."
+  },
+  "phastCons20way_mammalian_rankscore": {
+    "display_text": "phastCons20way_mammalian_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious."
+  },
+  "phyloP100way_vertebrate": {
+    "display_text": "phyloP100way_vertebrate",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phyloP100way_vertebrate_rankscore": {
+    "display_text": "phyloP100way_vertebrate_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phyloP20way_mammalian": {
+    "display_text": "phyloP20way_mammalian",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious."
+  },
+  "phyloP20way_mammalian_rankscore": {
+    "display_text": "phyloP20way_mammalian_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious."
+  },
+  "refGene_aa_change": {
+    "display_text": "Amino acid change",
+    "in_line_tooltip": "(e.g. p.T243A)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "refGene_cDNA_change": {
+    "display_text": "cDNA change",
+    "in_line_tooltip": "(e.g. c.A727G)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "refGene_distance_to_gene": {
+    "display_text": "Distance to nearby gene",
+    "in_line_tooltip": "(bp)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "refGene_location": {
+    "display_text": "Exon ID",
+    "in_line_tooltip": null,
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "refGene_refgene_id": {
+    "display_text": "RefGene ID",
+    "in_line_tooltip": "(e.g. NM_133378)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "refGene_symbol": {
+    "display_text": "Gene",
+    "in_line_tooltip": "(e.g. RYR1)",
+    "panel": "Gene/Transcript",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "sample_AD": {
+    "display_text": "sample_AD",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Allelic depths for the ref and alt alleles in the order listed"
+  },
+  "sample_DP": {
+    "display_text": "sample_DP",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Sample Read depth"
+  },
+  "sample_GQ": {
+    "display_text": "sample_GQ",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Sample Genotype quality"
+  },
+  "sample_GT": {
+    "display_text": "sample_GT",
+    "in_line_tooltip": null,
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Sample Genotype"
+  },
+  "sample_ID": {
+    "display_text": "sample_ID",
+    "in_line_tooltip": null,
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Sample ID"
+  },
+  "sample_MIN_DP": {
+    "display_text": "sample_MIN_DP",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Minimum DP observed within the GVCF block"
+  },
+  "sample_PGT": {
+    "display_text": "sample_PGT",
+    "in_line_tooltip": null,
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another"
+  },
+  "sample_PID": {
+    "display_text": "sample_PID",
+    "in_line_tooltip": null,
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group"
+  },
+  "sample_PL": {
+    "display_text": "sample_PL",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification"
+  },
+  "sample_RGQ": {
+    "display_text": "sample_RGQ",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Unconditional reference genotype confidence, encoded as a phred quality -10*log10 p(genotype call is wrong)"
+  },
+  "sample_SB": {
+    "display_text": "sample_SB",
+    "in_line_tooltip": "(>=)",
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias"
+  },
+  "sample_label": {
+    "display_text": "sample_label",
+    "in_line_tooltip": null,
+    "panel": "Patient/Sample Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "snp138NonFlagged": {
+    "display_text": "dbSNP (v138 Non Flagged) ID",
+    "in_line_tooltip": null,
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "targetScanS": {
+    "display_text": "Limit Variants to Predicted microRNA",
+    "in_line_tooltip": null,
+    "panel": "microRNA/snoRNA",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "tfbsConsSites": {
+    "display_text": "Limit Variants to Transcription-Factor Binding Sites",
+    "in_line_tooltip": null,
+    "panel": "Conserved/Constrained Genomic Elements/Positions",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "wgRna": {
+    "display_text": "Limit Variants to microRNA/snoRNA",
+    "in_line_tooltip": null,
+    "panel": "microRNA/snoRNA",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "1000g2015aug_afr": {
+    "display_text": "1KGP AFR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African Population"
+  },
+  "1000g2015aug_all": {
+    "display_text": "1KGP ALL",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "1000g2015aug_amr": {
+    "display_text": "1KGP AMR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American"
+  },
+  "1000g2015aug_eur": {
+    "display_text": "1KGP EUR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "European Population"
+  },
+  "1000g2015aug_sas": {
+    "display_text": "1KGP SAS",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian Population"
+  },
+  "AC": {
+    "display_text": "Allele Count",
+    "in_line_tooltip": "(>=)",
+    "panel": "Summary Statistics Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AF": {
+    "display_text": "Allele Frequency",
+    "in_line_tooltip": "(>=)",
+    "panel": "Summary Statistics Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "AN": {
+    "display_text": "Allele Number",
+    "in_line_tooltip": "(>=)",
+    "panel": "Summary Statistics Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MLEAC": {
+    "display_text": "MLEAC",
+    "in_line_tooltip": "(>=)",
+    "panel": "Summary Statistics Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "MLEAF": {
+    "display_text": "MLEAC",
+    "in_line_tooltip": "(>=)",
+    "panel": "Summary Statistics Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "QUAL": {
+    "display_text": "QUAL",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Quality Metrix",
+    "sub_panel": null,
+    "tooltip": "Variant Genotype Quality Score"
+  },
+
+
+
+
+  "AFR_AF": {
+    "display_text": "African Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the AFR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "AMR_AF": {
+    "display_text": "American Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the AMR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "BaseQRankSum_value": {
+    "display_text": "BaseQRankSum",
+    "in_line_tooltip": "(=<)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "It compares the base qualities of the data supporting the reference allele with those supporting any alternate allele"
+  },
+  "CADD": {
+    "display_text": "CADD",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious."
+  },
+  "CADD_Phred": {
+    "display_text": "CADD_Phred",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Combined Annotation Dependent Depletion (CADD). Higher values are more deleterious."
+  },
+  "CIEND": {
+    "display_text": "Confidence interval around END",
+    "in_line_tooltip": "(>)",
+    "panel": "Confidence Interval",
+    "sub_panel": null,
+    "tooltip": "Confidence interval around END for imprecise variants"
+  },
+  "CIPOS": {
+    "display_text": "Confidence interval around POS",
+    "in_line_tooltip": "(>)",
+    "panel": "Confidence Interval",
+    "sub_panel": null,
+    "tooltip": "Confidence interval around POS for imprecise variants"
+  },
+  "ClippingRankSum_value": {
+    "display_text": "ClippingRankSum",
+    "in_line_tooltip": "(=<)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "This variant-level annotation tests whether there is evidence of bias in the position of alleles within the reads that support them, between the reference and alternate alleles"
+  },
+  "DANN_rankscore": {
+    "display_text": "DANN_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious."
+  },
+  "DANN_score": {
+    "display_text": "DANN_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Deleterious Annotation of genetic variants using Neural Networks. Higher values are more deleterious."
+  },
+  "DP_value": {
+    "display_text": "DP",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Related Information",
+    "sub_panel": null,
+    "tooltip": "Approximate read depth; some reads may have been filtered"
+  },
+  "EAS_AF": {
+    "display_text": "East Asian Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the EAS populations calculated from AC and AN, in the range (0,1)"
+  },
+  "EUR_AF": {
+    "display_text": "Europe Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the EUR populations calculated from AC and AN, in the range (0,1)"
+  },
+  "ExAC_AFR": {
+    "display_text": "ExAC AFR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African population"
+  },
+  "ExAC_ALL": {
+    "display_text": "ExAC ALL",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_AMR": {
+    "display_text": "ExAC AMR",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American Population"
+  },
+  "ExAC_EAS": {
+    "display_text": "ExAC EAS",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian population"
+  },
+  "ExAC_FIN": {
+    "display_text": "ExAC FIN",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish population"
+  },
+  "ExAC_NFE": {
+    "display_text": "ExAC NFE",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European population"
+  },
+  "ExAC_OTH": {
+    "display_text": "ExAC OTH",
+    "in_line_tooltip": "(>=)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_SAS": {
+    "display_text": "ExAC SAS",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian population"
+  },
+  "ExAC_nonpsych_AFR": {
+    "display_text": "ExAC AFR non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African population"
+  },
+  "ExAC_nonpsych_ALL": {
+    "display_text": "ExAC ALL non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_nonpsych_AMR": {
+    "display_text": "ExAC AMR non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American"
+  },
+  "ExAC_nonpsych_EAS": {
+    "display_text": "ExAC EAS non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian"
+  },
+  "ExAC_nonpsych_FIN": {
+    "display_text": "ExAC FIN non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish population"
+  },
+  "ExAC_nonpsych_NFE": {
+    "display_text": "ExAC NFE non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European Population"
+  },
+  "ExAC_nonpsych_OTH": {
+    "display_text": "ExAC OTH non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_nonpsych_SAS": {
+    "display_text": "ExAC SAS non-psych",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian Population"
+  },
+  "ExAC_nontcga_AFR": {
+    "display_text": "ExAC AFR nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African Population"
+  },
+  "ExAC_nontcga_ALL": {
+    "display_text": "ExAC ALL nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "ExAC_nontcga_AMR": {
+    "display_text": "ExAC AMR nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Admixed American Population"
+  },
+  "ExAC_nontcga_EAS": {
+    "display_text": "ExAC EAS nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "East Asian Population"
+  },
+  "ExAC_nontcga_FIN": {
+    "display_text": "ExAC FIN nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Finnish Population"
+  },
+  "ExAC_nontcga_NFE": {
+    "display_text": "ExAC NFE nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Non-Finnish European Population"
+  },
+  "ExAC_nontcga_OTH": {
+    "display_text": "ExAC OTH nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "Other population"
+  },
+  "ExAC_nontcga_SAS": {
+    "display_text": "ExAC SAS nonTCGA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "South Asian Population"
+  },
+  "ExcessHet": {
+    "display_text": "ExcessHet",
+    "in_line_tooltip": "(=<)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Phred-scaled p-value for exact test of excess heterozygosity"
+  },
+  "FS": {
+    "display_text": "FS",
+    "in_line_tooltip": "(=<)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "Phred-scaled p-value using Fisher's exact test to detect strand bias"
+  },
+  "GERP++_RS": {
+    "display_text": "GERP++",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious"
+  },
+  "GERP++_RS_rankscore": {
+    "display_text": "GERP++ rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Genome Evolutionary Rate Profiling ++. Higher scores are more deleterious"
+  },
+  "LRT_converted_rankscore": {
+    "display_text": "LRT_converted_rankscore",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious."
+  },
+  "LRT_score": {
+    "display_text": "LRT Score",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "LRT of H0: each codon evolves neutrally vs H1: the codon evolves under negative selection. Lower scores are more deleterious."
+  },
+  "MQRankSum_value": {
+    "display_text": "Mapping Quality Rank Sum Test",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Quality Metrix",
+    "sub_panel": null,
+    "tooltip": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities"
+  },
+  "MQ_value": {
+    "display_text": "RMS Mapping Quality",
+    "in_line_tooltip": "(>=)",
+    "panel": "Variant Quality Metrix",
+    "sub_panel": null,
+    "tooltip": "Root Mean Square of the mapping quality of reads across all samples."
+  },
+  "MetaLR_rankscore": {
+    "display_text": "MetaLR_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Logistic regression. Higher scores are more deleterious."
+  },
+  "MetaLR_score": {
+    "display_text": "MetaLR_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Logistic regression. Higher scores are more deleterious."
+  },
+  "MetaSVM_rankscore": {
+    "display_text": "MetaSVM_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Support vector machine. Higher scores are more deleterious."
+  },
+  "MetaSVM_score": {
+    "display_text": "MetaSVM_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Support vector machine. Higher scores are more deleterious."
+  },
+  "MutationAssessor_score": {
+    "display_text": "MutationAssessor_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious."
+  },
+  "MutationAssessor_score_rankscore": {
+    "display_text": "MutationAssessor_score_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Entropy of multiple sequence alignment. Higher values are more deleterious."
+  },
+  "MutationTaster_converted_rankscore": {
+    "display_text": "MutationTaster_converted_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Bayes Classifier"
+  },
+  "MutationTaster_score": {
+    "display_text": "MutationTaster_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Bayes Classifier"
+  },
+  "NS": {
+    "display_text": "NS",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "Number of samples with data"
+  },
+  "PROVEAN_converted_rankscore": {
+    "display_text": "PROVEAN_converted_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious."
+  },
+  "PROVEAN_score": {
+    "display_text": "PROVEAN_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Protein Variation Effect Analyzer. Clustering of homologous sequences. Higher values are more deleterious."
+  },
+  "Polyphen2_HDIV_rankscore": {
+    "display_text": "Polyphen2_HDIV_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HDIV_score": {
+    "display_text": "Polyphen2_HDIV_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Probabilistic Classifier Training sets: HumDiv. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956), benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HVAR_rankscore": {
+    "display_text": "Polyphen2_HVAR_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452)."
+  },
+  "Polyphen2_HVAR_score": {
+    "display_text": "Polyphen2_HVAR_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Polymorphism phenotyping v2. Machine learning Training sets: HumVar. Probably damaging (>=0.957), possibly damaging (0.453<=pp2_hdiv<=0.956); benign (pp2_hdiv<=0.452)."
+  },
+  "REVEL": {
+    "display_text": "REVEL",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "REVEL (rare exome variant ensemble learner): An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants."
+  },
+  "ReadPosRankSum_value": {
+    "display_text": "Rank Sum Test for relative positioning of REF versus ALT alleles within reads",
+    "in_line_tooltip": "(>=)",
+    "panel": "Other",
+    "sub_panel": null,
+    "tooltip": "This variant-level annotation tests whether there is evidence of bias in the position of alleles within the reads that support them, between the reference and alternate alleles"
+  },
+  "SAS_AF": {
+    "display_text": "South Asian Population",
+    "in_line_tooltip": "(<)",
+    "panel": "Allele Frequency Calculation",
+    "sub_panel": null,
+    "tooltip": "Allele frequency in the SAS populations calculated from AC and AN, in the range (0,1)"
+  },
+  "SIFT_converted_rankscore": {
+    "display_text": "SIFT_converted_rankscore",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)"
+  },
+  "SIFT_score": {
+    "display_text": "SIFT_score",
+    "in_line_tooltip": "(<=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Sort intolerated from tolerated. P(An amino acid at a position is tolerated | The most frequentest amino acid being tolerated). Deleterious (sift<=0.05); Tolerated (sift>0.05)"
+  },
+  "SVLEN": {
+    "display_text": "SVLEN",
+    "in_line_tooltip": "(>=)",
+    "panel": "VEP Other Nested",
+    "sub_panel": null,
+    "tooltip": "SV length. It is only calculated for structural variation MEIs. For other types of SVs; one may calculate the SV length by INFO:END-START+1, or by finding the difference between lengthes of REF and ALT alleles"
+  },
+  "SiPhy_29way_logOdds": {
+    "display_text": "SiPhy_29way_logOdds",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious."
+  },
+  "SiPhy_29way_logOdds_rankscore": {
+    "display_text": "SiPhy_29way_logOdds_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Probabilistic framework, HMM Use 29 species. Higher scores are more deleterious."
+  },
+  "VEST3_rankscore": {
+    "display_text": "VEST3_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious."
+  },
+  "VEST3_score": {
+    "display_text": "VEST3_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Variant effect scoring tool using Random forest classifier. Higher values are more deleterious."
+  },
+  "esp6500siv2_aa": {
+    "display_text": "ESP6500 AA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "African American"
+  },
+  "esp6500siv2_all": {
+    "display_text": "ESP6500 ALL",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "All available population"
+  },
+  "esp6500siv2_ea": {
+    "display_text": "ESP6500 EA",
+    "in_line_tooltip": "(<)",
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "European American"
+  },
+  "fathmm-MKL_coding_rankscore": {
+    "display_text": "fathmm-MKL_coding_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM."
+  },
+  "fathmm-MKL_coding_score": {
+    "display_text": "fathmm-MKL_coding_score",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Predicting the effects of both coding and non-coding variants using nucleotide-based HMM. Score >= 0.5: Deleterious; Score < 0.5: Tolerated"
+  },
+  "integrated_fitCons_score": {
+    "display_text": "integrated_confidence_value",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
+  },
+  "integrated_fitCons_score_rankscore": {
+    "display_text": "integrated_fitCons_score_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Pathogenicity Scores",
+    "sub_panel": null,
+    "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
+  },
+  "phastCons100way_vertebrate": {
+    "display_text": "phastCons100way_vertebrate",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phastCons100way_vertebrate_rankscore": {
+    "display_text": "phastCons100way_vertebrate_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phastCons20way_mammalian": {
+    "display_text": "phastCons20way_mammalian",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious."
+  },
+  "phastCons20way_mammalian_rankscore": {
+    "display_text": "phastCons20way_mammalian_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) that uses 20 species. Higher scores are more deleterious."
+  },
+  "phyloP100way_vertebrate": {
+    "display_text": "phyloP100way_vertebrate",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phyloP100way_vertebrate_rankscore": {
+    "display_text": "phyloP100way_vertebrate_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic Hidden Markov Model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "phyloP20way_mammalian": {
+    "display_text": "phyloP20way_mammalian",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious."
+  },
+  "phyloP20way_mammalian_rankscore": {
+    "display_text": "phyloP20way_mammalian_rankscore",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "Phylogentic p-values. A phylogenetic hidden Markov model (phylo-HMM) Use 20 species. Higher scores are more deleterious."
+  },
+  "Sample_ID": {
+    "display_text": "sample ID",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "GT": {
+    "display_text": "Genotype",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": null
+  },
+  "PGT": {
+    "display_text": "PGT",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Phased Genotype"
+  },
+  "PID": {
+    "display_text": "sample_MIN_DP",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Phased Genotype ID"
+  },
+  "AD_ref": {
+    "display_text": "AD_ref",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Allelic depth for the REF allele"
+  },
+  "AD_alt": {
+    "display_text": "AD_alt",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Allelic depth for the REF allele"
+  },
+  "PL": {
+    "display_text": "PL",
+    "in_line_tooltip": null,
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification"
+  },
+  "RGQ": {
+    "display_text": "RGQ",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Unconditional reference genotype confidence, encoded as a phred quality -10*log10 p(genotype call is wrong)"
+  },
+  "SB": {
+    "display_text": "SB",
+    "in_line_tooltip": "(>=)",
+    "panel": "Sample Related Information",
+    "sub_panel": null,
+    "tooltip": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias"
+  }
+}
