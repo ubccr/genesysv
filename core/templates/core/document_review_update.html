@@ -16,9 +16,12 @@ Create Document Review
       <table class="table table-condensed">
         <tbody>
           <tr>
+            <td><strong>Dataset</strong></td>
+            <td>{{ result.Variant }}</td>
+          </tr>
+          <tr>
             <td><strong>Variant</strong></td>
-            <td>{{ result.Variant }}
-            </td>
+            <td>{{ result.Variant }}</td>
           </tr>
           <tr>
             <td><strong>CHROM</strong></td>
@@ -60,11 +63,11 @@ Create Document Review
 
 
 
-<form action="{% url 'core-document-review-create' dataset_id document_id %}" method="post">
+<form action="{% url 'core-document-review-update' dataset_id document_review_id %}" method="post">
     {% csrf_token %}
     {{form|crispy}}
     <input  class="btn btn-primary" type="submit" value="Save">
-    <a class="btn btn-default" role="button" href="{% url 'complex-document-view' dataset_id document_id %}">Cancel</a>
+    <a class="btn btn-default" role="button" href="{% url 'complex-document-view' dataset_id document_es_id %}">Cancel</a>
 </form>
 
 

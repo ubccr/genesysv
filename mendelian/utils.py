@@ -114,7 +114,7 @@ def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
             father_pt = ele.get('Father_Phenotype')
             mother_pt = ele.get('Mother_Phenotype')
             if child_pt == '1' or father_pt == '2' or mother_pt == '2':
-               return None
+                return None
             if child_gt not in ['1/1', '1|1']:
                 return None
 
@@ -241,7 +241,7 @@ def is_compound_heterozygous_for_gene(es, dataset_obj, gene, query, family_id, f
         father_pt = sample_data.get('Father_Phenotype')
         mother_pt = sample_data.get('Mother_Phenotype')
 
-        sum_digits = sum([int(char) for char in father_pt + mother_pt if char.isdigits()])
+        sum_digits = sum([int(char) for char in father_pt + mother_pt if char.isdigit()])
         if sum_digits != 2:
             continue
 
@@ -474,15 +474,12 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     filter_array_copy.remove(ele)
                     sample_array = ele
 
-
             if annotation == 'VEP':
                 CSQ_nested_array = None
                 for ele in filter_array:
                     if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
                         filter_array_copy.remove(ele)
                         CSQ_nested_array = ele
-
-
 
 
             if sample_array:
@@ -539,8 +536,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 )
-
-
 
             if not CSQ_nested_array and annotation == 'VEP':
                 query_body['query']['bool']['filter'].append(
@@ -693,7 +688,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     {"range": {"POS": {"gt": range_to_exclude_1[0], "lt": range_to_exclude_1[1]}}},
                     {"range": {"POS": {"gt": range_to_exclude_2[0], "lt": range_to_exclude_2[1]}}}
                 ]
-
 
         return query_body
 
@@ -895,7 +889,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
                 query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
 
-
         elif child_sex == '2':  # 2 == female
             if 'query' not in query_body:
                 query_body['query'] = {'bool': {'filter': []}}
@@ -918,7 +911,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     }
                 })
-
 
             if annotation == 'VEP':
                 query_body['query']['bool']['filter'].append({
@@ -965,7 +957,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
                 query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
 
-
             elif query_body['query']['bool']['filter']:
                 filter_array = query_body['query']['bool']['filter']
                 filter_array_copy = copy.deepcopy(filter_array)
@@ -994,7 +985,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     )
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
-
 
                 if CSQ_nested_array and annotation == 'VEP':
                     CSQ_nested_array['nested']['inner_hits'] = {}
@@ -1537,7 +1527,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
         for family_id, family in self.family_dict.items():
 
-
             if self.mendelian_analysis_type == 'autosomal_dominant':
                 query_body = self.add_autosomal_dominant_query_string(family_id, family.get('child_id'))
             elif self.mendelian_analysis_type == 'autosomal_recessive':
@@ -1633,7 +1622,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         if annotation == 'ANNOVAR':
             pass
 
-
     def add_gene_to_query_body(self, gene, annotation):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
@@ -1695,8 +1683,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
                 annotation = 'ANNOVAR'
 
-        if self.is_gene_in_query_body():
-            genes = [self.is_gene_in_query_body(), ]
+        if self.is_gene_in_query_body(annotation):
+            genes = [self.is_gene_in_query_body(annotation), ]
 
         else:
             genes = get_genes_es(self.dataset_obj.es_index_name,
@@ -1719,8 +1707,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         for family_id, family in self.family_dict.items():
 
             for gene in genes:
-                if not self.is_gene_in_query_body():
-                    query_body = self.add_gene_to_query_body(gene, annotaiton)
+
+                if not self.is_gene_in_query_body(annotation):
+                    query_body = self.add_gene_to_query_body(gene, annotation)
                 else:
                     query_body = copy.deepcopy(self.query_body)
 
@@ -1764,7 +1753,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     filter_array_copy.append(sample_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
 
-
                 if CSQ_nested_array and annotation == 'VEP':
                     CSQ_nested_array['nested']['inner_hits'] = {}
                     CSQ_nested_array['nested']['query']['bool']['filter'].append({"terms": {"CSQ_nested.Consequence":
@@ -1780,7 +1768,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                         })
                     filter_array_copy.append(CSQ_nested_array)
                     query_body['query']['bool']['filter'] = filter_array_copy
-
 
                 if not sample_array:
                     query_body['query']['bool']['filter'].append(
@@ -1833,25 +1820,25 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                         }
                     )
 
-            if annotation == 'ANNOVAR':
-                query_body['query']['bool']['filter'].append(
-                    {'terms': {'ExonicFunc_ensGene': [
-                        'frameshift_deletion',
-                        'frameshift_insertion',
-                        'stopgain',
-                        'stoploss',
-                    ]}}
-                )
-                query_body['query']['bool']['filter'].append(
-                    {'terms': {'ExonicFunc_refGene': [
-                        'frameshift_deletion',
-                        'frameshift_insertion',
-                        'stopgain',
-                        'stoploss',
-                    ]}}
-                )
-                query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
-                query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
+                if annotation == 'ANNOVAR':
+                    query_body['query']['bool']['filter'].append(
+                        {'terms': {'ExonicFunc_ensGene': [
+                            'frameshift_deletion',
+                            'frameshift_insertion',
+                            'stopgain',
+                            'stoploss',
+                        ]}}
+                    )
+                    query_body['query']['bool']['filter'].append(
+                        {'terms': {'ExonicFunc_refGene': [
+                            'frameshift_deletion',
+                            'frameshift_insertion',
+                            'stopgain',
+                            'stoploss',
+                        ]}}
+                    )
+                    query_body['query']['bool']['filter'].append({'term': {'Func_refGene': 'splicing'}})
+                    query_body['query']['bool']['filter'].append({'term': {'Func_ensGene': 'splicing'}})
 
                 compound_heterozygous_results = is_compound_heterozygous_for_gene(
                     es, self.dataset_obj, gene, query_body, family_id, family.get('father_id'), family.get('mother_id'), family.get('child_id'))

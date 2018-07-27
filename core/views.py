@@ -368,8 +368,10 @@ class BaseSearchView(TemplateView):
         filters_used = search_elasticsearch_obj.get_filters_used()
         attributes_selected = search_elasticsearch_obj.get_attributes_selected()
 
-
-        keys = results[0].keys()
+        try:
+            keys = results[0].keys()
+        except:
+            keys = []
 
         if 'SYMBOL' in keys:
             genes = []
@@ -385,7 +387,6 @@ class BaseSearchView(TemplateView):
                 gene_mania_link = None
         else:
             gene_mania_link = None
-
 
 
         if request.user.is_authenticated:
@@ -513,29 +514,28 @@ class RetrieveSavedSearchView(TemplateView):
         return context
 
 
-
 class BaseDocumentView(TemplateView):
     template_name = "core/document.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
+        document_es_id = self.kwargs.get('document_es_id')
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
 
         if error_message:
             messages.error(self.request, error_message)
             document_review = None
         else:
-            if DocumentReview.objects.filter(document_es_id=document_id, group=group_obj).exists():
-                document_review = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
+            if DocumentReview.objects.filter(document_es_id=document_es_id, group=group_obj).exists():
+                document_review = DocumentReview.objects.get(document_es_id=document_es_id, group=group_obj)
             else:
                 document_review = None
 
-        result = get_es_document(dataset_obj, document_id)
+        result = get_es_document(dataset_obj, document_es_id)
         fields_to_skip = ['Variant', 'CHROM', 'POS', 'REF', 'ALT', 'VariantType', 'FILTER', 'QUAL', 'ID', 'sample']
         context['document_review'] = document_review
-        context['document_id'] = document_id
+        context['document_es_id'] = document_es_id
         context['dataset_id'] = dataset_obj.id
         context['result'] = result
         context['fields_to_skip'] = fields_to_skip
@@ -548,49 +548,51 @@ class DocumentReviewCreateView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
+        document_es_id = self.kwargs.get('document_es_id')
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, request.user)
 
         if not error_message:
             return super().dispatch(request, *args, **kwargs)
         else:
             messages.error(request, error_message)
-            return HttpResponseRedirect(reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id}))
+            return HttpResponseRedirect(reverse('core-document-list'))
 
     def get_success_url(self):
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
-        return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id})
+        document_es_id = self.kwargs.get('document_es_id')
+        return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_es_id': document_es_id})
 
     def form_valid(self, form):
         data = form.cleaned_data
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
+        document_es_id = self.kwargs.get('document_es_id')
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
-        if DocumentReview.objects.filter(document_es_id=document_id, group=group_obj).exists():
-            document_review_obj = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
-            if data.get('status') == document_review_obj.status:
-                return super().form_valid(form)
-            if data.get('status') == 'Delete':
-                document_review_obj.delete()
-                return super().form_valid(form)
-            if data.get('status') != document_review_obj.status:
-                document_review_obj.status = data.get('status')
-                document_review_obj.save()
-                return super().form_valid(form)
-        else:
-            document_review_obj = DocumentReview.objects.create(
-                group=group_obj,
-                dataset=dataset_obj, document_es_id=document_id, status=data.get('status'))
-            return super().form_valid(form)
+
+        # if DocumentReview.objects.filter(document_es_id=document_es_id, group=group_obj).exists():
+        #     document_review_obj = DocumentReview.objects.get(document_es_id=document_es_id, group=group_obj)
+        #     if data.get('status') == document_review_obj.status:
+        #         return super().form_valid(form)
+        #     if data.get('status') == 'Delete':
+        #         document_review_obj.delete()
+        #         return super().form_valid(form)
+        #     if data.get('status') != document_review_obj.status:
+        #         document_review_obj.status = data.get('status')
+        #         document_review_obj.save()
+        #         return super().form_valid(form)
+        # else:
+        result = get_es_document(dataset_obj, document_es_id)
+        document_review_obj = DocumentReview.objects.create(
+            group=group_obj,
+            dataset=dataset_obj, document_es_id=document_es_id, status=data.get('status'), description=result.get('Variant'))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
-        result = get_es_document(dataset_obj, document_id)
+        document_es_id = self.kwargs.get('document_es_id')
+        result = get_es_document(dataset_obj, document_es_id)
         context['result'] = result
-        context['document_id'] = document_id
+        context['document_es_id'] = document_es_id
         context['dataset_id'] = dataset_obj.id
         return context
 
@@ -601,26 +603,31 @@ class DocumentReviewUpdateView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
+        document_review_id = self.kwargs.get('document_review_id')
+        document_review_obj = DocumentReview.objects.get(id=document_review_id)
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, request.user)
 
         if not error_message:
             return super().dispatch(request, *args, **kwargs)
         else:
             messages.error(request, error_message)
-            return HttpResponseRedirect(reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id}))
+            return HttpResponseRedirect(reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_es_id': document_review_obj.document_es_id}))
 
     def get_success_url(self):
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
-        return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_id': document_id})
+        document_review_id = self.kwargs.get('document_review_id')
+        try:
+            document_review_obj = DocumentReview.objects.get(id=document_review_id)
+            return reverse('complex-document-view', kwargs={'dataset_id': dataset_obj.id, 'document_es_id': document_review_obj.document_es_id})
+        except:
+            return reverse('core-document-list')
 
     def form_valid(self, form):
         data = form.cleaned_data
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
+        document_review_id = self.kwargs.get('document_review_id')
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
-        document_review_obj = DocumentReview.objects.get(document_es_id=document_id, group=group_obj)
+        document_review_obj = DocumentReview.objects.get(id=document_review_id, group=group_obj)
         if data.get('status') == document_review_obj.status:
             return super().form_valid(form)
         if data.get('status') == 'Delete':
@@ -634,9 +641,21 @@ class DocumentReviewUpdateView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dataset_obj = get_object_or_404(Dataset, pk=self.kwargs.get('dataset_id'))
-        document_id = self.kwargs.get('document_id')
-        result = get_es_document(dataset_obj, document_id)
+        document_review_id = self.kwargs.get('document_review_id')
+        document_review_obj = DocumentReview.objects.get(id=document_review_id)
+        result = get_es_document(dataset_obj, document_review_obj.document_es_id)
         context['result'] = result
-        context['document_id'] = document_id
+        context['document_review_id'] = document_review_id
+        context['document_es_id'] = document_review_obj.document_es_id
         context['dataset_id'] = dataset_obj.id
         return context
+
+
+class DocumentReviewListView(ListView):
+    model = DocumentReview
+    context_object_name = 'document_review_list'
+    template_name = 'core/document_review_list.html'
+
+    def get_queryset(self):
+        groups = self.request.user.groups.all()
+        return DocumentReview.objects.filter(group__in=groups)

@@ -60,11 +60,11 @@ Create Document Review
 
 
 
-<form action="{% url 'core-document-review-create' dataset_id document_id %}" method="post">
+<form action="{% url 'core-document-review-create' dataset_id document_es_id %}" method="post">
     {% csrf_token %}
     {{form|crispy}}
     <input  class="btn btn-primary" type="submit" value="Save">
-    <a class="btn btn-default" role="button" href="{% url 'complex-document-view' dataset_id document_id %}">Cancel</a>
+    <a class="btn btn-default" role="button" href="{% url 'complex-document-view' dataset_id document_es_id %}">Cancel</a>
 </form>
 
 

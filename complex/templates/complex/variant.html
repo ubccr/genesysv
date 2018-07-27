@@ -50,9 +50,9 @@
             <tr>
               <td><strong>Variant Review</strong></td>
               {% if document_review %}
-                <td><a href="{% url 'core-document-review-update' dataset_id document_id %}">{{document_review.status}}</a></td>
+                <td><a href="{% url 'core-document-review-update' dataset_id document_review.id %}">{{document_review.status}}</a></td>
               {% else %}
-                <td><a href="{% url 'core-document-review-create' dataset_id document_id %}"> Review Variant</a></td>
+                <td><a href="{% url 'core-document-review-create' dataset_id document_es_id %}"> Review Variant</a></td>
               {% endif %}
             </tr>
           {% endif %}

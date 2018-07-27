@@ -306,6 +306,7 @@ class DocumentReview(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     document_es_id = models.CharField(max_length=64)
+    description = models.CharField(max_length=64, blank=True, null=True)
     status = models.CharField(max_length=16, choices=REVIEW_STATUS_CHOICES)
 
     def __str__(self):
