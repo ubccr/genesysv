@@ -22,7 +22,7 @@ import elasticsearch
 from collections import deque
 from elasticsearch import helpers
 import time
-from make_gui_multi import make_gui_config, make_gui
+from make_gui import make_gui_config, make_gui
 import utils
 import sqlite3
 from utils import *
@@ -1626,14 +1626,18 @@ if __name__ == '__main__':
 		#  make a gui config file
 		print("Creating Web user interface, please wait ...")	
 		
-		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control)
+		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control, ped)
 
-		
+			
 		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
 		
 		print("*"*80+"\n")	
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
 		
+		t3 = time.time()
+		total3 = t3 - t0
+
+		print("Success, vcf parsing: %s, indexing: %s, GUI creation: %s\n" % (total1/60, total2/60, total3/60))
 	# clean up
 	if cleanup:
 		for infile in output_files:

@@ -82,7 +82,7 @@ ANALYSIS_TYPES = (
     ("microbiome","microbiome"),
 )
 
-def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control):
+def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control, ped):
 	mapping = json.load(open(mapping_file, 'r'))
 	mapping = mapping[type_name]['properties']
 	vcf_info = json.load(open(vcf_info_file, 'r'))
@@ -393,6 +393,11 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
 				gui_mapping_sample[key]['filters'][0]["in_line_tooltip"] = ""
 				gui_mapping_sample[key]['filters'][0]['widget_type'] = "SelectMultiple"
 				gui_mapping_sample[key]['filters'][0]['form_type'] = "MultipleChoiceField"
+
+				if key == 'Sample_ID' and not ped:
+					gui_mapping_sample[key]['filters'][0]['widget_type'] = "UploadField"
+					gui_mapping_sample[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
+					del gui_mapping_sample[key]['filters'][0]['values']	
 				if key.endswith('Sex'):
 					gui_mapping_sample[key]['filters'][0]["in_line_tooltip"] = "(1 = Male, 2 = Female)"
 				elif key.endswith('Phenotype'):
@@ -1086,8 +1091,9 @@ if __name__ == '__main__':
 	type_name = index_name + '_' 
 	annot = 'annovar'
 	case_control = False #True
+	ped = False
 
-	gui_mapping = make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control)
+	gui_mapping = make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control, ped)
 
 
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=400, read_timeout=400)
