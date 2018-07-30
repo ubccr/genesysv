@@ -54,6 +54,7 @@ $("#navbarId-Home").addClass("active");
   <div id="input_div">
     <form id="searchForm" role="form" method="POST" action="">
       {% csrf_token %}
+      <input id="exclude_rejected_documents_input" type="hidden" name="exclude_rejected_documents" value="false">
       <div class="col-md-8">
         <div class="panel panel-primary">
           <div class="panel-body">
@@ -208,7 +209,6 @@ $("#navbarId-Home").addClass("active");
 
 
 $(document).ready(function () {
-  console.log(data);
   $("#results_div").hide()
   $("#step1-additional-information").hide()
   $("#attribute___p").sortable();
@@ -258,7 +258,6 @@ $("#dataset_loaded").on('change', function () {
 });
 
 $("#analysis_type_loaded").on('change', function () {
-  console.log('lksdjflksd')
   if ($("#analysis_type_loaded").val() == "true" && $("#load_search").val() == "true") {
     $("#id_analysis_type").val(data['analysis_type']).trigger("change");
     $("#analysis_type_loaded").removeAttr('id');
@@ -518,7 +517,7 @@ function submit_via_ajax() {
   form_data = form_data.replace(/\d+_\d+___/g, "");
   form_data = form_data.replace(/\d+___/g, "");
   var study_id = {{ study_obj.id | safe }}
-
+  console.log(form_data)
   $.ajax({
     headers: { 'X-CSRFToken': getCookie('csrftoken') },
     type: "POST",
@@ -585,5 +584,7 @@ $("#li-step4").on("click", function () {
     $('#results_div').show();
   }
 });
+
+
 </script>
 {% endblock %}

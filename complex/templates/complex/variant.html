@@ -1,88 +1,284 @@
-{% extends "base.html" %} 
-{% load staticfiles %} 
-{% load crispy_forms_tags %} 
-{% load common_tags %} 
-{% block title %} 
-Variant 
-{% endblock %} 
+{% extends "base.html" %} {% load staticfiles %} {% load crispy_forms_tags %} {% load common_tags %} {% block title %} Variant {% endblock %} {% block content %}
 
-{% block content %}
-<div class="col-md-6">
+
 <div class="panel panel-primary">
-<div class="panel-heading">
-    <h3 class="panel-title">Variant Information</h3>
-  </div>
+  <div class="panel-heading">General Information</div>
   <div class="panel-body">
     <div class="table-responsive">
-    <table class="table table-condensed">
-    <tbody>
-        <tr>
-            <td>Variant</td>
-            <td><strong>{{ result.Variant }}</strong>
-                <br><a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a>
-                <br><a target="_blank" href="{{ result.Variant|get_decipher_link }}"> (Open in Decipher)</a>
+      <table class="table table-condensed">
+        <tbody>
+          <tr>
+            <td><strong>Variant</strong></td>
+            <td>{{ result.Variant }}
+              <a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a>
+              <a target="_blank" href="{{ result.Variant|get_decipher_link }}"> (Open in Decipher)</a>
             </td>
-        </tr>
-        <tr>
-            <td>Chromosome</td>
-            <td><strong>{{ result.CHROM }}</strong></td>
-        </tr>
-        <tr>
-            <td>Start</td>
-            <td><strong>{{ result.POS }}</strong></td>
-        </tr>
-        <tr>
-            <td>Reference Allele</td>
-            <td><strong>{{ result.REF }}</strong></td>
-        </tr>
-        <tr>
-            <td>Alternate Allele</td>
-            <td><strong>{{ result.ALT }}</strong></td>
-        </tr>
-        <tr>
-            <td>Mutation Type</td>
-            <td><strong>{{ result|get_value_from_dict:"VariantType" }}</strong></td>
-        </tr>
-        <tr>
-            <td>Cytoband</td>
-            <td><strong>{{ result|get_value_from_dict:"cytoBand" }}</strong></td>
-        </tr>
-        <tr>
-            {% if result.FILTER %}
-                <td>GATK Filter Status</td>
-                <td><strong>{{ result.FILTER }}</strong></td>
-            </tr>
-        {% endif %}
-        {% if result.QUAL %}
+          </tr>
+          <tr>
+            <td><strong>CHROM</strong></td>
+            <td>{{ result.CHROM }}</td>
+          </tr>
+          <tr>
+            <td><strong>POS</strong></td>
+            <td>{{ result.POS }}</td>
+          </tr>
+          <tr>
+            <td><strong>REF</strong></td>
+            <td>{{ result.REF }}</td>
+          </tr>
+          <tr>
+            <td><strong>ALT</strong></td>
+            <td>{{ result.ALT }}</td>
+          </tr>
+          <tr>
+            <td><strong>Variant Type</strong></td>
+            <td>{{ result|get_value_from_dict:"VariantType" }}</td>
+          </tr>
+          <tr>
+            <td><strong>FILTER</strong></td>
+            <td>{{ result.FILTER }}</td>
+          </tr>
+          <tr>
+            <td><strong>QUAL</strong></td>
+            <td>{{ result.QUAL }}</td>
+          </tr>
+          <tr>
+            <td><strong>ID</strong></td>
+            <td>{{result.ID}}</td>
+          </tr>
+          {% if user.is_authenticated %}
             <tr>
-                <td>GATK Quality Score</td>
-                <td><strong>{{ result.QUAL }}</strong></td>
+              <td><strong>Variant Review</strong></td>
+              {% if document_review %}
+                <td><a href="{% url 'core-document-review-update' dataset_id document_review.id %}">{{document_review.status}}</a></td>
+              {% else %}
+                <td><a href="{% url 'core-document-review-create' dataset_id document_es_id %}"> Review Variant</a></td>
+              {% endif %}
             </tr>
-        {% endif %}
-        {% if result.ID %}
-            <tr>
-                <td>ID</td>
-                <td><strong>{{result.ID}}</strong></td>
-            </tr>
-        {% endif %}
-        {% if result.avsnp142 %}
-            <tr>
-                <td>avsnp142</td>
-                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.avsnp142}}"><strong>{{ result.avsnp142 }}</strong></a></td>
-            </tr>
-        {% endif %}
-        {% if result.snp138NonFlagged %}
-            <tr>
-                <td>snp138NonFlagged</td>
-                <td><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?type=rs&rs={{result.snp138NonFlagged}}"><strong>{{ result.snp138NonFlagged }}</strong></a></td>
-            </tr>
-        {% endif %}
-
-
-    </tbody>
-  </table>
-  </div>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Sample Information</div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table id="sample_table" class="table table-condensed">
+        <thead>
+          <tr>
+            <th>AD_alt</th>
+            <th>AD_ref</th>
+            <th>DP</th>
+            <th>Family_ID</th>
+            <th>Father_Genotype</th>
+            <th>Father_ID</th>
+            <th>Father_Phenotype</th>
+            <th>GQ</th>
+            <th>GT</th>
+            <th>Mother_Genotype</th>
+            <th>Mother_ID</th>
+            <th>Mother_Phenotype</th>
+            <th>Phenotype</th>
+            <th>PL</th>
+            <th>Sample_ID</th>
+            <th>Sex</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for element in result.sample %}
+          <tr>
+            <td>{{element.AD_alt}}</td>
+            <td>{{element.AD_ref}}</td>
+            <td>{{element.DP}}</td>
+            <td>{{element.Family_ID}}</td>
+            <td>{{element.Father_Genotype}}</td>
+            <td>{{element.Father_ID}}</td>
+            <td>{{element.Father_Phenotype}}</td>
+            <td>{{element.GQ}}</td>
+            <td>{{element.GT}}</td>
+            <td>{{element.Mother_Genotype}}</td>
+            <td>{{element.Mother_ID}}</td>
+            <td>{{element.Mother_Phenotype}}</td>
+            <td>{{element.Phenotype}}</td>
+            <td>{{element.PL}}</td>
+            <td>{{element.Sample_ID}}</td>
+            <td>{{element.Sex}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
+<div class="panel panel-primary">
+  <div class="panel-heading">VEP General Annotations</div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table table-condensed">
+        <tbody>
+          <tr>
+            <td><strong>AA_AF</strong></td>
+            <td>{{ result.AA_AF }}</td>
+          </tr>
+          <tr>
+            <td><strong>AF</strong></td>
+            <td>{{ result.AF }}</td>
+          </tr>
+          <tr>
+            <td><strong>AFR_AF</strong></td>
+            <td>{{ result.AFR_AF }}</td>
+          </tr>
+          <tr>
+            <td><strong>AMR_AF</strong></td>
+            <td>{{ result.AMR_AF }}</td>
+          </tr>
+          <tr>
+            <td><strong>CADD_PHRED</strong></td>
+            <td>{{ result.CADD_PHRED }}</td>
+          </tr>
+          <tr>
+            <td><strong>CADD_RAW</strong></td>
+            <td>{{ result.CADD_RAW }}</td>
+          </tr>
+          <tr>
+            <td><strong>CLIN_SIG</strong></td>
+            <td>{{ result.CLIN_SIG }}</td>
+          </tr>
+          <tr>
+            <td><strong>COSMIC_ID</strong></td>
+            <td>{{result.COSMIC_ID}}</td>
+          </tr>
+          <tr>
+            <td><strong>dbSNP_ID</strong></td>
+            <td>{{result.dbSNP_ID}}</td>
+          </tr>
+          <tr>
+            <td><strong>EA_AF</strong></td>
+            <td>{{result.EA_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>EAS_AF</strong></td>
+            <td>{{result.EAS_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_AF</strong></td>
+            <td>{{result.gnomAD_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_AFR_AF</strong></td>
+            <td>{{result.gnomAD_AFR_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_AMR_AF</strong></td>
+            <td>{{result.gnomAD_AMR_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_ASJ_AF</strong></td>
+            <td>{{result.gnomAD_ASJ_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_EAS_AF</strong></td>
+            <td>{{result.gnomAD_EAS_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_FIN_AF</strong></td>
+            <td>{{result.gnomAD_FIN_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_FIN_AF</strong></td>
+            <td>{{result.gnomAD_FIN_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_NFE_AF</strong></td>
+            <td>{{result.gnomAD_NFE_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_OTH_AF</strong></td>
+            <td>{{result.gnomAD_OTH_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>gnomAD_SAS_AF</strong></td>
+            <td>{{result.gnomAD_SAS_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>MAX_AF</strong></td>
+            <td>{{result.MAX_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>MAX_AF_POPS</strong></td>
+            <td>{{result.MAX_AF_POPS}}</td>
+          </tr>
+          <tr>
+            <td><strong>SAS_AF</strong></td>
+            <td>{{result.SAS_AF}}</td>
+          </tr>
+          <tr>
+            <td><strong>SOMATIC</strong></td>
+            <td>{{result.SOMATIC}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% if result|get_value_from_dict:"CSQ_nested" %}
+<div class="panel panel-primary">
+  <div class="panel-heading">VEP CSQ Annotations</div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table table-condensed">
+        <tbody>
+          {% for element in result.CSQ_nested %} {% for ele_key, ele_val in element.items|dictsort:"0.lower" %}
+          <tr>
+            <td><strong>{{ele_key}}</strong></td>
+            <td>{{ele_val}}</td>
+          </tr>
+          {% endfor %}
+          <tr class="success">
+            <td></td>
+            <td></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %} {% if result.AN %}
+<div class="panel panel-primary">
+  <div class="panel-heading">Annovar Annotations</div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table table-condensed">
+        <tbody>
+          {% for key, value in result.items|dictsort:"0.lower" %} {% if key not in fields_to_skip %}
+          <tr>
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+          </tr>
+          {% endif %} {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#sample_table').DataTable({
+            "iDisplayLength": 10
+        });
+      });
+
+</script>
+
 {% endblock %}

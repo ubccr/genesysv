@@ -15,7 +15,10 @@
     <div id="main-nav-bar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li id="navbarId-home"><a href="{% url 'home'%}">Home</a></li>
+        {% if user.is_authenticated %}
         <li id="navbarId-saved-search-list"><a href="{% url 'saved-search-list'%}">Saved Searches</a></li>
+        <li id="navbarId-document-list"><a href="{% url 'core-document-list'%}">Annotated Variants</a></li>
+        {% endif %}
         <!-- 
         <li id="navbarId-download-request-list"><a href="{% url 'download-request-list'%}">Download Requests</a></li>
         {% if perms.microbiome.can_download_OTU_without_request %}
