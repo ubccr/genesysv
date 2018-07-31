@@ -524,7 +524,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					if val2 == '':
 						continue
 					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
-						tmp_dict2[key2] = int(csq_dict2_global[key2])
+						tmp = [int(item) for item in csq_dict2_global[key2].split('&')]
+						if len(tmp) > 1:
+							tmp_dict2[key2] = tmp
+						else:
+							tmp_dict2[key2] = tmp[0]
 					elif vcf_info['csq_dict_global'][key2]['type'] == 'float':
 						tmp = val2.split('&')
 						if len(tmp) > 1:
