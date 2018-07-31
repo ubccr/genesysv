@@ -465,9 +465,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		if key not in  vcf_info['info_dict']:
 			log.write("Key not exists: %s" % key)
 			continue
-		# don't waste time if no value available
-		if val == '.':
-			continue
 		if key == 'CSQ' and annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
@@ -485,9 +482,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				tmp_dict = {}
 					
 				for key2, val2 in csq_dict2_local.items():
-					if val2 == '':
-						continue
-
 					if key2 in ['SIFT', 'PolyPhen']:
 						m = p.match(val2)
 						if m:
@@ -504,6 +498,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							continue
 
 					elif vcf_info['csq_dict_local'][key2]['type'] == 'integer':
+						if val2 == '':
+							csq_dict2_local[key2] = -999
+							continue
 						try:
 							csq_dict2_local[key2] = int(csq_dict2_local[key2])
 						except ValueError:
@@ -521,15 +518,19 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				tmp_dict2 = {}
 
 				for key2, val2 in csq_dict2_global.items():
-					if val2 == '':
-						continue
 					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
+						if val2 == '':
+							tmp_dict2[key2] = -999
+							continue
 						tmp = [int(item) for item in csq_dict2_global[key2].split('&')]
 						if len(tmp) > 1:
 							tmp_dict2[key2] = tmp
 						else:
 							tmp_dict2[key2] = tmp[0]
 					elif vcf_info['csq_dict_global'][key2]['type'] == 'float':
+						if val2 == '':
+							tmp_dict2[key2] = -999.99
+							continue
 						tmp = val2.split('&')
 						if len(tmp) > 1:
 							tmp_dict2[key2] = [float(item) for item in tmp]
@@ -537,6 +538,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							tmp_dict2[key2] = float(val2)
 					else:
 						if key2 == "AF":
+							if val2 == '':
+								tmp_dict2[key2] = -999.99
+								continue
 							tmp = val2.split('&')
 							if len(tmp) > 1:
 								tmp_dict2[key2] = [float(item) for item in tmp]
@@ -714,8 +718,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						continue
 
 		elif vcf_info['info_dict'][key]['type'] == 'float': 
-			#if '++' in key:
- 			#	key = key.replace('++', 'plusplus')
 			try:
 				x = float(val)
 				if math.isnan(x):
@@ -726,9 +728,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 				elif math.isinf(x):
 					if key in cohort_specific:
-						result[key + group] = 9999.99
+						result[key + group] = 999.99
 					else:
-						result[key] = 9999.99
+						result[key] = 999.99
 				else:
 					if key in cohort_specific:
 						result[key + group] = x
@@ -902,19 +904,19 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 			sample_data_dict['Phenotype'] = vcf_info['ped_info'][sample_id]['phenotype']
 
 			# fields below may not be always available, so only include them if they exist
-			if vcf_info['ped_info'][sample_id]['age'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['age'] != 'NA':
+			if 'age' in vcf_info['ped_info'][sample_id] and  vcf_info['ped_info'][sample_id]['age'] is not None:
 				sample_data_dict['Age'] = vcf_info['ped_info'][sample_id]['age']
-			if vcf_info['ped_info'][sample_id]['affected_sibs_id'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['affected_sibs_id'] != 'NA':
+			if 'affected_sibs_id' in vcf_info['ped_info'][sample_id] and vcf_info['ped_info'][sample_id]['affected_sibs_id'] is not None:
 				sample_data_dict['Affected_Siblings_IDs'] = vcf_info['ped_info'][sample_id]['affected_sibs_id']
-			if vcf_info['ped_info'][sample_id]['affected_sibs_age'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['affected_sibs_age'] != 'NA':
+			if 'affected_sibs_age' in vcf_info['ped_info'][sample_id] and  vcf_info['ped_info'][sample_id]['affected_sibs_age'] is not None:
 				sample_data_dict['Affected_Siblings_Ages'] = vcf_info['ped_info'][sample_id]['affected_sibs_age']
-			if vcf_info['ped_info'][sample_id]['affected_sibs_sex'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['affected_sibs_sex'] != 'NA':
+			if 'affected_sibs_sex' in vcf_info['ped_info'][sample_id] and  vcf_info['ped_info'][sample_id]['affected_sibs_sex'] is not None:
 				sample_data_dict['Affected_Siblings_Sex'] = vcf_info['ped_info'][sample_id]['affected_sibs_sex']
-			if vcf_info['ped_info'][sample_id]['unaffected_sibs_id'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['unaffected_sibs_id'] != 'NA':
+			if 'unaffected_sibs_id' in vcf_info['ped_info'][sample_id] and vcf_info['ped_info'][sample_id]['unaffected_sibs_id'] is not None:
 				sample_data_dict['Unaffected_Siblings_IDs'] = vcf_info['ped_info'][sample_id]['unaffected_sibs_id']
-			if vcf_info['ped_info'][sample_id]['unaffected_sibs_age'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['unaffected_sibs_age'] != 'NA':
+			if 'unaffected_sibs_age' in vcf_info['ped_info'][sample_id] and vcf_info['ped_info'][sample_id]['unaffected_sibs_age'] is not None:
 				sample_data_dict['Unaffected_Siblings_Ages'] = vcf_info['ped_info'][sample_id]['unaffected_sibs_age']
-			if vcf_info['ped_info'][sample_id]['unaffected_sibs_sex'] is not None: #!= '-9' or vcf_info['ped_info'][sample_id]['unaffected_sibs_sex'] != 'NA':
+			if 'unaffected_sibs_sex' in vcf_info['ped_info'][sample_id] and vcf_info['ped_info'][sample_id]['unaffected_sibs_sex'] is not None:
 				sample_data_dict['Unaffected_Siblings_Sex'] = vcf_info['ped_info'][sample_id]['unaffected_sibs_sex']
 
 			# caculate additional fields
