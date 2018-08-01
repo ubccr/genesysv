@@ -465,6 +465,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		if key not in  vcf_info['info_dict']:
 			log.write("Key not exists: %s" % key)
 			continue
+		if val == '.' and key != 'CSQ':
+			continue
+
 		if key == 'CSQ' and annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
