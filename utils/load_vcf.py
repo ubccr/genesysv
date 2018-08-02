@@ -465,6 +465,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 		if key not in  vcf_info['info_dict']:
 			log.write("Key not exists: %s" % key)
 			continue
+		if val == '.' and key != 'CSQ':
+			continue
+
 		if key == 'CSQ' and annot == 'vep':
 			# VEP annotation repeated the variant specific features, such as MAF, so move them to globol space.
 			# Only keey gene and consequence related info in the nested structure
@@ -1317,7 +1320,7 @@ def make_es_mapping(vcf_info):
 		mapping[type_name]["properties"].update({"targetScanS_Name" : {"type" : "keyword"}})
 		mapping[type_name]["properties"].update({"targetScanS_Score" : {"type" : "integer"}})
 
-		clinvar_dict = {'CLNSIG': {"type" : "keyword"}, 'CLNDN': {"type" : "text", "analyzer": "simple", "fielddata": True}, 'CLNREVSTAT': {"type" : "keyword"}}
+		clinvar_dict = {'CLNSIG': {"type" : "keyword"}, 'CLNDN': {"type" : "keyword"}, 'CLNREVSTAT': {"type" : "keyword"}}
 		mapping[type_name]["properties"]['CLNVAR_nested'] = {"type" : "nested", "properties" : clinvar_dict}
 		mapping[type_name]["properties"]['gwasCatalog'] = {"type" : "text", "analyzer": "simple"}
 		
