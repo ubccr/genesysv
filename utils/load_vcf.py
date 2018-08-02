@@ -1320,7 +1320,7 @@ def make_es_mapping(vcf_info):
 		mapping[type_name]["properties"].update({"targetScanS_Name" : {"type" : "keyword"}})
 		mapping[type_name]["properties"].update({"targetScanS_Score" : {"type" : "integer"}})
 
-		clinvar_dict = {'CLNSIG': {"type" : "keyword"}, 'CLNDN': {"type" : "text", "analyzer": "simple", "fielddata": True}, 'CLNREVSTAT': {"type" : "keyword"}}
+		clinvar_dict = {'CLNSIG': {"type" : "keyword"}, 'CLNDN': {"type" : "keyword"}, 'CLNREVSTAT': {"type" : "keyword"}}
 		mapping[type_name]["properties"]['CLNVAR_nested'] = {"type" : "nested", "properties" : clinvar_dict}
 		mapping[type_name]["properties"]['gwasCatalog'] = {"type" : "text", "analyzer": "simple"}
 		
