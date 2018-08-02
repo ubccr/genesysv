@@ -195,7 +195,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 		'CADD_prediction', 'Associated_disease', 'CLNDISDB', "CS", 'EFIN_HumDiv_Prediction', 'Ensembl_Protein_ID', 'Examined_samples',
 		'Gene_ensGene', 'Gene_refGene', 'Gene_symbol', 'ICGC_Occurrence', 'MC', 'Mean_MI_score', 'MutAss_prediction', 'NCBI_Gene_ID',
 		'NCBI_Protein_ID', 'NS', 'OLD_VARIANT', 'Perc_coevo_Sites', 'PolyPhen2_prediction', 'PolyPhen2_score', 'SIFT_prediction', 'SiteVar',
-		'VT', 'cosmic70', 
+		'VT', 'cosmic70', 'Tumor_site',
 		'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
 
 	# remove features that are converted to *_case and *_control
@@ -1088,8 +1088,8 @@ if __name__ == '__main__':
 	hostname= 'localhost'
 	port = 9200
 
-	vcf_info_file = 'config/AshkenazimTrio.hg19_multianno_1M_vcf_info.json' #AshkenazimTrio.hg19_multianno_vcf_info.json' #UB_MS_16.hg38_multianno_vcf_info.json' #UB_MS16_vep_vcf_info.json'
-	mapping_file = 'utils/scripts/ashkenazimtrio_annovar_mapping.json' #AshkenazimTrio.hg19_annovar_mapping.json' #ub_ms16_vep_mapping.json' 
+	vcf_info_file = 'config/AshkenazimTrio_subset_4families_vcf.gz_vcf_info.json' #AshkenazimTrio.hg19_multianno_vcf_info.json' #UB_MS_16.hg38_multianno_vcf_info.json' #UB_MS16_vep_vcf_info.json'
+	mapping_file = 'utils/scripts/test_mapping.json' #AshkenazimTrio.hg19_annovar_mapping.json' #ub_ms16_vep_mapping.json' 
 	index_name = os.path.basename(mapping_file) #NB: only takes all lower case letters
 	index_name = re.sub('_mapping.json', '', index_name)
 	type_name = index_name + '_' 

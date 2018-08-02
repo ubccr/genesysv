@@ -482,21 +482,21 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				csq_dict2_local = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_local']}
 				csq_dict2_global = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_global']}
 
-				tmp_dict = {}
+				tmp_dict2 = {}
 					
 				for key2, val2 in csq_dict2_local.items():
 					if key2 in ['SIFT', 'PolyPhen']:
 						m = p.match(val2)
 						if m:
-							tmp_dict[key2 + '_pred'] = m.group(1)
-							tmp_dict[key2 + '_score'] = float(m.group(2))
+							tmp_dict2[key2 + '_pred'] = m.group(1)
+							tmp_dict2[key2 + '_score'] = float(m.group(2))
 						else: # empty value or only pred or score are included in vep annotation	
 							try:
 								x = float(val2)
-								tmp_dict[key2 + '_score'] = x
+								tmp_dict2[key2 + '_score'] = x
 							except ValueError:
-								tmp_dict[key2 + '_score'] = -999.99
-								tmp_dict[key2 + '_pred'] = val2
+								tmp_dict2[key2 + '_score'] = -999.99
+								tmp_dict2[key2 + '_pred'] = val2
 								log.write("Value error: %s, %s\n" % (key2, val2))
 							continue
 
@@ -578,14 +578,17 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
-				csq_dict2_local.update(tmp_dict)	
+				csq_dict2_local.update(tmp_dict2)	
 				csq_list.append(csq_dict2_local)
 
 			result['CSQ_nested'] = (csq_list)
 			result.update(tmp_dict2)
 		elif key == 'Gene_refGene': 
 			tmp = val.split('\\x3b')
-			tmp2 = tmp_dict['GeneDetail_refGene']
+			try:
+				tmp2 = tmp_dict['GeneDetail_refGene']
+			except KeyError:
+				print("**")
 			if tmp2 != '.':
 				tmp2 = tmp2.split('\\x3b')
 				if tmp2[0].startswith('dist'):
@@ -764,13 +767,13 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 			tmp = val.split(',')
 			tmp_list = []
 			for item in tmp:
-				tmp_dict = {}
+				tmp_dict2 = {}
 				tmp2 = item.split('|')
-				tmp_dict.update({'ICGC_Cancer_Site': tmp2[0]})
-				tmp_dict.update({'ICGC_Allele_Count': tmp2[1]})
-				tmp_dict.update({'ICGC_Allele_Number': tmp2[2]})
-				tmp_dict.update({'ICGC_Allele_Frequency': tmp2[3]})
-				tmp_list.append(tmp_dict)
+				tmp_dict2.update({'ICGC_Cancer_Site': tmp2[0]})
+				tmp_dict2.update({'ICGC_Allele_Count': tmp2[1]})
+				tmp_dict2.update({'ICGC_Allele_Number': tmp2[2]})
+				tmp_dict2.update({'ICGC_Allele_Frequency': tmp2[3]})
+				tmp_list.append(tmp_dict2)
 
 			result['ICGC_nested'] = tmp_list
 			
@@ -782,12 +785,12 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				
 			if len(tmp_sig) > 0:
 				for i in range(len(tmp_sig)):
-					tmp_dict = {'CLNSIG': tmp_sig[i]}
+					tmp_dict2 = {'CLNSIG': tmp_sig[i]}
 					if tmp_dbn is not None:
-						tmp_dict.update({'CLNDN': tmp_dbn[i]})
+						tmp_dict2.update({'CLNDN': tmp_dbn[i]})
 					if tmp_revstat is not None:
-						tmp_dict.update({'CLNREVSTAT': tmp_revstat[i]})
-					tmp.append(tmp_dict)
+						tmp_dict2.update({'CLNREVSTAT': tmp_revstat[i]})
+					tmp.append(tmp_dict2)
 
 				result['CLNVAR_nested'] = tmp
 
