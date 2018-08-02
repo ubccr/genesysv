@@ -189,10 +189,14 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 	boolean_fields = ['dbSNP_ID', 'COSMIC_ID', 'snp138NonFlagged', 'ICGC_ID']
 	
 	to_exclude = ['targetScanS', 'tfbsConsSites', 'RGQ', 'cosmic_70', 'sample', 'avsnp147', 'avsnp150', 'PR', 'Status', 
-								'integrated_confidence_value', 'RGQ', 'MCAP', 'Codon_sub', 'Eigen_coding_or_noncoding', 'OXPHOS_Complex', 'Gene_pos', 
-								'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 
-								'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CCC_case', 'CCC_control', 'CSQ', 'DB', 'MQ0', 'ANNOVAR_DATE', 
-								'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
+		'integrated_confidence_value', 'RGQ', 'MCAP', 'Codon_sub', 'Eigen_coding_or_noncoding', 'OXPHOS_Complex', 'Gene_pos', 
+		'AAChange_refGene', 'AAChange_ensGene', 'CSQ_nested', 'Class_predicted', 'culprit','US', 'Presence_in_TD', 'Prob_N', 'Prob_P', 
+		'Mutation_frequency', 'AA_pos', 'AA_sub', 'CCC', 'CCC_case', 'CCC_control', 'CSQ', 'DB', 'MQ0', 'ANNOVAR_DATE', 
+		'CADD_prediction', 'Associated_disease', 'CLNDISDB', "CS", 'EFIN_HumDiv_Prediction', 'Ensembl_Protein_ID', 'Examined_samples',
+		'Gene_ensGene', 'Gene_refGene', 'Gene_symbol', 'ICGC_Occurrence', 'MC', 'Mean_MI_score', 'MutAss_prediction', 'NCBI_Gene_ID',
+		'NCBI_Protein_ID', 'NS', 'OLD_VARIANT', 'Perc_coevo_Sites', 'PolyPhen2_prediction', 'PolyPhen2_score', 'SIFT_prediction', 'SiteVar',
+		'VT', 'cosmic70', 
+		'NEGATIVE_TRAIN_SITE', 'POSITIVE_TRAIN_SITE', 'DS', 'DS_case', 'DS_control',  'ALLELE_END', 'NCC', 'NCC_case', 'NCC_control']
 
 	# remove features that are converted to *_case and *_control
 	if case_control is True:
