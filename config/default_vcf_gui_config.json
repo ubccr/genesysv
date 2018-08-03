@@ -1047,14 +1047,14 @@
     "in_line_tooltip": null,
     "panel": "Other",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Genotype-Tissue Expression"
   },
   "GTEx_V6_tissue": {
     "display_text": "GTEx_V6_tissue",
     "in_line_tooltip": null,
     "panel": "Other",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Genotype-Tissue Expression"
   },
   "GenoCanyon_score": {
     "display_text": "GenoCanyon_score",
@@ -1131,7 +1131,7 @@
     "in_line_tooltip": null,
     "panel": "Pathogenicity Predictions",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Clinical Interpretation of genetic variants by ACMG/AMP 2015 guideline"
   },
   "Interpro_domain": {
     "display_text": "Interpro Domain",
@@ -1139,6 +1139,13 @@
     "panel": "Other",
     "sub_panel": null,
     "tooltip": null
+  },
+  "Kaviar_AF": {
+    "display_text": "Kaviar_AF",
+    "in_line_tooltip": null,
+    "panel": "Minor Allele Frequency (MAF)",
+    "sub_panel": null,
+    "tooltip": "170 million Known VARiants from 13K genomes and 64K exomes in 34 projects"
   },
   "LRT_converted_rankscore": {
     "display_text": "LRT_converted_rankscore",
@@ -1166,7 +1173,7 @@
     "in_line_tooltip": null,
     "panel": "Pathogenicity Predictions",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Mendelian Clinically Applicable Pathogenicity (M-CAP) Score"
   },
   "M-CAP_rankscore": {
     "display_text": "M-CAP_rankscore",
@@ -1665,19 +1672,26 @@
     "sub_panel": null,
     "tooltip": null
   },
-  "clinvar_CLINSIG": {
-    "display_text": "Clinical Significance",
+  "CLNSIG": {
+    "display_text": "CLNSIG",
     "in_line_tooltip": null,
     "panel": "Disease Association",
-    "sub_panel": null,
-    "tooltip": null
+    "sub_panel": "CLINVAR",
+    "tooltip": "ClinVar Significance"
   },
-  "clinvar_CLNDBN": {
+  "CLNREVSTAT": {
+    "display_text": "CLNREVSTAT",
+    "in_line_tooltip": null,
+    "panel": "Disease Association",
+    "sub_panel": "CLINVAR",
+    "tooltip": "ClinVar review status"
+  },
+  "CLNDN": {
     "display_text": "Disease name",
     "in_line_tooltip": null,
     "panel": "Disease Association",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Disease Name"
   },
   "cosmic70_ID": {
     "display_text": " cosmic70_ID",
@@ -1705,56 +1719,14 @@
     "in_line_tooltip": "(>=)",
     "panel": "Pathogenicity Scores",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Splice site prediction by AdaBoost"
   },
   "dbscSNV_RF_SCORE": {
     "display_text": "dbscSNV_RF_SCORE",
     "in_line_tooltip": "(>=)",
     "panel": "Pathogenicity Scores",
     "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_aa_change": {
-    "display_text": "Amino acid change",
-    "in_line_tooltip": "(e.g. p.T243A)",
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_cDNA_change": {
-    "display_text": "cDNA change",
-    "in_line_tooltip": "(e.g. c.A727G)",
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_distance_to_gene": {
-    "display_text": "Distance to nearby gene",
-    "in_line_tooltip": "(bp)",
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_gene_id": {
-    "display_text": "Ensembl gene ID",
-    "in_line_tooltip": "(e.g. ENSG00000155657)",
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_location": {
-    "display_text": "Exon ID",
-    "in_line_tooltip": null,
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
-  },
-  "ensGene_transcript_id": {
-    "display_text": "Ensembl transcript ID",
-    "in_line_tooltip": "(e.g. ENST00000460472)",
-    "panel": "Gene/Transcript",
-    "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Splice site prediction by Random Forest"
   },
   "esp6500siv2_aa": {
     "display_text": "ESP6500 AA",
@@ -1803,7 +1775,7 @@
     "in_line_tooltip": null,
     "panel": "Disease Association",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "The NHGRI-EBI Catalog of published genome-wide association studies"
   },
   "integrated_confidence_value": {
     "display_text": "integrated_confidence_value",
@@ -1826,12 +1798,26 @@
     "sub_panel": null,
     "tooltip": "Fitness consequences of functional annotation. Integrate functional assays like ChIP-Seq with conservation measure of transcription factor binding sites. Higher scores are more deleterious."
   },
+  "PhastCons_100V": {
+    "display_text": "PhastCons100V",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
   "phastCons100way_vertebrate": {
     "display_text": "phastCons100way_vertebrate",
     "in_line_tooltip": "(>=)",
     "panel": "Conservation",
     "sub_panel": null,
     "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 100 species. Higher scores are more deleterious."
+  },
+  "PhastCons_46V": {
+    "display_text": "phastCons_46V",
+    "in_line_tooltip": "(>=)",
+    "panel": "Conservation",
+    "sub_panel": null,
+    "tooltip": "A phylogenetic hidden Markov model (phylo-HMM) that uses 46 species. Higher scores are more deleterious."
   },
   "phastCons100way_vertebrate_rankscore": {
     "display_text": "phastCons100way_vertebrate_rankscore",
@@ -2013,24 +1999,24 @@
     "in_line_tooltip": null,
     "panel": "Other",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "SNPs not found to be associated with disease"
   },
-  "targetScanS": {
-    "display_text": "Limit Variants to Predicted microRNA",
+  "targetScanS_Name": {
+    "display_text": "targetScanS",
     "in_line_tooltip": null,
-    "panel": "microRNA/snoRNA",
+    "panel": "Conservation",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Predicted microRNA and its binding sites"
   },
-  "tfbsConsSites": {
-    "display_text": "Limit Variants to Transcription-Factor Binding Sites",
+  "tfbsConsSites_Name": {
+    "display_text": "tfbsConsSites",
     "in_line_tooltip": null,
-    "panel": "Conserved/Constrained Genomic Elements/Positions",
+    "panel": "Conservation",
     "sub_panel": null,
-    "tooltip": null
+    "tooltip": "Transcription-Factor Binding Sites"
   },
   "wgRna": {
-    "display_text": "Limit Variants to microRNA/snoRNA",
+    "display_text": "microRNA/snoRNA",
     "in_line_tooltip": null,
     "panel": "microRNA/snoRNA",
     "sub_panel": null,
@@ -2113,10 +2099,6 @@
     "sub_panel": null,
     "tooltip": "Variant Genotype Quality Score"
   },
-
-
-
-
   "AFR_AF": {
     "display_text": "African Population",
     "in_line_tooltip": "(<)",
@@ -2458,7 +2440,7 @@
     "in_line_tooltip": "(>=)",
     "panel": "Pathogenicity Scores",
     "sub_panel": null,
-    "tooltip": "Support vector machine. Higher scores are more deleterious."
+    "tooltip": "Meta-analytic support vector machine for integrating multiple omics data. Higher scores are more deleterious."
   },
   "MutationAssessor_score": {
     "display_text": "MutationAssessor_score",
