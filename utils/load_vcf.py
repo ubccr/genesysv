@@ -1508,8 +1508,6 @@ def make_es_mapping(vcf_info):
 
 if __name__ == '__main__':
 	t0 = time.time() # get program start time
-	t1 = time.time()
-
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
@@ -1582,9 +1580,9 @@ if __name__ == '__main__':
 				output_files = process_single_cohort(vcf, vcf_info)
 
 			t1 = time.time()
-			total = t1-t0
+			parsing_time = t1-t0
 
-			print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
+			print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % parsing_time)
 
 			
 			create_index_script, mapping_file = make_es_mapping(vcf_info)
@@ -1630,10 +1628,9 @@ if __name__ == '__main__':
 
 		
 		t2 = time.time()
-		total1 = t2 - t1
-		total2 = t2 - t0
+		indexing_time = t2 - t1
 		
-		print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))	
+		print("Finished creating ES index, parsing time: %s seconds, indexing time: %s seconds, vcf: %s\n" % (parsing_time, indexing_time, vcf))	
 			
 		#  make a gui config file
 		print("Creating Web user interface, please wait ...")	
@@ -1647,11 +1644,11 @@ if __name__ == '__main__':
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
 		
 		t3 = time.time()
-		total3 = t3 - t0
+		gui_time = t3 - t2
 
-		print("Success, vcf parsing: %s, indexing: %s, GUI creation: %s\n" % (total1/60, total2/60, total3/60))
+		print("Success, vcf parsing: %s, indexing: %s, GUI creation: %s, VCF: %s\n" % (parsing_time/60, indexing_time/60, gui_time/60, vcf))
 	# clean up
 	if cleanup:
 		for infile in output_files:
 			print("Deleting %s..." % infile)
-			es.remove(infile)
+			os.remove(infile)
