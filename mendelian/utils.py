@@ -71,24 +71,23 @@ def is_autosomal_dominant(sample_information):
     # If only the child is affected (Phenotype == 2):
     #       Then follow the de novo rules.
 
-    if sample_information.get('Phenotype') == '2':
-        # Case Mother (Phenotype == 2)
-        if sample_information.get('Mother_Phenotype') == '2':
-            if sample_information.get('Mother_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Father_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
-                return True
-            else:
-                return False
 
-        # Case Father (Phenotype == 2)
-        elif sample_information.get('Father_Phenotype') == '2':
-            if sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('GT') in ['0/1', '0|1', '1|0']:
-                return True
-            else:
-                return False
+    # Case Mother (Phenotype == 2)
+    if sample_information.get('Mother_Phenotype') == '2':
+        if sample_information.get('Mother_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Father_Genotype') in ['0/0', '0|0']:
+            return True
+        else:
+            return False
+
+    # Case Father (Phenotype == 2)
+    elif sample_information.get('Father_Phenotype') == '2':
+        if sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0'] and sample_information.get('Mother_Genotype') in ['0/0', '0|0']:
+            return True
         else:
             return False
     else:
         return False
+
 
 
 def is_autosomal_recessive(sample_array, father_id, mother_id, child_id):
@@ -313,11 +312,13 @@ def extract_sample_inner_hits_as_array(inner_hits_sample):
 class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
     # pass
 
-    def __init__(self, dataset_obj, query_body, family_dict, mendelian_analysis_type, elasticsearch_terminate_after=0):
-        super().__init__(dataset_obj, query_body, elasticsearch_terminate_after=0)
+    def __init__(self, dataset_obj, query_body, family_dict, mendelian_analysis_type, limit_results=True, elasticsearch_terminate_after=400):
+        super().__init__(dataset_obj, query_body, elasticsearch_terminate_after=400)
         self.family_dict = family_dict
         self.mendelian_analysis_type = mendelian_analysis_type
         self.family_results = {}
+        self.limit_results = limit_results
+        self.elasticsearch_terminate_after = elasticsearch_terminate_after
 
         if self.mendelian_analysis_type == 'autosomal_dominant':
             self.mendelian_analysis_function = 'is_autosomal_dominant'
@@ -350,6 +351,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                             "filter": [
                                 {"term": {"sample.Family_ID": family_id}},
                                 {"term": {"sample.Sample_ID": child_id}},
+                                {"term": {"sample.Phenotype": "2"}},
                                 {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
                             ]
                         }
@@ -371,7 +373,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 sample_array['nested']['query']['bool']['filter'].append({"term": {"sample.Sample_ID": child_id}})
                 sample_array['nested']['query']['bool']['filter'].extend([
                     {"term": {"sample.Sample_ID": child_id}},
-                    {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}]
+                    {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
+                    {"term": {"sample.Phenotype": "2"}}]
 
                 )
                 filter_array_copy.append(sample_array)
@@ -388,7 +391,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                     "filter": [
                                         {"term": {"sample.Family_ID": family_id}},
                                         {"term": {"sample.Sample_ID": child_id}},
-                                        {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}}
+                                        {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
+                                        {"term": {"sample.Phenotype": "2"}}
                                     ]
                                 }
                             }
@@ -480,7 +484,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     if 'nested' in ele and ele['nested']['path'] == 'CSQ_nested':
                         filter_array_copy.remove(ele)
                         CSQ_nested_array = ele
-
 
             if sample_array:
                 sample_array['nested']['inner_hits'] = {}
@@ -1526,6 +1529,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             annotation = 'ANNOVAR'
 
         for family_id, family in self.family_dict.items():
+            print(family_id, family)
 
             if self.mendelian_analysis_type == 'autosomal_dominant':
                 query_body = self.add_autosomal_dominant_query_string(family_id, family.get('child_id'))
@@ -1540,6 +1544,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             elif self.mendelian_analysis_type == 'x_linked_denovo':
                 query_body = self.add_x_linked_denovo_query_string(family.get('child_id'), family.get('child_sex'))
 
+            x = datetime.datetime.now()
             for hit in helpers.scan(
                     es,
                     query=query_body,
@@ -1548,6 +1553,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     preserve_order=False,
                     index=self.dataset_obj.es_index_name,
                     doc_type=self.dataset_obj.es_type_name):
+
+                if self.limit_results and len(results['hits']['hits']) > self.elasticsearch_terminate_after:
+                    break
 
                 inner_hits_sample = hit['inner_hits']['sample']['hits']['hits']
                 sample_data = extract_sample_inner_hits_as_array(inner_hits_sample)
@@ -1567,7 +1575,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                     {'_nested': {'field': 'sample'}, '_source': sample_data[0]}]
                 results['hits']['hits'].append(tmp_results)
                 count += 1
-
+            print(int((datetime.datetime.now() - x).total_seconds() * 1000))
         elapsped_time = int((datetime.datetime.now() - start_time).total_seconds() * 1000)
 
         results['took'] = elapsped_time
@@ -1683,6 +1691,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
                 annotation = 'ANNOVAR'
 
+        x = datetime.datetime.now()
         if self.is_gene_in_query_body(annotation):
             genes = [self.is_gene_in_query_body(annotation), ]
 
@@ -1694,7 +1703,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                                  'SYMBOL',
                                  'CSQ_nested',
                                  self.query_body)
-
+        print(int((datetime.datetime.now() - x).total_seconds() * 1000), len(genes))
         count = 0
         start_time = datetime.datetime.now()
         results = {
@@ -1705,8 +1714,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             }
         }
         for family_id, family in self.family_dict.items():
-
+            print(family_id, family)
             for gene in genes:
+                print(gene)
 
                 if not self.is_gene_in_query_body(annotation):
                     query_body = self.add_gene_to_query_body(gene, annotation)
@@ -1845,6 +1855,10 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 if compound_heterozygous_results:
                     count += 1
                     results['hits']['hits'].extend(compound_heterozygous_results)
+
+                if self.limit_results and len(results['hits']['hits']) > self.elasticsearch_terminate_after:
+                    break
+
         return results
 
     def excecute_elasticsearch_query(self):
@@ -1951,12 +1965,12 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
 
             return results
 
-    def run_elasticsearch_query_executor(self):
+    def run_elasticsearch_query_executor(self, limit_results=True):
 
         self.get_family_dict()
 
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
-            self.dataset_obj, self.query_body, self.family_dict, self.mendelian_analysis_type)
+            self.dataset_obj, self.query_body, self.family_dict, self.mendelian_analysis_type, limit_results)
         self.elasticsearch_response = elasticsearch_query_executor.get_elasticsearch_response()
         self.elasticsearch_response = self.apply_kindred_filtering(self.elasticsearch_response)
         self.elasticsearch_response_time = elasticsearch_query_executor.get_elasticsearch_response_time()
