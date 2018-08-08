@@ -481,11 +481,15 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				# partition csq_dict2 into global and local space
 				csq_dict2_local = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_local']}
 				csq_dict2_global = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_global']}
-
-				tmp_dict2 = {}
+				
+				
+				tmp_dict2 = {} # to avoid dictionaly changed size during iteration error
 					
 				for key2, val2 in csq_dict2_local.items():
 					if key2 in ['SIFT', 'PolyPhen']:
+						if val2 == '':
+							continue
+
 						m = p.match(val2)
 						if m:
 							tmp_dict2[key2 + '_pred'] = m.group(1)
@@ -495,10 +499,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 								x = float(val2)
 								tmp_dict2[key2 + '_score'] = x
 							except ValueError:
-								tmp_dict2[key2 + '_score'] = -999.99
-								tmp_dict2[key2 + '_pred'] = val2
-								log.write("Value error: %s, %s\n" % (key2, val2))
-							continue
+								continue
 
 					elif vcf_info['csq_dict_local'][key2]['type'] == 'integer':
 						if val2 == '':
@@ -507,48 +508,59 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						try:
 							csq_dict2_local[key2] = int(csq_dict2_local[key2])
 						except ValueError:
-							log.write("Casting to int error: %s, %s\n" % (key2, val2))
-							continue
+							tmp = val2.split('-')
+							try:
+								x = int(tmp[0])
+								csq_dict2_local[key2] = x
+							except ValueError:
+								try:
+									x = int(tmp[1])
+									csq_dict2_local[key2] = x
+								except ValueError:
+									continue 
 					elif key2 == 'Consequence':
+						if val2 == '':
+							continue
+
 						tmp = val2.split('&')
 						if len(tmp) > 1:
 							csq_dict2_local[key2] = tmp
 						else:
 							csq_dict2_local[key2] = tmp[0]
 					else:
-						csq_dict2_local[key2] = val2
-
-				tmp_dict2 = {}
+						if val2 == '':
+							continue
+						else:
+							csq_dict2_local[key2] = val2
 
 				for key2, val2 in csq_dict2_global.items():
 					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
 						if val2 == '':
-							tmp_dict2[key2] = -999
 							continue
 						tmp = [int(item) for item in csq_dict2_global[key2].split('&')]
 						if len(tmp) > 1:
-							tmp_dict2[key2] = tmp
+							result[key2] = tmp
 						else:
-							tmp_dict2[key2] = tmp[0]
+							result[key2] = tmp[0]
 					elif vcf_info['csq_dict_global'][key2]['type'] == 'float':
 						if val2 == '':
-							tmp_dict2[key2] = -999.99
+							result[key2] = -999.99
 							continue
 						tmp = val2.split('&')
 						if len(tmp) > 1:
-							tmp_dict2[key2] = [float(item) for item in tmp]
+							result[key2] = [float(item) for item in tmp]
 						else:
-							tmp_dict2[key2] = float(val2)
+							result[key2] = float(val2)
 					else:
 						if key2 == "AF":
 							if val2 == '':
-								tmp_dict2[key2] = -999.99
+								result[key2] = -999.99
 								continue
 							tmp = val2.split('&')
 							if len(tmp) > 1:
-								tmp_dict2[key2] = [float(item) for item in tmp]
+								result[key2] = [float(item) for item in tmp]
 							else:
-								tmp_dict2[key2] = tmp[0]
+								result[key2] = tmp[0]
 						elif key2 == 'SOMATIC':
 							continue
 						elif key2 == 'Existing_variation':
@@ -578,11 +590,10 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
-				csq_dict2_local.update(tmp_dict2)	
+				csq_dict2_local.update(tmp_dict2)
 				csq_list.append(csq_dict2_local)
 
-			result['CSQ_nested'] = (csq_list)
-			result.update(tmp_dict2)
+			result['CSQ_nested'] = csq_list
 		elif key == 'Gene_refGene': 
 			tmp = val.split('\\x3b')
 			try:
@@ -1473,12 +1484,11 @@ def make_es_mapping(vcf_info):
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 7,
+		"number_of_shards": 8,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.mapping.ignore_malformed": True,
 		"index.write.wait_for_active_shards": 1,
-		"index.mapping.ignore_malformed": "true",
 		"index.merge.policy.max_merge_at_once": 7,
 		"index.merge.scheduler.max_thread_count": 7,
 		"index.merge.scheduler.max_merge_count": 7,
