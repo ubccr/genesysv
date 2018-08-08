@@ -483,7 +483,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				csq_dict2_global = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_global']}
 				
 				
-				tmp_dict2 = {} # to avoid dictionaly changed size during iteration error
+				csq_dict3_local = {}
 					
 				for key2, val2 in csq_dict2_local.items():
 					if key2 in ['SIFT', 'PolyPhen']:
@@ -492,30 +492,30 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 						m = p.match(val2)
 						if m:
-							tmp_dict2[key2 + '_pred'] = m.group(1)
-							tmp_dict2[key2 + '_score'] = float(m.group(2))
+							csq_dict3_local[key2 + '_pred'] = m.group(1)
+							csq_dict3_local[key2 + '_score'] = float(m.group(2))
 						else: # empty value or only pred or score are included in vep annotation	
 							try:
 								x = float(val2)
-								tmp_dict2[key2 + '_score'] = x
+								csq_dict3_local[key2 + '_score'] = x
 							except ValueError:
 								continue
 
 					elif vcf_info['csq_dict_local'][key2]['type'] == 'integer':
 						if val2 == '':
-							csq_dict2_local[key2] = -999
+							csq_dict3_local[key2] = -999
 							continue
 						try:
-							csq_dict2_local[key2] = int(csq_dict2_local[key2])
+							csq_dict3_local[key2] = int(csq_dict2_local[key2])
 						except ValueError:
 							tmp = val2.split('-')
 							try:
 								x = int(tmp[0])
-								csq_dict2_local[key2] = x
+								csq_dict3_local[key2] = x
 							except ValueError:
 								try:
 									x = int(tmp[1])
-									csq_dict2_local[key2] = x
+									csq_dict3_local[key2] = x
 								except ValueError:
 									continue 
 					elif key2 == 'Consequence':
@@ -524,14 +524,15 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 						tmp = val2.split('&')
 						if len(tmp) > 1:
-							csq_dict2_local[key2] = tmp
+							csq_dict3_local[key2] = tmp
 						else:
-							csq_dict2_local[key2] = tmp[0]
+							csq_dict3_local[key2] = tmp[0]
 					else:
 						if val2 == '':
 							continue
 						else:
-							csq_dict2_local[key2] = val2
+							csq_dict3_local[key2] = val2
+					csq_list.append(csq_dict3_local)
 
 				for key2, val2 in csq_dict2_global.items():
 					if vcf_info['csq_dict_global'][key2]['type'] == 'integer':
@@ -588,10 +589,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						else:
 							result[key2] = val2
 
-				del csq_dict2_local['SIFT']
-				del csq_dict2_local['PolyPhen']
-				csq_dict2_local.update(tmp_dict2)
-				csq_list.append(csq_dict2_local)
 
 			result['CSQ_nested'] = csq_list
 		elif key == 'Gene_refGene': 
