@@ -592,11 +592,15 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 			result['CSQ_nested'] = csq_list
 		elif key == 'Gene_refGene': 
-			tmp = val.split('\\x3b')
+			if 'x3b' in val:
+				tmp = val.split('\\x3b')
+			else:
+				tmp = val.split(',')
 			try:
 				tmp2 = tmp_dict['GeneDetail_refGene']
 			except KeyError:
-				print("**")
+				log.write("KeyError: %s, %s" % (key, val))
+				continue
 			if tmp2 != '.':
 				tmp2 = tmp2.split('\\x3b')
 				if tmp2[0].startswith('dist'):
@@ -630,7 +634,11 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						else:
 							result['GeneDetail_refGene'] = tmp
 		elif key == 'Gene_ensGene':
-			tmp = val.split('\\x3b')
+			if 'x3b' in val:
+				tmp = val.split('\\x3b')
+			else:
+				tmp = val.split(',')
+
 			tmp2 = tmp_dict['GeneDetail_ensGene']
 			if tmp2 != '.':
 				tmp2 = tmp2.split('\\x3b')
@@ -1615,7 +1623,8 @@ if __name__ == '__main__':
 		for infile in output_files:
 			print("Indexing file %s" % infile)
 			data = []
-
+			index_start = time.time()
+	
 			with open(infile, 'r') as fp:
 				for line in fp:
 					tmp = json.loads(line)
@@ -1632,6 +1641,10 @@ if __name__ == '__main__':
 				deque(helpers.parallel_bulk(es, data, thread_count=num_cpus), maxlen=0)
 			except:
 				continue
+			# report indexing time
+			index_end = time.time()
+			index_time = index_end - index_start
+			print("Took: %s seconds"% index_time)
 
 		
 		t2 = time.time()
