@@ -377,7 +377,7 @@ class BaseSearchView(TemplateView):
             genes = []
             for result in results:
                 symbol = result.get('SYMBOL')
-                if symbol == 'NA':
+                if not symbol or symbol == 'NA':
                     continue
                 genes.append(result.get('SYMBOL'))
             genes = sorted(list(set(genes)))
