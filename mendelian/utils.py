@@ -135,8 +135,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
         query_body = self.add_analysis_type_filter(self.mendelian_analysis_type)
 
-
-
         pprint.pprint(query_body)
         x = datetime.datetime.now()
         for hit in helpers.scan(
@@ -160,7 +158,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 {'_nested': {'field': 'sample'}, '_source': sample_data[0]}]
             results['hits']['hits'].append(tmp_results)
             count += 1
-            print(int((datetime.datetime.now() - x).total_seconds() * 1000))
         elapsped_time = int((datetime.datetime.now() - start_time).total_seconds() * 1000)
 
         results['took'] = elapsped_time

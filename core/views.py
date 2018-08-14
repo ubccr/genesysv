@@ -524,7 +524,7 @@ class BaseDocumentView(TemplateView):
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
 
         if error_message:
-            messages.error(self.request, error_message)
+            # messages.error(self.request, error_message)
             document_review = None
         else:
             if DocumentReview.objects.filter(document_es_id=document_es_id, group=group_obj).exists():

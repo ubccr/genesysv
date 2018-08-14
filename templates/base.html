@@ -84,11 +84,13 @@
 
     <div class="clearfix"></div>
         <div class="container main">
-                {% for message in messages %}
-                <div class="alert alert-danger alert-dismissible">
-                  <strong>Danger!</strong> {{ message }}
-                </div>
-                {% endfor %}
+                {% if user.is_authenticated %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible">
+                      <strong>Danger!</strong> {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
 
 
                 {% block content %}
