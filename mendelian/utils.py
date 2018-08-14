@@ -16,8 +16,6 @@ from core.utils import (BaseElasticSearchQueryDSL,
 
 thismodule = sys.modules[__name__]
 
-
-
 def filter_using_inner_hits(source_data, inner_hits_data):
 
     inner_hit_candidates = []
@@ -166,14 +164,12 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         return results
 
     def excecute_elasticsearch_query(self):
-
         results = self.search()
-
         self.elasticsearch_response = results
 
 
 class MendelianElasticsearchResponseParser(BaseElasticsearchResponseParser):
-    maximum_table_size = 10000000
+    maximum_table_size = 400
 
 
 class MendelianSearchElasticsearch(BaseSearchElasticsearch):

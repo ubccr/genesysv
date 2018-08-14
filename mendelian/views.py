@@ -204,7 +204,6 @@ class MendelianDownloadView(BaseSearchView):
         self.header = None
         self.results = None
 
-
     def get_kwargs(self, request):
 
         if self.search_log_obj.nested_attribute_fields:
