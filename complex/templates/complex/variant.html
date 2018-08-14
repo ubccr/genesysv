@@ -114,117 +114,29 @@
     </div>
   </div>
 </div>
+
+{% if result.AN %}
 <div class="panel panel-primary">
-  <div class="panel-heading">VEP General Annotations</div>
+  <div class="panel-heading">Annotations</div>
   <div class="panel-body">
     <div class="table-responsive">
       <table class="table table-condensed">
         <tbody>
+          {% for key, value in result.items|dictsort:"0.lower" %} {% if key not in fields_to_skip and key != "CSQ_nested" %}
           <tr>
-            <td><strong>AA_AF</strong></td>
-            <td>{{ result.AA_AF }}</td>
+            <td><strong>{{key}}</strong></td>
+            <td>{{value}}</td>
           </tr>
-          <tr>
-            <td><strong>AF</strong></td>
-            <td>{{ result.AF }}</td>
-          </tr>
-          <tr>
-            <td><strong>AFR_AF</strong></td>
-            <td>{{ result.AFR_AF }}</td>
-          </tr>
-          <tr>
-            <td><strong>AMR_AF</strong></td>
-            <td>{{ result.AMR_AF }}</td>
-          </tr>
-          <tr>
-            <td><strong>CADD_PHRED</strong></td>
-            <td>{{ result.CADD_PHRED }}</td>
-          </tr>
-          <tr>
-            <td><strong>CADD_RAW</strong></td>
-            <td>{{ result.CADD_RAW }}</td>
-          </tr>
-          <tr>
-            <td><strong>CLIN_SIG</strong></td>
-            <td>{{ result.CLIN_SIG }}</td>
-          </tr>
-          <tr>
-            <td><strong>COSMIC_ID</strong></td>
-            <td>{{result.COSMIC_ID}}</td>
-          </tr>
-          <tr>
-            <td><strong>dbSNP_ID</strong></td>
-            <td>{{result.dbSNP_ID}}</td>
-          </tr>
-          <tr>
-            <td><strong>EA_AF</strong></td>
-            <td>{{result.EA_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>EAS_AF</strong></td>
-            <td>{{result.EAS_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_AF</strong></td>
-            <td>{{result.gnomAD_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_AFR_AF</strong></td>
-            <td>{{result.gnomAD_AFR_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_AMR_AF</strong></td>
-            <td>{{result.gnomAD_AMR_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_ASJ_AF</strong></td>
-            <td>{{result.gnomAD_ASJ_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_EAS_AF</strong></td>
-            <td>{{result.gnomAD_EAS_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_FIN_AF</strong></td>
-            <td>{{result.gnomAD_FIN_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_FIN_AF</strong></td>
-            <td>{{result.gnomAD_FIN_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_NFE_AF</strong></td>
-            <td>{{result.gnomAD_NFE_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_OTH_AF</strong></td>
-            <td>{{result.gnomAD_OTH_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>gnomAD_SAS_AF</strong></td>
-            <td>{{result.gnomAD_SAS_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>MAX_AF</strong></td>
-            <td>{{result.MAX_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>MAX_AF_POPS</strong></td>
-            <td>{{result.MAX_AF_POPS}}</td>
-          </tr>
-          <tr>
-            <td><strong>SAS_AF</strong></td>
-            <td>{{result.SAS_AF}}</td>
-          </tr>
-          <tr>
-            <td><strong>SOMATIC</strong></td>
-            <td>{{result.SOMATIC}}</td>
-          </tr>
+          {% endif %} {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
+{% endif %}
+
+
+
 {% if result|get_value_from_dict:"CSQ_nested" %}
 <div class="panel panel-primary">
   <div class="panel-heading">VEP CSQ Annotations</div>
@@ -248,27 +160,7 @@
     </div>
   </div>
 </div>
-{% endif %} {% if result.AN %}
-<div class="panel panel-primary">
-  <div class="panel-heading">Annovar Annotations</div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-condensed">
-        <tbody>
-          {% for key, value in result.items|dictsort:"0.lower" %} {% if key not in fields_to_skip %}
-          <tr>
-            <td>{{key}}</td>
-            <td>{{value}}</td>
-          </tr>
-          {% endif %} {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-
+{% endif %} 
 
 
 
