@@ -51,7 +51,7 @@ required.add_argument("--port", help="ElasticSearch host port number", required=
 required.add_argument("--index", help="ElasticSearch index name", required=True)
 required.add_argument("--study_name", help="Name of the project", required=True)
 required.add_argument("--dataset_name", help="Name of the dataset", required=True)
-required.add_argument("--assembly", help="Reference genome assembly version used in the project, valid value is any of 'hg19|hg38|GRCh37|GRCh38'", required=True) 
+required.add_argument("--assembly", help="Reference genome assembly version used in the project, valid value is any of 'hg19|hg38|GRCh37|GRCh38'", required=True)
 required.add_argument("--num_cores", help="Number of cpu cores to use. Default to the number of cpu cores of the system", required=False)
 required.add_argument("--ped", help="Pedigree file in the format of '#Family Subject Father  Mother  Sex     Phenotype", required=False)
 required.add_argument("--control_vcf", help="vcf file from control study. Must be compressed with bgzip and indexed with grabix", required=False)
@@ -61,7 +61,7 @@ parser.add_argument("--debug", help="Run in single CPU mode for debugging purpos
 parser.add_argument("--cleanup", help="Remove temporary .json files under --tmp_dir after being indexed", action="store_true")
 parser.add_argument("--skip_parsing", help="Skip the parsing process, directly go to the indexing and GUI creating step. Useful when parsing was successful but indexing failed for various reasons", action="store_true")
 parser.add_argument("--gui_only", help="Only create GUI config. Used in situations where the paring and indexing were finished successfuly, but the final GUI creation failed", action="store_true")
-	
+
 args = parser.parse_args()
 
 # global variables
@@ -76,7 +76,7 @@ port = args.port
 webserver_port = args.webserver_port
 if not webserver_port:
 	webserver_port = 8000
-	
+
 vcf = args.vcf
 control_vcf = args.control_vcf
 tmp_dir = args.tmp_dir
@@ -96,7 +96,7 @@ assembly = args.assembly
 if not assembly in ['hg19', 'hg38', 'GRCh37', 'GRCh38']:
 	print("Invalid assembly value. Supported values are 'hg19|hg38|GRCh37|GRCh38'")
 	sys.exit(2)
-	
+
 
 excluded_list = ['AA', 'ANNOVAR_DATE', 'MQ0', 'DB', 'POSITIVE_TRAIN_SITE', 'NEGATIVE_TRAIN_SITE', 'culprit']
 cohort_specific = ['AC', 'AF', 'AN', 'BaseQRankSum', 'DP', 'GQ_MEAN', 'GQ_STDDEV', 'HWP', 'MQRankSum', 'NCC', 'MQ', 'ReadPosRankSum', 'QD', 'VQSLOD']
@@ -118,11 +118,11 @@ def check_commandline(vcf, control_vcf, annot):
 	if str(out.decode('ascii').strip()) != 'yes':
 		print("Invalid vcf file. Please provide a bgzipped/grabix indexed vcf file.")
 		sys.exit(2)
-	
+
 	if control_vcf:
 		control_vcf = os.path.abspath(control_vcf)
 		out = check_output(["grabix", "check", control_vcf])
-	
+
 		if str(out.decode('ascii').strip()) != 'yes':
 			print("Invalid control_vcf file. Please provide a bgzipped/grabix indexed vcf file.")
 			sys.exit(2)
@@ -158,16 +158,16 @@ def process_vcf_header(vcf):
 	num_header_lines = 0
 	csq_fields = []
 	col_header = []
-	chr2len = {} 
+	chr2len = {}
 
 	# compile some patterns
-	p = re.compile(r'^##.*?=<(.*)>$')	
+	p = re.compile(r'^##.*?=<(.*)>$')
 	p1 = re.compile(r'^.*?ID=(.*?),.*')
 	p2 = re.compile(r'^.*?Type=(.*?),.*')
 	p3 = re.compile(r'^.*?\"(.*?)\".*')
 	p4 = re.compile(r'^##contig.*?length=(\d+),assembly=(.*)>')
 	p5 = re.compile(r'^##reference=.*?(19|hg19|hg38|GRCh37|GRCh38|b37|hs37d5|v37_decoy)\.fa.*')
-	
+
 	with gzip.open(vcf, 'rt') as fp:
 		while True:
 			line = fp.readline()
@@ -207,7 +207,7 @@ def process_vcf_header(vcf):
 				else:
 					if contig_:
 						contig_dict[id_.group(1)] = {'length' : contig_.group(1), 'assembly' : contig_.group(2)}
-						
+
 	if 'CSQ' in info_dict:
 		val = info_dict['CSQ']['Description']
 		csq_fields = val.split("|")
@@ -218,7 +218,7 @@ def process_vcf_header(vcf):
 		{csq_dict[key].update({'type' : 'float', 'null_value' : -999.99}) for key in csq_dict if key.endswith('_AF') or key == 'AF' or key.startswith('CADD')}
 		{csq_dict[key].update({'type' : 'integer', 'null_value' : -999}) for key in csq_dict if key == 'DISTANCE'}
 		{csq_dict[key].update({'type' : 'keyword', 'null_value' : 'NA'}) for key in csq_dict if key.endswith('position')}
-	
+
 		# partition keys into local and global space
 		# at this moment, we have to hard code the feature list to include in each of the lists
 		csq_local = ['Consequence', 'IMPACT', 'SYMBOL', 'Gene', 'Feature_type', 'Feature', 'BIOTYPE', 'EXON', 'INTRON', 'HGVSc', 'HGVSp', 'cDNA_position', 'CDS_position', 'Protein_position', 'Amino_acids', 'Codons', 'DISTANCE', 'STRAND', 'HGNC_ID', 'SWISSPROT', 'DOMAINS', 'miRNA', 'SIFT', 'PolyPhen', 'RadialSVM_score', 'RadialSVM_pred', 'LR_score', 'LR_pred']
@@ -233,7 +233,7 @@ def process_vcf_header(vcf):
 	valid_chrs.append('X')
 	valid_chrs.append('Y')
 	valid_chrs.append('M')
-	
+
 	for key in contig_dict:
 		if key in valid_chrs:
 			chr2len[key] = int(contig_dict[key]['length'])
@@ -247,7 +247,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 	key_type_dict = {}
 	key_type_dict_csq = {}
 	key_type_dict_format = {}
-	
+
 	with gzip.open(vcf, 'rt') as fp:
 		while True:
 			line = fp.readline()
@@ -256,7 +256,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 
 			line_count += 1
 			col_data = line.strip().split("\t")
-		
+
   			# parse INFO field
 			info_fields = col_data[7].split(";")
 
@@ -264,15 +264,15 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 			format_fields = col_data[8].split(":")
 
 			info_dict = {item.split("=")[0]:item.split("=")[1] for item in info_fields if '=' in item}
-			
-			
+
+
 			for key, val in info_dict.items():
 				if key == 'CSQ':
 					val2 = val.split('|')
 					csq_dict_ = dict(zip(vcf_info['csq_fields'], val2))
-				
+
 					for k, v in csq_dict_.items():
-						if v != '':	
+						if v != '':
 							if isfloat(v):
 								key_type_dict_csq.update({k: {"type": "float", "null_value": -999.99}})
 							elif isint(v):
@@ -334,10 +334,10 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 								key_type_dict.update({key: {"type": "keyword", "null_value": 'NA'}})
 						else:
 							key_type_dict.update({key: {"type": "keyword", "null_value": 'NA'}})
-			for i in range(9, len(vcf_info['col_header'])):	
-				
-				format_dict = dict(zip(format_fields, col_data[i].split(':'))) 
-			
+			for i in range(9, len(vcf_info['col_header'])):
+
+				format_dict = dict(zip(format_fields, col_data[i].split(':')))
+
 				for key, val in format_dict.items():
 
 					if val != '.':
@@ -365,10 +365,10 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 									key_type_dict_format.update({key: {"type": "integer", "null_value": -999}})
 							else:
 								key_type_dict_format.update({key: {"type": "keyword", "null_value": 'NA'}})
-							
+
 			if line_count > 2000:
 				break
-				
+
 	# update vcf_info
 	tmp_dict = copy.deepcopy(vcf_info)
 	for key, val in tmp_dict['info_dict'].items():
@@ -386,7 +386,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 	 		vcf_info['format_dict'][key].update(key_type_dict_format[key])
 
 	return(vcf_info)
-	
+
 def parse_vcf(vcf, interval, outfile, vcf_info):
 	p = multiprocessing.current_process()
 
@@ -397,9 +397,9 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 
 	logfile = re.sub('json', 'log', outfile)
 	log = open(logfile, 'w')
-	
+
 	with open(outfile, 'w') as f:
-		while True:	
+		while True:
 			if start < interval[1]:
 				end = start + chunk_size - 1
 				if end >= interval[1]:
@@ -416,24 +416,24 @@ def parse_vcf(vcf, interval, outfile, vcf_info):
 				# remove the header lines from output
 				lines = output.splitlines()
 				variant_lines = lines[vcf_info['num_header_lines']:]
-			
+
 				process_line_data(variant_lines, log, f, vcf_info)
-				
+
 				num_variants_processed += end - start + 1
-				
+
 				print("Pid %s: processed %d variants" % (p.pid, num_variants_processed))
 
 				# update start and end positions
 				start = end + 1
-					
+
 				if start >= interval[1]:
 					break
-	
+
 def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 	p = re.compile(r'^(.*?)\((.*)\)') # for parsing SIFT and PolyPhen predition and score
 	tag_fields = [item for item in info_fields if not '=' in item]
 	for tag in tag_fields:
-		result[tag] = 'Yes'	
+		result[tag] = 'Yes'
 
 	tmp = [info for info in info_fields if '=' in info]
 	tmp_dict = {d[0].replace('.', '_'):d[1] for d in [item.split('=') for item in tmp]}
@@ -460,7 +460,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				csq_dict2_global = {key:val for key, val in csq_dict2.items() if key in vcf_info['csq_dict_global']}
 
 				tmp_dict = {}
-					
+
 				for key2, val2 in csq_dict2_local.items():
 
 					if key2 in ['SIFT', 'PolyPhen']:
@@ -468,7 +468,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						if m:
 							tmp_dict[key2 + '_pred'] = m.group(1)
 							tmp_dict[key2 + '_score'] = float(m.group(2))
-						else: # empty value or only pred or score are included in vep annotation	
+						else: # empty value or only pred or score are included in vep annotation
 							if val2 =='':
 								tmp_dict[key2 + '_pred'] = 'NA'
 								tmp_dict[key2 + '_score'] = -999.99
@@ -584,7 +584,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 				del csq_dict2_local['SIFT']
 				del csq_dict2_local['PolyPhen']
-				csq_dict2_local.update(tmp_dict)	
+				csq_dict2_local.update(tmp_dict)
 				csq_list.append(csq_dict2_local)
 
 			result['CSQ_nested'] = (csq_list)
@@ -616,7 +616,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					aac_list.append(aac_dict)
 
 			result[key] = aac_list
-		elif key == 'AAChange_ensGene':		
+		elif key == 'AAChange_ensGene':
 			aac_list = []
 			aac_dict = {}
 			if val == '.' or val == 'UNKNOWN':
@@ -641,7 +641,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 					aac_list.append(aac_dict)
 			result[key] = aac_list
 
-		elif vcf_info['info_dict'][key]['type'] == 'integer': 
+		elif vcf_info['info_dict'][key]['type'] == 'integer':
 			if val == '.':
 				val = -999
 			if key == 'CIPOS' or key == 'CIEND':
@@ -664,7 +664,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						log.write("Interger parsing problem: %s, %s\n" % (key, val))
 						continue
 
-		elif vcf_info['info_dict'][key]['type'] == 'float': 
+		elif vcf_info['info_dict'][key]['type'] == 'float':
 			if '++' in key:
  				key = key.replace('++', 'plusplus')
 			try:
@@ -697,7 +697,7 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 				if val == '.':
 					result[key] = 'NA'
 				else:
-					result[key] = val	
+					result[key] = val
 			else:
 				if val == '.':
 					val = 'NA'
@@ -748,21 +748,21 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 
 def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group = ''):
 	sample_data_array = []
-	
+
 	for sample_id, sample_data in sample_info.items():
 		sample_data_dict = {}
-		
+
 		# do not waste time and storage for no GT
 		if sample_data.startswith('.|.') or sample_data.startswith('./.') or sample_data.startswith('0|.') or sample_data.startswith('.|0') or sample_data.startswith('0/.'):
 			continue
-		# skip parsing hom_ref GT if no ped file is specified to save time and disk space 
+		# skip parsing hom_ref GT if no ped file is specified to save time and disk space
 		if not ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0')):
 			continue
-			
+
 		format_fields = format_fields if isinstance(format_fields, list) else [format_fields]
 		tmp = sample_data.split(':')
 		sample_sub_info_dict = dict(zip(format_fields, tmp))
-		
+
 		# handle comma-delimited numeric values
 		for (key, val) in sample_sub_info_dict.items():
 			if key in ['GT', 'PGT', 'PID']:
@@ -805,7 +805,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 			sample_data_dict['Mother_ID'] = vcf_info['ped_info'][sample_id]['mother']
 			sample_data_dict['Sex'] = vcf_info['ped_info'][sample_id]['sex']
 			sample_data_dict['Phenotype'] = vcf_info['ped_info'][sample_id]['phenotype']
-			
+
 			# caculate additional fields
 			father_id = vcf_info['ped_info'][sample_id]['father']
 			if father_id in sample_info:
@@ -829,12 +829,12 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 				mother_phenotype = vcf_info['ped_info'][mother_id]['phenotype']
 			else:
 				mother_phenotype = 'NA'
-				
+
 			sample_data_dict['Father_Genotype'] = father_gt
 			sample_data_dict['Mother_Genotype'] = mother_gt
 			sample_data_dict['Mother_Phenotype'] = mother_phenotype
 			sample_data_dict['Father_Phenotype'] = father_phenotype
-			
+
 		sample_data_dict['Sample_ID'] = sample_id
 		if group != '':
 			sample_data_dict['group'] = re.sub('_', '', group)
@@ -849,7 +849,7 @@ def process_line_data(variant_lines, log, f, vcf_info):
 	for line in variant_lines:
 		result = OrderedDict()
 		col_data = line.strip().split("\t")
-		data_fixed = dict(zip(vcf_info['col_header'][:7], col_data[:7]))					
+		data_fixed = dict(zip(vcf_info['col_header'][:7], col_data[:7]))
 		result['Variant'] = "_".join([data_fixed['CHROM'], data_fixed['POS'], data_fixed['REF'][:10], data_fixed['ALT'][:10]])
 
 		# in the first 8 field of vcf format, POS and QUAL are of non-string type, so convert them to the right type
@@ -862,13 +862,13 @@ def process_line_data(variant_lines, log, f, vcf_info):
 			data_fixed['FILTER'] = tmp
 		else:
 			data_fixed['FILTER'] = tmp[0]
-	
+
 		if data_fixed['ID'] == '.':
 			data_fixed['ID'] = 'NA'
 		else:
 			if data_fixed['ID'].startswith('rs'):
 				result['dbSNP_ID'] = data_fixed['ID']
-				
+
 		result.update(data_fixed)
 
 		# get variant type
@@ -876,16 +876,16 @@ def process_line_data(variant_lines, log, f, vcf_info):
 			result['VariantType'] = 'SNV'
 		else:
 			result['VariantType'] = 'INDEL'
-			
+
 		# parse INFO field
-		info_fields = col_data[7].split(";") 
+		info_fields = col_data[7].split(";")
 
 		# parse FORMAT field
 		format_fields = col_data[8].split(":")
-		
+
 		# parse INFO field
 		result = parse_info_fields(info_fields, result, log, vcf_info)
-		
+
 		# parse sample related data
 		sample_info = dict(zip(vcf_info['col_header'][9:], col_data[9:]))
 
@@ -903,8 +903,8 @@ def process_single_cohort(vcf, vcf_info):
 
 	# calculate number of variants each cpu core need to process
 	num_lines_per_proc = math.ceil(total_lines/num_cpus)
-	
-	# create a intervals list for distributing variants into each of the processes 
+
+	# create a intervals list for distributing variants into each of the processes
 	intervals = []
 	line_start = 1
 	line_end = num_lines_per_proc + line_start
@@ -915,14 +915,14 @@ def process_single_cohort(vcf, vcf_info):
 			line_end = line_start + num_lines_per_proc - 1
 			if line_end >= total_lines:
 				line_end = total_lines
-	
+
 			interval = [line_start, line_end]
 			intervals.append(interval)
 			line_start = line_end + 1
 
 			if (line_end >= total_lines):
 				break
-				
+
 	# to be used to hold the process ids for the join() function
 	processes = []
 	output_json = []
@@ -930,22 +930,22 @@ def process_single_cohort(vcf, vcf_info):
 	if debug:
 		for intev in intervals: # debug
 			output_file = 'tmp/output_' + str(intev) + '.json'
-			parse_vcf(vcf, intev, output_file, vcf_info)	
+			parse_vcf(vcf, intev, output_file, vcf_info)
 			output_json.append(output_file)
 	else:
- 		# dispatch subtasks to each of the processes 
+ 		# dispatch subtasks to each of the processes
 		for i in range(num_cpus):
 			output_file = os.path.join(tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
 			proc = multiprocessing.Process(target=parse_vcf, args=[vcf, intervals[i], output_file, vcf_info])
 			proc.start()
 			processes.append(proc)
 			output_json.append(output_file)
- 		
+
 	 	# wait for all the processes to finish
 		for proc in processes:
 			proc.join()
 			print("Process %s finished ..." % proc.pid)
-		
+
 	return(output_json)
 
 def process_case_control(case_vcf, control_vcf, vcf_info):
@@ -961,7 +961,7 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 		start = 1
 		while True:
 			if (start < length):
-				end = start + batch_size - 1	
+				end = start + batch_size - 1
 				batch = chrom + ':' + str(start) + '-' + str(end)
 				if (end >= length):
 					batch = chrom + ':' + str(start) + '-' + str(length)
@@ -992,7 +992,7 @@ def process_case_control(case_vcf, control_vcf, vcf_info):
 			processes.append(proc)
 			output_json.append(output_file)
 
-			batch_start = batch_end + 1	
+			batch_start = batch_end + 1
 
 		# wait for all the processes to finish
 		for proc in processes:
@@ -1007,7 +1007,7 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 
 	logfile = re.sub('json', 'log', outfile)
 	log = open(logfile, 'w')
-	
+
 	batch_count = 0
 	total_batches = len(batch_sub_list)
 
@@ -1025,7 +1025,7 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 			if len(output_case) + len(output_control) == 0:
 				print("Empty batch %s" % batch)
 				continue
-			
+
 			print("Pid %s processing batch  %s, %d of %d"% (p.pid, batch, batch_count, total_batches))
 
 			output_case = output_case.decode('latin1')
@@ -1053,22 +1053,22 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 					tmp2 = {}
 
 					data_fixed = dict(zip(vcf_info['col_header'][:7], data_dict[group][v_id][:7]))
-					
-	
+
+
 					if v_id in seen: # alread found in case
 						# parse INFO field
 						info_fields = data_dict[group][v_id][7].split(";")
 						result_info = parse_info_fields(info_fields, tmp, log, vcf_info, group)
 						result[v_id].update(result_info)
-	
+
 						# parse FORMAT field
 						format_fields = data_dict[group][v_id][8].split(":")
-					
+
 						# parse sample related data
 						sample_info = dict(zip(vcf_info['col_header'][9:], data_dict[group][v_id][9:]))
 						result_sample = parse_sample_info(tmp2, format_fields, sample_info, log, vcf_info, group=group)
 						result[v_id]['sample'].extend(result_sample['sample'])
-					
+
 						result[v_id]['QUAL' + group] = float(data_fixed['QUAL'])
 						result[v_id]['FILTER' + group] = data_fixed['FILTER']
 					else:
@@ -1089,29 +1089,29 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 							result[v_id]['dbSNP_ID'] = data_fixed['ID']
 						else:
 						 	result[v_id]['dbSNP_ID'] = None # boolean filters can not use 'NA'
-	
+
 						# QUAL and FILTER field
 						result[v_id]['QUAL' + group] = float(data_fixed['QUAL'])
 						result[v_id]['FILTER' + group] = data_fixed['FILTER']
-	
+
 						if data_fixed['REF'] in ['G','A','T','C'] and data_fixed['ALT'] in ['G','A','T','C']:
 							result[v_id]['VariantType'] = 'SNV'
 						else:
 							result[v_id]['VariantType'] = 'INDEL'
-					
+
 						# parse INFO field
 						info_fields = data_dict[group][v_id][7].split(";")
 						result_info = parse_info_fields(info_fields, tmp, log, vcf_info, group)
 						result[v_id].update(result_info)
-		
+
 						# parse FORMAT field
 						format_fields = data_dict[group][v_id][8].split(":")
-					
+
 						# parse sample related data
 						sample_info = dict(zip(vcf_info['col_header'][9:], data_dict[group][v_id][9:]))
 						result_sample = parse_sample_info(tmp2, format_fields, sample_info, log, vcf_info, group=group)
 						result[v_id].update(result_sample)
-	
+
 			for v_id in result:
 				json.dump({"_index" : index_name, "_type" : type_name, "_source": result[v_id]}, f, ensure_ascii=True)
 				f.write("\n")
@@ -1121,7 +1121,7 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 def make_es_mapping(vcf_info):
 	info_dict2 = vcf_info['info_dict']
 	format_dict2 = vcf_info['format_dict']
-	
+
 	mapping = defaultdict()
 	mapping[type_name] = {}
 	mapping[type_name]["properties"] = {}
@@ -1176,13 +1176,13 @@ def make_es_mapping(vcf_info):
 		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
 		mapping[type_name]["properties"]['AAChange_refGene'] = refGene_annot
 		mapping[type_name]["properties"]['AAChange_ensGene'] = ensGene_annot
-	
+
 		mapping[type_name]["properties"].update({"COSMIC_Occurrence" : {"type" : "keyword", "null_value" : 'NA'}})
 
 		excluded_list.append('AAChange_refGene')
 		excluded_list.append('AAChange_ensGene')
 		excluded_list.append('ANNOVAR_DATE')
-	
+
 	tmp_keys = info_dict2.keys()
 
 	for key in tmp_keys:
@@ -1202,7 +1202,7 @@ def make_es_mapping(vcf_info):
 	# Perhaps we have to hand made a list of attributes that are meaningful to have "_case" and "_control" appended
 	if control_vcf:
 		for key in keys:
-			
+
 			info_dict2[key + '_case'] = info_dict2[key]
 			info_dict2[key + '_control'] = info_dict2[key]
 			print("Problem! %s\n" % key)
@@ -1220,7 +1220,7 @@ def make_es_mapping(vcf_info):
 
 	# add null_value tags:
 	for key in info_dict2:
-		if info_dict2[key]['type'] == 'integer': 
+		if info_dict2[key]['type'] == 'integer':
 			if key == 'CIPOS' or key == 'CIEND':
 				info_dict2[key] = { "type" : "keyword", "null_value" : 'NA'}
 			else:
@@ -1252,7 +1252,7 @@ def make_es_mapping(vcf_info):
 		format_dict2.update({'AD_ref' : {"type" : "integer", "null_value" : -999}})
 		format_dict2.update({'AD_alt' : {"type" : "integer", "null_value" : -999}})
 		del format_dict2['AD']
-	
+
 	if ped:
 		format_dict2.update({'Family_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
 		format_dict2.update({'Father_ID' : {'type' : 'keyword', 'null_value' : 'NA'}})
@@ -1263,10 +1263,12 @@ def make_es_mapping(vcf_info):
 		format_dict2.update({'Mother_Phenotype' : {'type' : 'keyword', 'null_value' : 'NA'}})
 		format_dict2.update({'Father_Genotype' : {'type' : 'keyword', 'null_value' : 'NA'}})
 		format_dict2.update({'Mother_Genotype' : {'type' : 'keyword', 'null_value' : 'NA'}})
-		
+		format_dict2.update({'Mother_Genotype' : {'type' : 'keyword', 'null_value' : 'NA'}})
+		format_dict2.update({'mendelian_diseases' : {'type' : 'keyword'}})
+
 	# first 7 columns
 	fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
-				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}	
+				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}, "FILTER" : {"type" : "keyword"}, "QUAL" : {"type" : "float"}}
 	if control_vcf:
 		fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}}
@@ -1276,7 +1278,7 @@ def make_es_mapping(vcf_info):
 
 	mapping[type_name]["properties"]["sample"] = {}
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
-	mapping[type_name]["properties"]["sample"].update(sample_annot) 
+	mapping[type_name]["properties"]["sample"].update(sample_annot)
 
 	#remove features that have been appended with  '_case' and '_control'
 	case_control_features = [key for key in mapping[type_name]["properties"] if key.endswith('_control')]
@@ -1302,8 +1304,8 @@ def make_es_mapping(vcf_info):
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
-	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name) 
-	
+	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name)
+
 	with open(create_index_script, 'w') as fp:
 		fp.write("curl -XPUT \'%s:%s/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name))
 		json.dump(index_settings, fp, sort_keys=True, indent=2, ensure_ascii=False)
@@ -1311,7 +1313,7 @@ def make_es_mapping(vcf_info):
 		fp.write("curl -XPUT \'%s:%s/%s/_mapping/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name, type_name))
 		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
 		fp.write("\'")
-		
+
 	with open(mapping_file, 'w') as fp:
 		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
 
@@ -1325,22 +1327,22 @@ if __name__ == '__main__':
 
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	create_index_script = os.path.join(dir_path,  'scripts', 'create_index_%s_and_put_mapping.sh' % index_name)
-	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name) 
+	mapping_file = os.path.join(dir_path,  'scripts', '%s_mapping.json' % index_name)
 	out_vcf_info = os.path.basename(vcf).replace('.vcf.gz', '') + '_vcf_info.json'
 	out_vcf_info = os.path.join(os.getcwd(),  'config', out_vcf_info)
 	output_files = []
 
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=400)
 	es.cluster.health(wait_for_status='yellow')
-	
+
 	# append assembly version to dataset name
 	dataset_name += '_' + assembly
 
 	# make sure the destination dataset not exists
 	conn = sqlite3.connect('db.sqlite3')
 	c = conn.cursor()
-	
-	
+
+
 	query = "DELETE FROM core_dataset WHERE name = '" + dataset_name + "'"
 	try:
 		c.execute(query)
@@ -1352,19 +1354,19 @@ if __name__ == '__main__':
 
 	if gui_only:
 		gui_mapping = os.path.join("config", type_name + '_gui_config.json')
-		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)	
+		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
 	else:
 		case_control = False
 		if control_vcf:
 			case_control = True
-		
+
 		if not skip_parsing:
 			check_commandline(vcf, control_vcf, annot)
 
 			# read and process vcf header section to get various field names and data types
 			rv = process_vcf_header(vcf)
 
-			
+
 			if annot == 'vep':
 				vcf_info = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv))
 			elif annot == 'annovar':
@@ -1372,7 +1374,7 @@ if __name__ == '__main__':
 
 			if control_vcf:
 				rv2 = process_vcf_header(control_vcf)
-				vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2)) 
+				vcf_info2 = dict(zip([ 'num_header_lines', 'csq_fields', 'col_header', 'chr2len', 'info_dict', 'format_dict', 'contig_dict', 'csq_dict_local', 'csq_dict_global'], rv2))
 				vcf_info['info_dict'] = {**vcf_info['info_dict'], **vcf_info2['info_dict']}
 
 			# read 5000 lines of data to verify data types for each field extracted from vcf header by the above function
@@ -1398,17 +1400,17 @@ if __name__ == '__main__':
 
 			print("Finished parsing vcf file in %s seconds, now creating ElasticSearch index ..." % total)
 
-			
+
 			create_index_script, mapping_file = make_es_mapping(vcf_info)
 
 		else:
-					
+
 			for i in range(num_cpus):
 				output_file = os.path.join(tmp_dir, os.path.basename(vcf) + '.chunk_' + str(i) + '.json')
 				output_files.append(output_file)
 
 
-		# prepare for elasticsearch 
+		# prepare for elasticsearch
 		if es.indices.exists(index_name):
 			print("deleting '%s' index..." % index_name)
 			res = es.indices.delete(index = index_name)
@@ -1440,24 +1442,24 @@ if __name__ == '__main__':
 			except:
 				continue
 
-		
+
 		t2 = time.time()
 		total1 = t2 - t1
 		total2 = t2 - t0
-		
-		print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))	
-			
+
+		print("Finished creating ES index in %s seconds, total time %s seconds\n" % (total1, total2))
+
 		#  make a gui config file
-		print("Creating Web user interface, please wait ...")	
-		
+		print("Creating Web user interface, please wait ...")
+
 		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control)
 
-		
+
 		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
-		
-		print("*"*80+"\n")	
+
+		print("*"*80+"\n")
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
-		
+
 	# clean up
 	if cleanup:
 		for infile in output_files:
