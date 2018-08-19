@@ -391,6 +391,8 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 			
 			if key == 'AD':
 				del gui_mapping_sample[key]
+			elif key in ['GT', 'Sample_ID']:
+				continue
 			elif key in ['Sample_ID', 'Family_ID', 'Father_ID', 'Mother_ID', 'Sex', 'GT', 'PGT', 'Phenotype', 'Father_Phenotype', 'Mother_Phenotype', 'Father_Genotype', 'Mother_Genotype', 'Affected_Siblings_IDs', 'Affected_Siblings_Sex', 'Affected_Siblings_Ages', 'Affected_Siblings_Genotypes', 'Unaffected_Siblings_IDs', 'Unaffected_Siblings_Sex', 'Unaffected_Siblings_Ages', 'Unaffected_Siblings_Genotypes']:
 				gui_mapping_sample[key]['filters'][0]['es_filter_type'] = "nested_filter_terms"		
 				gui_mapping_sample[key]['filters'][0]['values'] = "get_values_from_es()"
@@ -401,6 +403,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 				if key == 'Sample_ID' and not ped:
 					gui_mapping_sample[key]['filters'][0]['widget_type'] = "UploadField"
 					gui_mapping_sample[key]['filters'][0]['in_line_tooltip'] = "(One ID per line)"
+					gui_mapping_sample[key]['filters'][0]['form_type'] = "CharField"
 					del gui_mapping_sample[key]['filters'][0]['values']	
 				if key.endswith('Sex'):
 					gui_mapping_sample[key]['filters'][0]["in_line_tooltip"] = "(1 = Male, 2 = Female)"

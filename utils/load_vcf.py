@@ -1489,7 +1489,7 @@ def make_es_mapping(vcf_info):
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 8,
+		"number_of_shards": 9,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.mapping.ignore_malformed": True,
@@ -1658,7 +1658,7 @@ if __name__ == '__main__':
 		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control, ped)
 
 			
-		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+		#make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
 		
 		print("*"*80+"\n")	
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
