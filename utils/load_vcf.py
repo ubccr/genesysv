@@ -882,7 +882,7 @@ def parse_sample_info(result, format_fields, sample_info, log, vcf_info, group =
 		if sample_data.startswith('.|.') or sample_data.startswith('./.') or sample_data.startswith('0|.') or sample_data.startswith('.|0') or sample_data.startswith('0/.'):
 			continue
 		# skip parsing hom_ref GT if no ped file is specified to save time and disk space 
-		if not ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0')):
+		if not ped and (sample_data.startswith('0/0') or sample_data.startswith('0|0') or sample_data.startswith('0')):
 			continue
 			
 		format_fields = format_fields if isinstance(format_fields, list) else [format_fields]
@@ -1489,7 +1489,7 @@ def make_es_mapping(vcf_info):
 
 	index_settings = {}
 	index_settings["settings"] = {
-		"number_of_shards": 9,
+		"number_of_shards": 10,
 		"number_of_replicas": 1,
 		"refresh_interval": "1s",
 		"index.mapping.ignore_malformed": True,
