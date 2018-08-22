@@ -371,7 +371,7 @@ def process_vcf_data(vcf, number_of_lines_to_read, vcf_info):
 								key_type_dict_format.update({key: {"type": "keyword"}})
 							elif isfloat(val):
 								key_type_dict_format.update({key: { "type": "float", "null_value": -999.99}})
-							elif isint(tmp):
+							elif isint(val):
 								if key in key_type_dict_format:
 									if "type" in key_type_dict_format[key]:
 										if key_type_dict_format[key]["type"] == "float":
