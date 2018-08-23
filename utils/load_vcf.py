@@ -1531,7 +1531,7 @@ if __name__ == '__main__':
 	out_vcf_info = os.path.join(os.getcwd(),  'config', out_vcf_info)
 	output_files = []
 
-	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=120, read_timeout=400)
+	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=300, max_retries=10, timeout=300, read_timeout=800)
 	es.cluster.health(wait_for_status='yellow')
 	
 	# append assembly version to dataset name
