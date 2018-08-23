@@ -846,9 +846,10 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
 		result.update(dict_)
 
-	#with open("config/test_gui.json", 'w') as fp:
-	#	json.encoder.c_make_encoder = None	
-	#	json.dump(result, fp, sort_keys=True, indent=2, ensure_ascii=False)
+	gui_config_file = type_name + '_gui_config.json'
+	with open(os.path.join("config", gui_config_file), 'w') as fp:
+		json.encoder.c_make_encoder = None	
+		json.dump(result, fp, sort_keys=True, indent=2, ensure_ascii=False)
 	return(result)
 
 def add_required_data_to_db():
