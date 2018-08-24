@@ -874,28 +874,30 @@ class BaseElasticsearchResponseParser:
         return output
 
     def extract_nested_results_from_elasticsearch_response(self):
-        nested_fields = []
-        for key, val in self.nested_attributes_selected.items():
-            nested_fields.extend([ele.split('.')[1] for ele in val])
-        hits = self.elasticsearch_response['hits']['hits']
-        for hit in hits:
-            tmp_source = hit['_source']
-            es_id = hit['_id']
-            inner_hits = hit.get('inner_hits')
-            tmp_source['es_id'] = es_id
-            if inner_hits:
-                for key, value in inner_hits.items():
-                    tmp_source[key] = []
-                    hits_hits_array = inner_hits[key]['hits']['hits']
-                    for hit in hits_hits_array:
-                        tmp_hit_dict = {}
-                        for hit_key, hit_value in hit['_source'].items():
-                            if hit_key in nested_fields:
-                                tmp_hit_dict[hit_key] = hit_value
 
-                        if tmp_hit_dict:
-                            tmp_source[key].append(tmp_hit_dict)
-            self.results.append(tmp_source)
+            nested_fields = []
+            if self.nested_attributes_selected:
+                for key, val in self.nested_attributes_selected.items():
+                    nested_fields.extend([ele.split('.')[1] for ele in val])
+            hits = self.elasticsearch_response['hits']['hits']
+            for hit in hits:
+                tmp_source = hit['_source']
+                es_id = hit['_id']
+                inner_hits = hit.get('inner_hits')
+                tmp_source['es_id'] = es_id
+                if inner_hits:
+                    for key, value in inner_hits.items():
+                        tmp_source[key] = []
+                        hits_hits_array = inner_hits[key]['hits']['hits']
+                        for hit in hits_hits_array:
+                            tmp_hit_dict = {}
+                            for hit_key, hit_value in hit['_source'].items():
+                                if hit_key in nested_fields:
+                                    tmp_hit_dict[hit_key] = hit_value
+
+                            if tmp_hit_dict:
+                                tmp_source[key].append(tmp_hit_dict)
+                self.results.append(tmp_source)
 
     def flatten_nested_results(self):
 

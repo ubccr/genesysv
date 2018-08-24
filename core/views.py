@@ -233,19 +233,13 @@ class DownloadRouterView(View):
     def get(self, request, *args, **kwargs):
         search_log_id = kwargs.get('search_log_id')
         search_log_obj = get_object_or_404(SearchLog, pk=search_log_id)
-
         app_name = search_log_obj.analysis_type.app_name.name
 
-        # if app_name == 'microbiome':
-        #     from microbiome.views import MicrobiomeSearchView
-        #     return_view = MicrobiomeSearchView
         if app_name == 'complex':
             return_view = BaseDownloadView
         elif app_name == 'mendelian':
             from mendelian.views import MendelianDownloadView
             return_view = MendelianDownloadView
-        # else:
-        #     return_view = BaseSearchView
 
         return return_view().get(request, **{'search_log_id': search_log_id})
 
@@ -524,7 +518,7 @@ class BaseDocumentView(TemplateView):
         group_obj, error_message = get_user_group_for_reviewing(dataset_obj, self.request.user)
 
         if error_message:
-            messages.error(self.request, error_message)
+            # messages.error(self.request, error_message)
             document_review = None
         else:
             if DocumentReview.objects.filter(document_es_id=document_es_id, group=group_obj).exists():

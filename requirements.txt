@@ -35,6 +35,7 @@ pandas==0.23.0
 parso==0.2.1
 pexpect==4.5.0
 pickleshare==0.7.4
+pkg-resources==0.0.0
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 pycodestyle==2.4.0

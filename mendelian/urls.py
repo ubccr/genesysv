@@ -7,6 +7,6 @@ urlpatterns = (
     path('family-snippet/<int:dataset_id>', mendelian_views.FamilySnippetView.as_view(), name='family-snippet'),
     path('mendelian-search', mendelian_views.MendelianSearchView.as_view(), name='mendelian-search'),
     path('mendelian-download/<int:search_log_id>', mendelian_views.MendelianDownloadView.as_view(), name='mendelian-download'),
-    path('mendelian-document-view/<int:dataset_id>/<int:document_es_id>/',
+    path('mendelian-document-view/<int:dataset_id>/<document_es_id>/',
          mendelian_views.MendelianDocumentView.as_view(), name='mendelian-document-view'),
 )

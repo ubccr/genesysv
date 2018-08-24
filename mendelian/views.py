@@ -204,7 +204,6 @@ class MendelianDownloadView(BaseSearchView):
         self.header = None
         self.results = None
 
-
     def get_kwargs(self, request):
 
         if self.search_log_obj.nested_attribute_fields:
@@ -264,7 +263,8 @@ class MendelianDownloadView(BaseSearchView):
     def get(self, request, *args, **kwargs):
         self.search_log_obj = get_object_or_404(core_models.SearchLog, pk=kwargs.get('search_log_id'))
 
-        if request.user != self.search_log_obj.user:
+
+        if self.search_log_obj.user and request.user != self.search_log_obj.user:
             return HttpResponseForbidden()
 
         kwargs = self.get_kwargs(request)

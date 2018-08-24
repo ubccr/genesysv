@@ -1,0 +1,134 @@
+autosomal_dominant rules:
+  - MUST: GT in ["0/1", "0|1", "1|0"]
+  - MUST: Phenotype=="2"
+  - IF Mother_Phenotype=="2", THEN:
+    - MUST: Mother_Genotype in ["0/1", "0|1", "1|0"]
+    - MUST: Father_Genotype in ["0/0", "0|0"]
+  - ELSE IF Father_Phenotype=="2", THEN:
+    - MUST: Mother_Genotype in ["0/0", "0|0"]
+    - MUST: Father_Genotype in ["0/1", "0|1", "1|0"]
+
+
+autosomal_recessive rules:
+  - Based on annotation:
+    - VEP
+      - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
+    - ANNOVAR 
+      - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+      - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+      - MUST: Func_ensGene=="splicing"
+      - MUST: Func_refGene=="splicing"
+  - MUST: GT in ["1/1", "1|1"]
+  - MUST: Phenotype=="2"
+  - MUST: Mother_Genotype in ["0/1", "0|1", "1|0"]
+  - MUST: Father_Genotype in ["0/1", "0|1", "1|0"]
+
+
+de_novo rules:
+  - MUST: GT in ["0/1", "0|1", "1|0"]
+  - MUST: Phenotype=="2"
+  - MUST: Mother_Genotype in ["0/0", "0|0"]
+  - MUST: Father_Genotype in ["0/0", "0|0"]
+
+
+compound_heterozygous rules:
+  - FIRST:
+    - Based on annotation:
+      - VEP
+        - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
+      - ANNOVAR 
+        - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - MUST: Func_ensGene=="splicing"
+        - MUST: Func_refGene=="splicing"
+    - MUST: GT in ["0/1", "0|1", "1|0"]
+    - MUST: Phenotype=="2"
+    - MUST: Mother_Phenotype=="1"      
+    - MUST: Father_Phenotype=="1"
+    - EITHER: 
+      -- Case 1
+        - MUST: Mother_Genotype in ["0/1", "0|1", "1|0"] 
+        - MUST: Father_Genotype in ["0/0", "0|0"] 
+      -- Case 2
+        - MUST: Mother_Genotype in ["0/0", "0|0"]  
+        - MUST: Father_Genotype in ["0/1", "0|1", "1|0"]
+  - THEN: 
+    - For each gene with at least two variants and for each family, phase by transmission, i.e. identify variants pairs that have "0|1" and "1|0" or ("1|0", "0|1" ) genotypes on two different loci.
+
+x_linked_dominant rules
+  - General Rules
+    - MUST: CHROM=="X"
+    - Annotation is hg19/GRCh37, exclude the following ranges: [60001, 2699520], [154931044, 155260560]
+    - Annotation is hg38/GRCh38, exclude the following ranges: [10001, 2781479], [155701383, 156030895]
+  - Case 1 -- Affected Male
+    - MUST: Sex=="1"
+    - MUST: Phenotype=="2"
+    - MUST: GT in ["0/1", "0|1", "1|0", "1/1", "1|1", "1" ]
+    - MUST: Mother_GT in ["0/1", "0|1"]
+    - MUST: Mother_Phenotype=="2"
+  - Case 2  -- Affected Female
+    - MUST: Sex=="2"
+    - MUST: Phenotype=="2"
+    - MUST: GT in ["0/1", "0|1", "1|0"]
+    - EITHER: 
+      - Case 1:
+        - MUST: Mother_GT=="0/0"
+        - MUST: Father_GT in ["0/1", "0|1", "1|0", "1"]
+        - MUST: Father_Phenotype=="2"
+      - Case 2:
+        - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
+        - MUST: Father_GT in ["0/0", "0|0", "0"]
+        - MUST: Mother_Phenotype=="2"
+
+
+x_linked_recessive rules
+  - General Rules
+    - Based on annotation:
+      - VEP
+        - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
+      - ANNOVAR 
+        - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - MUST: Func_ensGene=="splicing"
+        - MUST: Func_refGene=="splicing"
+    - MUST: CHROM=="X"
+    - Annotation is hg19/GRCh37, exclude the following ranges: [60001, 2699520], [154931044, 155260560]
+    - Annotation is hg38/GRCh38, exclude the following ranges: [10001, 2781479], [155701383, 156030895]
+  - Case 1  -- Affected Male
+    - MUST: Sex=="1"
+    - MUST: Phenotype=="2"
+    - MUST NOT: GT in ["0/0", "0|0", "0"]
+    - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
+    - MUST: Mother_Phenotype==1
+  - Case 2  -- Affected Female
+    - MUST: Sex=="2"
+    - MUST: Phenotype=="2"
+    - MUST: GT in ["1|1", "1/1"]
+    - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
+    - MUST: Mother_Phenotype=="1"
+    - MUST: Father_GT in ["0/1", "0|1", "1|0", "1"]
+    - MUST: Father_Phenotye=="2"
+
+
+x_linked_de_novo rules
+  - General Rules
+    - MUST: CHROM=="X"
+    - Annotation is hg19/GRCh37, exclude the following ranges: [60001, 2699520], [154931044, 155260560]
+    - Annotation is hg38/GRCh38, exclude the following ranges: [10001, 2781479], [155701383, 156030895]
+  - Case 1  -- Affected Male
+    - MUST: Sex=="1"
+    - MUST: Phenotype=="2"
+    - MUST: GT in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"]
+    - MUST: Father_GT in ["0/0", "0|0", "0"]
+    - MUST: Mother_GT in ["0/0", "0|0", "0"]
+    - MUST: Father_Phenotype=="1"
+    - MUST: Mother_Phenotype=="1"
+  - Case 2  -- Affected Female
+    - MUST: Sex=="2"
+    - MUST: Phenotype=="2"
+    - MUST: GT in ["0/1", "0|1", "1|0"]
+    - MUST: Father_GT in ["0/0", "0|0", "0"]
+    - MUST: Mother_GT in ["0/0", "0|0", "0"]
+    - MUST: Father_Phenotype=="1"
+    - MUST: Mother_Phenotype=="1"
+
