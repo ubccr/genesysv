@@ -40,6 +40,42 @@ autosomal_recessive_vep_query_body_template = """{
  }
 }"""
 
+
+autosomal_recessive_annovar_query_body_template = """{
+ "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant"
+ ],
+ "query": {
+     "bool": {
+         "filter": [
+             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"term": {"Func_ensGene": "splicing"}},
+             {"term": {"Func_refGene": "splicing"}},
+             {"nested": {
+                 "path": "sample",
+                 "query": {
+                   "bool": {
+                     "filter": [
+                       {"term": {"sample.Sample_ID": "%s"}},
+                       {"terms": {"sample.GT": ["1/1", "1|1"]}},
+                       {"term": {"sample.Phenotype": "2"}},
+                       {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
+                       {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
+                     ]
+                   }
+                 },
+                 "score_mode": "none"
+                }
+             }
+         ],
+         "must_not" : [
+             {"terms": {"CHROM": ["X", "Y"]}}
+        ]
+     }
+ }
+}"""
+
+
 denovo_query_body_template = """{
 "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant"],
 "query": {
@@ -97,7 +133,7 @@ autosomal_dominant_query_body_template = """{
 }
 }"""
 
-compound_heterozygous_query_body_template = """{
+compound_heterozygous_vep_query_body_template = """{
  "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant"
  ],
  "query": {
@@ -140,6 +176,52 @@ compound_heterozygous_query_body_template = """{
  }
 }"""
 
+
+compound_heterozygous_annovar_query_body_template = """{
+ "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant"
+ ],
+ "query": {
+     "bool": {
+         "filter": [
+             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"term": {"Func_ensGene": "splicing"}},
+             {"term": {"Func_refGene": "splicing"}},
+             {"nested": {
+                 "path": "sample",
+                 "query": {
+                   "bool": {
+                     "filter": [
+                       {"term": {"sample.Sample_ID": "%s"}},
+                       {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
+                       {"term": {"sample.Phenotype": "2"}},
+                       {"term": {"sample.Mother_Phenotype": "1"}},
+                       {"term": {"sample.Father_Phenotype": "1"}}
+                     ]
+                   }
+                 },
+                 "score_mode": "none"
+                }
+             },
+             {"nested": {
+                 "path": "AAChange_refGene",
+                 "query": {
+                   "bool": {
+                     "filter": [
+                       {"term": {"AAChange_refGene.Gene": "%s"}}
+                     ]
+                   }
+                 },
+                 "score_mode": "none"
+                }
+             }
+         ],
+         "must_not" : [
+             {"terms": {"CHROM": ["X", "Y"]}}
+        ]
+     }
+ }
+}"""
 
 x_linked_dominant_query_body_template = """{
 "_source": ["sample","CHROM","ID","POS","REF","Variant"
@@ -214,6 +296,40 @@ x_linked_recessive_vep_query_body_template = """{
 }
 }"""
 
+
+x_linked_recessive_annovar_query_body_template = """{
+"_source": ["sample","CHROM","ID","POS","REF","Variant"
+],
+"query": {
+    "bool": {
+        "filter": [
+            {"term": {"CHROM": "X"}},
+            {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+            {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+            {"term": {"Func_ensGene": "splicing"}},
+            {"term": {"Func_refGene": "splicing"}},
+            {"nested": {
+                    "path": "sample",
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {"term": {"sample.Sample_ID": "%s"}},
+                                {"term": {"sample.Phenotype": "2"}}
+                            ]
+                        }
+                    },
+                    "score_mode": "none"
+                }
+            }
+        ],
+        "must_not" : [
+            {"range": {"POS": {"gt": %d, "lt": %d}}},
+            {"range": {"POS": {"gt": %d, "lt": %d}}}
+
+        ]
+    }
+}
+}"""
 
 x_linked_de_novo_query_body_template = """{
 "_source": ["sample","CHROM","ID","POS","REF","Variant"
@@ -374,6 +490,58 @@ def get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_nam
 
     results = es.search(index=index_name, doc_type=doc_type_name, body=compound_heterozygous_query_body_template, request_timeout=120)
     return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
+
+
+
+def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name):
+    compound_heterozygous_query_body_template = """{
+         "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant", "CSQ_nested"
+         ],
+         "query": {
+             "bool": {
+                 "filter": [
+                     {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+                     {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+                     {"term": {"Func_ensGene": "splicing"}},
+                     {"term": {"Func_refGene": "splicing"}},
+                     {"nested": {
+                         "path": "sample",
+                         "query": {
+                           "bool": {
+                             "filter": [
+                               {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
+                               {"term": {"sample.Phenotype": "2"}},
+                               {"term": {"sample.Mother_Phenotype": "1"}},
+                               {"term": {"sample.Father_Phenotype": "1"}}
+                             ]
+                           }
+                         },
+                         "score_mode": "none"
+                        }
+                     }
+                 ],
+                 "must_not" : [
+                     {"terms": {"CHROM": ["X", "Y"]}}
+                ]
+             }
+         },
+         "size": 0,
+        "aggs" : {
+            "values" : {
+                "nested" : {
+                    "path" : "AAChange_refGene"
+                },
+                "aggs" : {
+                    "values" : {"terms" : {"field" : "AAChange_refGene.Gene", "size" : 30000}}
+                }
+            }
+        }
+        }"""
+
+    results = es.search(index=index_name, doc_type=doc_type_name, body=compound_heterozygous_query_body_template, request_timeout=120)
+    return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
+
+
 
 
 
@@ -561,7 +729,8 @@ def are_variants_compound_heterozygous(variants):
     else:
         return False
 
-def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict):
+
+def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation):
 
     count = 0
     actions = []
@@ -569,7 +738,10 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict):
     for family_id, family in family_dict.items():
         child_id = family.get('child_id')
         # print(child_id)
-        query_body = autosomal_recessive_vep_query_body_template % (child_id)
+        if annotation == 'vep':
+            query_body = autosomal_recessive_vep_query_body_template % (child_id)
+        elif annotation == 'annovar':
+            query_body = autosomal_recessive_annovar_query_body_template % (child_id)
         # print(query_body)
         query_body = json.loads(query_body)
         for hit in helpers.scan(
@@ -838,7 +1010,7 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
     print('Found {} x_linked_dominant samples'.format(count))
 
 
-def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict):
+def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation):
 
     count = 0
     actions = []
@@ -846,12 +1018,23 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict):
     for family_id, family in family_dict.items():
         child_id = family.get('child_id')
         # print(child_id)
-        query_body = x_linked_recessive_vep_query_body_template % (
-            child_id,
-            range_rules['hg19/GRCh37'][0][0],
-            range_rules['hg19/GRCh37'][0][1],
-            range_rules['hg19/GRCh37'][1][0],
-            range_rules['hg19/GRCh37'][1][1])
+        if annotation == 'vep':
+            query_body = x_linked_recessive_vep_query_body_template % (
+                child_id,
+                range_rules['hg19/GRCh37'][0][0],
+                range_rules['hg19/GRCh37'][0][1],
+                range_rules['hg19/GRCh37'][1][0],
+                range_rules['hg19/GRCh37'][1][1]
+            )
+        elif annotation == 'annovar':
+            query_body = x_linked_recessive_annovar_query_body_template % (
+                child_id,
+                range_rules['hg19/GRCh37'][0][0],
+                range_rules['hg19/GRCh37'][0][1],
+                range_rules['hg19/GRCh37'][1][0],
+                range_rules['hg19/GRCh37'][1][1]
+            )
+
         # print(query_body)
         query_body = json.loads(query_body)
         for hit in helpers.scan(
@@ -909,6 +1092,7 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict):
         helpers.bulk(es, actions)
 
     print('Found {} x_linked_recessive samples'.format(count))
+
 
 def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
 
@@ -983,7 +1167,7 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
     print('Found {} x_linked_denovo samples'.format(count))
 
 
-def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict):
+def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation):
 
     count = 0
 
@@ -992,10 +1176,17 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict):
 
         child_id = family.get('child_id')
         # print(child_id)
-        genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+        if annotation == 'vep':
+            genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+        elif annotation == 'annovar':
+            genes = get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+
         for gene in genes:
             actions = []
-            query_body = compound_heterozygous_query_body_template % (child_id, gene)
+            if annotation == 'vep':
+                query_body = compound_heterozygous_vep_query_body_template % (child_id, gene)
+            elif annotation == 'annovar':
+                query_body = compound_heterozygous_annovar_query_body_template % (child_id, gene)
             query_body = json.loads(query_body)
             samples = []
             for hit in helpers.scan(
@@ -1068,50 +1259,55 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict):
 
     print('Found {} compound_heterozygous samples'.format(count))
 
+
 def main():
     import datetime
-    index_name = "ashkenazitrio4families"
-    doc_type_name = "ashkenazitrio4families_"
-    es = elasticsearch.Elasticsearch(host='199.109.193.178', port=9200)
+
+    index_name = "test_4families_annovar7"
+    doc_type_name = "test_4families_annovar7_"
+    annotation = 'annovar'
+
+    es = elasticsearch.Elasticsearch(host='199.109.192.181', port=9200)
     family_dict = get_family_dict(es, index_name, doc_type_name)
 
     all_start_time = datetime.datetime.now()
+
     start_time = datetime.datetime.now()
     print('Starting annotate_autosomal_recessive', start_time)
-    annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_autosomal_recessive',int((datetime.datetime.now() - start_time).total_seconds()))
+    annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_denovo', start_time)
     annotate_denovo(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_denovo',int((datetime.datetime.now() - start_time).total_seconds()))
+    print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_autosomal_dominant', start_time)
     annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_autosomal_dominant',int((datetime.datetime.now() - start_time).total_seconds()))
+    print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_dominant', start_time)
     annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_x_linked_dominant',int((datetime.datetime.now() - start_time).total_seconds()))
+    print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_recessive', start_time)
-    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_x_linked_recessive',int((datetime.datetime.now() - start_time).total_seconds()))
+    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_denovo', start_time)
     annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_x_linked_denovo',int((datetime.datetime.now() - start_time).total_seconds()))
+    print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
 
     start_time = datetime.datetime.now()
     print('Starting annotate_compound_heterozygous', start_time)
-    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict)
-    print('Finished annotate_compound_heterozygous',int((datetime.datetime.now() - start_time).total_seconds()))
+    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()))
 
-    print('Finished annotating all in seconds: ',int((datetime.datetime.now() - all_start_time).total_seconds()))
+    print('Finished annotating all in seconds: ', int((datetime.datetime.now() - all_start_time).total_seconds()))
 
 
 if __name__ == "__main__":

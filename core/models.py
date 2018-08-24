@@ -60,10 +60,7 @@ class Study(TimeStampedModel):
 
 
 class Dataset(TimeStampedModel):
-    study = models.ForeignKey(
-        'Study',
-        on_delete=models.CASCADE,
-    )
+    study = models.ForeignKey('Study', on_delete=models.CASCADE)
     analysis_type = models.ManyToManyField(AnalysisType, blank=True)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
