@@ -16,6 +16,7 @@ from core.utils import (BaseElasticSearchQueryDSL,
 
 thismodule = sys.modules[__name__]
 
+
 def filter_using_inner_hits(source_data, inner_hits_data):
 
     inner_hit_candidates = []
@@ -61,7 +62,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
         self.limit_results = limit_results
         self.elasticsearch_terminate_after = elasticsearch_terminate_after
 
-
     def add_analysis_type_filter(self, analysis_type):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
@@ -90,7 +90,8 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
             if sample_array:
                 sample_array['nested']['inner_hits'] = {}
-                sample_array['nested']['query']['bool']['filter'].append({"term": {"sample.mendelian_diseases": analysis_type}})
+                sample_array['nested']['query']['bool']['filter'].append(
+                    {"term": {"sample.mendelian_diseases": analysis_type}})
                 filter_array_copy.append(sample_array)
                 query_body['query']['bool']['filter'] = filter_array_copy
             else:
@@ -112,7 +113,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 )
         return query_body
 
-
     def search(self):
         results = {
             "took": None,
@@ -132,9 +132,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             annotation = 'ANNOVAR'
 
         query_body = self.add_analysis_type_filter(self.mendelian_analysis_type)
-
         pprint.pprint(query_body)
-        x = datetime.datetime.now()
         for hit in helpers.scan(
                 es,
                 query=query_body,
@@ -149,11 +147,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
             inner_hits_sample = hit['inner_hits']['sample']['hits']['hits']
             sample_data = extract_sample_inner_hits_as_array(inner_hits_sample)
-
             tmp_results = hit.copy()
             tmp_results['_source']['sample'] = sample_data
-            tmp_results['inner_hits']['sample']['hits']['hits'] = [
-                {'_nested': {'field': 'sample'}, '_source': sample_data[0]}]
+            tmp_results['inner_hits'].pop('sample')
             results['hits']['hits'].append(tmp_results)
             count += 1
         elapsped_time = int((datetime.datetime.now() - start_time).total_seconds() * 1000)
