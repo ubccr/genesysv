@@ -23,10 +23,13 @@ from collections import deque
 from elasticsearch import helpers
 import time
 from make_gui import make_gui_config, make_gui
+from add_mendelian_annotations import *
 import utils
 import sqlite3
 from utils import *
 import django
+import datetime
+
 
 absproject_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(absproject_path) #here store is root folder(means parent).
@@ -1520,6 +1523,49 @@ def make_es_mapping(vcf_info):
 
 	return(create_index_script, mapping_file)
 
+def put_mendelian_to_es(es, index_name, doc_type_name, annotation):
+
+	family_dict = get_family_dict(es, index_name, doc_type_name)
+	all_start_time = datetime.datetime.now()
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_autosomal_recessive', start_time)
+	annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+	print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_denovo', start_time)
+	annotate_denovo(es, index_name, doc_type_name, family_dict)
+	print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_autosomal_dominant', start_time)
+	annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+	print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_x_linked_dominant', start_time)
+	annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+	print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_x_linked_recessive', start_time)
+	annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+	print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_x_linked_denovo', start_time)
+	annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+	print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	start_time = datetime.datetime.now()
+	print('Starting annotate_compound_heterozygous', start_time)
+	annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+	print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()))
+
+	print('Finished annotating all in seconds: ', int((datetime.datetime.now() - all_start_time).total_seconds()))
+
+
 
 
 if __name__ == '__main__':
@@ -1659,7 +1705,7 @@ if __name__ == '__main__':
 		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control, ped)
 
 			
-		#make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
 		
 		print("*"*80+"\n")	
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
@@ -1668,6 +1714,12 @@ if __name__ == '__main__':
 		gui_time = t3 - t2
 
 		print("Success, vcf parsing: %s, indexing: %s, GUI creation: %s, VCF: %s\n" % (parsing_time/60, indexing_time/60, gui_time/60, vcf))
+
+	# annotate variants for Mendelian inheritance and insert results back to es index
+	if ped:
+		put_mendelian_to_es(es, index_name, type_name, annot)
+
+
 	# clean up
 	if cleanup:
 		for infile in output_files:
