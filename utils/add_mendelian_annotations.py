@@ -47,10 +47,6 @@ autosomal_recessive_annovar_query_body_template = """{
  "query": {
      "bool": {
          "filter": [
-             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-             {"term": {"Func_ensGene": "splicing"}},
-             {"term": {"Func_refGene": "splicing"}},
              {"nested": {
                  "path": "sample",
                  "query": {
@@ -70,6 +66,12 @@ autosomal_recessive_annovar_query_body_template = """{
          ],
          "must_not" : [
              {"terms": {"CHROM": ["X", "Y"]}}
+        ],
+        "should" : [
+             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"term": {"Func_ensGene": "splicing"}},
+             {"term": {"Func_refGene": "splicing"}}
         ]
      }
  }
@@ -183,10 +185,6 @@ compound_heterozygous_annovar_query_body_template = """{
  "query": {
      "bool": {
          "filter": [
-             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-             {"term": {"Func_ensGene": "splicing"}},
-             {"term": {"Func_refGene": "splicing"}},
              {"nested": {
                  "path": "sample",
                  "query": {
@@ -218,6 +216,12 @@ compound_heterozygous_annovar_query_body_template = """{
          ],
          "must_not" : [
              {"terms": {"CHROM": ["X", "Y"]}}
+        ],
+        "should" : [
+             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"term": {"Func_ensGene": "splicing"}},
+             {"term": {"Func_refGene": "splicing"}}
         ]
      }
  }
@@ -304,10 +308,6 @@ x_linked_recessive_annovar_query_body_template = """{
     "bool": {
         "filter": [
             {"term": {"CHROM": "X"}},
-            {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-            {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
-            {"term": {"Func_ensGene": "splicing"}},
-            {"term": {"Func_refGene": "splicing"}},
             {"nested": {
                     "path": "sample",
                     "query": {
@@ -326,6 +326,12 @@ x_linked_recessive_annovar_query_body_template = """{
             {"range": {"POS": {"gt": %d, "lt": %d}}},
             {"range": {"POS": {"gt": %d, "lt": %d}}}
 
+        ],
+        "should" : [
+             {"terms": {"ExonicFunc_ensGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
+             {"term": {"Func_ensGene": "splicing"}},
+             {"term": {"Func_refGene": "splicing"}}
         ]
     }
 }
@@ -1263,8 +1269,8 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
 def main():
     import datetime
 
-    index_name = "test_4families_annovar7"
-    doc_type_name = "test_4families_annovar7_"
+    index_name = "test_4families_annovar"
+    doc_type_name = "test_4families_annovar_"
     annotation = 'annovar'
 
     es = elasticsearch.Elasticsearch(host='199.109.192.181', port=9200)
