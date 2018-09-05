@@ -14,10 +14,11 @@ autosomal_recessive rules:
     - VEP
       - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
     - ANNOVAR 
-      - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-      - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-      - MUST: Func_ensGene=="splicing"
-      - MUST: Func_refGene=="splicing"
+      - SHOULD: -- any match any of the following:
+        - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+        - Func_ensGene=="splicing"
+        - Func_refGene=="splicing"
   - MUST: GT in ["1/1", "1|1"]
   - MUST: Phenotype=="2"
   - MUST: Mother_Genotype in ["0/1", "0|1", "1|0"]
@@ -37,10 +38,11 @@ compound_heterozygous rules:
       - VEP
         - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
       - ANNOVAR 
-        - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-        - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-        - MUST: Func_ensGene=="splicing"
-        - MUST: Func_refGene=="splicing"
+        - SHOULD: -- any match any of the following:
+          - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+          - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+          - Func_ensGene=="splicing"
+          - Func_refGene=="splicing"
     - MUST: GT in ["0/1", "0|1", "1|0"]
     - MUST: Phenotype=="2"
     - MUST: Mother_Phenotype=="1"      
@@ -87,10 +89,11 @@ x_linked_recessive rules
       - VEP
         - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
       - ANNOVAR 
-        - MUST: ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-        - MUST: ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
-        - MUST: Func_ensGene=="splicing"
-        - MUST: Func_refGene=="splicing"
+        - SHOULD: -- any match any of the following:
+          - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+          - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
+          - Func_ensGene=="splicing"
+          - Func_refGene=="splicing"
     - MUST: CHROM=="X"
     - Annotation is hg19/GRCh37, exclude the following ranges: [60001, 2699520], [154931044, 155260560]
     - Annotation is hg38/GRCh38, exclude the following ranges: [10001, 2781479], [155701383, 156030895]
