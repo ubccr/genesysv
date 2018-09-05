@@ -72,7 +72,9 @@ autosomal_recessive_annovar_query_body_template = """{
              {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
              {"term": {"Func_ensGene": "splicing"}},
              {"term": {"Func_refGene": "splicing"}}
-        ]
+        ],
+        "minimum_should_match": 1
+
      }
  }
 }"""
@@ -222,7 +224,8 @@ compound_heterozygous_annovar_query_body_template = """{
              {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
              {"term": {"Func_ensGene": "splicing"}},
              {"term": {"Func_refGene": "splicing"}}
-        ]
+        ],
+        "minimum_should_match": 1
      }
  }
 }"""
@@ -332,7 +335,8 @@ x_linked_recessive_annovar_query_body_template = """{
              {"terms": {"ExonicFunc_refGene": ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]}},
              {"term": {"Func_ensGene": "splicing"}},
              {"term": {"Func_refGene": "splicing"}}
-        ]
+        ],
+        "minimum_should_match": 1
     }
 }
 }"""
