@@ -420,7 +420,7 @@ def is_x_linked_dominant(sample_information):
     elif sample_information.get('Sex') == '2':
         if sample_information.get('GT') in ["0/1", "0|1", "1|0"]:
             if (sample_information.get('Mother_Genotype') in ["0/0"] and
-                (sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1"] and
+                (sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."] and
                  sample_information.get('Father_Phenotype')) == "2"):
                 return True
             elif (sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
@@ -441,7 +441,7 @@ def is_x_linked_recessive(sample_information):
         if (sample_information.get('GT') in ["1|1", "1/1"] and
             sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
             sample_information.get('Mother_Phenotype') == "1" and
-            sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1"] and
+            sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."] and
             sample_information.get('Father_Phenotype') == "2"):
             return True
 
