@@ -757,7 +757,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 sample = pop_sample_with_id(sample_array, child_id)
                 tmp_id = es_id + child_id
                 mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'autosomal_recessive' not in mendelian_diseases:
+                if 'autosomal_recessive' in mendelian_diseases:
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
                     continue
@@ -815,7 +815,7 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
                 sample = pop_sample_with_id(sample_array, child_id)
                 tmp_id = es_id + child_id
                 mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'denovo' not in mendelian_diseases:
+                if 'denovo' in mendelian_diseases:
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
                     continue
@@ -954,6 +954,7 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
                     # sample['mendelian_diseases'] = 'x_linked_dominant'
                     to_update = False
                     if mendelian_diseases:
+                        if 'x_linked_dominant' not in mendelian_diseases:
                             mendelian_diseases.append('x_linked_dominant')
                             print(es_id, mendelian_diseases)
                             to_update = True
@@ -1089,7 +1090,7 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                 sample = pop_sample_with_id(sample_array, child_id)
                 tmp_id = es_id + child_id
                 mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'x_linked_recessive' in mendelian_diseases:
+                if 'x_linked_denovo' in mendelian_diseases:
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
                 if is_x_linked_de_novo(sample):
@@ -1205,9 +1206,9 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
 def main():
     import datetime
 
-    index_name = "ashkenazitrio4families"
-    doc_type_name = "ashkenazitrio4families_"
-    annotation = 'vep'
+    index_name = "test_4families_annovar"
+    doc_type_name = "test_4families_annovar_"
+    annotation = 'annovar'
 
     es = elasticsearch.Elasticsearch(host='199.109.192.181', port=9200)
     family_dict = get_family_dict(es, index_name, doc_type_name)
@@ -1215,40 +1216,40 @@ def main():
 
     all_start_time = datetime.datetime.now()
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_autosomal_recessive', start_time)
-    # annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_autosomal_recessive', start_time)
+    annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_denovo', start_time)
-    # annotate_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_denovo', start_time)
+    annotate_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_autosomal_dominant', start_time)
     annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
     print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_dominant', start_time)
-    # annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_dominant', start_time)
+    annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_recessive', start_time)
-    # annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_recessive', start_time)
+    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_denovo', start_time)
-    # annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_denovo', start_time)
+    annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_compound_heterozygous', start_time)
-    # annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_compound_heterozygous', start_time)
+    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     print('Finished annotating all in ', int((datetime.datetime.now() - all_start_time).total_seconds()), 'seconds')
 
