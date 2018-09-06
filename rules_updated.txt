@@ -14,7 +14,7 @@ autosomal_recessive rules:
     - VEP
       - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
     - ANNOVAR 
-      - SHOULD: -- any match any of the following:
+      - SHOULD: -- match any of the following:
         - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
         - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
         - Func_ensGene=="splicing"
@@ -38,7 +38,7 @@ compound_heterozygous rules:
       - VEP
         - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
       - ANNOVAR 
-        - SHOULD: -- any match any of the following:
+        - SHOULD: -- match any of the following:
           - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
           - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
           - Func_ensGene=="splicing"
@@ -65,7 +65,7 @@ x_linked_dominant rules
   - Case 1 -- Affected Male
     - MUST: Sex=="1"
     - MUST: Phenotype=="2"
-    - MUST: GT in ["0/1", "0|1", "1|0", "1/1", "1|1", "1" ]
+    - MUST: GT in ["0/1", "0|1", "1|0", "1/1", "1|1", "1", "./1", ".|1", "1|." ]
     - MUST: Mother_GT in ["0/1", "0|1"]
     - MUST: Mother_Phenotype=="2"
   - Case 2  -- Affected Female
@@ -89,7 +89,7 @@ x_linked_recessive rules
       - VEP
         - MUST: CSQ_nested.Consequence in ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]
       - ANNOVAR 
-        - SHOULD: -- any match any of the following:
+        - SHOULD: -- match any of the following:
           - ExonicFunc_ensGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
           - ExonicFunc_refGene in ["frameshift_deletion", "frameshift_insertion", "stopgain", "stoploss"]
           - Func_ensGene=="splicing"
@@ -109,8 +109,8 @@ x_linked_recessive rules
     - MUST: GT in ["1|1", "1/1"]
     - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
     - MUST: Mother_Phenotype=="1"
-    - MUST: Father_GT in ["0/1", "0|1", "1|0", "1"]
-    - MUST: Father_Phenotye=="2"
+    - MUST: Father_GT in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."]
+    - MUST: Father_Phenotype=="2"
 
 
 x_linked_de_novo rules
