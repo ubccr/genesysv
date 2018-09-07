@@ -13,6 +13,8 @@ autosomal_recessive_vep_query_body_template = """{
                        {"term": {"sample.Sample_ID": "%s"}},
                        {"terms": {"sample.GT": ["1/1", "1|1"]}},
                        {"term": {"sample.Phenotype": "2"}},
+                       {"term": {"sample.Mother_Genotype": "1"}},
+                       {"term": {"sample.Father_Genotype": "1"}},
                        {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
                      ]
@@ -56,6 +58,8 @@ autosomal_recessive_annovar_query_body_template = """{
                        {"term": {"sample.Sample_ID": "%s"}},
                        {"terms": {"sample.GT": ["1/1", "1|1"]}},
                        {"term": {"sample.Phenotype": "2"}},
+                       {"term": {"sample.Mother_Phenotype": "1"}},
+                       {"term": {"sample.Father_Phenotype": "1"}},
                        {"terms": {"sample.Mother_Genotype": ["0/1", "0|1", "1|0"]}},
                        {"terms": {"sample.Father_Genotype": ["0/1", "0|1", "1|0"]}}
                      ]
@@ -94,6 +98,8 @@ denovo_query_body_template = """{
                        {"term": {"sample.Sample_ID": "%s"}},
                        {"terms": {"sample.GT": ["0/1", "0|1", "1|0"]}},
                        {"term": {"sample.Phenotype": "2"}},
+                       {"term": {"sample.Mother_Phenotype": "1"}},
+                       {"term": {"sample.Father_Phenotype": "1"}},
                        {"term": {"sample.Mother_Genotype": "0/0"}},
                        {"term": {"sample.Father_Genotype": "0/0"}}
                    ]
@@ -248,8 +254,7 @@ x_linked_dominant_query_body_template = """{
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": {"sample.Sample_ID": "%s"}},
-                                {"term": {"sample.Phenotype": "2"}}
+                                {"term": {"sample.Sample_ID": "%s"}}
                             ],
                             "should" :[
                                 {"term": {"sample.Mother_Phenotype": "2"}},
@@ -383,7 +388,6 @@ x_linked_de_novo_query_body_template = """{
 }"""
 
 
-
 import elasticsearch
 from elasticsearch import helpers
 import pprint
@@ -404,8 +408,8 @@ def is_autosomal_dominant(sample_information):
         if sample_information.get('Mother_Genotype') in ['0/0', '0|0'] and sample_information.get('Father_Genotype') in ['0/1', '0|1', '1|0']:
             return True
 
-
     return False
+
 
 def is_x_linked_dominant(sample_information):
 
@@ -413,58 +417,66 @@ def is_x_linked_dominant(sample_information):
         return False
 
     if sample_information.get('Sex') == '1':
-        if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"] and
-            sample_information.get('Mother_Genotype') in ["0/1", "0|1"] and
-            sample_information.get('Mother_Phenotype') == "2"):
+        if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1", "./1", ".|1", "1|."] and
+            sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
+            sample_information.get('Mother_Phenotype') == "2" and
+            sample_information.get('Father_Phenotype') == "1" and
+                sample_information.get('Father_GT') in ["0", "0/0", "0|0"]):
             return True
     elif sample_information.get('Sex') == '2':
         if sample_information.get('GT') in ["0/1", "0|1", "1|0"]:
-            if (sample_information.get('Mother_Genotype') in ["0/0"] and
-                (sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."] and
-                 sample_information.get('Father_Phenotype')) == "2"):
+            if (sample_information.get('Mother_Genotype') in ["0/0", "0|0"] and
+                sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."] and
+                sample_information.get('Father_Phenotype') == "2" and
+                    sample_information.get('Mother_Phenotype') == "1"):
                 return True
             elif (sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
-                (sample_information.get('Father_Genotype') in ["0/0", "0|0", "0"] and
-                 sample_information.get('Mother_Phenotype')) == "2"):
+                  sample_information.get('Father_Genotype') in ["0/0", "0|0", "0"] and
+                  sample_information.get('Mother_Phenotype') and
+                  sample_information.get('Father_Phenotype') == "1"):
                 return True
 
     return False
+
 
 def is_x_linked_recessive(sample_information):
 
     if sample_information.get('Sex') == '1':
         if (sample_information.get('GT') not in ["0/0", "0|0", "0"] and
             sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
-            sample_information.get('Mother_Phenotype') == "1"):
+                sample_information.get('Mother_Phenotype') == "1"):
             return True
     elif sample_information.get('Sex') == '2':
         if (sample_information.get('GT') in ["1|1", "1/1"] and
             sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
             sample_information.get('Mother_Phenotype') == "1" and
             sample_information.get('Father_Genotype') in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."] and
-            sample_information.get('Father_Phenotype') == "2"):
+                sample_information.get('Father_Phenotype') == "2"):
             return True
 
     return False
 
-def is_x_linked_de_novo(sample_information):
 
+def is_x_linked_denovo(sample_information):
+    if sample_information.get('sample_ID') == 'XG102':
+        print(sample_information)
     if sample_information.get('Sex') == '1':
-        if (sample_information.get('GT') not in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"] and
+        if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"] and
             sample_information.get('Mother_Genotype') in ["0/0", "0|0", "0"] and
             sample_information.get('Mother_Phenotype') == "1" and
             sample_information.get('Father_Genotype') in ["0/0", "0|0", "0"] and
-            sample_information.get('Father_Phenotype') == "1"):
+                sample_information.get('Father_Phenotype') == "1"):
             return True
     elif sample_information.get('Sex') == '2':
         if (sample_information.get('GT') in ["0/1", "0|1", "1|0"] and
             sample_information.get('Mother_Genotype') in ["0/0", "0|0", "0"] and
             sample_information.get('Mother_Phenotype') == "1" and
             sample_information.get('Father_Genotype') in ["0/0", "0|0", "0"] and
-            sample_information.get('Father_Phenotype') == "1"):
+                sample_information.get('Father_Phenotype') == "1"):
             return True
 
     return False
+
 
 def get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name):
     compound_heterozygous_query_body_template = """{
@@ -519,9 +531,9 @@ def get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_nam
         }
         }"""
 
-    results = es.search(index=index_name, doc_type=doc_type_name, body=compound_heterozygous_query_body_template, request_timeout=120)
+    results = es.search(index=index_name, doc_type=doc_type_name,
+                        body=compound_heterozygous_query_body_template, request_timeout=120)
     return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
-
 
 
 def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name):
@@ -572,7 +584,8 @@ def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type
         }
         }"""
 
-    results = es.search(index=index_name, doc_type=doc_type_name, body=compound_heterozygous_query_body_template, request_timeout=120)
+    results = es.search(index=index_name, doc_type=doc_type_name,
+                        body=compound_heterozygous_query_body_template, request_timeout=120)
     return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
@@ -651,7 +664,6 @@ def get_family_dict(es, index_name, doc_type_name):
         body = body_template % (family_id)
         results = es.search(index=index_name, doc_type=doc_type_name, body=body, request_timeout=120)
 
-
         result = results['hits']['hits'][0]['inner_hits']['sample']['hits']['hits'][0]["_source"]
         father_id = result.get('Father_ID')
         mother_id = result.get('Mother_ID')
@@ -685,10 +697,10 @@ def pop_sample_with_id_apply_compound_het_rules(sample_array, sample_id):
     sample = sample_array.pop(saved_index)
 
     if (sample.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
-        sample.get('Father_Genotype') in ["0/0", "0|0"]):
+            sample.get('Father_Genotype') in ["0/0", "0|0"]):
         return sample
     elif (sample.get('Mother_Genotype') in ["0/0", "0|0"] and
-        sample.get('Father_Genotype') in ["0/1", "0|1", "1|0"]):
+          sample.get('Father_Genotype') in ["0/1", "0|1", "1|0"]):
         return sample
 
     return None
@@ -700,7 +712,7 @@ def are_variants_compound_heterozygous(variants):
     compound_heterozygous_variants = []
     for variant in variants:
         father_gt = variant.get('Father_Genotype')
-        mother_gt =variant.get('Mother_Genotype')
+        mother_gt = variant.get('Mother_Genotype')
 
         sum_digits = sum([int(char)
                           for char in father_gt + mother_gt if char.isdigit()])
@@ -779,7 +791,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                     sample_matched.append(tmp_id)
                 if to_update:
                     es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                         body={"doc": {"sample": sample_array}})
+                              body={"doc": {"sample": sample_array}})
                     updated_count += 1
 
         if updated_count == 0:
@@ -835,7 +847,7 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
                     sample_matched.append(tmp_id)
                 if to_update:
                     es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                         body={"doc": {"sample": sample_array}})
+                              body={"doc": {"sample": sample_array}})
                     updated_count += 1
 
         if updated_count == 0:
@@ -891,14 +903,12 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
 
                     sample_array.append(sample)
 
-
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
                     if to_update:
                         es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                             body={"doc": {"sample": sample_array}})
+                                  body={"doc": {"sample": sample_array}})
                         updated_count += 1
-
 
         while_loop_counter += 1
         if updated_count == 0:
@@ -911,7 +921,8 @@ range_rules = {
     'hg19/GRCh37': ([60001, 2699520], [154931044, 155260560]),
     'hg38/GRCh38': ([10001, 2781479], [155701383, 156030895])
 }
-24,382,427
+24, 382, 427
+
 
 def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
 
@@ -967,9 +978,8 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
                         sample_matched.append(tmp_id)
                     if to_update:
                         es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                             body={"doc": {"sample": sample_array}})
+                                  body={"doc": {"sample": sample_array}})
                         updated_count += 1
-
 
         if updated_count == 0:
             keep_updating = False
@@ -1041,15 +1051,13 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
 
                     sample_array.append(sample)
 
-
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
 
                     if to_update:
                         es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                             body={"doc": {"sample": sample_array}})
+                                  body={"doc": {"sample": sample_array}})
                         updated_count += 1
-
 
         if updated_count == 0:
             keep_updating = False
@@ -1086,16 +1094,17 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                     doc_type=doc_type_name):
                 # pprint.pprint(hit["_source"])
                 es_id = hit['_id']
+
                 sample_array = hit["_source"]["sample"]
                 sample = pop_sample_with_id(sample_array, child_id)
+
                 tmp_id = es_id + child_id
                 mendelian_diseases = sample.get('mendelian_diseases', [])
                 if 'x_linked_denovo' in mendelian_diseases:
                     if tmp_id not in sample_matched:
                         sample_matched.append(tmp_id)
-                if is_x_linked_de_novo(sample):
+                if is_x_linked_denovo(sample):
                     mendelian_diseases = sample.get('mendelian_diseases')
-                    # sample['mendelian_diseases'] = 'x_linked_de_novo'
                     to_update = False
                     if mendelian_diseases:
                         if 'x_linked_denovo' not in mendelian_diseases:
@@ -1113,9 +1122,8 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                         sample_matched.append(tmp_id)
                     if to_update:
                         es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                             body={"doc": {"sample": sample_array}})
+                                  body={"doc": {"sample": sample_array}})
                         updated_count += 1
-
 
         if updated_count == 0:
             keep_updating = False
@@ -1185,19 +1193,17 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
                             sample['mendelian_diseases'] = ['compound_heterozygous']
                             to_update = True
 
-
                         sample_array.append(sample)
                         tmp_id = es_id + child_id
                         if tmp_id not in sample_matched:
                             sample_matched.append(tmp_id)
                         if to_update:
                             es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                 body={"doc": {"sample": sample_array}})
+                                      body={"doc": {"sample": sample_array}})
                             updated_count += 1
 
         if updated_count == 0:
             keep_updating = False
-
 
     print('Found {} compound_heterozygous samples'.format(len(list(set(sample_matched)))))
 
@@ -1215,40 +1221,41 @@ def main():
 
     all_start_time = datetime.datetime.now()
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_autosomal_recessive', start_time)
-    # annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_autosomal_recessive', start_time)
+    annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_denovo', start_time)
-    # annotate_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_denovo', start_time)
+    annotate_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_autosomal_dominant', start_time)
-    # annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_autosomal_dominant', start_time)
+    annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_dominant', start_time)
-    # annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_dominant', start_time)
+    annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_recessive', start_time)
-    # annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_recessive', start_time)
+    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_denovo', start_time)
-    # annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_denovo', start_time)
+    annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_compound_heterozygous', start_time)
     annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
-    print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    print('Finished annotate_compound_heterozygous', int(
+        (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     print('Finished annotating all in ', int((datetime.datetime.now() - all_start_time).total_seconds()), 'seconds')
 
