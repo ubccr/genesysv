@@ -23,6 +23,8 @@ autosomal_recessive rules:
   - MUST: Phenotype=="2"
   - MUST: Mother_Genotype in ["0/1", "0|1", "1|0"]
   - MUST: Father_Genotype in ["0/1", "0|1", "1|0"]
+  - MUST: Mother_Phenotype == "1"
+  - MUST: Father_Phenotype == "1"
 
 
 de_novo rules:
@@ -30,6 +32,8 @@ de_novo rules:
   - MUST: Phenotype=="2"
   - MUST: Mother_Genotype in ["0/0", "0|0"]
   - MUST: Father_Genotype in ["0/0", "0|0"]
+  - MUST: Mother_Phenotype == "1"
+  - MUST: Father_Phenotype == "1"
 
 
 compound_heterozygous rules:
@@ -66,21 +70,26 @@ x_linked_dominant rules
     - MUST: Sex=="1"
     - MUST: Phenotype=="2"
     - MUST: GT in ["0/1", "0|1", "1|0", "1/1", "1|1", "1", "./1", ".|1", "1|." ]
-    - MUST: Mother_GT in ["0/1", "0|1"]
+    - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
     - MUST: Mother_Phenotype=="2"
+    - MUST: Father_GT in ["0", "0/0", "0|0"]
+    - MUST: Father_Phenotype == "1"  
+
   - Case 2  -- Affected Female
     - MUST: Sex=="2"
     - MUST: Phenotype=="2"
     - MUST: GT in ["0/1", "0|1", "1|0"]
     - EITHER: 
       - Case 1:
-        - MUST: Mother_GT=="0/0"
-        - MUST: Father_GT in ["0/1", "0|1", "1|0", "1"]
+        - MUST: Mother_GT in ["0/0", "0|0"]
+        - MUST: Father_GT in ["0/1", "0|1", "1|0", "1", "./1", ".|1", "1|."]
         - MUST: Father_Phenotype=="2"
+        - MUST: Mother_Phenotype == "1"
       - Case 2:
         - MUST: Mother_GT in ["0/1", "0|1", "1|0"]
         - MUST: Father_GT in ["0/0", "0|0", "0"]
         - MUST: Mother_Phenotype=="2"
+        - MUST: Father_Phenotype == "1"
 
 
 x_linked_recessive rules
