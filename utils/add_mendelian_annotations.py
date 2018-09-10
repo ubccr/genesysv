@@ -254,7 +254,8 @@ x_linked_dominant_query_body_template = """{
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": {"sample.Sample_ID": "%s"}}
+                                {"term": {"sample.Sample_ID": "%s"}},
+                                {"term": {"sample.Phenotype": "2"}}
                             ],
                             "should" :[
                                 {"term": {"sample.Mother_Phenotype": "2"}},
@@ -416,12 +417,13 @@ def is_x_linked_dominant(sample_information):
     if sample_information.get('Mother_Phenotype') == '2' and sample_information.get('Father_Phenotype') == '2':
         return False
 
+
     if sample_information.get('Sex') == '1':
         if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1", "./1", ".|1", "1|."] and
             sample_information.get('Mother_Genotype') in ["0/1", "0|1", "1|0"] and
             sample_information.get('Mother_Phenotype') == "2" and
             sample_information.get('Father_Phenotype') == "1" and
-                sample_information.get('Father_GT') in ["0", "0/0", "0|0"]):
+                sample_information.get('Father_Genotype') in ["0", "0/0", "0|0"]):
             return True
     elif sample_information.get('Sex') == '2':
         if sample_information.get('GT') in ["0/1", "0|1", "1|0"]:
@@ -739,180 +741,218 @@ def are_variants_compound_heterozygous(variants):
 
 def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation):
 
-    count = 0
-    actions = []
-
-    keep_updating = True
     sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            if annotation == 'vep':
-                query_body = autosomal_recessive_vep_query_body_template % (child_id)
-            elif annotation == 'annovar':
-                query_body = autosomal_recessive_annovar_query_body_template % (child_id)
-            # print(query_body)
-            query_body = json.loads(query_body)
-            for hit in helpers.scan(
-                    es,
-                    query=query_body,
-                    scroll=u'5m',
-                    size=1000,
-                    preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
-                # pprint.pprint(hit["_source"])
-                es_id = hit['_id']
-                sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
-                tmp_id = es_id + child_id
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'autosomal_recessive' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    continue
-
-                to_update = False
-                if mendelian_diseases:
-                    if 'autosomal_recessive' not in mendelian_diseases:
-                        mendelian_diseases.append('autosomal_recessive')
-                        to_update = True
-                else:
-                    to_update = True
-                    sample['mendelian_diseases'] = ['autosomal_recessive']
-
-                sample_array.append(sample)
-
-                # print(es_id, child_id)
-
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        if annotation == 'vep':
+            query_body = autosomal_recessive_vep_query_body_template % (child_id)
+        elif annotation == 'annovar':
+            query_body = autosomal_recessive_annovar_query_body_template % (child_id)
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
+            # pprint.pprint(hit["_source"])
+            es_id = hit['_id']
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+            tmp_id = es_id + child_id
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+            if 'autosomal_recessive' in mendelian_diseases:
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
-                if to_update:
-                    es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                              body={"doc": {"sample": sample_array}})
-                    updated_count += 1
+                continue
 
-        if updated_count == 0:
-            keep_updating = False
+            to_update = False
+            if mendelian_diseases:
+                if 'autosomal_recessive' not in mendelian_diseases:
+                    mendelian_diseases.append('autosomal_recessive')
+                    to_update = True
+            else:
+                to_update = True
+                sample['mendelian_diseases'] = ['autosomal_recessive']
+
+
+            if tmp_id not in sample_matched:
+                sample_matched.append(tmp_id)
+
+            if to_update:
+                sample_array.append(sample)
+                action = {
+                    "_index": index_name,
+                    '_op_type': 'update',
+                    "_type": doc_type_name,
+                    "_id": es_id,
+                    "doc": {
+                        "sample": sample_array
+                    }
+                }
+                count += 1
+
+                actions.append(action)
+
+
+            if count % 500 == 0:
+                helpers.bulk(es, actions)
+                actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+
+
     print('Found {} autosomal_recessive samples'.format(len(list(set(sample_matched)))))
 
 
 def annotate_denovo(es, index_name, doc_type_name, family_dict):
 
-    count = 0
-    actions = []
-    keep_updating = True
+
     sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            query_body = denovo_query_body_template % (child_id)
-            # print(query_body)
-            query_body = json.loads(query_body)
-            for hit in helpers.scan(
-                    es,
-                    query=query_body,
-                    scroll=u'5m',
-                    size=1000,
-                    preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
 
-                es_id = hit['_id']
-                sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
-                tmp_id = es_id + child_id
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'denovo' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    continue
-                to_update = False
-                if mendelian_diseases:
-                    if 'denovo' not in mendelian_diseases:
-                        mendelian_diseases.append('denovo')
-                        print(es_id, mendelian_diseases)
-                        to_update = True
-                else:
-                    sample['mendelian_diseases'] = ['denovo']
-                    to_update = True
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        query_body = denovo_query_body_template % (child_id)
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
 
-                sample_array.append(sample)
-
+            es_id = hit['_id']
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+            tmp_id = es_id + child_id
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+            if 'denovo' in mendelian_diseases:
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
-                if to_update:
-                    es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                              body={"doc": {"sample": sample_array}})
-                    updated_count += 1
+                continue
+            to_update = False
+            if mendelian_diseases:
+                if 'denovo' not in mendelian_diseases:
+                    mendelian_diseases.append('denovo')
+                    print(es_id, mendelian_diseases)
+                    to_update = True
+            else:
+                sample['mendelian_diseases'] = ['denovo']
+                to_update = True
 
-        if updated_count == 0:
-            keep_updating = False
+            if tmp_id not in sample_matched:
+                sample_matched.append(tmp_id)
+
+            if to_update:
+                sample_array.append(sample)
+                action = {
+                    "_index": index_name,
+                    '_op_type': 'update',
+                    "_type": doc_type_name,
+                    "_id": es_id,
+                    "doc": {
+                        "sample": sample_array
+                    }
+                }
+                count += 1
+
+                actions.append(action)
+
+
+            if count % 500 == 0:
+                helpers.bulk(es, actions)
+                actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+
+
+
 
     print('Found {} denovo samples'.format(len(list(set(sample_matched)))))
 
 
 def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
 
-    count = 0
-    actions = []
-    updated_count = 0
-    keep_updating = True
+
     sample_matched = []
-    while_loop_counter = 1
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            query_body = autosomal_dominant_query_body_template % (child_id)
-            # print(query_body)
-            query_body = json.loads(query_body)
-            for hit in helpers.scan(
-                    es,
-                    query=query_body,
-                    scroll=u'5m',
-                    size=1000,
-                    preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
-                # pprint.pprint(hit["_source"])
-                es_id = hit['_id']
-                sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                tmp_id = es_id + child_id
-                if 'autosomal_dominant' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    continue
-                if is_autosomal_dominant(sample):
-                    to_update = False
-                    if mendelian_diseases:
-                        if 'autosomal_dominant' not in mendelian_diseases:
-                            mendelian_diseases.append('autosomal_dominant')
-                            print(es_id, mendelian_diseases)
-                            to_update = True
-                    else:
-                        sample['mendelian_diseases'] = ['autosomal_dominant']
+
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        query_body = autosomal_dominant_query_body_template % (child_id)
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
+            # pprint.pprint(hit["_source"])
+            es_id = hit['_id']
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+            tmp_id = es_id + child_id
+            if 'autosomal_dominant' in mendelian_diseases:
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+                continue
+            if is_autosomal_dominant(sample):
+                to_update = False
+                if mendelian_diseases:
+                    if 'autosomal_dominant' not in mendelian_diseases:
+                        mendelian_diseases.append('autosomal_dominant')
+                        print(es_id, mendelian_diseases)
                         to_update = True
+                else:
+                    sample['mendelian_diseases'] = ['autosomal_dominant']
+                    to_update = True
 
+
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+                if to_update:
                     sample_array.append(sample)
+                    action = {
+                        "_index": index_name,
+                        '_op_type': 'update',
+                        "_type": doc_type_name,
+                        "_id": es_id,
+                        "doc": {
+                            "sample": sample_array
+                        }
+                    }
+                    count += 1
 
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    if to_update:
-                        es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                  body={"doc": {"sample": sample_array}})
-                        updated_count += 1
+                    actions.append(action)
 
-        while_loop_counter += 1
-        if updated_count == 0:
-            keep_updating = False
+
+                if count % 500 == 0:
+                    helpers.bulk(es, actions)
+                    actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+
 
     print('Found {} autosomal dominant samples'.format(len(list(set(sample_matched)))))
 
@@ -926,164 +966,281 @@ range_rules = {
 
 def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
 
-    count = 0
-    actions = []
-    keep_updating = True
+
     sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            query_body = x_linked_dominant_query_body_template % (
-                child_id,
-                range_rules['hg19/GRCh37'][0][0],
-                range_rules['hg19/GRCh37'][0][1],
-                range_rules['hg19/GRCh37'][1][0],
-                range_rules['hg19/GRCh37'][1][1])
-            # print(query_body)
-            query_body = json.loads(query_body)
-            for hit in helpers.scan(
-                    es,
-                    query=query_body,
-                    scroll=u'5m',
-                    size=1000,
-                    preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
-                # pprint.pprint(hit["_source"])
-                es_id = hit['_id']
-                sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
-                tmp_id = es_id + child_id
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'x_linked_dominant' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    continue
-                if is_x_linked_dominant(sample):
-                    # sample['mendelian_diseases'] = 'x_linked_dominant'
-                    to_update = False
-                    if mendelian_diseases:
-                        if 'x_linked_dominant' not in mendelian_diseases:
-                            mendelian_diseases.append('x_linked_dominant')
-                            print(es_id, mendelian_diseases)
-                            to_update = True
-                    else:
-                        sample['mendelian_diseases'] = ['x_linked_dominant']
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        query_body = x_linked_dominant_query_body_template % (
+            child_id,
+            range_rules['hg19/GRCh37'][0][0],
+            range_rules['hg19/GRCh37'][0][1],
+            range_rules['hg19/GRCh37'][1][0],
+            range_rules['hg19/GRCh37'][1][1])
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
+            # pprint.pprint(hit["_source"])
+            es_id = hit['_id']
+            # print(es_id)
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+            tmp_id = es_id + child_id
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+
+            if 'x_linked_dominant' in mendelian_diseases:
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+                continue
+
+            if is_x_linked_dominant(sample):
+                to_update = False
+                if mendelian_diseases:
+                    if 'x_linked_dominant' not in mendelian_diseases:
+                        mendelian_diseases.append('x_linked_dominant')
+                        print(es_id, mendelian_diseases)
                         to_update = True
+                else:
+                    sample['mendelian_diseases'] = ['x_linked_dominant']
+                    to_update = True
 
+
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+
+                if to_update:
                     sample_array.append(sample)
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    if to_update:
-                        es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                  body={"doc": {"sample": sample_array}})
-                        updated_count += 1
+                    action = {
+                        "_index": index_name,
+                        '_op_type': 'update',
+                        "_type": doc_type_name,
+                        "_id": es_id,
+                        "doc": {
+                            "sample": sample_array
+                        }
+                    }
+                    count += 1
 
-        if updated_count == 0:
-            keep_updating = False
+                    actions.append(action)
+
+
+                if count % 500 == 0:
+                    helpers.bulk(es, actions)
+                    actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+
 
     print('Found {} x_linked_dominant samples'.format(len(list(set(sample_matched)))))
 
 
 def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation):
 
-    count = 0
-    actions = []
-    keep_updating = True
+
     sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            if annotation == 'vep':
-                query_body = x_linked_recessive_vep_query_body_template % (
-                    child_id,
-                    range_rules['hg19/GRCh37'][0][0],
-                    range_rules['hg19/GRCh37'][0][1],
-                    range_rules['hg19/GRCh37'][1][0],
-                    range_rules['hg19/GRCh37'][1][1]
-                )
-            elif annotation == 'annovar':
-                query_body = x_linked_recessive_annovar_query_body_template % (
-                    child_id,
-                    range_rules['hg19/GRCh37'][0][0],
-                    range_rules['hg19/GRCh37'][0][1],
-                    range_rules['hg19/GRCh37'][1][0],
-                    range_rules['hg19/GRCh37'][1][1]
-                )
 
-            # print(query_body)
-            query_body = json.loads(query_body)
-            for hit in helpers.scan(
-                    es,
-                    query=query_body,
-                    scroll=u'5m',
-                    size=1000,
-                    preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
-                # pprint.pprint(hit["_source"])
-                es_id = hit['_id']
-                sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
-                tmp_id = es_id + child_id
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'x_linked_recessive' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                        continue
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        if annotation == 'vep':
+            query_body = x_linked_recessive_vep_query_body_template % (
+                child_id,
+                range_rules['hg19/GRCh37'][0][0],
+                range_rules['hg19/GRCh37'][0][1],
+                range_rules['hg19/GRCh37'][1][0],
+                range_rules['hg19/GRCh37'][1][1]
+            )
+        elif annotation == 'annovar':
+            query_body = x_linked_recessive_annovar_query_body_template % (
+                child_id,
+                range_rules['hg19/GRCh37'][0][0],
+                range_rules['hg19/GRCh37'][0][1],
+                range_rules['hg19/GRCh37'][1][0],
+                range_rules['hg19/GRCh37'][1][1]
+            )
 
-                if is_x_linked_recessive(sample):
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
+            # pprint.pprint(hit["_source"])
+            es_id = hit['_id']
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+            tmp_id = es_id + child_id
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+            if 'x_linked_recessive' in mendelian_diseases:
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+                    continue
 
-                    # sample['mendelian_diseases'] = 'x_linked_recessive'
-                    to_update = False
-                    if mendelian_diseases:
-                        if 'x_linked_recessive' not in mendelian_diseases:
-                            mendelian_diseases.append('x_linked_recessive')
-                            print(es_id, mendelian_diseases)
-                            to_update = True
-                    else:
-                        sample['mendelian_diseases'] = ['x_linked_recessive']
+            if is_x_linked_recessive(sample):
+
+                # sample['mendelian_diseases'] = 'x_linked_recessive'
+                to_update = False
+                if mendelian_diseases:
+                    if 'x_linked_recessive' not in mendelian_diseases:
+                        mendelian_diseases.append('x_linked_recessive')
+                        print(es_id, mendelian_diseases)
                         to_update = True
+                else:
+                    sample['mendelian_diseases'] = ['x_linked_recessive']
+                    to_update = True
 
+
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+
+                # if to_update:
+                #     es.update(index=index_name, doc_type=doc_type_name, id=es_id,
+                #               body={"doc": {"sample": sample_array}})
+
+                if to_update:
                     sample_array.append(sample)
+                    action = {
+                        "_index": index_name,
+                        '_op_type': 'update',
+                        "_type": doc_type_name,
+                        "_id": es_id,
+                        "doc": {
+                            "sample": sample_array
+                        }
+                    }
+                    count += 1
 
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
+                    actions.append(action)
 
-                    if to_update:
-                        es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                  body={"doc": {"sample": sample_array}})
-                        updated_count += 1
 
-        if updated_count == 0:
-            keep_updating = False
+                if count % 500 == 0:
+                    helpers.bulk(es, actions)
+                    actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
     print('Found {} x_linked_recessive samples'.format(len(list(set(sample_matched)))))
 
 
 def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
 
-    count = 0
-    actions = []
-    keep_updating = True
+
+
     sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-            child_id = family.get('child_id')
-            # print(child_id)
-            query_body = x_linked_de_novo_query_body_template % (
-                child_id,
-                range_rules['hg19/GRCh37'][0][0],
-                range_rules['hg19/GRCh37'][0][1],
-                range_rules['hg19/GRCh37'][1][0],
-                range_rules['hg19/GRCh37'][1][1])
-            # print(query_body)
+    for family_id, family in family_dict.items():
+        count = 0
+        actions = []
+        child_id = family.get('child_id')
+        # print(child_id)
+        query_body = x_linked_de_novo_query_body_template % (
+            child_id,
+            range_rules['hg19/GRCh37'][0][0],
+            range_rules['hg19/GRCh37'][0][1],
+            range_rules['hg19/GRCh37'][1][0],
+            range_rules['hg19/GRCh37'][1][1])
+        # print(query_body)
+        query_body = json.loads(query_body)
+        for hit in helpers.scan(
+                es,
+                query=query_body,
+                scroll=u'5m',
+                size=1000,
+                preserve_order=False,
+                index=index_name,
+                doc_type=doc_type_name):
+            # pprint.pprint(hit["_source"])
+            es_id = hit['_id']
+
+            sample_array = hit["_source"]["sample"]
+            sample = pop_sample_with_id(sample_array, child_id)
+
+            tmp_id = es_id + child_id
+            mendelian_diseases = sample.get('mendelian_diseases', [])
+            if 'x_linked_denovo' in mendelian_diseases:
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+            if is_x_linked_denovo(sample):
+                mendelian_diseases = sample.get('mendelian_diseases')
+                to_update = False
+                if mendelian_diseases:
+                    if 'x_linked_denovo' not in mendelian_diseases:
+                        mendelian_diseases.append('x_linked_denovo')
+                        print(type(mendelian_diseases), es_id, mendelian_diseases)
+                        to_update = True
+                else:
+                    sample['mendelian_diseases'] = ['x_linked_denovo']
+                    to_update = True
+
+
+                tmp_id = es_id + child_id
+                if tmp_id not in sample_matched:
+                    sample_matched.append(tmp_id)
+
+                if to_update:
+                    sample_array.append(sample)
+                    action = {
+                        "_index": index_name,
+                        '_op_type': 'update',
+                        "_type": doc_type_name,
+                        "_id": es_id,
+                        "doc": {
+                            "sample": sample_array
+                        }
+                    }
+                    count += 1
+
+                    actions.append(action)
+
+
+                if count % 500 == 0:
+                    helpers.bulk(es, actions)
+                    actions = []
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
+
+
+    print('Found {} x_linked_denovo samples'.format(len(list(set(sample_matched)))))
+
+
+def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation):
+
+
+    sample_matched = []
+    for family_id, family in family_dict.items():
+        child_id = family.get('child_id')
+        if annotation == 'vep':
+            genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+        elif annotation == 'annovar':
+            genes = get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+
+        for gene in genes:
+
+            if annotation == 'vep':
+                query_body = compound_heterozygous_vep_query_body_template % (child_id, gene)
+            elif annotation == 'annovar':
+                query_body = compound_heterozygous_annovar_query_body_template % (child_id, gene)
             query_body = json.loads(query_body)
+            samples = []
             for hit in helpers.scan(
                     es,
                     query=query_body,
@@ -1092,118 +1249,74 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                     preserve_order=False,
                     index=index_name,
                     doc_type=doc_type_name):
-                # pprint.pprint(hit["_source"])
+
                 es_id = hit['_id']
-
                 sample_array = hit["_source"]["sample"]
-                sample = pop_sample_with_id(sample_array, child_id)
 
-                tmp_id = es_id + child_id
-                mendelian_diseases = sample.get('mendelian_diseases', [])
-                if 'x_linked_denovo' in mendelian_diseases:
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                if is_x_linked_denovo(sample):
-                    mendelian_diseases = sample.get('mendelian_diseases')
-                    to_update = False
-                    if mendelian_diseases:
-                        if 'x_linked_denovo' not in mendelian_diseases:
-                            mendelian_diseases.append('x_linked_denovo')
-                            print(type(mendelian_diseases), es_id, mendelian_diseases)
-                            to_update = True
-                    else:
-                        sample['mendelian_diseases'] = ['x_linked_denovo']
-                        to_update = True
+                sample = pop_sample_with_id_apply_compound_het_rules(sample_array, child_id)
 
-                    sample_array.append(sample)
+                if not sample:
+                    continue
 
+                sample.update({'es_id': es_id})
+                samples.append(sample)
+
+            actions = []
+            count = 0
+            if len(samples) > 1 and are_variants_compound_heterozygous(samples):
+
+                for sample in samples:
+                    es_id = sample.pop("es_id")
+
+                    es_document = es.get(index_name, doc_type_name, es_id)
+                    sample_array = es_document["_source"]["sample"]
+                    sample = pop_sample_with_id(sample_array, child_id)
+
+
+                    mendelian_diseases = sample.get('mendelian_diseases', [])
                     tmp_id = es_id + child_id
-                    if tmp_id not in sample_matched:
-                        sample_matched.append(tmp_id)
-                    if to_update:
-                        es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                  body={"doc": {"sample": sample_array}})
-                        updated_count += 1
-
-        if updated_count == 0:
-            keep_updating = False
-
-    print('Found {} x_linked_denovo samples'.format(len(list(set(sample_matched)))))
-
-
-def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation):
-
-    count = 0
-
-    keep_updating = True
-    sample_matched = []
-    while keep_updating:
-        updated_count = 0
-        for family_id, family in family_dict.items():
-
-            child_id = family.get('child_id')
-            # print(child_id)
-            if annotation == 'vep':
-                genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
-            elif annotation == 'annovar':
-                genes = get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
-
-            for gene in genes:
-                actions = []
-                if annotation == 'vep':
-                    query_body = compound_heterozygous_vep_query_body_template % (child_id, gene)
-                elif annotation == 'annovar':
-                    query_body = compound_heterozygous_annovar_query_body_template % (child_id, gene)
-                query_body = json.loads(query_body)
-                samples = []
-                for hit in helpers.scan(
-                        es,
-                        query=query_body,
-                        scroll=u'5m',
-                        size=1000,
-                        preserve_order=False,
-                        index=index_name,
-                        doc_type=doc_type_name):
-                    # pprint.pprint(hit["_source"])
-                    es_id = hit['_id']
-                    sample_array = hit["_source"]["sample"]
-                    # print(len(sample_array))
-                    sample = pop_sample_with_id_apply_compound_het_rules(sample_array, child_id)
-
-                    if not sample:
-                        continue
-
-                    sample.update({'es_id': es_id})
-                    samples.append(sample)
-
-                if len(samples) > 1 and are_variants_compound_heterozygous(samples):
-
-                    for sample in samples:
-                        es_id = sample.pop("es_id")
-
-                        mendelian_diseases = sample.get('mendelian_diseases')
-                        # sample['mendelian_diseases'] = 'x_linked_de_novo'
-                        to_update = False
-                        if mendelian_diseases:
-                            if 'compound_heterozygous' not in mendelian_diseases:
-                                mendelian_diseases.append('compound_heterozygous')
-                                print(es_id, mendelian_diseases)
-                                to_update = True
-                        else:
-                            sample['mendelian_diseases'] = ['compound_heterozygous']
-                            to_update = True
-
-                        sample_array.append(sample)
-                        tmp_id = es_id + child_id
+                    if 'compound_heterozygous' in mendelian_diseases:
                         if tmp_id not in sample_matched:
                             sample_matched.append(tmp_id)
-                        if to_update:
-                            es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                                      body={"doc": {"sample": sample_array}})
-                            updated_count += 1
+                        continue
 
-        if updated_count == 0:
-            keep_updating = False
+                    to_update = False
+                    if mendelian_diseases:
+                        if 'compound_heterozygous' not in mendelian_diseases:
+                            mendelian_diseases.append('compound_heterozygous')
+                            print(es_id, mendelian_diseases)
+                            to_update = True
+                    else:
+                        sample['mendelian_diseases'] = ['compound_heterozygous']
+                        to_update = True
+
+                    if tmp_id not in sample_matched:
+                        sample_matched.append(tmp_id)
+
+                    if to_update:
+                        sample_array.append(sample)
+                        action = {
+                            "_index": index_name,
+                            '_op_type': 'update',
+                            "_type": doc_type_name,
+                            "_id": es_id,
+                            "doc": {
+                                "sample": sample_array
+                            }
+                        }
+                        count += 1
+
+                        actions.append(action)
+
+
+                    if count % 500 == 0:
+                        helpers.bulk(es, actions)
+                        actions = []
+
+                helpers.bulk(es, actions)
+                es.indices.refresh(index_name)
+                es.cluster.health(wait_for_no_relocating_shards=True)
+
 
     print('Found {} compound_heterozygous samples'.format(len(list(set(sample_matched)))))
 
