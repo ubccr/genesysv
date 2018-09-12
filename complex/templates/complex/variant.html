@@ -1,66 +1,94 @@
 {% extends "base.html" %} {% load staticfiles %} {% load crispy_forms_tags %} {% load common_tags %} {% block title %} Variant {% endblock %} {% block content %}
 
 
-<div class="panel panel-primary">
-  <div class="panel-heading">General Information</div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-condensed">
-        <tbody>
+
+
+
+<div class="row">
+{% for panel in dataset_obj.attributetab_set.first.attribute_panels.all %} {% if panel.name != 'Sample Related Information' %}
+{% if panel.attributesubpanel_set.all %}
+
+{% for subpanel in panel.attributesubpanel_set.all %}
+{% if subpanel.name in panels_with_values %}
+<div class="col-md-4">
+  <div class="panel panel-primary">
+    <div class="panel-heading">{{panel.name}} - {{subpanel.name}}</div>
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-condensed">
+          {% for subpanel_element in subpanel.attribute_fields.all %}
+          {% if result|get_value_from_dict:subpanel_element.es_name %}
           <tr>
-            <td><strong>Variant</strong></td>
-            <td>{{ result.Variant }}
-              <a target="_blank" href="{{ result.Variant|get_gbrowser_link }}"> (Open in UCSC Genome Browser)</a>
-              <a target="_blank" href="{{ result.Variant|get_decipher_link }}"> (Open in Decipher)</a>
-            </td>
+            <td><strong>{{subpanel_element.display_text}}</strong></td>
+            <td>{{ result|get_value_from_dict:subpanel_element.es_name }}</td>
           </tr>
-          <tr>
-            <td><strong>CHROM</strong></td>
-            <td>{{ result.CHROM }}</td>
-          </tr>
-          <tr>
-            <td><strong>POS</strong></td>
-            <td>{{ result.POS }}</td>
-          </tr>
-          <tr>
-            <td><strong>REF</strong></td>
-            <td>{{ result.REF }}</td>
-          </tr>
-          <tr>
-            <td><strong>ALT</strong></td>
-            <td>{{ result.ALT }}</td>
-          </tr>
-          <tr>
-            <td><strong>Variant Type</strong></td>
-            <td>{{ result|get_value_from_dict:"VariantType" }}</td>
-          </tr>
-          <tr>
-            <td><strong>FILTER</strong></td>
-            <td>{{ result.FILTER }}</td>
-          </tr>
-          <tr>
-            <td><strong>QUAL</strong></td>
-            <td>{{ result.QUAL }}</td>
-          </tr>
-          <tr>
-            <td><strong>ID</strong></td>
-            <td>{{result.ID}}</td>
-          </tr>
-          {% if user.is_authenticated %}
-            <tr>
-              <td><strong>Variant Review</strong></td>
-              {% if document_review %}
-                <td><a href="{% url 'core-document-review-update' dataset_id document_review.id %}">{{document_review.status}}</a></td>
-              {% else %}
-                <td><a href="{% url 'core-document-review-create' dataset_id document_es_id %}"> Review Variant</a></td>
-              {% endif %}
-            </tr>
           {% endif %}
-        </tbody>
-      </table>
+          {% endfor %}
+        </table>
+      </div>
     </div>
   </div>
 </div>
+{% endif %}
+{% endfor %}
+
+
+{% else %}
+{% if panel.name in panels_with_values%}
+<div class="col-md-4">
+  <div class="panel panel-primary">
+    <div class="panel-heading">{{panel.name}}</div>
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-condensed">
+          {% for element in panel.attribute_fields.all %}
+          {% if result|get_value_from_dict:element.es_name %}
+          <tr>
+            <td><strong>{{element.display_text}}</strong></td>
+            <td>{{ result|get_value_from_dict:element.es_name }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endif %} {% endfor %}
+</div>
+
+{% if result|get_value_from_dict:"CSQ_nested" %}
+<div class="panel panel-primary">
+  <div class="panel-heading">VEP CSQ Annotations</div>
+  <div class="panel-body">
+    {% for element in result.CSQ_nested %}
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                 {% for ele_key, ele_val in element.items|dictsort:"0.lower" %}
+                <tr>
+                  <td><strong>{{ele_key}}</strong></td>
+                  <td>{{ele_val}}</td>
+                </tr>
+                      {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
+      {% endfor %}
+
+  </div>
+</div>
+{% endif %} 
+
+
 
 
 <div class="panel panel-primary">
@@ -115,52 +143,6 @@
   </div>
 </div>
 
-{% if result.AN %}
-<div class="panel panel-primary">
-  <div class="panel-heading">Annotations</div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-condensed">
-        <tbody>
-          {% for key, value in result.items|dictsort:"0.lower" %} {% if key not in fields_to_skip and key != "CSQ_nested" %}
-          <tr>
-            <td><strong>{{key}}</strong></td>
-            <td>{{value}}</td>
-          </tr>
-          {% endif %} {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-
-
-{% if result|get_value_from_dict:"CSQ_nested" %}
-<div class="panel panel-primary">
-  <div class="panel-heading">VEP CSQ Annotations</div>
-  <div class="panel-body">
-    <div class="table-responsive">
-      <table class="table table-condensed">
-        <tbody>
-          {% for element in result.CSQ_nested %} {% for ele_key, ele_val in element.items|dictsort:"0.lower" %}
-          <tr>
-            <td><strong>{{ele_key}}</strong></td>
-            <td>{{ele_val}}</td>
-          </tr>
-          {% endfor %}
-          <tr class="success">
-            <td></td>
-            <td></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-{% endif %} 
 
 
 
