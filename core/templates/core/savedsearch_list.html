@@ -8,6 +8,8 @@ Saved Search List
 {% endblock %} 
 
 {% block content %}
+
+  {% if saved_search_list %}
   <div class="table-responsive">
     <table class="table">
       <thead>
@@ -40,4 +42,10 @@ Saved Search List
       </tbody>
     </table>
   </div>
+
+  {% else %}
+    <div class="alert alert-info">
+      You have no saved searches!
+    </div>
+  {% endif %}
 {% endblock %}

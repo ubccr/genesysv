@@ -8,7 +8,7 @@ Create Document Review
 
 {% block content %}
 
-
+{% if document_review_list %}
 <div class="panel panel-primary">
   <div class="panel-heading">Reviews</div>
   <div class="panel-body">
@@ -37,7 +37,11 @@ Create Document Review
   </div>
 </div>
 
-
+  {% else %}
+    <div class="alert alert-info">
+      You have no variant reviews!
+    </div>
+  {% endif %}
 
 
 
