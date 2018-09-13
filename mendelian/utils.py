@@ -132,7 +132,6 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             annotation = 'ANNOVAR'
 
         query_body = self.add_analysis_type_filter(self.mendelian_analysis_type)
-        pprint.pprint(query_body)
         for hit in helpers.scan(
                 es,
                 query=query_body,

@@ -1001,6 +1001,7 @@ class BaseSearchElasticsearch:
         self.non_nested_attributes_selected = elasticsearch_dsl.get_non_nested_attributes_selected()
         self.nested_attributes_selected = elasticsearch_dsl.get_nested_attributes_selected()
 
+        pprint.pprint(self.query_body)
     def run_elasticsearch_query_executor(self):
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
             self.dataset_obj, self.query_body)

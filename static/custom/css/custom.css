@@ -6,13 +6,13 @@
 
 
 .wizard {
-    margin: 20px auto;
+    margin: 1f0px auto;
     background: #fff;
 }
 
     .wizard .nav-tabs {
         position: relative;
-        margin: 40px auto;
+        margin: 10px auto;
         margin-bottom: 0;
         border-bottom-color: #e0e0e0;
     }
@@ -348,14 +348,14 @@ html,body{
 #footer{
     background-color: #005bbb;
     bottom: 0;
-    height: 250px;
+    height: 50px;
     left: 0;
     position: absolute;
     right: 0;
 }
 
 .main {
-    margin-bottom: 250px;
+    margin-bottom: 150px;
 }
 
 #footer-left {

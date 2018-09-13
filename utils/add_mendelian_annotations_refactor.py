@@ -753,6 +753,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
             query_body = autosomal_recessive_annovar_query_body_template % (child_id)
         # print(query_body)
         query_body = json.loads(query_body)
+        pprint.pprint(query_body)
         for hit in helpers.scan(
                 es,
                 query=query_body,
@@ -761,7 +762,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 preserve_order=False,
                 index=index_name,
                 doc_type=doc_type_name):
-            # pprint.pprint(hit["_source"])
+            pprint.pprint(hit["_source"])
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
             sample = pop_sample_with_id(sample_array, child_id)
@@ -802,11 +803,12 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
 
 
             if count % 500 == 0:
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} autosomal_recessive samples'.format(len(list(set(sample_matched)))))
@@ -873,13 +875,12 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
 
 
             if count % 500 == 0:
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
-
-
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} denovo samples'.format(len(list(set(sample_matched)))))
@@ -916,6 +917,7 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
                 continue
+
             if is_autosomal_dominant(sample):
                 to_update = False
                 if mendelian_diseases:
@@ -947,11 +949,12 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} autosomal dominant samples'.format(len(list(set(sample_matched)))))
@@ -1034,11 +1037,12 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} x_linked_dominant samples'.format(len(list(set(sample_matched)))))
@@ -1130,10 +1134,10 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
         es.cluster.health(wait_for_no_relocating_shards=True)
 
@@ -1177,6 +1181,8 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
             if 'x_linked_denovo' in mendelian_diseases:
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
+                continue
+
             if is_x_linked_denovo(sample):
                 mendelian_diseases = sample.get('mendelian_diseases')
                 to_update = False
@@ -1211,10 +1217,10 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
         es.cluster.health(wait_for_no_relocating_shards=True)
 
@@ -1310,10 +1316,10 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
 
 
                     if count % 500 == 0:
-                        helpers.bulk(es, actions)
+                        helpers.bulk(es, actions, refresh=True)
                         actions = []
 
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 es.indices.refresh(index_name)
                 es.cluster.health(wait_for_no_relocating_shards=True)
 

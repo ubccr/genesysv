@@ -424,7 +424,7 @@ class BaseDownloadView(View):
         search_log_obj = get_object_or_404(
             SearchLog, pk=kwargs.get('search_log_id'))
 
-        if request.user != search_log_obj.user:
+        if search_log_obj.user and request.user != search_log_obj.user:
             return HttpResponseForbidden()
         download_obj = BaseDownloadAllResults(search_log_obj)
         rows = download_obj.yield_rows()
@@ -508,6 +508,19 @@ class RetrieveSavedSearchView(TemplateView):
         return context
 
 
+def document_view_help(result, dataset_obj):
+    panels_with_values = []
+    for panel in dataset_obj.attributetab_set.first().attribute_panels.all():
+        for attribute in panel.attribute_fields.all():
+            if result.get(attribute.es_name):
+                panels_with_values.append(panel.name)
+        for sub_panel in panel.attributesubpanel_set.all():
+            for subpanel_attribute in sub_panel.attribute_fields.all():
+                if result.get(subpanel_attribute.es_name):
+                    panels_with_values.append(sub_panel.name)
+
+    return list(set(panels_with_values))
+
 class BaseDocumentView(TemplateView):
     template_name = "core/document.html"
 
@@ -528,11 +541,15 @@ class BaseDocumentView(TemplateView):
 
         result = get_es_document(dataset_obj, document_es_id)
         fields_to_skip = ['Variant', 'CHROM', 'POS', 'REF', 'ALT', 'VariantType', 'FILTER', 'QUAL', 'ID', 'sample']
+
+        panels_with_values = document_view_help(result, dataset_obj)
         context['document_review'] = document_review
         context['document_es_id'] = document_es_id
         context['dataset_id'] = dataset_obj.id
+        context['dataset_obj'] = dataset_obj
         context['result'] = result
         context['fields_to_skip'] = fields_to_skip
+        context['panels_with_values'] = panels_with_values
         return context
 
 
