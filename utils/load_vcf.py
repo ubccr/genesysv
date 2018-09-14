@@ -545,26 +545,20 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							result[key2] = tmp
 						else:
 							result[key2] = tmp[0]
+					elif key2 == "AF":
+						continue # skip AF annotation from VEP, as it is in correct	
 					elif vcf_info['csq_dict_global'][key2]['type'] == 'float':
 						if val2 == '':
-							result[key2] = -999.99
-							continue
-						tmp = val2.split('&')
-						if len(tmp) > 1:
-							result[key2] = [float(item) for item in tmp]
-						else:
-							result[key2] = float(val2)
-					else:
-						if key2 == "AF":
-							if val2 == '':
+							if key2 not in result:
 								result[key2] = -999.99
-								continue
+						else:
 							tmp = val2.split('&')
 							if len(tmp) > 1:
 								result[key2] = [float(item) for item in tmp]
 							else:
-								result[key2] = tmp[0]
-						elif key2 == 'SOMATIC':
+								result[key2] = float(val2)
+					else:
+						if key2 == 'SOMATIC':
 							continue
 						elif key2 == 'Existing_variation':
 							tmp_variants = val2.split('&')
