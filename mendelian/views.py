@@ -238,6 +238,7 @@ class MendelianDownloadView(BaseSearchView):
             'elasticsearch_dsl_class': self.elasticsearch_dsl_class,
             'elasticsearch_query_executor_class': self.elasticsearch_query_executor_class,
             'elasticsearch_response_parser_class': self.elasticsearch_response_parser_class,
+            'limit_results': False
         }
 
         if additional_information:

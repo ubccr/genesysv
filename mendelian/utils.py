@@ -65,20 +65,23 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
     def add_analysis_type_filter(self, analysis_type):
         query_body = copy.deepcopy(self.query_body)
         if 'query' not in query_body:
-            query_body['query'] = {
-                "nested": {
-                    "inner_hits": {"size": 100},
-                    "path": "sample",
-                    "score_mode": "none",
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": {"sample.mendelian_diseases": analysis_type}}
-                            ]
+            query_body['query'] = {'bool': {}}
+            query_body['query']['bool']['filter'] = [
+                {
+                    "nested": {
+                        "inner_hits": {"size": 100},
+                        "path": "sample",
+                        "score_mode": "none",
+                        "query": {
+                            "bool": {
+                                "filter": [
+                                    {"term": {"sample.mendelian_diseases": analysis_type}}
+                                ]
+                            }
                         }
                     }
                 }
-            }
+            ]
         elif query_body['query']['bool']['filter']:
             filter_array = query_body['query']['bool']['filter']
             filter_array_copy = copy.deepcopy(filter_array)
@@ -132,6 +135,23 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
             annotation = 'ANNOVAR'
 
         query_body = self.add_analysis_type_filter(self.mendelian_analysis_type)
+
+        if annotation == 'VEP' and self.mendelian_analysis_type in ['autosomal_recessive', 'compound_heterozygous', 'x_linked_recessive']:
+            query_body['query']['bool']['filter'].append(
+            {"nested": {
+                "inner_hits": {},
+                 "path": "CSQ_nested",
+                 "query": {
+                   "bool": {
+                     "filter": [
+                       {"terms": {"CSQ_nested.Consequence": ["frameshift_variant", "splice_acceptor_variant", "splice_donor_variant", "start_lost", "start_retained_variant", "stop_gained", "stop_lost"]}}
+                     ]
+                   }
+                 },
+                 "score_mode": "none"
+                }
+             })
+
         for hit in helpers.scan(
                 es,
                 query=query_body,
@@ -140,6 +160,7 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 preserve_order=False,
                 index=self.dataset_obj.es_index_name,
                 doc_type=self.dataset_obj.es_type_name):
+
 
             if self.limit_results and len(results['hits']['hits']) > self.elasticsearch_terminate_after:
                 break
@@ -174,6 +195,7 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
         self.mendelian_analysis_type = kwargs.get('mendelian_analysis_type')
         self.number_of_kindred = kwargs.get('number_of_kindred')
         self.family_dict = None
+        self.limit_results = kwargs.get('limit_results', True)
 
     def _get_family(self, dataset_es_index_name, dataset_es_type_name, dataset_es_host, dataset_es_port, Family_ID):
         body_template = """
@@ -260,7 +282,6 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
     def run_elasticsearch_query_executor(self, limit_results=True):
 
         self.get_family_dict()
-
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
             self.dataset_obj, self.query_body, self.family_dict, self.mendelian_analysis_type, limit_results)
         self.elasticsearch_response = elasticsearch_query_executor.get_elasticsearch_response()
@@ -274,5 +295,5 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
         self.log_search()
 
     def download(self):
-        self.run_elasticsearch_query_executor()
+        self.run_elasticsearch_query_executor(limit_results=self.limit_results)
         self.run_elasticsearch_response_parser_class()

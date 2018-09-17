@@ -460,8 +460,6 @@ def is_x_linked_recessive(sample_information):
 
 
 def is_x_linked_denovo(sample_information):
-    if sample_information.get('sample_ID') == 'XG102':
-        print(sample_information)
     if sample_information.get('Sex') == '1':
         if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"] and
             sample_information.get('Mother_Genotype') in ["0/0", "0|0", "0"] and
@@ -761,7 +759,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 preserve_order=False,
                 index=index_name,
                 doc_type=doc_type_name):
-            # pprint.pprint(hit["_source"])
+
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
             sample = pop_sample_with_id(sample_array, child_id)
@@ -802,11 +800,12 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
 
 
             if count % 500 == 0:
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} autosomal_recessive samples'.format(len(list(set(sample_matched)))))
@@ -873,13 +872,12 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
 
 
             if count % 500 == 0:
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
-
-
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} denovo samples'.format(len(list(set(sample_matched)))))
@@ -916,6 +914,7 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
                 continue
+
             if is_autosomal_dominant(sample):
                 to_update = False
                 if mendelian_diseases:
@@ -947,11 +946,12 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} autosomal dominant samples'.format(len(list(set(sample_matched)))))
@@ -1034,11 +1034,12 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
+        es.cluster.health(wait_for_no_relocating_shards=True)
 
 
     print('Found {} x_linked_dominant samples'.format(len(list(set(sample_matched)))))
@@ -1130,10 +1131,10 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
         es.cluster.health(wait_for_no_relocating_shards=True)
 
@@ -1177,6 +1178,8 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
             if 'x_linked_denovo' in mendelian_diseases:
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
+                continue
+
             if is_x_linked_denovo(sample):
                 mendelian_diseases = sample.get('mendelian_diseases')
                 to_update = False
@@ -1211,10 +1214,10 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
 
 
                 if count % 500 == 0:
-                    helpers.bulk(es, actions)
+                    helpers.bulk(es, actions, refresh=True)
                     actions = []
 
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, refresh=True)
         es.indices.refresh(index_name)
         es.cluster.health(wait_for_no_relocating_shards=True)
 
@@ -1310,10 +1313,10 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
 
 
                     if count % 500 == 0:
-                        helpers.bulk(es, actions)
+                        helpers.bulk(es, actions, refresh=True)
                         actions = []
 
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, refresh=True)
                 es.indices.refresh(index_name)
                 es.cluster.health(wait_for_no_relocating_shards=True)
 
@@ -1339,36 +1342,36 @@ def main():
     annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
     print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_denovo', start_time)
-    # annotate_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_denovo', start_time)
+    annotate_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_autosomal_dominant', start_time)
-    # annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_autosomal_dominant', start_time)
+    annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_dominant', start_time)
-    # annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_dominant', start_time)
+    annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_recessive', start_time)
-    # annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_recessive', start_time)
+    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_denovo', start_time)
-    # annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_denovo', start_time)
+    annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_compound_heterozygous', start_time)
-    # annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_compound_heterozygous', int(
-    #     (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_compound_heterozygous', start_time)
+    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_compound_heterozygous', int(
+        (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     print('Finished annotating all in ', int((datetime.datetime.now() - all_start_time).total_seconds()), 'seconds')
 

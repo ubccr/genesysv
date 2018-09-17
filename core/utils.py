@@ -849,11 +849,12 @@ class BaseElasticsearchResponseParser:
     maximum_table_size = 400
     fields_to_skip_flattening = []
 
-    def __init__(self, elasticsearch_response, non_nested_attribute_fields, nested_attribute_fields, nested_attributes_selected):
+    def __init__(self, elasticsearch_response, non_nested_attribute_fields, nested_attribute_fields, nested_attributes_selected, limit_results=True):
         self.elasticsearch_response = elasticsearch_response
         self.non_nested_attribute_fields = non_nested_attribute_fields
         self.nested_attribute_fields = nested_attribute_fields
         self.nested_attributes_selected = nested_attributes_selected
+        self.limit_results = limit_results
         self.results = []
         self.flattened_results = []
 
@@ -906,7 +907,7 @@ class BaseElasticsearchResponseParser:
             results_count = 0
             for idx, result in enumerate(self.results):
 
-                if results_count > self.maximum_table_size:
+                if self.limit_results and results_count > self.maximum_table_size:
                     break
                 combined = False
                 combined_nested = None
@@ -958,9 +959,15 @@ class BaseElasticsearchResponseParser:
         self.extract_nested_results_from_elasticsearch_response()
         if self.flatten_nested:
             self.flatten_nested_results()
-            return self.flattened_results[:self.maximum_table_size]
+            if self.limit_results:
+                return self.flattened_results[:self.maximum_table_size]
+            else:
+                return self.flattened_results
         else:
-            return self.results[:self.maximum_table_size]
+            if self.limit_results:
+                return self.results[:self.maximum_table_size]
+            else:
+                return self.results
 
 
 class BaseSearchElasticsearch:
@@ -987,6 +994,7 @@ class BaseSearchElasticsearch:
         self.nested_attributes_selected = kwargs.get('nested_attributes_selected', None)
         self.search_log_id = None
         self.exclude_rejected_documents = kwargs.get('exclude_rejected_documents')
+        self.limit_results = kwargs.get('limit_results', True)
 
     def run_elasticsearch_dsl(self):
         elasticsearch_dsl = self.elasticsearch_dsl_class(
@@ -1001,7 +1009,6 @@ class BaseSearchElasticsearch:
         self.non_nested_attributes_selected = elasticsearch_dsl.get_non_nested_attributes_selected()
         self.nested_attributes_selected = elasticsearch_dsl.get_nested_attributes_selected()
 
-        pprint.pprint(self.query_body)
     def run_elasticsearch_query_executor(self):
         elasticsearch_query_executor = self.elasticsearch_query_executor_class(
             self.dataset_obj, self.query_body)
@@ -1010,7 +1017,7 @@ class BaseSearchElasticsearch:
 
     def run_elasticsearch_response_parser_class(self):
         elasticsearch_response_parser = self.elasticsearch_response_parser_class(
-            self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields, self.nested_attributes_selected)
+            self.elasticsearch_response, self.non_nested_attribute_fields, self.nested_attribute_fields, self.nested_attributes_selected, limit_results=self.limit_results)
         self.results = elasticsearch_response_parser.get_results()
 
     def run_exclude_rejected_documents(self):
@@ -1033,8 +1040,6 @@ class BaseSearchElasticsearch:
         # convert to json
         header_json = serializers.serialize("json", self.header)
         query_body_json = json.dumps(self.query_body)
-
-        pprint.pprint(self.query_body)
 
         nested_attribute_fields_json = json.dumps(
             self.nested_attribute_fields) if self.nested_attribute_fields else None
@@ -1156,7 +1161,8 @@ class BaseDownloadAllResults:
             tmp_source = hit['_source']
             es_id = hit['_id']
 
-            if self.search_log_obj.user.is_authenticated and self.search_log_obj.exclude_rejected_documents:
+
+            if self.search_log_obj.user != None and self.search_log_obj.user.is_authenticated and self.search_log_obj.exclude_rejected_documents:
                 group_obj, message = get_user_group_for_reviewing(self.search_log_obj.dataset, self.search_log_obj.user)
                 if core_models.DocumentReview.objects.filter(document_es_id=es_id, group=group_obj).exists():
                     document_review_obj = core_models.DocumentReview.objects.get(document_es_id=es_id, group=group_obj)
@@ -1240,6 +1246,6 @@ class BaseDownloadAllResults:
         self.extract_nested_results_from_elasticsearch_response()
         if self.flatten_nested:
             self.flatten_nested_results()
-            return self.flattened_results[:self.maximum_table_size]
+            return self.flattened_results
         else:
-            return self.results[:self.maximum_table_size]
+            return self.results

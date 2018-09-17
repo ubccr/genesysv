@@ -423,8 +423,7 @@ class BaseDownloadView(View):
     def get(self, request, *args, **kwargs):
         search_log_obj = get_object_or_404(
             SearchLog, pk=kwargs.get('search_log_id'))
-
-        if search_log_obj.user and request.user != search_log_obj.user:
+        if search_log_obj.user != None and request.user != search_log_obj.user:
             return HttpResponseForbidden()
         download_obj = BaseDownloadAllResults(search_log_obj)
         rows = download_obj.yield_rows()
