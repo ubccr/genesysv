@@ -460,8 +460,7 @@ def is_x_linked_recessive(sample_information):
 
 
 def is_x_linked_denovo(sample_information):
-    if sample_information.get('sample_ID') == 'XG102':
-        print(sample_information)
+
     if sample_information.get('Sex') == '1':
         if (sample_information.get('GT') in ["0/1", "0|1", "1|0", "1/1", "1|1", "1"] and
             sample_information.get('Mother_Genotype') in ["0/0", "0|0", "0"] and
@@ -753,7 +752,6 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
             query_body = autosomal_recessive_annovar_query_body_template % (child_id)
         # print(query_body)
         query_body = json.loads(query_body)
-        pprint.pprint(query_body)
         for hit in helpers.scan(
                 es,
                 query=query_body,
@@ -762,7 +760,6 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 preserve_order=False,
                 index=index_name,
                 doc_type=doc_type_name):
-            pprint.pprint(hit["_source"])
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
             sample = pop_sample_with_id(sample_array, child_id)
@@ -1345,36 +1342,36 @@ def main():
     annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
     print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_denovo', start_time)
-    # annotate_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_denovo', start_time)
+    annotate_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_autosomal_dominant', start_time)
-    # annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_autosomal_dominant', start_time)
+    annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_dominant', start_time)
-    # annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_dominant', start_time)
+    annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_recessive', start_time)
-    # annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_recessive', start_time)
+    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_x_linked_denovo', start_time)
-    # annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
-    # print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_x_linked_denovo', start_time)
+    annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+    print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
-    # start_time = datetime.datetime.now()
-    # print('Starting annotate_compound_heterozygous', start_time)
-    # annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
-    # print('Finished annotate_compound_heterozygous', int(
-    #     (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
+    start_time = datetime.datetime.now()
+    print('Starting annotate_compound_heterozygous', start_time)
+    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+    print('Finished annotate_compound_heterozygous', int(
+        (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     print('Finished annotating all in ', int((datetime.datetime.now() - all_start_time).total_seconds()), 'seconds')
 
