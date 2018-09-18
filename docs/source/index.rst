@@ -10,7 +10,7 @@ Installing Elasticsearch
 ==========================
 We assume that GeneSysV will be installed locally on a Ubuntu Linux environment with sudo privileges.
 
-Add repository for installing latest Oracle JAVA::
+Add repository for installing the latest Oracle JAVA::
 
     sudo add-apt-repository -y ppa:webupd8team/java
     sudo apt-get update
@@ -29,7 +29,7 @@ Next you will modify Elasticsearch options and update system-wide configurations
 
     sudo su -
 
-Open file ``/etc/elasticsearch/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. For instance if your machine has 16 GB of RAM, set it to  8 GB. You will have to update two lines to allow JVM to allocate 8 GB. WARNING: Never allocate more than 32 GB. Change lines::
+Open file ``/etc/elasticsearch/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. For instance if your machine has 16 GB of RAM, set it to 8 GB. You will have to update two lines to allow JVM to allocate 8 GB. WARNING: Never allocate more than 32 GB. Change lines::
 
     -Xms2g
     -Xmx2g
@@ -41,7 +41,7 @@ to::
 
 and save and close file.
 
-Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment and update the following lines::
+Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment the following lines::
 
     # Uncomment line to enable JVM memory allocation when Elasticsearch starts
     bootstrap.memory_lock: true
@@ -49,7 +49,14 @@ Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment and update
 
 and save and close the file.  Setting ``bootstrap.memory_lock`` to ``true`` allocates RAM exclusively for Elasticsearch when it starts up. 
 
-Next open ``/etc/security/limits.conf``, add limits for Elasticsearch at the end of file::
+Next open ``/etc/sysctl.conf`` and add virtual memory limits::
+   
+    # At the end of file add line:
+    vm.max_map_count=262144
+
+and save and close the file. This setting increases the limit on mmap counts in order to avoid out of memory exceptions.
+
+Next open ``/etc/security/limits.conf`` and add limits for Elasticsearch at the end of file::
 
     # At the end of file add lines:
     elasticsearch - nofile 65536
@@ -58,34 +65,16 @@ Next open ``/etc/security/limits.conf``, add limits for Elasticsearch at the end
 
 save and close the file. These limits allow Elasticsearch to open large number of files at once and allows it to allocate an unlimited amount of page/memory.
 
-Next open ``/usr/lib/systemd/system/elasticsearch.service``, uncomment the following line::
+Next update the elasticsearch systemd configuration::
+    
+    systemctl edit elasticsearch
 
-    # Uncomment line to allow elasticsearch to allocate memory at startup
+and add the lines::
+
+    [Service]
     LimitMEMLOCK=infinity
 
-save, and close.
-
-Next open ``/etc/default/elasticsearch``, uncomment the following lines::
-
-    # Uncomment line to allow elasticsearch to open large amounts of files
-    MAX_OPEN_FILES=65536
-
-    # Uncomment line to allow elasticsearch to allocate memory at startup
-    MAX_LOCKED_MEMORY=unlimited
-
-save, and close.
-
-Next is the installation of the Elasticsearch free license. The license is valid for one year. To install the license, you have to first install ``X-Pack``, a plug-in for Elasticsearch that manages license and security. To install ``X-Pack`` execute::
-
-    /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack
-
-You can ignore the warnings and accept to install the plugin.
-
-Open ``/etc/elasticsearch/elasticsearch.yml`` and disable the proprietary X-pack security by adding the following line at the end of the file::
-
-    xpack.security.enabled: false
-
-save and close.
+save and close the file. This setting allows elasticsearch to allocate memory at startup.
 
 Next enable Elasticsearch and configure it to start at boot by executing the following lines::
 
@@ -93,65 +82,9 @@ Next enable Elasticsearch and configure it to start at boot by executing the fol
     systemctl enable elasticsearch.service
     systemctl start elasticsearch.service
 
-Test the Elasticsearch installation by going to its public IP address on port 9200::
+Test the Elasticsearch installation by going to localhost address on port 9200::
 
-    http://199.109.XXX.XXX:9200/
-
-To get the free/basic Elasicsearch license, register at https://register.elastic.co/. You should receive an email pointing to a website from which you can download the license to your local machine. Select the license for version **5.X**. To install the license, you have to send the license to an Elasticsearch instance twice. In a local terminal, change to the directory on your local machine where the JSON license file is saved. Send the license file to the Elasicsearch instance using CURL from your local machine as follows::
-
-    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
-
-where you should update the IP address to match your Elasticsearch instance and after the `@` should be the name of your license file. You should receive a message as follows::
-
-    {"acknowledged":false,"license_status":"valid","acknowledge":{"message":"This license update requires acknowledgement. To acknowledge the license, please read the following messages and update the license again, this time with the \"acknowledge=true\" parameter:","watcher":["Watcher will be disabled"],"security":["The following X-Pack security functionality will be disabled: authentication, authorization, ip filtering, and auditing. Please restart your node after applying the license.","Field and document level access control will be disabled.","Custom realms will be ignored."],"monitoring":["Multi-cluster support is disabled for clusters with [BASIC] license. If you are\nrunning multiple clusters, users won't be able to access the clusters with\n[BASIC] licenses from within a single X-Pack Kibana instance. You will have to deploy a\nseparate and dedicated X-pack Kibana instance for each [BASIC] cluster you wish to monitor.","Automatic index cleanup is locked to 7 days for clusters with [BASIC] license."],"graph":["Graph will be disabled"]}}
-
-Send the license again, but this time with acknowledgment::
-
-    curl -XPUT 'http://199.109.XXX.XXX:9200/_xpack/license?acknowledge=true' -d @mohammad-zia-ff462980-7da1-44ce-99f4-26e2952e43fc-v5.json
-
-Check that the license was installed by going to http://199.109.XXX.XXX:9200/_xpack/license. You should see something like::
-
-    {
-      "license" : {
-        "status" : "active",
-        "uid" : "ff462980-7da1-44ce-99f4-26e2952e43fc",
-        "type" : "basic",
-        "issue_date" : "2017-02-27T00:00:00.000Z",
-        "issue_date_in_millis" : 1488153600000,
-        "expiry_date" : "2018-02-27T23:59:59.999Z",
-        "expiry_date_in_millis" : 1519775999999,
-        "max_nodes" : 100,
-        "issued_to" : "Mohammad Zia (University at Buffalo)",
-        "issuer" : "Web Form",
-        "start_date_in_millis" : 1488153600000
-      }
-    }
-
-You should reboot the system to make sure that Elasticsearch is enabled at boot time. At this point you should have one instance of Elasticsearch running. You can now ssh into the second instance and repeat the setup steps, up to but not including the license installation. The license only needs to be installed on one node of the cluster. Do the same for the third and final instance. 
-
-Finally, check the status of the cluster by going to::
-
-    http://199.109.XXX.XXX:9200/_cluster/health?pretty=true
-
-you should see ``"number_of_data_nodes" : 3``::
-
-    {
-      "cluster_name" : "GeneSysV-Test-Cluster",
-      "status" : "green",
-      "timed_out" : false,
-      "number_of_nodes" : 3,
-      "number_of_data_nodes" : 3,
-      "active_primary_shards" : 3,
-      "active_shards" : 6,
-      "relocating_shards" : 1,
-      "initializing_shards" : 0,
-      "unassigned_shards" : 0,
-      "delayed_unassigned_shards" : 0,
-      "number_of_pending_tasks" : 0,
-      "number_of_in_flight_fetch" : 0,
-      "task_max_waiting_in_queue_millis" : 0,
-      "active_shards_percent_as_number" : 100.0
-    }
+    curl 127.0.0.1:9200
 
 This completes the installation of Elasticsearch.
 
@@ -161,45 +94,52 @@ This completes the installation of Elasticsearch.
 
 Installation checklist for Elasticsearch
 =================================================
-- [ ] Create a new security group in Eucalyptus for the Elasticsearch nodes
-- [ ] Open ports 22 and 9200 to TCP traffic from your local machine in the new security group
-- [ ] Launch three instances with new security group
-    - [ ] Select Ubuntu 16.04 EBS for image type
-    - [ ] Choose ``m2.4xlarge: 4 CPUs, 49152 memory (MB)`` for instance type
-    - [ ] Use updated cloud-init script to automate SSH login for your user
-    - [ ] Specify storage volume
-- [ ] Install Elasticsearch on each instance
-    - [ ] Log in
-    - [ ] Do system update
-    - [ ] Add JAVA repository and update apt-get
-    - [ ] Download and install Java and Elasticsearch
-    - [ ] Configure Elasticsearch
-        - [ ] Become root `` sudo su - ``
-        - [ ] Edit ``/etc/elasticsearch/jvm.options``
-        - [ ] Edit ``/etc/elasticsearch/elasticsearch.yml``
-        - [ ] Edit ``etc/security/limits.conf``
-        - [ ] Edit ``/usr/lib/systemd/system/elasticsearch.service``
-        - [ ] Edit ``/etc/default/elasticsearch``
-        - [ ] Install ``X-pack``
-        - [ ] Disable ``X-pack`` security in ``/etc/elasticsearch/elasticsearch.yml``
-        - [ ] Enable Elasticsearch at boot
-        - [ ] Register and install license * only do this for one instance of the cluster
-
+- [ ] Add JAVA repository and update apt-get
+- [ ] Download and install Java and Elasticsearch
+- [ ] Configure Elasticsearch
+    - [ ] Become root `` sudo su - ``
+    - [ ] Edit ``/etc/elasticsearch/jvm.options``
+    - [ ] Edit ``/etc/elasticsearch/elasticsearch.yml``
+    - [ ] Edit ``etc/security/limits.conf``
+    - [ ] Edit ``/etc/systemd/system/elasticsearch.service.d/override.conf`` using systemctl edit elasticsearch
+    - [ ] Enable Elasticsearch at boot
 
 .. raw:: latex
 
     \newpage
 
 
-Installing Genomics Data Warehouse
+Installing Samtools and Grabix 
 ======================================
-First, create a new security group in Eucalyptus for the GeneSysV application instance. Open ports 22 and 8000 (not port 9200!) to TCP traffic from your local machine, following the same procedure as with the Elasticsearch instances. Launch one new instance of image type Ubuntu 16.04 EBS, instance type ``c1.medium: 4 CPUs, 16384 memory (MB)``, and root storage volume of at least 40 GB. You can use the previously modified cloud-config script to automate SSH login to the GeneSysV application instance.
 
-Use the same key pair you used for the Elasticsearch nodes, but this time, use the new GeneSysV application security group instead of the Elasticsearch security group. Beware, the Eucalyptus UI may pre-populate the security group list with your Elasticsearch security group, which is not the one you want in this case.
+Begin by installing required system packages::
+    sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev git
 
-Now that the GeneSysV app instance is running and has an IP address, we need to add a new rule to the security group for the Elasticsearch nodes that will allow them to talk to the GeneSysV app. Navigate to https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups and click on the security group for your Elasticsearch nodes. Add a new rule opening port 9200 to the *Public IP address of your new GeneSysV instance*. Append "/32" to the end of the IP address or else Eucalyptus will complain about "Valid CIDR entry required."
+Download samtools in /tmp::
 
-GeneSysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtualenv using ``pip``. This setup ensures complete isolation of your python installation from the system-wide installation. Note that GeneSysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
+    cd /tmp; wget https://github.com/samtools/samtools/releases/download/1.8/samtools-1.8.tar.bz2
+
+Extract samtools::
+
+    cd /tmp; tar -xjf samtools-1.8.tar.bz2;
+
+Make and install samtools::
+
+    cd /tmp/samtools-1.8; make; sudo make prefix=/usr/local/ install
+
+
+Git clone grabix::
+    
+    cd /tmp; git clone https://github.com/arq5x/grabix.git
+
+Make and and install grabix
+
+    cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
+
+
+Installing GeneSysV Data Warehouse
+======================================
+GeneSysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GeneSysV Python packages from the system-wide Python packages. Note that GeneSysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
 
     sudo apt-get install python3-venv
 
@@ -214,15 +154,16 @@ Change in to GeneSysV directory::
 
 Install the python virtual environment::
 
-    python3.5 -m venv env
+    python3.5 -mvenv venv
 
 Activate the newly created virtual environment::
 
-    source env/bin/activate
+    source venv/bin/activate
 
 Install the python packages required for GeneSysV, you can ignore the warning messages::
-
-     pip install -r requirements.txt
+    
+    pip install wheel    
+    pip install -r requirements.txt
 
 GeneSysV uses memcached to speed up form loading. Install memcached::
 
@@ -230,25 +171,20 @@ GeneSysV uses memcached to speed up form loading. Install memcached::
 
 Create the database tables associated with the app and some default values by executing::
 
-    python manage.py makemigrations msea news pybamview search
+    python manage.py makemigrations core microbiome
     python manage.py migrate
-    python manage.py import_es_settings
+
 
 Create a superuser who can log in to the admin site::
 
     python manage.py createsuperuser
 
-Open GeneSysV/settings.py and add the instance's Public IP address in the allowed hosts list::
 
-    ALLOWED_HOSTS = ['PUT PUBLIC IP HERE']
+Start the development server::
 
-save and close file.
+    python manage.py runserver 0.0.0.0:8000
 
-Start the development server using the private IP address::
-
-    python manage.py runserver 172.17.XX.XXX:8000
-
-Open a browser on your local machine and navigate to the public IP address, port 8000, of your GeneSysV instance and the GeneSysV website should be running. Most of the functionality will be broken because there is no connection with the Elasticsearch database. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GeneSysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
+Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GeneSysV instance and the GeneSysV website should be running. Most of the functionality will be broken because there is no connection with the Elasticsearch database. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GeneSysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
 
 .. raw:: latex
 
@@ -256,14 +192,6 @@ Open a browser on your local machine and navigate to the public IP address, port
 
 Installation checklist for Genomics Data Warehouse
 ====================================================
-- [ ] Create a new security group for the GeneSysV application in Eucalyptus
-- [ ] Open ports 22 and 8000 to TCP traffic from your local machine in the new security group
-- [ ] Launch one instance with new security group
-    - [ ] Select Ubuntu 16.04 EBS for image type
-    - [ ] Choose ``c1.medium: 4 CPUs, 16384 memory (MB)`` for instance type
-    - [ ] Use updated cloud-init script to automate SSH login for your user
-    - [ ] Specify storage volume, at least 40 GB
-- [ ] Open port 9200 in the Elasticsearch security group for TCP traffic from the public IP address of your new instance
 - [ ] Install Python3.5 venv
 - [ ] Clone GeneSysV repository
 - [ ] Create new Python virtualenv and activate it
@@ -271,7 +199,7 @@ Installation checklist for Genomics Data Warehouse
 - [ ] Install memcached
 - [ ] Create database tables and import default settings
 - [ ] Create superuser
-- [ ] Start Dev Instance
+- [ ] Start GeneSysV
 
 .. raw:: latex
 
