@@ -41,7 +41,7 @@ to::
 
 and save and close file.
 
-Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment the following lines::
+Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment the following line::
 
     # Uncomment line to enable JVM memory allocation when Elasticsearch starts
     bootstrap.memory_lock: true
@@ -97,11 +97,12 @@ Installation checklist for Elasticsearch
 - [ ] Add JAVA repository and update apt-get
 - [ ] Download and install Java and Elasticsearch
 - [ ] Configure Elasticsearch
-    - [ ] Become root `` sudo su - ``
+
+    - [ ] Become root ``sudo su - ``
     - [ ] Edit ``/etc/elasticsearch/jvm.options``
     - [ ] Edit ``/etc/elasticsearch/elasticsearch.yml``
     - [ ] Edit ``etc/security/limits.conf``
-    - [ ] Edit ``/etc/systemd/system/elasticsearch.service.d/override.conf`` using systemctl edit elasticsearch
+    - [ ] Edit ``/etc/systemd/system/elasticsearch.service.d/override.conf`` using ``systemctl edit elasticsearch``
     - [ ] Enable Elasticsearch at boot
 
 .. raw:: latex
@@ -111,8 +112,8 @@ Installation checklist for Elasticsearch
 
 Installing Samtools and Grabix 
 ======================================
-
 Begin by installing required system packages::
+
     sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev git
 
 Download samtools in /tmp::
@@ -132,7 +133,7 @@ Git clone grabix::
     
     cd /tmp; git clone https://github.com/arq5x/grabix.git
 
-Make and and install grabix
+Make and and install grabix::
 
     cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
 
@@ -142,7 +143,6 @@ Installing GeneSysV Data Warehouse
 GeneSysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GeneSysV Python packages from the system-wide Python packages. Note that GeneSysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
 
     sudo apt-get install python3-venv
-
 
 Clone the GeneSysV repository in to your GeneSysV instance::
 
@@ -205,157 +205,6 @@ Installation checklist for Genomics Data Warehouse
 
     \newpage
 
-Getting familiar with Elasticsearch
-=================================================
-Now we will import some sample data into Elasticsearch in order to get familiar with how Elasticsearch functions. Traverse to ``GeneSysV/docs/example`` and open the file ``new_data.json``. The file contains seven records that will be imported into Elasticsearch. A sample JSON record is as follows::
-
-    {
-        "index": 0,
-        "isActive": false,
-        "balance": 3696.70,
-        "age": 33,
-        "eyeColor": "blue",
-        "first": "Jeri",
-        "last": "Strickland",
-        "tag": [
-          "aliquip",
-          "reprehenderit",
-          "cupidatat",
-          "occaecat",
-          "nostrud"
-        ],
-        "friend": [
-          {
-            "friend_id": 0,
-            "friend_name": "Greta Henry"
-          },
-          {
-            "friend_id": 1,
-            "friend_name": "Macdonald Daniels"
-          },
-          {
-            "friend_id": 2,
-            "friend_name": "Blake Kemp"
-          }
-        ],
-        "favoriteFruit": "strawberry"
-    }
-
-There are nine fields in each record. Note that the ``friend`` field is a nested field. Elasticsearch is a NoSQL database that stores JSON documents. Before inserting new documents into Elasticsearch, you should define a ''mapping'' of the data. A mapping is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if something is stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch can automatically guess the mapping, but this may not be optimal. To define a mapping, we will use the Python 3 API for Elasticsearch. Make sure that Python virtual environment is activated and install the package::
-
-    pip install elasticsearch
-
-The following is a possible mapping for the JSON shown previously::
-
-    'properties': {
-        'index':            {'type' : 'integer'},
-        'isActive':         {'type' : 'keyword'},
-        'balance':          {'type' : 'float'},
-        'age':              {'type' : 'integer'},
-        'eyeColor':         {'type' : 'keyword'},
-        'first':            {'type' : 'keyword'},
-        'last':             {'type' : 'keyword'},
-        'tag':              {'type' : 'text'},
-        'friend' : {
-            'type' : 'nested',
-            'properties' : {
-                'friend_id':    {'type' : 'integer'},
-                'friend_name':  {'type' : 'text'},
-            }
-        },
-        'favoriteFruit':    {'type' : 'keyword'}
-    }
-
-The ``index`` and ``age`` fields are defined as integer. Likewise for the nested ``friend_id`` field. It is not a requirement of Elasticsearch that the name of nested fields begin with ``friend_``, i.e.,but it is a convention of GeneSysV. The ``balance`` field is defined as a float. The fields ``isActive``, ``eyeColor``, ``first``, ``last``, and ``favoriteFruit`` are defined as keyword. Keyword mappings indicate to Elasticsearch that an exact match is required, meaning they are case sensitive and spaces are significant. The ``tag`` and ``friend_name`` fields are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuation. As an example, `John Doe` will become `john` and `doe`, so searching on ``john`` or ``doe`` will return a hit, but not ``John`` or ``DOE``.
-
-We will now put the mapping in Elasticsearch using ``create_index.py``. Open the file for editing. Update the IP address to an Elasticsearch node ::
-
-    # Update the IP address
-    es = elasticsearch.Elasticsearch(host="199.109.XXX.XX")
-
-Now we will walk through the Python script and explain it.
-
-``es = elasticsearch.Elasticsearch(host="199.109.XXX.XX")`` establishes a connection to your Elasticsearch cluster.
-
-``INDEX_NAME = 'demo_mon'`` specifies the ``INDEX_NAME``. Index name in Elasticsearch is loosely equivalent to database name in MySQL.
-
-``type_name = 'demo_mon'`` specifies the ``type_name``. Type name in Elasticsearch is loosely equivalent to a table name, but in Elasticsearch it is a name of a type of document that will be stored in an index. The subsequent conditional deletes the index if it already exists. The following lines define the mapping previously discussed::
-
-    mapping = {
-        type_name: {
-            'properties': {
-                'index':            {'type' : 'integer'},
-                'isActive':         {'type' : 'keyword'},
-                'balance':          {'type' : 'float'},
-                'age':              {'type' : 'integer'},
-                'eyeColor':         {'type' : 'keyword'},
-                'first':            {'type' : 'keyword'},
-                'last':             {'type' : 'keyword'},
-                'tag':              {'type' : 'text'},
-                'friend' : {
-                    'type' : 'nested',
-                    'properties' : {
-                        'friend_id':    {'type' : 'integer'},
-                        'friend_name':  {'type' : 'text'},
-                    }
-                },
-                'favoriteFruit':    {'type' : 'keyword'}
-            }
-        }
-    }
-
-
-``es.indices.put_mapping(index=INDEX_NAME, doc_type=type_name, body=mapping)`` puts the mapping in Elasticsearch. Run the script after updating the IP address to put the mapping into Elasticsearch. You can verify that the mapping has been put into Elasticsearch by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true
-
-
-Next open the file ``insert_index.py``. This script reads the data contained in ``new_data.json`` and inserts it in to Elasticsearch. Run the script after updating the IP address. You can verify that the data has been imported by going to http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true. Now we will make some queries using Elasticsearch through the REST API.
-
-For all the following scripts, update the IP address before running them. The scripts are located in ``GeneSysV/docs/example``. 
-
-Execute ``bash query1.es`` to find all the active users.  ::
-
-    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
-    {
-        "query": {
-            "bool": {
-                "filter": [{"term": {"isActive": "true"}}]}},
-        "size": 1000
-    }
-    '
-
-Execute ``bash query2.es`` to find all users whose age is greater than or equal to 26 ::
-
-    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
-    {
-        "query": {
-            "range" : {
-                "age" : {
-                    "gte" : 26
-                }
-            }
-        }
-    }
-    '
-
-Execute ``bash query3.es`` to find users with friend named `tanner` ::
-
-    curl -XGET 'http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true' -d '
-    {
-        "query": {
-            "nested" : {
-                "path" : "friend",
-                "query" : {
-                    "bool" : {
-                        "filter" : { "term" : {"friend.friend_name" : "tanner"} }
-                    }
-                }
-            }
-        }
-    }
-    '
-
-Notice that the whole JSON document is returned along with the other nested friends and not just `tanner`. This is how Elasticsearch works. It is GeneSysV that filters the irrelevant nested terms.  As you can see, the search query string can become unwieldy. Next we will learn how to create a GUI in GeneSysV to make queries with Elasticsearch convenient.
-
 
 Manually building the GeneSysV Web User Interface
 ============================================
@@ -386,14 +235,16 @@ GeneSysV allows a user to select which fields they want to display in the search
 
 Adding study, dataset, and search options
 --------------------------------------------
-To begin building the UI, log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure :numref:`add_study`. In the ``Add Study`` page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
+To begin building the UI, log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure :ref:`add_study`. In the ``Add Study`` page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
 
-.. _add_study:
+
 .. figure:: images/add_study.png
    :scale: 75 %
    :alt: Add Study
 
-   Figure shows the ``+ Add`` button that is used to add a new study.
+   :label: `add_study` Figure shows the ``+ Add`` button that is used to add a new study. 
+
+   
 
 .. _add_study_page:
 .. figure:: images/add_study_page.png
