@@ -235,16 +235,14 @@ GeneSysV allows a user to select which fields they want to display in the search
 
 Adding study, dataset, and search options
 --------------------------------------------
-To begin building the UI, log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure :ref:`add_study`. In the ``Add Study`` page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
+To begin building the UI, log in to the admin site by going to http://199.109.XXX.XXX:8000/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure add_study_. In the ``Add Study`` page, see Figure :numref:`add_study_page`, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
 
-
+.. _add_study:
 .. figure:: images/add_study.png
    :scale: 75 %
    :alt: Add Study
 
-   :label: `add_study` Figure shows the ``+ Add`` button that is used to add a new study. 
-
-   
+   Figure shows the ``+ Add`` button that is used to add a new study.
 
 .. _add_study_page:
 .. figure:: images/add_study_page.png
