@@ -561,6 +561,9 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 						if key2 == 'SOMATIC':
 							continue
 						elif key2 == 'Existing_variation':
+							if val2 == '':
+								continue
+
 							tmp_variants = val2.split('&')
 							cosmic_ids = [item for item in tmp_variants if item.startswith('COSM')]
 							dbsnp_ids = [item for item in tmp_variants if item.startswith('rs')]
@@ -569,8 +572,6 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 									result['COSMIC_ID'] = cosmic_ids
 								else:
 									result['COSMIC_ID'] = cosmic_ids[0]
-							else:
-								continue #result['COSMIC_ID'] = None
 							if len(dbsnp_ids) > 0:
 								if len(dbsnp_ids) > 1:
 									result['dbSNP_ID'] = dbsnp_ids # use array value
