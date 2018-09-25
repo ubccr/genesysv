@@ -50,9 +50,10 @@ class FilterPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FilterPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
-                                                                               dataset=kwargs['instance'].dataset)
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name, dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
+        else:
+            self.fields['filter_fields'].queryset = FilterField.objects.none()
 
     class Meta:
         model = FilterPanel
@@ -72,9 +73,12 @@ class FilterSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FilterSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name,
-                                                                               dataset=kwargs['instance'].dataset)
+            self.fields['filter_panel'].queryset = FilterPanel.objects.filter(dataset=kwargs['instance'].dataset)
+            self.fields['filter_fields'].queryset = FilterField.objects.filter(place_in_panel=kwargs['instance'].name, dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
+        else:
+            self.fields['filter_panel'].queryset = FilterPanel.objects.none()
+            self.fields['filter_fields'].queryset = FilterField.objects.none()
 
     class Meta:
         model = FilterSubPanel
@@ -89,8 +93,39 @@ class FilterSubPanelAdmin(admin.ModelAdmin):
     form = FilterSubPanelForm
 
 
+
+class FilterFieldForm(forms.ModelForm):
+    place_in_panel = forms.ChoiceField(widget=forms.Select())
+    es_data_type = forms.ChoiceField(widget=forms.Select())
+
+
+    ES_DATA_TYPE_CHOICES = (
+        ('float', 'float'),
+        ('integer', 'integer'),
+        ('keyword', 'keyword'),
+        ('text', 'text')
+    )
+    def __init__(self, *args, **kwargs):
+        super(FilterFieldForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            dataset = kwargs['instance'].dataset
+            PANEL_CHOICES = [(ele, ele) for ele in sorted(list(dataset.filterpanel_set.all().values_list('name', flat=True)) + list(dataset.filtersubpanel_set.all().values_list('name', flat=True)))]
+        else:
+            PANEL_CHOICES = [(ele, ele) for ele in sorted(list(set(list(FilterPanel.objects.all().values_list('name', flat=True)) + list(FilterSubPanel.objects.all().values_list('name', flat=True)))))]
+
+
+        self.fields['es_data_type'].choices = self.ES_DATA_TYPE_CHOICES
+        self.fields['place_in_panel'].choices = PANEL_CHOICES
+
+    class Meta:
+        model = FilterField
+        fields = '__all__'
+
+
+
 @admin.register(FilterField)
 class FilterFieldAdmin(admin.ModelAdmin):
+    form = FilterFieldForm
     list_display = ('display_text', 'dataset', 'in_line_tooltip', 'tooltip', 'default_value', 'form_type', 'widget_type',
                     'es_name', 'path', 'es_data_type', 'es_filter_type', 'place_in_panel', 'is_visible', )
     list_filter = ('dataset',)
@@ -119,9 +154,10 @@ class AttributePanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributePanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
-                                                                                     dataset=kwargs['instance'].dataset)
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name, dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
+        else:
+            self.fields['attribute_fields'].queryset = AttributeField.objects.none()
 
     class Meta:
         model = AttributePanel
@@ -131,7 +167,7 @@ class AttributePanelForm(forms.ModelForm):
 @admin.register(AttributePanel)
 class AttributePanelAdmin(admin.ModelAdmin):
     form = AttributePanelForm
-    list_display = ('name',)
+    list_display = ('dataset', 'name',)
     search_fields = ('name',)
     list_filter = ('dataset',)
 
@@ -141,9 +177,13 @@ class AttributeSubPanelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributeSubPanelForm, self).__init__(*args, **kwargs)
         if kwargs.get('instance'):
-            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(place_in_panel=kwargs['instance'].name,
-                                                                                     dataset=kwargs['instance'].dataset)
+            self.fields['attribute_panel'].queryset = AttributePanel.objects.filter(dataset=kwargs['instance'].dataset)
+            self.fields['attribute_fields'].queryset = AttributeField.objects.filter(
+                place_in_panel=kwargs['instance'].name, dataset=kwargs['instance'].dataset)
             self.fields['dataset'].disabled = True
+        else:
+            self.fields['attribute_panel'].queryset = AttributePanel.objects.none()
+            self.fields['attribute_fields'].queryset = AttributeField.objects.none()
 
     class Meta:
         model = AttributeSubPanel
@@ -152,17 +192,38 @@ class AttributeSubPanelForm(forms.ModelForm):
 
 @admin.register(AttributeSubPanel)
 class AttributeSubPanelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'attribute_panel')
+    list_display = ('dataset', 'name', 'attribute_panel')
     search_fields = ('name',)
     list_filter = ('dataset',)
     form = AttributeSubPanelForm
 
 
+class AttributeFieldForm(forms.ModelForm):
+    place_in_panel = forms.ChoiceField(widget=forms.Select())
+
+    def __init__(self, *args, **kwargs):
+        super(AttributeFieldForm, self).__init__(*args, **kwargs)
+        if kwargs.get('instance'):
+            dataset = kwargs['instance'].dataset
+            PANEL_CHOICES = [(ele, ele) for ele in sorted(list(dataset.attributepanel_set.all().values_list('name', flat=True)) + list(dataset.attributesubpanel_set.all().values_list('name', flat=True)))]
+        else:
+            PANEL_CHOICES = [(ele, ele) for ele in sorted(list(set(list(AttributePanel.objects.all().values_list('name', flat=True)) + list(AttributeSubPanel.objects.all().values_list('name', flat=True)))))]
+
+
+
+        self.fields['place_in_panel'].choices = PANEL_CHOICES
+
+    class Meta:
+        model = AttributeField
+        fields = '__all__'
+
+
 @admin.register(AttributeField)
 class AttributeFieldAdmin(admin.ModelAdmin):
-    list_display = ('display_text',)
+    list_display = ('display_text', 'dataset', 'es_name', 'path', 'place_in_panel', 'is_visible')
     list_filter = ('dataset',)
     search_fields = ('display_text',)
+    form = AttributeFieldForm
 
 
 @admin.register(SearchLog)

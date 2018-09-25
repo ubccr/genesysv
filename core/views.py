@@ -213,10 +213,7 @@ class SearchRouterView(View):
         analysis_type_obj = get_object_or_404(AnalysisType, pk=analysis_type_id)
         app_name = analysis_type_obj.app_name.name
 
-        if app_name == 'microbiome':
-            from microbiome.views import MicrobiomeSearchView
-            return_view = MicrobiomeSearchView
-        elif app_name == 'complex':
+        if app_name == 'complex':
             from complex.views import ComplexSearchView
             return_view = ComplexSearchView
         elif app_name == 'mendelian':

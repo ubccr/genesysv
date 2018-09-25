@@ -1039,6 +1039,7 @@ class BaseSearchElasticsearch:
 
         # convert to json
         header_json = serializers.serialize("json", self.header)
+        # pprint.pprint(self.query_body)
         query_body_json = json.dumps(self.query_body)
 
         nested_attribute_fields_json = json.dumps(
