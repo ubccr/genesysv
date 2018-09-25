@@ -1,0 +1,1225 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Genomics Data Warehouse documentation &#8212; Genomic Data Warehouse (GDW) 2.5 documentation</title>
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="contents.html">Genomic Data Warehouse (GDW) 2.5 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Genomics Data Warehouse documentation</a><ul>
+<li><a class="reference internal" href="#gdw-at-a-glance">GDW at a glance</a></li>
+<li><a class="reference internal" href="#installing-elasticsearch">Installing Elasticsearch</a></li>
+<li><a class="reference internal" href="#installation-checklist-for-elasticsearch">Installation checklist for Elasticsearch</a></li>
+<li><a class="reference internal" href="#installing-genomics-data-warehouse">Installing Genomics Data Warehouse</a></li>
+<li><a class="reference internal" href="#installation-checklist-for-genomics-data-warehouse">Installation checklist for Genomics Data Warehouse</a></li>
+<li><a class="reference internal" href="#getting-familiar-with-elasticsearch">Getting familiar with Elasticsearch</a></li>
+<li><a class="reference internal" href="#manually-building-the-gdw-web-user-interface">Manually building the GDW Web User Interface</a><ul>
+<li><a class="reference internal" href="#adding-study-dataset-and-search-options">Adding study, dataset, and search options</a></li>
+<li><a class="reference internal" href="#adding-filter-fields">Adding filter fields</a></li>
+<li><a class="reference internal" href="#adding-attribute-fields">Adding attribute fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#programmatically-building-the-web-user-interface">Programmatically building the Web User Interface</a></li>
+<li><a class="reference internal" href="#searching-with-gdw">Searching with GDW</a><ul>
+<li><a class="reference internal" href="#age-search">Age Search</a></li>
+<li><a class="reference internal" href="#name-search">Name Search</a></li>
+<li><a class="reference internal" href="#is-active-search">Is Active Search</a></li>
+<li><a class="reference internal" href="#eye-color-search">Eye Color Search</a></li>
+<li><a class="reference internal" href="#friend-search">Friend Search</a></li>
+<li><a class="reference internal" href="#rearrange-filter-and-attribute-fields">Rearrange Filter and Attribute Fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#importing-an-annotated-vcf-file-into-gdw">Importing an annotated VCF file into GDW</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index_old.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="genomics-data-warehouse-documentation">
+<h1>Genomics Data Warehouse documentation<a class="headerlink" href="#genomics-data-warehouse-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gdw-at-a-glance">
+<h2>GDW at a glance<a class="headerlink" href="#gdw-at-a-glance" title="Permalink to this headline">¶</a></h2>
+<p>Genomics Data Warehouse (GDW) is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GDW, you need to install Elasticsearch and the GDW Django app.</p>
+</div>
+<div class="section" id="installing-elasticsearch">
+<h2>Installing Elasticsearch<a class="headerlink" href="#installing-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>We assume that GDW will be installed in a Eucalyptus-based cloud environment. The first step is to create a new security group in Eucalyptus. Go to <a class="reference external" href="https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups">https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups</a> to create a new security group for your Elasticsearch nodes. In the <code class="docutils literal notranslate"><span class="pre">Create</span> <span class="pre">new</span> <span class="pre">security</span> <span class="pre">group</span></code> page, enter a <code class="docutils literal notranslate"><span class="pre">Name</span></code> and short <code class="docutils literal notranslate"><span class="pre">Description</span></code> in the appropriate boxes.  For your first rule, select SSH protocol and click “Use my IP address” to populate the <code class="docutils literal notranslate"><span class="pre">IP</span> <span class="pre">address</span></code> box with your local IP address. Click <code class="docutils literal notranslate"><span class="pre">ADD</span> <span class="pre">RULE</span></code>. For the second rule, replicate the first rule except in the <code class="docutils literal notranslate"><span class="pre">Port</span> <span class="pre">range</span></code> fields enter 9200.</p>
+<p>For the purposes of this documentation, an Elasticsearch cluster will be setup with three nodes, i.e., there will be three instances of Elasticsearch running.</p>
+<p>To launch the instances, go to <a class="reference external" href="https://console.ccr-cbls-2.ccr.buffalo.edu/instances/new">https://console.ccr-cbls-2.ccr.buffalo.edu/instances/new</a>. This webpage shows a four step wizard for launching new instances. In the first step, <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Image</span></code>, select <code class="docutils literal notranslate"><span class="pre">Ubuntu</span> <span class="pre">16.04</span> <span class="pre">EBS</span></code>, which will automatically advance you to the second step of the wizard, <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">Details</span></code>. In the top-most section of the page, input <code class="docutils literal notranslate"><span class="pre">3</span></code> for the <code class="docutils literal notranslate"><span class="pre">Number</span> <span class="pre">of</span> <span class="pre">instances</span></code>. Optionally, you can specify a custom name for each instance using the <code class="docutils literal notranslate"><span class="pre">Name</span></code> field. For <code class="docutils literal notranslate"><span class="pre">Instance</span> <span class="pre">type</span></code>, choose <code class="docutils literal notranslate"><span class="pre">m2.4xlarge:</span> <span class="pre">4</span> <span class="pre">CPUS,</span> <span class="pre">49152</span> <span class="pre">memory</span> <span class="pre">(MB)</span></code>. Note that for EBS image types, the listed root device storage volume associated with the instance type is ignored. The root storage volume for EBS images is specified elsewhere.</p>
+<p>There are two ways to login to your instances. First is using a PEM file generated by the Eucalyptus console. Second is using your SSH public key. The second method is easier, and thus we will use it. The cloud-config script below will be used as a template. Copy and paste it into an empty text file on your local machine and save it. Then update <code class="docutils literal notranslate"><span class="pre">name</span></code> to your username, <code class="docutils literal notranslate"><span class="pre">gecos</span></code> to your full name, and <code class="docutils literal notranslate"><span class="pre">ssh-authorized-keys</span></code> to your SSH public key:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#cloud-config</span>
+
+<span class="c1"># log all output</span>
+<span class="n">output</span><span class="p">:</span> <span class="p">{</span><span class="nb">all</span><span class="p">:</span> <span class="s1">&#39;| tee -a /var/log/cloud-init-output.log&#39;</span><span class="p">}</span>
+
+<span class="n">users</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">mkzia</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="n">adm</span>
+    <span class="n">gecos</span><span class="p">:</span> <span class="n">Mohammad</span> <span class="n">Zia</span>
+    <span class="n">shell</span><span class="p">:</span> <span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">bash</span>
+    <span class="n">sudo</span><span class="p">:</span> <span class="n">ALL</span><span class="o">=</span><span class="p">(</span><span class="n">ALL</span><span class="p">)</span> <span class="n">NOPASSWD</span><span class="p">:</span><span class="n">ALL</span>
+    <span class="n">ssh</span><span class="o">-</span><span class="n">authorized</span><span class="o">-</span><span class="n">keys</span><span class="p">:</span>
+        <span class="o">-</span> <span class="n">ssh</span><span class="o">-</span><span class="n">rsa</span> <span class="n">ASDFSDF</span> <span class="n">mkzia</span><span class="nd">@Mohammads</span><span class="o">-</span><span class="n">iMac</span><span class="o">.</span><span class="n">local</span>
+
+<span class="c1"># upgrade all packages on initial boot</span>
+<span class="n">package_upgrade</span><span class="p">:</span> <span class="n">true</span>
+
+<span class="n">runcmd</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">timedatectl</span> <span class="nb">set</span><span class="o">-</span><span class="n">timezone</span> <span class="n">America</span><span class="o">/</span><span class="n">New_York</span>
+  <span class="o">-</span> <span class="n">updatedb</span>
+</pre></div>
+</div>
+<p>If your local machine is running Linux, you can follow the section titled “Generating RSA Keys” at <a class="reference external" href="https://help.ubuntu.com/community/SSH/OpenSSH/Keys">https://help.ubuntu.com/community/SSH/OpenSSH/Keys</a>. You should now have file <code class="docutils literal notranslate"><span class="pre">~/.ssh/id_rsa.pub</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">ssh-rsa</span> <span class="pre">ASDFSDF</span> <span class="pre">mkzia&#64;Mohammads-iMac.local</span></code> with the contents of that file.</p>
+<p>If you need additional help generating your SSH key, go to <a class="reference external" href="https://ubccr.freshdesk.com/support/solutions/articles/13000025842">https://ubccr.freshdesk.com/support/solutions/articles/13000025842</a>.</p>
+<p>Back at the Eucalyptus console, under the <code class="docutils literal notranslate"><span class="pre">USER</span> <span class="pre">DATA</span></code> section, select the <code class="docutils literal notranslate"><span class="pre">Enter</span> <span class="pre">text</span></code> radio button and copy and paste the modified cloud-config script. Alternatively, you can click the <code class="docutils literal notranslate"><span class="pre">Upload</span> <span class="pre">button</span></code> radio button and upload your saved cloud-config file. After inputting the <code class="docutils literal notranslate"><span class="pre">USER</span> <span class="pre">DATA</span></code>, click the next button to proceed.</p>
+<p>In the third step, <code class="docutils literal notranslate"><span class="pre">3</span> <span class="pre">Security</span></code>, you will have to choose a <code class="docutils literal notranslate"><span class="pre">Key</span> <span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">Security</span> <span class="pre">group</span></code> to associate with your instances. Create a new key pair if you do not already have one or select a key pair you generated previously . The key pair is your unique PEM file. You will not be using this to log in to your instances, but you need to associate a PEM file with your instances to launch them. In the security group, select the Elasticsearch security group that you created previously.</p>
+<p>Click <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">advanced</span> <span class="pre">options</span></code>, which is underneath the <code class="docutils literal notranslate"><span class="pre">LAUNCH</span> <span class="pre">INSTANCES</span></code> button. In this step, <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">Advanced</span></code>, you will specify the storage volume size. Input 50 GB in the <code class="docutils literal notranslate"><span class="pre">STORAGE</span></code> section for the Root volume. Finally, click the <code class="docutils literal notranslate"><span class="pre">LAUNCH</span> <span class="pre">INSTANCES</span></code> button to launch all three instances. It will take couple of minutes for the instances to be ready for use.</p>
+<p>Once the status of your three instances has changed to <code class="docutils literal notranslate"><span class="pre">running</span></code> in the Eucalyptus console, you can record some information that’s required in subsequent setup steps. Click on the <code class="docutils literal notranslate"><span class="pre">NAME</span> <span class="pre">(ID)</span></code> of each of the newly-created instances and write down their respective Public and Private IP addresses.</p>
+<p>Log in to one of your instances by opening up a local terminal and typing <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;Public</span> <span class="pre">IP</span> <span class="pre">address</span> <span class="pre">of</span> <span class="pre">instance&gt;</span></code>.</p>
+<p>We will now install Elasticsearch on the instance. Begin by doing system updates:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">upgrade</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">autoremove</span>
+</pre></div>
+</div>
+<p>If you receive an error message about locks and “resource temporarily unavailable”, wait a few minutes and try the command again. The newly-created instance is running an apt-get process in the background which needs to finish.</p>
+<p>Add repository for installing latest Oracle JAVA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="o">-</span><span class="n">y</span> <span class="n">ppa</span><span class="p">:</span><span class="n">webupd8team</span><span class="o">/</span><span class="n">java</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+</pre></div>
+</div>
+<p>Install JAVA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">oracle</span><span class="o">-</span><span class="n">java8</span><span class="o">-</span><span class="n">installer</span>
+</pre></div>
+</div>
+<p>Install Elasticsearch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="o">-</span><span class="n">qO</span> <span class="o">-</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">packages</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">GPG</span><span class="o">-</span><span class="n">KEY</span><span class="o">-</span><span class="n">elasticsearch</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">key</span> <span class="n">add</span> <span class="o">-</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">artifacts</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">downloads</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">-</span><span class="mf">5.5</span><span class="o">.</span><span class="mf">1.</span><span class="n">deb</span>
+<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">elasticsearch</span><span class="o">-</span><span class="mf">5.5</span><span class="o">.</span><span class="mf">1.</span><span class="n">deb</span>
+</pre></div>
+</div>
+<p>Next you will modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance. This is best done by becoming root and staying as root for the next series of steps. Become root by issuing the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">su</span> <span class="o">-</span>
+</pre></div>
+</div>
+<p>Open file <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/jvm.options</span></code> and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. Our instances were configured with 49156 MB of RAM, so half of that is around 24 GB. You will have to update two lines to allow JVM to allocate 24 GB. WARNING: Never allocate more than 32 GB. Change lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Xms2g</span>
+<span class="o">-</span><span class="n">Xmx2g</span>
+</pre></div>
+</div>
+<p>to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Xms24g</span>
+<span class="o">-</span><span class="n">Xmx24g</span>
+</pre></div>
+</div>
+<p>and save and close file.</p>
+<p>Next open file <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code> and uncomment and update the following lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment line and update cluster name</span>
+<span class="n">cluster</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">GDW</span><span class="o">-</span><span class="n">Test</span><span class="o">-</span><span class="n">Cluster</span>
+
+<span class="c1"># Uncomment line and update node name, e.g., gdw-test-node-1</span>
+<span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">gdw</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">node</span><span class="o">-</span><span class="n">xxx</span>
+
+<span class="c1"># Uncomment line to enable JVM memory allocation when Elasticsearch starts</span>
+<span class="n">bootstrap</span><span class="o">.</span><span class="n">memory_lock</span><span class="p">:</span> <span class="n">true</span>
+
+<span class="c1"># Uncomment line and update host IP address</span>
+<span class="n">network</span><span class="o">.</span><span class="n">host</span><span class="p">:</span> <span class="mf">172.17</span><span class="o">.</span><span class="n">XX</span><span class="o">.</span><span class="n">XXX</span> <span class="c1">### use cloud private and not public address</span>
+
+<span class="c1"># Uncomment line and add private IP addresses of other nodes in cluster.</span>
+<span class="n">discovery</span><span class="o">.</span><span class="n">zen</span><span class="o">.</span><span class="n">ping</span><span class="o">.</span><span class="n">unicast</span><span class="o">.</span><span class="n">hosts</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;172.17.XX.XXX&quot;</span><span class="p">,</span> <span class="s2">&quot;172.17.XX.XXX&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>and save and close the file. The <code class="docutils literal notranslate"><span class="pre">cluster.name</span></code> determines the cluster name. Nodes that share the same <code class="docutils literal notranslate"><span class="pre">cluster.name</span></code> are part of an Elasticsearch cluster. Therefore, it is possible to create multiple clusters within a single Eucalyptus security group. Keep in mind when repeating these steps for the other instances that the three instances should have the same <code class="docutils literal notranslate"><span class="pre">cluster.name</span></code>, but their <code class="docutils literal notranslate"><span class="pre">node.name</span></code> should all be different. Setting <code class="docutils literal notranslate"><span class="pre">bootstrap.memory_lock</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> allocates RAM exclusively for Elasticsearch when it starts up. The <code class="docutils literal notranslate"><span class="pre">network.host</span></code> is the private IP address associated with the instance you are logged in to. Update <code class="docutils literal notranslate"><span class="pre">discovery.zen.ping.unicast.hosts</span></code> with the private IP addresses of the other two instances.</p>
+<p>Next open <code class="docutils literal notranslate"><span class="pre">/etc/security/limits.conf</span></code>, add limits for Elasticsearch at the end of file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># At the end of file add lines:</span>
+<span class="n">elasticsearch</span> <span class="o">-</span> <span class="n">nofile</span> <span class="mi">65536</span>
+<span class="n">elasticsearch</span> <span class="n">soft</span> <span class="n">memlock</span> <span class="n">unlimited</span>
+<span class="n">elasticsearch</span> <span class="n">hard</span> <span class="n">memlock</span> <span class="n">unlimited</span>
+</pre></div>
+</div>
+<p>save and close the file. These limits allow Elasticsearch to open large number of files at once and allows it to allocate an unlimited amount of page/memory.</p>
+<p>Next open <code class="docutils literal notranslate"><span class="pre">/usr/lib/systemd/system/elasticsearch.service</span></code>, uncomment the following line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment line to allow elasticsearch to allocate memory at startup</span>
+<span class="n">LimitMEMLOCK</span><span class="o">=</span><span class="n">infinity</span>
+</pre></div>
+</div>
+<p>save, and close.</p>
+<p>Next open <code class="docutils literal notranslate"><span class="pre">/etc/default/elasticsearch</span></code>, uncomment the following lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment line to allow elasticsearch to open large amounts of files</span>
+<span class="n">MAX_OPEN_FILES</span><span class="o">=</span><span class="mi">65536</span>
+
+<span class="c1"># Uncomment line to allow elasticsearch to allocate memory at startup</span>
+<span class="n">MAX_LOCKED_MEMORY</span><span class="o">=</span><span class="n">unlimited</span>
+</pre></div>
+</div>
+<p>save, and close.</p>
+<p>Next is the installation of the Elasticsearch free license. The license is valid for one year. To install the license, you have to first install <code class="docutils literal notranslate"><span class="pre">X-Pack</span></code>, a plug-in for Elasticsearch that manages license and security. To install <code class="docutils literal notranslate"><span class="pre">X-Pack</span></code> execute:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">-</span><span class="n">plugin</span> <span class="n">install</span> <span class="n">x</span><span class="o">-</span><span class="n">pack</span>
+</pre></div>
+</div>
+<p>You can ignore the warnings and accept to install the plugin.</p>
+<p>Open <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code> and disable the proprietary X-pack security by adding the following line at the end of the file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xpack</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>save and close.</p>
+<p>Next enable Elasticsearch and configure it to start at boot by executing the following lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">daemon</span><span class="o">-</span><span class="n">reload</span>
+<span class="n">systemctl</span> <span class="n">enable</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">service</span>
+<span class="n">systemctl</span> <span class="n">start</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">service</span>
+</pre></div>
+</div>
+<p>Test the Elasticsearch installation by going to its public IP address on port 9200:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">199.109</span><span class="o">.</span><span class="n">XXX</span><span class="o">.</span><span class="n">XXX</span><span class="p">:</span><span class="mi">9200</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>To get the free/basic Elasicsearch license, register at <a class="reference external" href="https://register.elastic.co/">https://register.elastic.co/</a>. You should receive an email pointing to a website from which you can download the license to your local machine. Select the license for version <strong>5.X</strong>. To install the license, you have to send the license to an Elasticsearch instance twice. In a local terminal, change to the directory on your local machine where the JSON license file is saved. Send the license file to the Elasicsearch instance using CURL from your local machine as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">XPUT</span> <span class="s1">&#39;http://199.109.XXX.XXX:9200/_xpack/license&#39;</span> <span class="o">-</span><span class="n">d</span> <span class="nd">@mohammad</span><span class="o">-</span><span class="n">zia</span><span class="o">-</span><span class="n">ff462980</span><span class="o">-</span><span class="mi">7</span><span class="n">da1</span><span class="o">-</span><span class="mi">44</span><span class="n">ce</span><span class="o">-</span><span class="mi">99</span><span class="n">f4</span><span class="o">-</span><span class="mf">26e2952</span><span class="n">e43fc</span><span class="o">-</span><span class="n">v5</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>where you should update the IP address to match your Elasticsearch instance and after the <cite>&#64;</cite> should be the name of your license file. You should receive a message as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;acknowledged&quot;</span><span class="p">:</span><span class="n">false</span><span class="p">,</span><span class="s2">&quot;license_status&quot;</span><span class="p">:</span><span class="s2">&quot;valid&quot;</span><span class="p">,</span><span class="s2">&quot;acknowledge&quot;</span><span class="p">:{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;This license update requires acknowledgement. To acknowledge the license, please read the following messages and update the license again, this time with the </span><span class="se">\&quot;</span><span class="s2">acknowledge=true</span><span class="se">\&quot;</span><span class="s2"> parameter:&quot;</span><span class="p">,</span><span class="s2">&quot;watcher&quot;</span><span class="p">:[</span><span class="s2">&quot;Watcher will be disabled&quot;</span><span class="p">],</span><span class="s2">&quot;security&quot;</span><span class="p">:[</span><span class="s2">&quot;The following X-Pack security functionality will be disabled: authentication, authorization, ip filtering, and auditing. Please restart your node after applying the license.&quot;</span><span class="p">,</span><span class="s2">&quot;Field and document level access control will be disabled.&quot;</span><span class="p">,</span><span class="s2">&quot;Custom realms will be ignored.&quot;</span><span class="p">],</span><span class="s2">&quot;monitoring&quot;</span><span class="p">:[</span><span class="s2">&quot;Multi-cluster support is disabled for clusters with [BASIC] license. If you are</span><span class="se">\n</span><span class="s2">running multiple clusters, users won&#39;t be able to access the clusters with</span><span class="se">\n</span><span class="s2">[BASIC] licenses from within a single X-Pack Kibana instance. You will have to deploy a</span><span class="se">\n</span><span class="s2">separate and dedicated X-pack Kibana instance for each [BASIC] cluster you wish to monitor.&quot;</span><span class="p">,</span><span class="s2">&quot;Automatic index cleanup is locked to 7 days for clusters with [BASIC] license.&quot;</span><span class="p">],</span><span class="s2">&quot;graph&quot;</span><span class="p">:[</span><span class="s2">&quot;Graph will be disabled&quot;</span><span class="p">]}}</span>
+</pre></div>
+</div>
+<p>Send the license again, but this time with acknowledgment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">XPUT</span> <span class="s1">&#39;http://199.109.XXX.XXX:9200/_xpack/license?acknowledge=true&#39;</span> <span class="o">-</span><span class="n">d</span> <span class="nd">@mohammad</span><span class="o">-</span><span class="n">zia</span><span class="o">-</span><span class="n">ff462980</span><span class="o">-</span><span class="mi">7</span><span class="n">da1</span><span class="o">-</span><span class="mi">44</span><span class="n">ce</span><span class="o">-</span><span class="mi">99</span><span class="n">f4</span><span class="o">-</span><span class="mf">26e2952</span><span class="n">e43fc</span><span class="o">-</span><span class="n">v5</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Check that the license was installed by going to <a class="reference external" href="http://199.109.XXX.XXX:9200/_xpack/license">http://199.109.XXX.XXX:9200/_xpack/license</a>. You should see something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;license&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span> <span class="p">:</span> <span class="s2">&quot;active&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;uid&quot;</span> <span class="p">:</span> <span class="s2">&quot;ff462980-7da1-44ce-99f4-26e2952e43fc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;issue_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2017-02-27T00:00:00.000Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;issue_date_in_millis&quot;</span> <span class="p">:</span> <span class="mi">1488153600000</span><span class="p">,</span>
+    <span class="s2">&quot;expiry_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018-02-27T23:59:59.999Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiry_date_in_millis&quot;</span> <span class="p">:</span> <span class="mi">1519775999999</span><span class="p">,</span>
+    <span class="s2">&quot;max_nodes&quot;</span> <span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;issued_to&quot;</span> <span class="p">:</span> <span class="s2">&quot;Mohammad Zia (University at Buffalo)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;issuer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Web Form&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;start_date_in_millis&quot;</span> <span class="p">:</span> <span class="mi">1488153600000</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You should reboot the system to make sure that Elasticsearch is enabled at boot time. At this point you should have one instance of Elasticsearch running. You can now ssh into the second instance and repeat the setup steps, up to but not including the license installation. The license only needs to be installed on one node of the cluster. Do the same for the third and final instance.</p>
+<p>Finally, check the status of the cluster by going to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>http://199.109.XXX.XXX:9200/_cluster/health?pretty=true
+</pre></div>
+</div>
+<p>you should see <code class="docutils literal notranslate"><span class="pre">&quot;number_of_data_nodes&quot;</span> <span class="pre">:</span> <span class="pre">3</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;cluster_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;GDW-Test-Cluster&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;status&quot;</span> <span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;timed_out&quot;</span> <span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;number_of_nodes&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;number_of_data_nodes&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;active_primary_shards&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;active_shards&quot;</span> <span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="s2">&quot;relocating_shards&quot;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;initializing_shards&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;unassigned_shards&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;delayed_unassigned_shards&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;number_of_pending_tasks&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;number_of_in_flight_fetch&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;task_max_waiting_in_queue_millis&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;active_shards_percent_as_number&quot;</span> <span class="p">:</span> <span class="mf">100.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This completes the installation of Elasticsearch.</p>
+</div>
+<div class="section" id="installation-checklist-for-elasticsearch">
+<h2>Installation checklist for Elasticsearch<a class="headerlink" href="#installation-checklist-for-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[ ] Create a new security group in Eucalyptus for the Elasticsearch nodes</li>
+<li>[ ] Open ports 22 and 9200 to TCP traffic from your local machine in the new security group</li>
+<li><dl class="first docutils">
+<dt>[ ] Launch three instances with new security group</dt>
+<dd><ul class="first last">
+<li>[ ] Select Ubuntu 16.04 EBS for image type</li>
+<li>[ ] Choose <code class="docutils literal notranslate"><span class="pre">m2.4xlarge:</span> <span class="pre">4</span> <span class="pre">CPUs,</span> <span class="pre">49152</span> <span class="pre">memory</span> <span class="pre">(MB)</span></code> for instance type</li>
+<li>[ ] Use updated cloud-init script to automate SSH login for your user</li>
+<li>[ ] Specify storage volume</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>[ ] Install Elasticsearch on each instance</dt>
+<dd><ul class="first last">
+<li>[ ] Log in</li>
+<li>[ ] Do system update</li>
+<li>[ ] Add JAVA repository and update apt-get</li>
+<li>[ ] Download and install Java and Elasticsearch</li>
+<li><dl class="first docutils">
+<dt>[ ] Configure Elasticsearch</dt>
+<dd><ul class="first last">
+<li>[ ] Become root `` sudo su - ``</li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/jvm.options</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">etc/security/limits.conf</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/usr/lib/systemd/system/elasticsearch.service</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/default/elasticsearch</span></code></li>
+<li>[ ] Install <code class="docutils literal notranslate"><span class="pre">X-pack</span></code></li>
+<li>[ ] Disable <code class="docutils literal notranslate"><span class="pre">X-pack</span></code> security in <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code></li>
+<li>[ ] Enable Elasticsearch at boot</li>
+<li>[ ] Register and install license * only do this for one instance of the cluster</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="installing-genomics-data-warehouse">
+<h2>Installing Genomics Data Warehouse<a class="headerlink" href="#installing-genomics-data-warehouse" title="Permalink to this headline">¶</a></h2>
+<p>First, create a new security group in Eucalyptus for the GDW application instance. Open ports 22 and 8000 (not port 9200!) to TCP traffic from your local machine, following the same procedure as with the Elasticsearch instances. Launch one new instance of image type Ubuntu 16.04 EBS, instance type <code class="docutils literal notranslate"><span class="pre">c1.medium:</span> <span class="pre">4</span> <span class="pre">CPUs,</span> <span class="pre">16384</span> <span class="pre">memory</span> <span class="pre">(MB)</span></code>, and root storage volume of at least 40 GB. You can use the previously modified cloud-config script to automate SSH login to the GDW application instance.</p>
+<p>Use the same key pair you used for the Elasticsearch nodes, but this time, use the new GDW application security group instead of the Elasticsearch security group. Beware, the Eucalyptus UI may pre-populate the security group list with your Elasticsearch security group, which is not the one you want in this case.</p>
+<p>Now that the GDW app instance is running and has an IP address, we need to add a new rule to the security group for the Elasticsearch nodes that will allow them to talk to the GDW app. Navigate to <a class="reference external" href="https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups">https://console.ccr-cbls-2.ccr.buffalo.edu/securitygroups</a> and click on the security group for your Elasticsearch nodes. Add a new rule opening port 9200 to the <em>Public IP address of your new GDW instance</em>. Append “/32” to the end of the IP address or else Eucalyptus will complain about “Valid CIDR entry required.”</p>
+<p>GDW is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtualenv using <code class="docutils literal notranslate"><span class="pre">pip</span></code>. This setup ensures complete isolation of your python installation from the system-wide installation. Note that GDW requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">venv</span>
+</pre></div>
+</div>
+<p>Clone the GDW repository in to your GDW instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ubccr</span><span class="o">/</span><span class="n">GDW</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Change in to GDW directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">GDW</span>
+</pre></div>
+</div>
+<p>Install the python virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">env</span>
+</pre></div>
+</div>
+<p>Activate the newly created virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Install the python packages required for GDW, you can ignore the warning messages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>GDW uses memcached to speed up form loading. Install memcached:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">memcached</span>
+</pre></div>
+</div>
+<p>Create the database tables associated with the app and some default values by executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span> <span class="n">msea</span> <span class="n">news</span> <span class="n">pybamview</span> <span class="n">search</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">import_es_settings</span>
+</pre></div>
+</div>
+<p>Create a superuser who can log in to the admin site:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">createsuperuser</span>
+</pre></div>
+</div>
+<p>Open gdw/settings.py and add the instance’s Public IP address in the allowed hosts list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PUT PUBLIC IP HERE&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>save and close file.</p>
+<p>Start the development server using the private IP address:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver</span> <span class="mf">172.17</span><span class="o">.</span><span class="n">XX</span><span class="o">.</span><span class="n">XXX</span><span class="p">:</span><span class="mi">8000</span>
+</pre></div>
+</div>
+<p>Open a browser on your local machine and navigate to the public IP address, port 8000, of your GDW instance and the GDW website should be running. Most of the functionality will be broken because there is no connection with the Elasticsearch database. You can stop the development server using <code class="docutils literal notranslate"><span class="pre">CTRL</span> <span class="pre">+</span> <span class="pre">c</span></code> inside the terminal that is ssh’d into the GDW instance. Note that the manage.py commands also have to be run inside the virtualenv.</p>
+</div>
+<div class="section" id="installation-checklist-for-genomics-data-warehouse">
+<h2>Installation checklist for Genomics Data Warehouse<a class="headerlink" href="#installation-checklist-for-genomics-data-warehouse" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[ ] Create a new security group for the GDW application in Eucalyptus</li>
+<li>[ ] Open ports 22 and 8000 to TCP traffic from your local machine in the new security group</li>
+<li><dl class="first docutils">
+<dt>[ ] Launch one instance with new security group</dt>
+<dd><ul class="first last">
+<li>[ ] Select Ubuntu 16.04 EBS for image type</li>
+<li>[ ] Choose <code class="docutils literal notranslate"><span class="pre">c1.medium:</span> <span class="pre">4</span> <span class="pre">CPUs,</span> <span class="pre">16384</span> <span class="pre">memory</span> <span class="pre">(MB)</span></code> for instance type</li>
+<li>[ ] Use updated cloud-init script to automate SSH login for your user</li>
+<li>[ ] Specify storage volume, at least 40 GB</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>[ ] Open port 9200 in the Elasticsearch security group for TCP traffic from the public IP address of your new instance</li>
+<li>[ ] Install Python3.5 venv</li>
+<li>[ ] Clone GDW repository</li>
+<li>[ ] Create new Python virtualenv and activate it</li>
+<li>[ ] Install the requirements via <code class="docutils literal notranslate"><span class="pre">pip</span></code></li>
+<li>[ ] Install memcached</li>
+<li>[ ] Create database tables and import default settings</li>
+<li>[ ] Create superuser</li>
+<li>[ ] Start Dev Instance</li>
+</ul>
+</div>
+<div class="section" id="getting-familiar-with-elasticsearch">
+<h2>Getting familiar with Elasticsearch<a class="headerlink" href="#getting-familiar-with-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>Now we will import some sample data into Elasticsearch in order to get familiar with how Elasticsearch functions. Traverse to <code class="docutils literal notranslate"><span class="pre">GDW/docs/example</span></code> and open the file <code class="docutils literal notranslate"><span class="pre">new_data.json</span></code>. The file contains seven records that will be imported into Elasticsearch. A sample JSON record is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;isActive&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;balance&quot;</span><span class="p">:</span> <span class="mf">3696.70</span><span class="p">,</span>
+    <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span>
+    <span class="s2">&quot;eyeColor&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;first&quot;</span><span class="p">:</span> <span class="s2">&quot;Jeri&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="s2">&quot;Strickland&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;aliquip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;reprehenderit&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;cupidatat&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;occaecat&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;nostrud&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;friend&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;friend_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;friend_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Greta Henry&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;friend_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;friend_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Macdonald Daniels&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;friend_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;friend_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Blake Kemp&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;favoriteFruit&quot;</span><span class="p">:</span> <span class="s2">&quot;strawberry&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>There are nine fields in each record. Note that the <code class="docutils literal notranslate"><span class="pre">friend</span></code> field is a nested field. Elasticsearch is a NoSQL database that stores JSON documents. Before inserting new documents into Elasticsearch, you should define a ‘’mapping’’ of the data. A mapping is a description of the data that indicates to Elasticsearch how to store and query the data.  For example, if something is stored as a float, then Elasticsearch knows that range operators are allowed. If you do not define a mapping, Elasticsearch can automatically guess the mapping, but this may not be optimal. To define a mapping, we will use the Python 3 API for Elasticsearch. Make sure that Python virtual environment is activated and install the package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">elasticsearch</span>
+</pre></div>
+</div>
+<p>The following is a possible mapping for the JSON shown previously:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;index&#39;</span><span class="p">:</span>            <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;isActive&#39;</span><span class="p">:</span>         <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;balance&#39;</span><span class="p">:</span>          <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span>              <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;eyeColor&#39;</span><span class="p">:</span>         <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;first&#39;</span><span class="p">:</span>            <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;last&#39;</span><span class="p">:</span>             <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;tag&#39;</span><span class="p">:</span>              <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;friend&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;nested&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;properties&#39;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;friend_id&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;friend_name&#39;</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;favoriteFruit&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">index</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code> fields are defined as integer. Likewise for the nested <code class="docutils literal notranslate"><span class="pre">friend_id</span></code> field. It is not a requirement of Elasticsearch that the name of nested fields begin with <code class="docutils literal notranslate"><span class="pre">friend_</span></code>, i.e.,but it is a convention of GDW. The <code class="docutils literal notranslate"><span class="pre">balance</span></code> field is defined as a float. The fields <code class="docutils literal notranslate"><span class="pre">isActive</span></code>, <code class="docutils literal notranslate"><span class="pre">eyeColor</span></code>, <code class="docutils literal notranslate"><span class="pre">first</span></code>, <code class="docutils literal notranslate"><span class="pre">last</span></code>, and <code class="docutils literal notranslate"><span class="pre">favoriteFruit</span></code> are defined as keyword. Keyword mappings indicate to Elasticsearch that an exact match is required, meaning they are case sensitive and spaces are significant. The <code class="docutils literal notranslate"><span class="pre">tag</span></code> and <code class="docutils literal notranslate"><span class="pre">friend_name</span></code> fields are defined as text. The default text analyzer for Elasticsearch converts all strings to lower case, splits on spaces and removes punctuation. As an example, <cite>John Doe</cite> will become <cite>john</cite> and <cite>doe</cite>, so searching on <code class="docutils literal notranslate"><span class="pre">john</span></code> or <code class="docutils literal notranslate"><span class="pre">doe</span></code> will return a hit, but not <code class="docutils literal notranslate"><span class="pre">John</span></code> or <code class="docutils literal notranslate"><span class="pre">DOE</span></code>.</p>
+<p>We will now put the mapping in Elasticsearch using <code class="docutils literal notranslate"><span class="pre">create_index.py</span></code>. Open the file for editing. Update the IP address to an Elasticsearch node</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update the IP address</span>
+<span class="n">es</span> <span class="o">=</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">Elasticsearch</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;199.109.XXX.XX&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we will walk through the Python script and explain it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">es</span> <span class="pre">=</span> <span class="pre">elasticsearch.Elasticsearch(host=&quot;199.109.XXX.XX&quot;)</span></code> establishes a connection to your Elasticsearch cluster.</p>
+<p><code class="docutils literal notranslate"><span class="pre">INDEX_NAME</span> <span class="pre">=</span> <span class="pre">'demo_mon'</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">INDEX_NAME</span></code>. Index name in Elasticsearch is loosely equivalent to database name in MySQL.</p>
+<p><code class="docutils literal notranslate"><span class="pre">type_name</span> <span class="pre">=</span> <span class="pre">'demo_mon'</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">type_name</span></code>. Type name in Elasticsearch is loosely equivalent to a table name, but in Elasticsearch it is a name of a type of document that will be stored in an index. The subsequent conditional deletes the index if it already exists. The following lines define the mapping previously discussed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">type_name</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;index&#39;</span><span class="p">:</span>            <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;isActive&#39;</span><span class="p">:</span>         <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;balance&#39;</span><span class="p">:</span>          <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;age&#39;</span><span class="p">:</span>              <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;eyeColor&#39;</span><span class="p">:</span>         <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;first&#39;</span><span class="p">:</span>            <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;last&#39;</span><span class="p">:</span>             <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;tag&#39;</span><span class="p">:</span>              <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">},</span>
+            <span class="s1">&#39;friend&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;nested&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;properties&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;friend_id&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;friend_name&#39;</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;favoriteFruit&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="s1">&#39;keyword&#39;</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">es.indices.put_mapping(index=INDEX_NAME,</span> <span class="pre">doc_type=type_name,</span> <span class="pre">body=mapping)</span></code> puts the mapping in Elasticsearch. Run the script after updating the IP address to put the mapping into Elasticsearch. You can verify that the mapping has been put into Elasticsearch by going to <a class="reference external" href="http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true">http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_mapping?pretty=true</a></p>
+<p>Next open the file <code class="docutils literal notranslate"><span class="pre">insert_index.py</span></code>. This script reads the data contained in <code class="docutils literal notranslate"><span class="pre">new_data.json</span></code> and inserts it in to Elasticsearch. Run the script after updating the IP address. You can verify that the data has been imported by going to <a class="reference external" href="http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true">http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true</a>. Now we will make some queries using Elasticsearch through the REST API.</p>
+<p>For all the following scripts, update the IP address before running them. The scripts are located in <code class="docutils literal notranslate"><span class="pre">GDW/docs/example</span></code>.</p>
+<p>Execute <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">query1.es</span></code> to find all the active users.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">XGET</span> <span class="s1">&#39;http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true&#39;</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;filter&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;term&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;isActive&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}}]}},</span>
+    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">1000</span>
+<span class="p">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>Execute <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">query2.es</span></code> to find all users whose age is greater than or equal to 26</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">XGET</span> <span class="s1">&#39;http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true&#39;</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;range&quot;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;age&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;gte&quot;</span> <span class="p">:</span> <span class="mi">26</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>Execute <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">query3.es</span></code> to find users with friend named <cite>tanner</cite></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">XGET</span> <span class="s1">&#39;http://199.109.XXX.XXX:9200/demo_mon/demo_mon/_search?pretty=true&#39;</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;</span>
+<span class="p">{</span>
+    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nested&quot;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;path&quot;</span> <span class="p">:</span> <span class="s2">&quot;friend&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;query&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;bool&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;filter&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;term&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;friend.friend_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;tanner&quot;</span><span class="p">}</span> <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>Notice that the whole JSON document is returned along with the other nested friends and not just <cite>tanner</cite>. This is how Elasticsearch works. It is GDW that filters the irrelevant nested terms.  As you can see, the search query string can become unwieldy. Next we will learn how to create a GUI in GDW to make queries with Elasticsearch convenient.</p>
+</div>
+<div class="section" id="manually-building-the-gdw-web-user-interface">
+<h2>Manually building the GDW Web User Interface<a class="headerlink" href="#manually-building-the-gdw-web-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>Basically GDW provides a web-based user interface (UI) to make Elasticsearch queries. There are two ways to build the UI. First, by logging in to the GDW admin site and building the UI by clicking through it. This is quite flexible, but can become very tedious. Second, by programmatically building the UI by reading a JSON file that defines the fields of the UI. Both ways will be described to make you familiar with how GDW works. They are complementary because in practice the UI is initially built programmatically and then modified and tweaked using the GDW admin site. We begin by showing you how to build the UI using the GDW admin site.</p>
+<p>Before you can begin building the UI, you need to become familiar with how its components are organized.</p>
+<div class="figure" id="id1">
+<span id="component-1"></span><a class="reference internal image-reference" href="images/component_1.png"><img alt="UI components 1" src="images/component_1.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows the components that make up the web-based user interface (UI) of GDW. Filter fields, example <cite>Variant Name</cite>, are put inside panels, example <cite>Variant Related Information</cite>. Panels are put inside a tab, example <cite>Simple</cite>.
+Tabs are associated with a dataset. Datasets are associated with a study.</span></p>
+</div>
+<p>Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">component_1</span></code> shows the components of the UI. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">component_2</span></code> shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as <cite>basic</cite> and <cite>advanced</cite> search fields.</p>
+<div class="figure" id="id2">
+<span id="component-2"></span><a class="reference internal image-reference" href="images/component_2.png"><img alt="UI components 2" src="images/component_2.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of how sub-panels can be used to further organize filter fields within a panel.</span></p>
+</div>
+<p>GDW allows a user to select which fields they want to display in the search results. This allows a user to include more, less, or different fields in the search results than the ones used for searching. The result fields are called <cite>attributes</cite> – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.</p>
+<div class="section" id="adding-study-dataset-and-search-options">
+<h3>Adding study, dataset, and search options<a class="headerlink" href="#adding-study-dataset-and-search-options" title="Permalink to this headline">¶</a></h3>
+<p>To begin building the UI, log in to the admin site by going to <a class="reference external" href="http://199.109.XXX.XXX:8000/admin">http://199.109.XXX.XXX:8000/admin</a>. Make sure that the development server is running. Use the username and password that you used to create the <code class="docutils literal notranslate"><span class="pre">superuser</span></code>. First we will add a new study by clicking the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Studies</span></code>, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_study</span></code>. In the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Study</span></code> page, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_study_page</span></code>, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Hit the save button to create the study. Click on the <cite>home</cite> link in the breadcrumb navigation to return to the admin home page.</p>
+<div class="figure" id="id3">
+<span id="add-study"></span><a class="reference internal image-reference" href="_images/add_study.png"><img alt="Add Study" src="_images/add_study.png" style="width: 587.25px; height: 31.5px;" /></a>
+<p class="caption"><span class="caption-text">Figure shows the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button that is used to add a new study.</span></p>
+</div>
+<div class="figure" id="id4">
+<span id="add-study-page"></span><a class="reference internal image-reference" href="_images/add_study_page.png"><img alt="Add Study Page" src="_images/add_study_page.png" style="width: 455.25px; height: 207.0px;" /></a>
+<p class="caption"><span class="caption-text">Figure shows the Add study page. This page is used to add and update a study.</span></p>
+</div>
+<p>Next we will add a dataset that is associated with the study that we just added. Click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Datasets</span></code>. Select the study that you just added from the drop down menu. Fill in the dataset name and description field. Next fill in <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">index</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">type</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">host</span></code>, and <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">port</span></code>, which should be <cite>demo_mon</cite>, <cite>demo_mon</cite>, the public IP address to the Elasticsearch node instance, and 9200, respectively. Check the <code class="docutils literal notranslate"><span class="pre">is_public</span></code> field to make the demo dataset accessible by all. The allowed groups field allows you to manage which groups can access the dataset if you want to restrict access to the dataset. User permissions will be described in detail later. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_dataset_page</span></code> shows the add dataset page with the fields filled. Click on the <cite>home</cite> link in the breadcrumb navigation to return to the admin home page.</p>
+<div class="figure" id="id5">
+<span id="add-dataset-page"></span><a class="reference internal image-reference" href="_images/add_dataset_page.png"><img alt="Add Dataset Page" src="_images/add_dataset_page.png" style="width: 955.5px; height: 834.75px;" /></a>
+<p class="caption"><span class="caption-text">Figure shows the add dataset page. This page is used to add and update a dataset.</span></p>
+</div>
+<p>Next we need to add search options for the dataset. A dataset can contain millions of documents. Displaying so many results can cause rendering issues, so we use search options to limit the number of results that are shown to 400 documents. If you want to fetch all the results, you can download them from the search results page. To add the default search options, click the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Search</span> <span class="pre">options</span></code>. Choose the dataset you just added and leave the other values to the default and click SAVE. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_search_options_page</span></code> shows the page for adding searching options for a dataset.</p>
+<div class="figure" id="id6">
+<span id="add-search-options-page"></span><a class="reference internal image-reference" href="images/add_search_options_page.png"><img alt="Add Search Options Page" src="images/add_search_options_page.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows the Add search options page. This page is used to add and update the search options associated with a dataset. Search options limit the number of results returned matching the search criteria.</span></p>
+</div>
+</div>
+<div class="section" id="adding-filter-fields">
+<h3>Adding filter fields<a class="headerlink" href="#adding-filter-fields" title="Permalink to this headline">¶</a></h3>
+<p>Now we are ready to add filter fields. Currently GDW supports three types of forms for filter fields: <code class="docutils literal notranslate"><span class="pre">CharField</span></code>, <code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> and <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code>. The <code class="docutils literal notranslate"><span class="pre">CharField</span></code> can use three types of form widget: <code class="docutils literal notranslate"><span class="pre">TextInput</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, and <code class="docutils literal notranslate"><span class="pre">UploadField</span></code>. The <code class="docutils literal notranslate"><span class="pre">TextInput</span></code> widget is a simple text input box that allows the user to search for a single term. The <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> is also a text input box but allows rows of terms. Finally, the <code class="docutils literal notranslate"><span class="pre">UploadField</span></code> uses the <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> widget but with an extra upload button that allows users to select a file from which to populate the <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> widget. The <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> and <code class="docutils literal notranslate"><span class="pre">UploadField</span></code> widgets allow users to search for multiple terms. The <code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> uses the <code class="docutils literal notranslate"><span class="pre">Select</span></code> widget
+that renders a single-select drop down menu for selecting a single term to search for from a list of choices. And the <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code> field uses a <code class="docutils literal notranslate"><span class="pre">SelectMultiple</span></code> widget that renders a multi-select field to allow users to select multiple terms to search for from a list of choices.</p>
+<p>Click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">Fields</span></code>. Select <code class="docutils literal notranslate"><span class="pre">test_dataset</span></code> for Dataset, fill in <code class="docutils literal notranslate"><span class="pre">Display</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Form</span> <span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">Widget</span> <span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">data</span> <span class="pre">type</span></code>, and <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">filter</span> <span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">Place</span> <span class="pre">in</span> <span class="pre">panel</span></code> with <code class="docutils literal notranslate"><span class="pre">First</span> <span class="pre">Name</span></code>, <code class="docutils literal notranslate"><span class="pre">CharField</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, <code class="docutils literal notranslate"><span class="pre">first</span></code>, <code class="docutils literal notranslate"><span class="pre">keyword</span></code>, <code class="docutils literal notranslate"><span class="pre">filter_term</span></code>, and <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">Information</span></code>, respectively. Hit save to create the field. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_filter_field_page</span></code> shows an example page for adding a filter field.</p>
+<div class="figure" id="id7">
+<span id="add-filter-field-page"></span><a class="reference internal image-reference" href="images/add_filter_field_page.png"><img alt="Add Filter Field Page" src="images/add_filter_field_page.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows the add filter field page.</span></p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Display</span> <span class="pre">name</span></code> field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The <code class="docutils literal notranslate"><span class="pre">In</span> <span class="pre">line</span> <span class="pre">tooltip</span></code> field allows the user to display a tooltip next to the display name. The <code class="docutils literal notranslate"><span class="pre">Tooltip</span></code> field allows the user to specify
+a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The <code class="docutils literal notranslate"><span class="pre">Form</span> <span class="pre">type</span></code> is one of the three form types that GDW currently supports. The <code class="docutils literal notranslate"><span class="pre">Widget</span> <span class="pre">type</span></code> is one of the five types of Widget that GDW currently supports. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">name</span></code> is the name of field that will be searched in Elasticsearch.The <code class="docutils literal notranslate"><span class="pre">path</span></code> field specifies the path of the filter field if it is a nested field. By convention, GDW expects that the path name and an underscore be prefixed to the <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">name</span></code> of the nested filter field. For example, the nested ES field name of <code class="docutils literal notranslate"><span class="pre">friend_name</span></code> has the path name of <code class="docutils literal notranslate"><span class="pre">friend</span></code>. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">data</span> <span class="pre">type</span></code> field specifies what Elasticsearch data type the field is such as integer, float, keyword or text. <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">text</span> <span class="pre">analyzer</span></code> specifics the Elasticsearch text analyzer to use if the <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">data</span> <span class="pre">type</span></code> is set to text. See <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html</a> for details about the various analyzers. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">filter</span> <span class="pre">type</span></code> field allows the user to specify which Elasticsearch type query to use. The <code class="docutils literal notranslate"><span class="pre">Place</span> <span class="pre">in</span> <span class="pre">panel</span></code> is used internally by GDW for properly displaying the available filter fields for a given dataset. It should be the <code class="docutils literal notranslate"><span class="pre">display_name</span></code> of the panel the filter field is associated with. Finally, the <code class="docutils literal notranslate"><span class="pre">Is</span> <span class="pre">visible</span></code> field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GDW.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Es filter type</th>
+<th class="head">When to use</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>filter_term</td>
+<td>To find documents that contain the exact term specified</td>
+</tr>
+<tr class="row-odd"><td>filter_terms</td>
+<td>To find documents that contain at least one of the exact terms specified</td>
+</tr>
+<tr class="row-even"><td>nested_filter_term</td>
+<td>To find documents that contain the exact term specified in a nested field</td>
+</tr>
+<tr class="row-odd"><td>nested_filter_terms</td>
+<td>To find documents that contain at least one of the terms specified in a nested field</td>
+</tr>
+<tr class="row-even"><td>filter_range_gte</td>
+<td>To find documents with values greater than or equal to specified</td>
+</tr>
+<tr class="row-odd"><td>filter_range_gt</td>
+<td>To find documents with values greater than specified</td>
+</tr>
+<tr class="row-even"><td>filter_range_lte</td>
+<td>To find documents with values less than or equal to specified</td>
+</tr>
+<tr class="row-odd"><td>filter_range_lt</td>
+<td>To find documents with values less than specified</td>
+</tr>
+<tr class="row-even"><td>nested_filter_range_gte</td>
+<td>To find documents with values greater than or equal to specified in a nested field</td>
+</tr>
+<tr class="row-odd"><td>filter_exists</td>
+<td>To find documents in which the field specified exists</td>
+</tr>
+<tr class="row-even"><td>must_not_exists</td>
+<td>To find documents in which the field specified does not exist</td>
+</tr>
+<tr class="row-odd"><td>nested_filter_exists</td>
+<td>To find documents in which the nested field specified exists</td>
+</tr>
+</tbody>
+</table>
+<p>Using the information in table 2, create the remaining filter fields. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">all_filter_fields_listed</span></code> shows what the admin site should look after adding the 13 fields. Note that the dataset for all the filter fields is <code class="docutils literal notranslate"><span class="pre">test_dataset</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="11%" />
+<col width="14%" />
+<col width="11%" />
+<col width="10%" />
+<col width="5%" />
+<col width="9%" />
+<col width="14%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Display name</th>
+<th class="head">in line tooltip</th>
+<th class="head">Form type</th>
+<th class="head">Widget Type</th>
+<th class="head">ES Name</th>
+<th class="head">Path</th>
+<th class="head">ES Data Type</th>
+<th class="head">ES Filter Type</th>
+<th class="head">Place in Panel</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>First Name</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>first</td>
+<td>&#160;</td>
+<td>keyword</td>
+<td>filter_term</td>
+<td>User Information</td>
+</tr>
+<tr class="row-odd"><td>Index</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>index</td>
+<td>&#160;</td>
+<td>integer</td>
+<td>filter_term</td>
+<td>User Information</td>
+</tr>
+<tr class="row-even"><td>Last Name</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>last</td>
+<td>&#160;</td>
+<td>keyword</td>
+<td>filter_term</td>
+<td>User Information</td>
+</tr>
+<tr class="row-odd"><td>Age</td>
+<td>(&lt;=)</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>age</td>
+<td>&#160;</td>
+<td>integer</td>
+<td>filter_range_lte</td>
+<td>User Information</td>
+</tr>
+<tr class="row-even"><td>Age</td>
+<td>(&gt;=)</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>age</td>
+<td>&#160;</td>
+<td>integer</td>
+<td>filter_range_gte</td>
+<td>User Information</td>
+</tr>
+<tr class="row-odd"><td>Is Active</td>
+<td>&#160;</td>
+<td>ChoiceField</td>
+<td>Select</td>
+<td>isActive</td>
+<td>&#160;</td>
+<td>keyword</td>
+<td>filter_term</td>
+<td>Account Information</td>
+</tr>
+<tr class="row-even"><td>Balance</td>
+<td>(&lt;=)</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>balance</td>
+<td>&#160;</td>
+<td>float</td>
+<td>filter_range_lte</td>
+<td>Account Information</td>
+</tr>
+<tr class="row-odd"><td>Balance</td>
+<td>(&gt;=)</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>balance</td>
+<td>&#160;</td>
+<td>float</td>
+<td>filter_range_gte</td>
+<td>Account Information</td>
+</tr>
+<tr class="row-even"><td>Favorite Fruit</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>favoriteFruit</td>
+<td>&#160;</td>
+<td>keyword</td>
+<td>filter_term</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-odd"><td>Eye Color</td>
+<td>&#160;</td>
+<td>MultipleChoiceField</td>
+<td>SelectMultiple</td>
+<td>eyeColor</td>
+<td>&#160;</td>
+<td>keyword</td>
+<td>filter_terms</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-even"><td>Tag</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>tag</td>
+<td>&#160;</td>
+<td>text</td>
+<td>filter_term</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-odd"><td>Friend ID</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>friend_id</td>
+<td>friend</td>
+<td>integer</td>
+<td>nested_filter_term</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-even"><td>Friend Name</td>
+<td>&#160;</td>
+<td>CharField</td>
+<td>Textinput</td>
+<td>friend_name</td>
+<td>friend</td>
+<td>text</td>
+<td>nested_filter_term</td>
+<td>Other Information</td>
+</tr>
+</tbody>
+</table>
+<div class="figure" id="id8">
+<span id="all-filter-fields-listed"></span><a class="reference internal image-reference" href="images/all_filter_fields_listed.png"><img alt="All Filter Fields Listed" src="images/all_filter_fields_listed.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows all the filter fields in the admin site.</span></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> and <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code> require that you specify choices for them. Click the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> next to the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">Choice</span> <span class="pre">Fields</span></code>. Click the search (magnifying glass) icon to open a another window from which you will choose <code class="docutils literal notranslate"><span class="pre">Is</span> <span class="pre">Active</span> <span class="pre">(test-dataset)</span></code> for Filter field. This will automatically put the ID of the chosen field in the filter field. Next specify the value <code class="docutils literal notranslate"><span class="pre">true</span></code> and hit save.
+Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_filter_field_choice</span></code> shows an example add filter field choice page.</p>
+<div class="figure" id="id9">
+<span id="add-filter-field-choice"></span><a class="reference internal image-reference" href="images/add_filter_field_choice.png"><img alt="Add Filter Field Choice Page" src="images/add_filter_field_choice.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of an add filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.</span></p>
+</div>
+<p>Next add the value <code class="docutils literal notranslate"><span class="pre">false</span></code> for <code class="docutils literal notranslate"><span class="pre">Is</span> <span class="pre">Active</span> <span class="pre">(test-dataset)</span></code>. Similarly for <code class="docutils literal notranslate"><span class="pre">Eye</span> <span class="pre">Color</span> <span class="pre">(test_dataset)</span></code> add the colors <code class="docutils literal notranslate"><span class="pre">brown</span></code>, <code class="docutils literal notranslate"><span class="pre">blue</span></code>, <code class="docutils literal notranslate"><span class="pre">green</span></code>. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">all_filter_field_choices</span></code> shows what the admin site should look like after adding five filter field choices.</p>
+<div class="figure" id="id10">
+<span id="all-filter-field-choices"></span><a class="reference internal image-reference" href="_images/all_filter_field_choices.png"><img alt="List Filter Filed Choices" src="_images/all_filter_field_choices.png" style="width: 546.75px; height: 183.0px;" /></a>
+<p class="caption"><span class="caption-text">Figure shows what the admin site should look like after adding some filter field choice options.</span></p>
+</div>
+<p>Once the filter fields and filter field choices have been created, you now need to create three panels and a tab. Click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> next to <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">panels</span></code>. Choose <code class="docutils literal notranslate"><span class="pre">test_dataset</span></code> for Dataset and input <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">Information</span></code> name and hit save.
+Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_filter_panel</span></code> shows the add filter page.</p>
+<div class="figure" id="id11">
+<span id="add-filter-panel"></span><a class="reference internal image-reference" href="images/all_filter_panel.png"><img alt="Add Filter Panel" src="images/all_filter_panel.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of an add filter panel page.</span></p>
+</div>
+<p>After you hit save, you should see a page for selecting filter panel. This page should list only one name – <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">Information</span></code>. Click on <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">Information</span></code>, which will lead you to a page to edit the new panel you created. Notice that this time the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">fields</span></code> section has less options to select from, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">edit_filter_panel</span></code>.</p>
+<div class="figure" id="id12">
+<span id="edit-filter-panel"></span><a class="reference internal image-reference" href="images/edit_filter_panel.png"><img alt="Edit Filter Panel" src="images/edit_filter_panel.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of a change filter panel page with filtered lists of filter fields available for selection.</span></p>
+</div>
+<p>This is because when we created the filter fields, we specified <code class="docutils literal notranslate"><span class="pre">Place</span> <span class="pre">in</span> <span class="pre">panel</span></code> field. This field is used to filter the list of available filter fields you can add to a panel, but only after the panel has been created with a <code class="docutils literal notranslate"><span class="pre">Name</span></code> that matches the <code class="docutils literal notranslate"><span class="pre">Place</span> <span class="pre">in</span> <span class="pre">panel</span></code> field of a filter field. Check all the filter fields and hit SAVE. Now create two more panels: <code class="docutils literal notranslate"><span class="pre">Account</span> <span class="pre">Information</span></code> and <code class="docutils literal notranslate"><span class="pre">Other</span> <span class="pre">Information</span></code>. For both panels, first just create the panels with the name only, not adding any filter fields to the panel. Then for the <code class="docutils literal notranslate"><span class="pre">Account</span> <span class="pre">Information</span></code>, edit it after it has been created and add the fields listed in the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">fields</span></code>. For the <code class="docutils literal notranslate"><span class="pre">Other</span> <span class="pre">Information</span></code> panel, we will not add the filter fields. Rather, we will first create subpanels and then associate the filter fields with them.</p>
+<p>Click the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> next to <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">sub</span> <span class="pre">panels</span></code>. For <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> select <code class="docutils literal notranslate"><span class="pre">test_dataset</span></code>, for <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">panel</span></code> select <code class="docutils literal notranslate"><span class="pre">Other</span> <span class="pre">Information</span></code>, for <code class="docutils literal notranslate"><span class="pre">Name</span></code> input <code class="docutils literal notranslate"><span class="pre">Non-nested</span> <span class="pre">Fields</span></code> and hit SAVE, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">edit_filter_sub_panel</span></code>. In the sub panel to change page, click <code class="docutils literal notranslate"><span class="pre">Non-nested</span> <span class="pre">Fields</span></code> panel to edit. Select <code class="docutils literal notranslate"><span class="pre">Favorite</span> <span class="pre">Fruit</span></code>, <code class="docutils literal notranslate"><span class="pre">Eye</span> <span class="pre">Color</span></code>, and <code class="docutils literal notranslate"><span class="pre">Tag</span></code> and hit SAVE, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">edit_filter_sub_panel2</span></code>.</p>
+<div class="figure" id="id13">
+<span id="edit-filter-sub-panel"></span><a class="reference internal image-reference" href="images/edit_filter_sub_panel.png"><img alt="Edit Filter subpanel without filtered list" src="images/edit_filter_sub_panel.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of a change filter subpanel page without filtered lists of filter fields available for selection.</span></p>
+</div>
+<div class="figure" id="id14">
+<span id="edit-filter-sub-panel2"></span><a class="reference internal image-reference" href="images/edit_filter_sub_panel2.png"><img alt="Edit Filter subpanel" src="images/edit_filter_sub_panel2.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of a change filter subpanel page with filtered lists of filter fields available for selection.</span></p>
+</div>
+<p>Next create another subpanel called <code class="docutils literal notranslate"><span class="pre">Nested</span> <span class="pre">Fields</span></code> and click SAVE, and then add filter fields <code class="docutils literal notranslate"><span class="pre">Friend</span> <span class="pre">ID</span></code> and <code class="docutils literal notranslate"><span class="pre">Friend</span> <span class="pre">Name</span></code>, see Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">edit_nested_panel</span></code>.</p>
+<div class="figure" id="id15">
+<span id="edit-nested-panel"></span><a class="reference internal image-reference" href="images/edit_nested_panel.png"><img alt="Edit Filter subpanel with filtered list" src="images/edit_nested_panel.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of a change filter subpanel page with filtered lists of filter fields available for selection.</span></p>
+</div>
+<p>Finally, click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> next to <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">tabs</span></code>. Input <code class="docutils literal notranslate"><span class="pre">Basic</span></code> for name and select all three panels and hit SAVE, Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">add_filter_tab</span></code> shows an example of the add filter tab page.</p>
+<div class="figure" id="id16">
+<span id="add-filter-tab"></span><a class="reference internal image-reference" href="images/add_filter_tab.png"><img alt="List Filter Field Choices" src="images/add_filter_tab.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of the add filter tab page.</span></p>
+</div>
+<p>This completes the steps needed to add the filter fields. To recap, there are 7 steps for building the filter UI:</p>
+<ol class="arabic simple">
+<li>Add study</li>
+<li>Add dataset</li>
+<li>Add search options</li>
+<li>Add filter fields</li>
+<li>Add filter field choices if necessary</li>
+<li>Add panels</li>
+<li>Add subpanels if necessary</li>
+<li>Add tab</li>
+</ol>
+</div>
+<div class="section" id="adding-attribute-fields">
+<h3>Adding attribute fields<a class="headerlink" href="#adding-attribute-fields" title="Permalink to this headline">¶</a></h3>
+<p>Next we will add the attribute fields. Table 3 shows the information needed to create the attribute fields. Begin by adding the attribute fields, then add new attribute tab, and finally add an attribute panel and put all the attribute fields in there. Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">all_attribute_fields_listed</span></code> shows what the admin site should look like after adding the 11 attribute fields. Note that you only need one field for age and balance.</p>
+<div class="figure" id="id17">
+<span id="all-attribute-fields-listed"></span><a class="reference internal image-reference" href="images/all_attribute_fields_listed.png"><img alt="List Filter Filed Choices" src="images/all_attribute_fields_listed.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows an example of what the admin site should look like after adding all the attribute fields.</span></p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="25%" />
+<col width="13%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Display Name</th>
+<th class="head">ES Name</th>
+<th class="head">path</th>
+<th class="head">Place in Panel</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>First Name</td>
+<td>first</td>
+<td>&#160;</td>
+<td>User Information</td>
+</tr>
+<tr class="row-odd"><td>Last Name</td>
+<td>last</td>
+<td>&#160;</td>
+<td>User Information</td>
+</tr>
+<tr class="row-even"><td>Age</td>
+<td>age</td>
+<td>&#160;</td>
+<td>User Information</td>
+</tr>
+<tr class="row-odd"><td>Index</td>
+<td>index</td>
+<td>&#160;</td>
+<td>User Information</td>
+</tr>
+<tr class="row-even"><td>Is Active</td>
+<td>isActive</td>
+<td>&#160;</td>
+<td>Account Information</td>
+</tr>
+<tr class="row-odd"><td>Balance</td>
+<td>balance</td>
+<td>&#160;</td>
+<td>Account Information</td>
+</tr>
+<tr class="row-even"><td>Eye Color</td>
+<td>eyeColor</td>
+<td>&#160;</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-odd"><td>Tag</td>
+<td>tag</td>
+<td>&#160;</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-even"><td>Favorite Fruit</td>
+<td>favoriteFruit</td>
+<td>&#160;</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-odd"><td>Friend ID</td>
+<td>friend_id</td>
+<td>friend</td>
+<td>Other Information</td>
+</tr>
+<tr class="row-even"><td>Friend Name</td>
+<td>friend_name</td>
+<td>friend</td>
+<td>Other Information</td>
+</tr>
+</tbody>
+</table>
+<p>The steps for building the attribute fields GUI, assuming that the study, dataset, and the search options have been added, are:</p>
+<ol class="arabic simple">
+<li>Add attribute fields</li>
+<li>Add panels</li>
+<li>Add subpanels if necessary</li>
+<li>Add tab</li>
+</ol>
+<p>Figure <code class="xref std std-numref docutils literal notranslate"><span class="pre">attribute_fields</span></code> shows the attribute fields.</p>
+<div class="figure" id="id18">
+<span id="attribute-fields"></span><a class="reference internal image-reference" href="images/attribute_fields.png"><img alt="Attribute fields" src="images/attribute_fields.png" /></a>
+<p class="caption"><span class="caption-text">Figure shows all the attribute fields added</span></p>
+</div>
+</div>
+</div>
+<div class="section" id="programmatically-building-the-web-user-interface">
+<h2>Programmatically building the Web User Interface<a class="headerlink" href="#programmatically-building-the-web-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>By now you should be familiar with the components of the UI and how it is built using the GDW admin site. Now we will show you how to do this programmatically. The UI is built by reading a JSON file that defines for each data type its location in the UI.  The following JSON shows an example JSON for building a UI associated with the test dataset.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;User Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;first&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;First Name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;User Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Last Name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;User Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Age&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_range_lte&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;in_line_tooltip&quot;</span><span class="p">:</span> <span class="s2">&quot;(&lt;=)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Age&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_range_gte&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;in_line_tooltip&quot;</span><span class="p">:</span> <span class="s2">&quot;(&gt;=)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;User Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;isActive&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Is Active&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ChoiceField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Select&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="s2">&quot;get_from_es()&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Account Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;balance&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Balance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_range_lte&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;in_line_tooltip&quot;</span><span class="p">:</span> <span class="s2">&quot;(&lt;=)&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Balance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_range_gte&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;in_line_tooltip&quot;</span><span class="p">:</span> <span class="s2">&quot;(&gt;=)&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Account Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;favoriteFruit&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Favorite Fruit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Non-nested Fields&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;eyeColor&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Eye Color&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_terms&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;MultipleChoiceField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SelectMultiple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="s2">&quot;get_from_es()&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Non-nested Fields&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Tag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Non-nested Fields&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;friend_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Friend ID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;nested_filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Nested Fields&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;friend_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;display_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Friend Name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;es_filter_type&quot;</span><span class="p">:</span> <span class="s2">&quot;nested_filter_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CharField&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TextInput&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;friend&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sub_panel&quot;</span><span class="p">:</span> <span class="s2">&quot;Nested Fields&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You should be familiar with all the properties except <code class="docutils literal notranslate"><span class="pre">values</span></code> for filter fields. The <code class="docutils literal notranslate"><span class="pre">values</span></code> property allows you to define the values for single and multiple select fields. There are three ways to specify the values. First, as an array of values. Second, by specifying <code class="docutils literal notranslate"><span class="pre">get_from_es()</span></code>. This method will grab the first 1000 unique values from Elasticsearch. Third, by specifying a valid Python string that when evaluated results in a Python list. To use this method, put the Python string inside <code class="docutils literal notranslate"><span class="pre">python_eval()</span></code>, for example,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="s2">&quot;python_eval([str(n) for n in range(23)] + [&#39;X&#39;, &#39;Y&#39;, &#39;MT&#39;])&quot;</span>
+</pre></div>
+</div>
+<p>When defining the filter fields, you do not need to specify the <cite>Es data type</cite>. This information is automatically fetched from Elasticsearch based on the name of the field and path, if applicable. Note that <code class="docutils literal notranslate"><span class="pre">age</span></code> and <code class="docutils literal notranslate"><span class="pre">balance</span></code> have to two filter fields associated with two range filter terms. Lastly, the attributes fields are automatically generated based on filter fields.</p>
+<p>To build the UI using the JSON file, run the following command after updating the hostname and the full path to the demo_gui.json file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">create_gui_from_es_mapping</span> <span class="o">--</span><span class="n">hostname</span> <span class="mf">199.109</span><span class="o">.</span><span class="n">XXX</span><span class="o">.</span><span class="n">XXX</span> <span class="o">--</span><span class="n">port</span> <span class="mi">9200</span> <span class="o">--</span><span class="n">index</span> <span class="n">demo_mon</span> <span class="o">--</span><span class="nb">type</span> <span class="n">demo_mon</span> <span class="o">--</span><span class="n">study</span> <span class="n">test_study2</span> <span class="o">--</span><span class="n">dataset</span> <span class="n">test_dataset2</span> <span class="o">--</span><span class="n">gui</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">XXX</span><span class="o">/</span><span class="n">GDW</span><span class="o">/</span><span class="n">docs</span><span class="o">/</span><span class="n">example</span><span class="o">/</span><span class="n">demo_gui</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Now if you start the development server, you should see the newly created UI.</p>
+</div>
+<div class="section" id="searching-with-gdw">
+<h2>Searching with GDW<a class="headerlink" href="#searching-with-gdw" title="Permalink to this headline">¶</a></h2>
+<p>This section walks you through some search cases to make you familiar with GDW.</p>
+<div class="section" id="age-search">
+<h3>Age Search<a class="headerlink" href="#age-search" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how range filters work and how nested fields are displayed.
+Go to <a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, enter 29 in the <code class="docutils literal notranslate"><span class="pre">Age</span> <span class="pre">(&gt;=)</span></code> field. Click Next to proceed to the attribute selection tab. Click Select All to select all the attribute fields. Uncheck the fields: <cite>Friend ID</cite> and <cite>Friend Name</cite>. Click Search to search. The result fields are all sortable. You can download the results using the Download button.</p>
+<p>Let’s modify the search criteria. Either click the Back button twice or the second circle tab to go back to the filter tab. Specify 33 for <cite>Age (&lt;=)</cite> and search again. Now all the results should be within age range [29-33]. Go back to the attribute tab and select the <cite>Friend ID</cite> and <cite>Friend Name</cite> attribute fields and search. You will notice that now some of the results are repeated. This is because each of the hits have a nested field that has three friends. GDW is setup to expand the nested structures. This means that each element in the nested structure is combined with the non-nested results to produce the final results. If there are multiple nested fields, then the final result is a cross-product of the nested fields. So if there are two nested fields where the first nested fields has three elements and the second nested field has two elements, this will result in six rows in the results.</p>
+</div>
+<div class="section" id="name-search">
+<h3>Name Search<a class="headerlink" href="#name-search" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how the name search works and the way Elasticsearch works with strings. Go to <a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, enter <cite>Jeri</cite> in the First name filter field. Click
+Next to proceed to the attribute selection tab. Select all the attributes except the two friend attributes. Click Search to search. You should see just one result. Lets modify this search and change the first name to <cite>jeri</cite>, making the first name all lower case. Now if you search you should see no results. So what happened? If you remember, when we defined the first name field in the Elasticsearch mapping, we defined it as a keyword type in Elasticsearch. This means that Elasticsearch will do an exact match search, meaning the search is case sensitive.</p>
+</div>
+<div class="section" id="is-active-search">
+<h3>Is Active Search<a class="headerlink" href="#is-active-search" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how a single select search works. Go to <a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, select <cite>true</cite> for the <code class="docutils literal notranslate"><span class="pre">Is</span> <span class="pre">Active</span></code> field. Proceed to the attribute field and select all the fields except the two friend fields and search. The results should only show users that are active.</p>
+</div>
+<div class="section" id="eye-color-search">
+<h3>Eye Color Search<a class="headerlink" href="#eye-color-search" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how a multiple select search works. Go to
+<a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, select colors <cite>blue</cite> and ‘green` for the <code class="docutils literal notranslate"><span class="pre">Eye</span> <span class="pre">Color</span></code> field. Proceed to the attribute field and select all the fields except the two friend fields and search. The results should only show users that have blue or green eyes.</p>
+</div>
+<div class="section" id="friend-search">
+<h3>Friend Search<a class="headerlink" href="#friend-search" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how nested fields work and discusses the current limitations of GDW. Go to <a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, enter <cite>Greta</cite> in the <code class="docutils literal notranslate"><span class="pre">Friend</span> <span class="pre">Name</span></code> field. Proceed to the attribute field and select all the fields and search. The results should show only one result. This search is different from the previous name search that we did. Remember that when we defined the mapping for the <code class="docutils literal notranslate"><span class="pre">Friend</span> <span class="pre">Name</span></code> field we defined it as type <cite>text</cite>. This means that when Elasticsearch indexes the field, it splits on spaces and converts strings to lowercase. So the name <cite>Greta Henry</cite> becomes [<cite>greta</cite>, <cite>henry</cite>]. But you can now search for <cite>Greta Henry</cite> using either the first or last name, irrespective of the case.</p>
+</div>
+<div class="section" id="rearrange-filter-and-attribute-fields">
+<h3>Rearrange Filter and Attribute Fields<a class="headerlink" href="#rearrange-filter-and-attribute-fields" title="Permalink to this headline">¶</a></h3>
+<p>This use case shows how to rearrange the results and how to rearrange the filter and attribute fields. Go to <a class="reference external" href="http://199.109.xxx.xxx:8000/search/">http://199.109.xxx.xxx:8000/search/</a> and select ‘test_study’ for study and ‘Test Dataset’ for dataset and click Next to proceed to the filter selection tab. In the Filter demo panel, do not select anything. Proceed to the attribute field and select all the fields except the two friends field and click Search to search. You should see eight results. You can rearrange the columns in the result by managing the order of the attributes by dragging the order of the attributes under the Summary div. Click search again to rearrange the results. The rearranged results are also reflected in the Downloaded TSV file.</p>
+<p>It is possible to rearrange the filter and attributes in the panels also. Log in to the GDW admin and select the filter or attribute panel you want to rearrange. Drag and drop the fields to rearrange the order. Now when you search the panels, the fields should be in the order you specified.</p>
+</div>
+</div>
+<div class="section" id="importing-an-annotated-vcf-file-into-gdw">
+<h2>Importing an annotated VCF file into GDW<a class="headerlink" href="#importing-an-annotated-vcf-file-into-gdw" title="Permalink to this headline">¶</a></h2>
+<p>This section will show you how to index and set up the UI for an annotated VCF. The VCF being imported is the first 10,000 lines of <a class="reference external" href="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/pilot_data/paper_data_sets/a_map_of_human_variation/low_coverage/snps/CHBJPT.low_coverage.2010_09.genotypes.vcf.gz">CHBJPT.low_coverage.2010_09.genotypes.vcf</a>, which was then annotated using <a class="reference external" href="http://annovar.openbioinformatics.org/en/latest/">ANNOVAR</a>. All commands are executed from within a terminal ssh’d into the GDW app instance.</p>
+<p>First, from <code class="docutils literal notranslate"><span class="pre">GDW/utils</span></code>, decompress the annotated VCF:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gunzip</span> <span class="o">../</span><span class="n">docs</span><span class="o">/</span><span class="n">example</span><span class="o">/</span><span class="n">CHBJPT</span><span class="o">.</span><span class="n">low_coverage</span><span class="o">.</span><span class="mi">2010</span><span class="n">_09</span><span class="o">.</span><span class="n">genotypes</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">hg19_multianno</span><span class="o">.</span><span class="n">vcf</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>VCF files are imported into Elasticsearch in three steps. In the first step we inspect the VCF file to gather information about what fields are available. From the <code class="docutils literal notranslate"><span class="pre">GDW/utils</span></code> folder run the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">inspect_vcf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">index</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="nb">type</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">vcf</span> <span class="o">../</span><span class="n">docs</span><span class="o">/</span><span class="n">example</span><span class="o">/</span><span class="n">CHBJPT</span><span class="o">.</span><span class="n">low_coverage</span><span class="o">.</span><span class="mi">2010</span><span class="n">_09</span><span class="o">.</span><span class="n">genotypes</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">hg19_multianno</span><span class="o">.</span><span class="n">vcf</span> <span class="o">--</span><span class="n">labels</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--index</span></code> specifies the index name in which the VCF data will be stored. The <code class="docutils literal notranslate"><span class="pre">--type</span></code> specifies the document name inside the index in which the data will be stored. The <code class="docutils literal notranslate"><span class="pre">--vcf</span></code> option specifies the full path to the VCF you annotated using ANNOVAR. The <code class="docutils literal notranslate"><span class="pre">--labels</span></code> field is used to label the data. GDW currently supports two labels: <cite>case</cite> and <cite>control</cite>. Alternatively, you do not have to provide a label, which is what we have chosen. Running the script will create an output called <code class="docutils literal notranslate"><span class="pre">inspect_output_for_test_vcf_test_vcf.txt</span></code> inside <code class="docutils literal notranslate"><span class="pre">./es_scripts/</span></code>. This file contains the information about the available fields.</p>
+<p>Next we will create the Elasticsearch mapping automatically from <code class="docutils literal notranslate"><span class="pre">inspect_output_for_test_vcf_test_vcf.txt</span></code>. Run the following command after updating
+the IP address in the <code class="docutils literal notranslate"><span class="pre">hostname</span></code> option to an Elasticsearch instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">prepare_elasticsearch_for_import</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">hostname</span> <span class="mf">199.109</span><span class="o">.</span><span class="n">XXX</span><span class="o">.</span><span class="n">XXX</span> <span class="o">--</span><span class="n">port</span> <span class="mi">9200</span> <span class="o">--</span><span class="n">index</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="nb">type</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">info</span> <span class="n">es_scripts</span><span class="o">/</span><span class="n">inspect_output_for_test_vcf_test_vcf</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>This will create two scripts in the <code class="docutils literal notranslate"><span class="pre">./es_scripts</span></code>. The script <code class="docutils literal notranslate"><span class="pre">create_index_test_vcf_and_put_mapping_test_vcf</span></code> creates the index and puts the Elasticsearch mapping for your document that will store the VCF information. The script <code class="docutils literal notranslate"><span class="pre">delete_index_test_vcf.sh</span></code> can be used to delete the index if needed. Run the following command to create the Elasticsearch index for your VCF data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">es_scripts</span><span class="o">/</span><span class="n">create_index_test_vcf_and_put_mapping_test_vcf</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Now we are ready to import the VCF file. From the <code class="docutils literal notranslate"><span class="pre">GDW/utils</span></code> folder run the following command after updating the IP address to your Elasticsearch instance
+in the hostname option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">import_vcf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">hostname</span> <span class="mf">199.109</span><span class="o">.</span><span class="n">XXX</span><span class="o">.</span><span class="n">XXX</span> <span class="o">--</span><span class="n">port</span> <span class="mi">9200</span> <span class="o">--</span><span class="n">index</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="nb">type</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">label</span> <span class="kc">None</span> <span class="o">--</span><span class="n">vcf</span> <span class="o">../</span><span class="n">docs</span><span class="o">/</span><span class="n">example</span><span class="o">/</span><span class="n">CHBJPT</span><span class="o">.</span><span class="n">low_coverage</span><span class="o">.</span><span class="mi">2010</span><span class="n">_09</span><span class="o">.</span><span class="n">genotypes</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">hg19_multianno</span><span class="o">.</span><span class="n">vcf</span> <span class="o">--</span><span class="n">mapping</span> <span class="n">es_scripts</span><span class="o">/</span><span class="n">inspect_output_for_test_vcf_test_vcf</span><span class="o">.</span><span class="n">txt</span> <span class="o">--</span><span class="n">update</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>Finally, we can automatically create the UI by running the following command from the base directory of GDW after updating the IP address to your Elasticsearch instance in the hostname option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">create_gui_from_es_mapping</span> <span class="o">--</span><span class="n">hostname</span> <span class="mf">199.109</span><span class="o">.</span><span class="n">XXX</span><span class="o">.</span><span class="n">XXX</span> <span class="o">--</span><span class="n">port</span> <span class="mi">9200</span> <span class="o">--</span><span class="n">index</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="nb">type</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">study</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">dataset</span> <span class="n">test_vcf</span> <span class="o">--</span><span class="n">gui</span> <span class="n">search</span><span class="o">/</span><span class="n">management</span><span class="o">/</span><span class="n">commands</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">vcf_field_gui_mapping</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--study</span></code> and <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> options specify the name of your study and dataset, respectively. The <code class="docutils literal notranslate"><span class="pre">--gui</span></code> options specifies the full path to a file that maps the Elasticsearch fields to UI components. After you run the command you will see some error messages. Those can be ignored. They tell you which Elasticsearch fields do not have a UI component specified in the mapping file.</p>
+<p>A global reference for human genetic variation, The 1000 Genomes Project Consortium, Nature 526, 68-74 (01 October 2015). <a class="reference external" href="http://doi.org/10.1038/nature15393">http://doi.org/10.1038/nature15393</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="contents.html">Genomic Data Warehouse (GDW) 2.5 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
+  </body>
+</html>
