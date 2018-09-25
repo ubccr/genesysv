@@ -1,0 +1,13 @@
+#Family	Subject	Father	Mother	Sex	Phenotype	age, affected_sibs_id, affected_sibs_sex, affected_sibs_age, unaffected_sibs_id, unaffected_sibs_sex, unaffected_sibs_age
+family1	XG104	-9	-9	2	1	-9	-9	-9	-9	-9	-9	-9
+family1	XG103	-9	-9	1	1	-9	-9	-9	-9	-9	-9	-9
+family1	XG102	XG103	XG104	1	2	-9	-9	-9	-9	-9	-9	-9
+family2	XG204	-9	-9	2	1	-9	-9	-9	-9	-9	-9	-9
+family2	XG203	-9	-9	1	2	-9	-9	-9	-9	-9	-9	-9
+family2	XG202	XG203	XG204	2	2	-9	-9	-9	-9	-9	-9	-9
+family3	XG304	-9	-9	2	2	-9	-9	-9	-9	-9	-9	-9
+family3	XG303	-9	-9	1	1	-9	-9	-9	-9	-9	-9	-9
+family3	XG302	XG303	XG304	1	2	-9	-9	-9	-9	-9	-9	-9
+family4	XG404	-9	-9	2	1	-9	-9	-9	-9	-9	-9	-9
+family4	XG403	-9	-9	1	1	-9	-9	-9	-9	-9	-9	-9
+family4	XG402	XG403	XG404	2	2	-9	-9	-9	-9	-9	-9	-9

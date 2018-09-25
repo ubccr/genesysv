@@ -38,11 +38,9 @@ APP_NAMES = (
     "core",
     "complex",
     "mendelian",
-    "microbiome",
 )
 
 ANALYSIS_TYPES = (
-    ("base-search", "core"),
     ("complex","complex"),
     ("autosomal_dominant", "mendelian"),
     ("autosomal_recessive", "mendelian"),
@@ -51,7 +49,6 @@ ANALYSIS_TYPES = (
     ("x_linked_denovo", "mendelian"),
     ("x_linked_dominant", "mendelian"),
     ("x_linked_recessive", "mendelian"),
-    ("microbiome","microbiome"),
 )
 
 def add_required_data_to_db():

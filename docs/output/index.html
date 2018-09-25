@@ -1,0 +1,513 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GeneSysV documentation &#8212; GeneSysV 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="GDW documentation contents" href="contents.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="contents.html" title="GDW documentation contents"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="contents.html">GeneSysV 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GeneSysV documentation</a><ul>
+<li><a class="reference internal" href="#genesysv-at-a-glance">GeneSysV at a glance</a></li>
+<li><a class="reference internal" href="#installing-elasticsearch">Installing Elasticsearch</a></li>
+<li><a class="reference internal" href="#installation-checklist-for-elasticsearch">Installation checklist for Elasticsearch</a></li>
+<li><a class="reference internal" href="#installing-samtools-and-grabix">Installing Samtools and Grabix</a></li>
+<li><a class="reference internal" href="#installing-genesysv-data-warehouse">Installing GeneSysV Data Warehouse</a></li>
+<li><a class="reference internal" href="#installation-checklist-for-genomics-data-warehouse">Installation checklist for Genomics Data Warehouse</a></li>
+<li><a class="reference internal" href="#manually-building-the-genesysv-web-user-interface">Manually building the GeneSysV Web User Interface</a><ul>
+<li><a class="reference internal" href="#adding-study-dataset-and-search-options">Adding study, dataset, and search options</a></li>
+<li><a class="reference internal" href="#adding-filter-and-attribute-panels-and-tabs">Adding filter and attribute panels and tabs</a></li>
+<li><a class="reference internal" href="#managing-filters">Managing Filters</a></li>
+<li><a class="reference internal" href="#managing-attributes">Managing Attributes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#automatically-creating-the-ui">Automatically Creating the UI</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="contents.html"
+                        title="previous chapter">GDW documentation contents</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="genesysv-documentation">
+<h1>GeneSysV documentation<a class="headerlink" href="#genesysv-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="genesysv-at-a-glance">
+<h2>GeneSysV at a glance<a class="headerlink" href="#genesysv-at-a-glance" title="Permalink to this headline">¶</a></h2>
+<p>GeneSysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GeneSysV, you need to install Elasticsearch, samtools, grabix, and the GeneSysV Django app.</p>
+</div>
+<div class="section" id="installing-elasticsearch">
+<h2>Installing Elasticsearch<a class="headerlink" href="#installing-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>We assume that GeneSysV will be installed locally in an Ubuntu Linux environment with sudo privileges.</p>
+<p>Add repository for installing the latest Oracle JAVA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="o">-</span><span class="n">y</span> <span class="n">ppa</span><span class="p">:</span><span class="n">webupd8team</span><span class="o">/</span><span class="n">java</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+</pre></div>
+</div>
+<p>Install JAVA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">oracle</span><span class="o">-</span><span class="n">java8</span><span class="o">-</span><span class="n">installer</span>
+</pre></div>
+</div>
+<p>Install Elasticsearch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="o">-</span><span class="n">qO</span> <span class="o">-</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">packages</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">GPG</span><span class="o">-</span><span class="n">KEY</span><span class="o">-</span><span class="n">elasticsearch</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">key</span> <span class="n">add</span> <span class="o">-</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">artifacts</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">downloads</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">-</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">3.</span><span class="n">deb</span>
+<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">elasticsearch</span><span class="o">-</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">3.</span><span class="n">deb</span>
+</pre></div>
+</div>
+<p>Next you will modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance. This is best done by becoming root and staying as root for the next series of steps. Become root by issuing the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">su</span> <span class="o">-</span>
+</pre></div>
+</div>
+<p>Open file <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/jvm.options</span></code> and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. For instance if your machine has 16 GB of RAM, set it to 8 GB. You will have to update two lines to allow JVM to allocate 8 GB. WARNING: Never allocate more than 32 GB. Change lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Xms2g</span>
+<span class="o">-</span><span class="n">Xmx2g</span>
+</pre></div>
+</div>
+<p>to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Xms8g</span>
+<span class="o">-</span><span class="n">Xmx8g</span>
+</pre></div>
+</div>
+<p>and save and close file.</p>
+<p>Next open file <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code> and uncomment the following line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment line to enable JVM memory allocation when Elasticsearch starts</span>
+<span class="n">bootstrap</span><span class="o">.</span><span class="n">memory_lock</span><span class="p">:</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>and save and close the file.  Setting <code class="docutils literal notranslate"><span class="pre">bootstrap.memory_lock</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> allocates RAM exclusively for Elasticsearch when it starts up.</p>
+<p>Next open <code class="docutils literal notranslate"><span class="pre">/etc/sysctl.conf</span></code> and add virtual memory limits:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># At the end of file add line:</span>
+<span class="n">vm</span><span class="o">.</span><span class="n">max_map_count</span><span class="o">=</span><span class="mi">262144</span>
+</pre></div>
+</div>
+<p>and save and close the file. This setting increases the limit on mmap counts in order to avoid out of memory exceptions.</p>
+<p>Next open <code class="docutils literal notranslate"><span class="pre">/etc/security/limits.conf</span></code> and add limits for Elasticsearch at the end of file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># At the end of file add lines:</span>
+<span class="n">elasticsearch</span> <span class="o">-</span> <span class="n">nofile</span> <span class="mi">65536</span>
+<span class="n">elasticsearch</span> <span class="n">soft</span> <span class="n">memlock</span> <span class="n">unlimited</span>
+<span class="n">elasticsearch</span> <span class="n">hard</span> <span class="n">memlock</span> <span class="n">unlimited</span>
+</pre></div>
+</div>
+<p>save and close the file. These limits allow Elasticsearch to open large number of files at once and allows it to allocate an unlimited amount of page/memory.</p>
+<p>Next update the elasticsearch systemd configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">edit</span> <span class="n">elasticsearch</span>
+</pre></div>
+</div>
+<p>and add the lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Service</span><span class="p">]</span>
+<span class="n">LimitMEMLOCK</span><span class="o">=</span><span class="n">infinity</span>
+</pre></div>
+</div>
+<p>save and close the file. This setting allows elasticsearch to allocate memory at startup.</p>
+<p>Next enable Elasticsearch and configure it to start at boot by executing the following lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">daemon</span><span class="o">-</span><span class="n">reload</span>
+<span class="n">systemctl</span> <span class="n">enable</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">service</span>
+<span class="n">systemctl</span> <span class="n">start</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">service</span>
+</pre></div>
+</div>
+<p>Test the Elasticsearch installation by going to localhost address on port 9200:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">9200</span>
+</pre></div>
+</div>
+<p>This completes the installation of Elasticsearch.</p>
+</div>
+<div class="section" id="installation-checklist-for-elasticsearch">
+<h2>Installation checklist for Elasticsearch<a class="headerlink" href="#installation-checklist-for-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[ ] Add JAVA repository and update apt-get</li>
+<li>[ ] Download and install Java and Elasticsearch</li>
+<li><dl class="first docutils">
+<dt>[ ] Configure Elasticsearch</dt>
+<dd><ul class="first last">
+<li>[ ] Become root <a href="#id1"><span class="problematic" id="id2">``</span></a>sudo su - ``</li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/jvm.options</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/elasticsearch/elasticsearch.yml</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">etc/security/limits.conf</span></code></li>
+<li>[ ] Edit <code class="docutils literal notranslate"><span class="pre">/etc/systemd/system/elasticsearch.service.d/override.conf</span></code> using <code class="docutils literal notranslate"><span class="pre">systemctl</span> <span class="pre">edit</span> <span class="pre">elasticsearch</span></code></li>
+<li>[ ] Enable Elasticsearch at boot</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="installing-samtools-and-grabix">
+<h2>Installing Samtools and Grabix<a class="headerlink" href="#installing-samtools-and-grabix" title="Permalink to this headline">¶</a></h2>
+<p>Begin by installing required system packages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">libncursesw5</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span> <span class="n">git</span>
+</pre></div>
+</div>
+<p>Download samtools in /tmp:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span><span class="p">;</span> <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">samtools</span><span class="o">/</span><span class="n">samtools</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="mf">1.8</span><span class="o">/</span><span class="n">samtools</span><span class="o">-</span><span class="mf">1.8</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span>
+</pre></div>
+</div>
+<p>Extract samtools:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span><span class="p">;</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xjf</span> <span class="n">samtools</span><span class="o">-</span><span class="mf">1.8</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Make and install samtools:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">samtools</span><span class="o">-</span><span class="mf">1.8</span><span class="p">;</span> <span class="n">make</span><span class="p">;</span> <span class="n">sudo</span> <span class="n">make</span> <span class="n">prefix</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>Git clone grabix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span><span class="p">;</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">arq5x</span><span class="o">/</span><span class="n">grabix</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Make and and install grabix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">grabix</span><span class="p">;</span> <span class="n">make</span><span class="p">;</span> <span class="n">sudo</span> <span class="n">cp</span> <span class="n">grabix</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-genesysv-data-warehouse">
+<h2>Installing GeneSysV Data Warehouse<a class="headerlink" href="#installing-genesysv-data-warehouse" title="Permalink to this headline">¶</a></h2>
+<p>GeneSysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using <code class="docutils literal notranslate"><span class="pre">pip</span></code>. This setup ensures complete isolation of the GeneSysV Python packages from the system-wide Python packages. Note that GeneSysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">venv</span>
+</pre></div>
+</div>
+<p>Clone the GeneSysV repository in to your GeneSysV instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ubccr</span><span class="o">/</span><span class="n">GeneSysV</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Change in to GeneSysV directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">GeneSysV</span>
+</pre></div>
+</div>
+<p>Install the python virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span> <span class="o">-</span><span class="n">mvenv</span> <span class="n">venv</span>
+</pre></div>
+</div>
+<p>Activate the newly created virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Install the python packages required for GeneSysV, you can ignore the warning messages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">wheel</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>GeneSysV uses memcached to speed up form loading. Install memcached:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">memcached</span>
+</pre></div>
+</div>
+<p>Create the database tables associated with the app and some default values by executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span> <span class="n">core</span> <span class="n">microbiome</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+</pre></div>
+</div>
+<p>Create a superuser who can log in to the admin site:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">createsuperuser</span>
+</pre></div>
+</div>
+<p>Start the development server:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8000</span>
+</pre></div>
+</div>
+<p>Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GeneSysV instance and the GeneSysV website should be running. You can stop the development server using <code class="docutils literal notranslate"><span class="pre">CTRL</span> <span class="pre">+</span> <span class="pre">c</span></code> inside the terminal that is ssh’d into the GeneSysV instance. Note that the manage.py commands also have to be run inside the virtualenv.</p>
+</div>
+<div class="section" id="installation-checklist-for-genomics-data-warehouse">
+<h2>Installation checklist for Genomics Data Warehouse<a class="headerlink" href="#installation-checklist-for-genomics-data-warehouse" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[ ] Install Python3.5 venv</li>
+<li>[ ] Clone GeneSysV repository</li>
+<li>[ ] Create new Python virtualenv and activate it</li>
+<li>[ ] Install the requirements via <code class="docutils literal notranslate"><span class="pre">pip</span></code></li>
+<li>[ ] Install memcached</li>
+<li>[ ] Create database tables and import default settings</li>
+<li>[ ] Create superuser</li>
+<li>[ ] Start GeneSysV</li>
+</ul>
+</div>
+<div class="section" id="manually-building-the-genesysv-web-user-interface">
+<h2>Manually building the GeneSysV Web User Interface<a class="headerlink" href="#manually-building-the-genesysv-web-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>Basically GeneSysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GeneSysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load vcf script that automatically builds the web interface. Both ways will be described to make you familiar with how GeneSysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GeneSysV admin site. We begin by showing you how to build the web interface using the GeneSysV admin site.</p>
+<p>Before you can begin building the web interface, you need to become familiar with how its components are organized.</p>
+<div class="figure" id="id3">
+<span id="components-1"></span><a class="reference internal image-reference" href="_images/component_1.png"><img alt="Web interface components 1" src="_images/component_1.png" style="width: 561.0px; height: 295.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Figure shows the components that make up the web interface of GeneSysV. Filter fields, example <cite>Variant Name</cite>, are put inside panels, example <cite>Variant Related Information</cite>. Panels are put inside a tab, example <cite>Simple</cite>. Tabs are associated with a dataset. Datasets are associated with a study.</span></p>
+</div>
+<p>Figure <a class="reference internal" href="#components-1">components_1</a> shows the components of the web interface. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure <a class="reference internal" href="#components-2">components_2</a> shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as <cite>basic</cite> and <cite>advanced</cite> search fields.</p>
+<div class="figure" id="id4">
+<span id="components-2"></span><a class="reference internal image-reference" href="_images/component_2.png"><img alt="Web interface components 2" src="_images/component_2.png" style="width: 597.75px; height: 597.75px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Figure shows an example of how sub-panels can be used to further organize filter fields within a panel.</span></p>
+</div>
+<p>GeneSysV allows a user to select which fields they want to display in the search results. This allows a user to include more, less, or different fields in the search results than the ones used for searching. The result fields are called <cite>attributes</cite> – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.</p>
+<div class="section" id="adding-study-dataset-and-search-options">
+<h3>Adding study, dataset, and search options<a class="headerlink" href="#adding-study-dataset-and-search-options" title="Permalink to this headline">¶</a></h3>
+<p>Start by loading a test data dataset from the main GeneSysV folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># from the main GeneSysV folder</span>
+<span class="n">source</span> <span class="n">activate</span> <span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">import_test_data</span>
+</pre></div>
+</div>
+<p>To begin building the web interface, log in to the admin site by going to <a class="reference external" href="http://172.0.0.1/admin">http://172.0.0.1/admin</a>. Make sure that the development server is running. Use the username and password that you used to create the <code class="docutils literal notranslate"><span class="pre">superuser</span></code>. First we will add a new study by clicking the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Studies</span></code>, see Figure <a class="reference internal" href="#add-study">add_study</a>. In the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Study</span></code> page, see Figure <a class="reference internal" href="#add-study-page">add_study_page</a>, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Click the save button to create the study. Click on the <cite>home</cite> link in the breadcrumb navigation to return to the admin home page.</p>
+<div class="figure" id="id5">
+<span id="add-study"></span><a class="reference internal image-reference" href="_images/add_study.png"><img alt="Add Study" src="_images/add_study.png" style="width: 587.25px; height: 31.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text">Figure shows the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button that is used to add a new study.</span></p>
+</div>
+<div class="figure" id="id6">
+<span id="add-study-page"></span><a class="reference internal image-reference" href="_images/add_study_page.png"><img alt="Add Study Page" src="_images/add_study_page.png" style="width: 455.25px; height: 207.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 4 </span><span class="caption-text">Figure shows the Add study page. This page is used to add and update a study.</span></p>
+</div>
+<p>Next we will add a dataset that is associated with the study that we just added. Click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Datasets</span></code>. Select the study that you just added from the drop down menu, which should be <code class="docutils literal notranslate"><span class="pre">test_data</span></code>. Select <code class="docutils literal notranslate"><span class="pre">complex</span></code> for analysis type. Fill in the dataset name and description field. Next fill in <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">index</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">type</span> <span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">host</span></code>, and <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">port</span></code>, which should be <cite>test_data</cite>, <cite>test_data</cite>, <cite>127.0.0.1</cite>, and 9200, respectively. Check the <code class="docutils literal notranslate"><span class="pre">is_public</span></code> field to make the test dataset accessible by all. The allowed groups field allows you to manage which groups can access the dataset if you want to restrict access to the dataset. To restrict a dataset based on the user, add the user to a group and add the group to <code class="docutils literal notranslate"><span class="pre">allowed_groups</span></code> field. Figure <a class="reference internal" href="#add-dataset-page">add_dataset_page</a> shows the add dataset page with the fields filled. Click on the <cite>home</cite> link in the breadcrumb navigation to return to the admin home page.</p>
+<div class="figure" id="id7">
+<span id="add-dataset-page"></span><a class="reference internal image-reference" href="_images/add_dataset_page.png"><img alt="Add Dataset Page" src="_images/add_dataset_page.png" style="width: 637.0px; height: 556.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 5 </span><span class="caption-text">Figure shows the add dataset page. This page is used to add and update a dataset.</span></p>
+</div>
+<p>Next we need to add search options for the dataset. A dataset can contain millions of documents. Displaying so many results can cause rendering issues, so we use search options to limit the number of results that are shown to 400 documents. If you want to fetch all the results, you can download them from the search results page. To add the default search options, click the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Search</span> <span class="pre">options</span></code>. Choose the dataset you just added and leave the other values to the default and click SAVE. Figure <a class="reference internal" href="#add-search-options-page">add_search_options_page</a> shows the page for adding searching options for a dataset.</p>
+<div class="figure" id="id8">
+<span id="add-search-options-page"></span><a class="reference internal image-reference" href="_images/add_search_options_page.png"><img alt="Add Search Options Page" src="_images/add_search_options_page.png" style="width: 329.25px; height: 264.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6 </span><span class="caption-text">Figure shows the Add search options page. This page is used to add and update the search options associated with a dataset. Search options limit the number of results returned matching the search criteria.</span></p>
+</div>
+</div>
+<div class="section" id="adding-filter-and-attribute-panels-and-tabs">
+<h3>Adding filter and attribute panels and tabs<a class="headerlink" href="#adding-filter-and-attribute-panels-and-tabs" title="Permalink to this headline">¶</a></h3>
+<p>Before we add filter and attribute fields, we need to first add panels, and maybe sub-panels, and tabs to contain the panels. Click <code class="docutils literal notranslate"><span class="pre">+Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">panels</span></code>. Select <code class="docutils literal notranslate"><span class="pre">test_data</span></code> for dataset. Enter <code class="docutils literal notranslate"><span class="pre">Variant</span> <span class="pre">Related</span> <span class="pre">Information</span></code> for name and click save to create the panel. Figure <a class="reference internal" href="#variant-panel">variant_panel</a> shows the page for adding a filter panel. Repeat these steps and add two more panels called <code class="docutils literal notranslate"><span class="pre">Functional</span> <span class="pre">Consequence</span></code> and <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Related</span> <span class="pre">Information</span></code>.</p>
+<div class="figure" id="id9">
+<span id="variant-panel"></span><a class="reference internal image-reference" href="_images/variant_panel.png"><img alt="Adding a filter panel" src="_images/variant_panel.png" style="width: 762.75px; height: 552.75px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 7 </span><span class="caption-text">Figure shows an add filter variant panel page.</span></p>
+</div>
+<p>We will also add a sub-panel to demonstrate how sub-panels work. Click <code class="docutils literal notranslate"><span class="pre">+Add</span></code> button next to <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">sub</span> <span class="pre">panels</span></code>. Sub-panels have to be associated with a panel because the former are placed inside the later. So when creating a sub-panel, you have to first select the dataset and specify the name of the panel and click save and continue editing. Once the panel has been saved, the refreshed page for sub-panel will now show a drop down list for panels in which the sub-panel can be placed. Figure <a class="reference internal" href="#ncbi-panel-1">ncbi_panel_1</a> shows add sub-panel page before saving and figure <a class="reference internal" href="#ncbi-panel-2">ncbi_panel_2</a> shows the add sub-panel page after the initial save. Note that the panel drop down is now populated.</p>
+<div class="figure" id="id10">
+<span id="ncbi-panel-1"></span><a class="reference internal image-reference" href="_images/ncbi_panel_1.png"><img alt="Add a filter sub-panel" src="_images/ncbi_panel_1.png" style="width: 758.25px; height: 570.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 8 </span><span class="caption-text">Figure shows an add filter sub-panel page.</span></p>
+</div>
+<div class="figure" id="id11">
+<span id="ncbi-panel-2"></span><a class="reference internal image-reference" href="_images/ncbi_panel_2.png"><img alt="Editing a sub-panel for filter after initial save" src="_images/ncbi_panel_2.png" style="width: 757.5px; height: 608.25px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 9 </span><span class="caption-text">Figure shows an add filter sub-panel page after saving. Note that the panel drop down is now populated.</span></p>
+</div>
+<p>Now we will add a filter tab that will contain all the filter panels. Click the <code class="docutils literal notranslate"><span class="pre">+Add</span></code> button next to  <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">Tab</span></code>. Select ‘test_data’ for dataset and name the tab ‘Basic’. Check all three filter panels that we had created. Figure <a class="reference internal" href="#filter-tab">filter_tab</a> shows an add filter tab page.</p>
+<div class="figure" id="id12">
+<span id="filter-tab"></span><a class="reference internal image-reference" href="_images/filter_tab.png"><img alt="Adding a filter tab." src="_images/filter_tab.png" style="width: 753.0px; height: 332.25px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 10 </span><span class="caption-text">Figure shows an add filter tab page.</span></p>
+</div>
+<p>Repeat the steps for creating a panel, sub-panel and tab for attributes, see figures <a class="reference internal" href="#variant-attribute-panel">variant_attribute_panel</a>, <a class="reference internal" href="#ncbi-attribute-panel-2">ncbi_attribute_panel_2</a>, and <a class="reference internal" href="#attribute-tab">attribute_tab</a></p>
+<div class="figure" id="id13">
+<span id="variant-attribute-panel"></span><a class="reference internal image-reference" href="_images/variant_attribute_panel.png"><img alt="Adding an attribute panel." src="_images/variant_attribute_panel.png" style="width: 750.75px; height: 549.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 11 </span><span class="caption-text">Figure shows an add attribute panel page.</span></p>
+</div>
+<div class="figure" id="id14">
+<span id="ncbi-attribute-panel-2"></span><a class="reference internal image-reference" href="_images/ncbi_attribute_panel_2.png"><img alt="Editing an attribute sub-panel page." src="_images/ncbi_attribute_panel_2.png" style="width: 740.25px; height: 603.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 12 </span><span class="caption-text">Figure shows an add attribute sub-panel page after initial save. Note that you have to save the sub-panel before you can select the panel to place the sub-panel inside.</span></p>
+</div>
+<div class="figure" id="id15">
+<span id="attribute-tab"></span><a class="reference internal image-reference" href="_images/attribute_tab.png"><img alt="Adding an attribute tab." src="_images/attribute_tab.png" style="width: 741.75px; height: 353.25px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 13 </span><span class="caption-text">Figure shows an add attribute tab page.</span></p>
+</div>
+</div>
+<div class="section" id="managing-filters">
+<h3>Managing Filters<a class="headerlink" href="#managing-filters" title="Permalink to this headline">¶</a></h3>
+<p>Now we are ready to add filter fields. Currently GeneSysV supports three types of forms for filter fields: <code class="docutils literal notranslate"><span class="pre">CharField</span></code>, <code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> and <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code>. The <code class="docutils literal notranslate"><span class="pre">CharField</span></code> can use three types of form widget: <code class="docutils literal notranslate"><span class="pre">TextInput</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, and <code class="docutils literal notranslate"><span class="pre">UploadField</span></code>. The <code class="docutils literal notranslate"><span class="pre">TextInput</span></code> widget is a simple text input box that allows the user to search for a single term. The <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> is also a text input box but allows rows of terms. Finally, the <code class="docutils literal notranslate"><span class="pre">UploadField</span></code> uses the <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> widget but with an extra upload button that allows users to select a file from which to populate the <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> widget. The <code class="docutils literal notranslate"><span class="pre">TextArea</span></code> and <code class="docutils literal notranslate"><span class="pre">UploadField</span></code> widgets allow users to search for multiple terms. The <code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> uses the <code class="docutils literal notranslate"><span class="pre">Select</span></code> widget
+that renders a single-select drop down menu for selecting a single term to search for from a list of choices. And the <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code> field uses a <code class="docutils literal notranslate"><span class="pre">SelectMultiple</span></code> widget that renders a multi-select field to allow users to select multiple terms to search for from a list of choices.</p>
+<p>Click <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> button next to the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">Fields</span></code>. Select <cite>test_data</cite> for dataset. Enter <cite>Variant</cite> for display text. Select <cite>CharField</cite> for form type. Select <cite>TextInput</cite> for widget type. Enter <cite>Variant</cite> for Es name. Select <cite>keyword</cite> for es data type. Select <cite>filter_term</cite> for es filter type. Select <cite>Variant Related Information</cite> for place in panel.   Click save to create the field. Figure <a class="reference internal" href="#variant-filter-field">variant_filter_field</a> shows an example page for adding a filter field.</p>
+<div class="figure" id="id16">
+<span id="variant-filter-field"></span><a class="reference internal image-reference" href="_images/variant_filter_field.png"><img alt="Adding a filter field" src="_images/variant_filter_field.png" style="width: 468.75px; height: 783.75px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 14 </span><span class="caption-text">Figure shows an add filter field page.</span></p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Display</span> <span class="pre">name</span></code> field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The <code class="docutils literal notranslate"><span class="pre">In</span> <span class="pre">line</span> <span class="pre">tooltip</span></code> field allows the user to display a tooltip next to the display name. The <code class="docutils literal notranslate"><span class="pre">Tooltip</span></code> field allows the user to specify
+a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The <code class="docutils literal notranslate"><span class="pre">Form</span> <span class="pre">type</span></code> is one of the three form types that GeneSysV currently supports. The <code class="docutils literal notranslate"><span class="pre">Widget</span> <span class="pre">type</span></code> is one of the five types of Widget that GeneSysV currently supports. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">name</span></code> is the name of field that will be searched in Elasticsearch. The <code class="docutils literal notranslate"><span class="pre">path</span></code> field specifies the path of the filter field if it is a nested field. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">data</span> <span class="pre">type</span></code> field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">text</span> <span class="pre">analyzer</span></code> specifics the Elasticsearch text analyzer to use if the <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">data</span> <span class="pre">type</span></code> is set to text. See <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html</a> for details about the various analyzers. The <code class="docutils literal notranslate"><span class="pre">Es</span> <span class="pre">filter</span> <span class="pre">type</span></code> field allows the user to specify which Elasticsearch type query to use. The <code class="docutils literal notranslate"><span class="pre">Place</span> <span class="pre">in</span> <span class="pre">panel</span></code> is used internally by GeneSysV for properly displaying the available filter fields for a given dataset. It should be the <code class="docutils literal notranslate"><span class="pre">display_name</span></code> of the panel the filter field is associated with. Finally, the <code class="docutils literal notranslate"><span class="pre">Is</span> <span class="pre">visible</span></code> field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GeneSysV.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Es filter type</th>
+<th class="head">When to use</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>filter_term</td>
+<td>To find documents that contain the exact term specified</td>
+</tr>
+<tr class="row-odd"><td>filter_terms</td>
+<td>To find documents that contain at least one of the exact terms specified</td>
+</tr>
+<tr class="row-even"><td>nested_filter_term</td>
+<td>To find documents that contain the exact term specified in a nested field</td>
+</tr>
+<tr class="row-odd"><td>nested_filter_terms</td>
+<td>To find documents that contain at least one of the terms specified in a nested field</td>
+</tr>
+<tr class="row-even"><td>filter_range_gte</td>
+<td>To find documents with values greater than or equal to specified</td>
+</tr>
+<tr class="row-odd"><td>filter_range_gt</td>
+<td>To find documents with values greater than specified</td>
+</tr>
+<tr class="row-even"><td>filter_range_lte</td>
+<td>To find documents with values less than or equal to specified</td>
+</tr>
+<tr class="row-odd"><td>filter_range_lt</td>
+<td>To find documents with values less than specified</td>
+</tr>
+<tr class="row-even"><td>nested_filter_range_gte</td>
+<td>To find documents with values greater than or equal to specified in a nested field</td>
+</tr>
+<tr class="row-odd"><td>filter_exists</td>
+<td>To find documents in which the field specified exists</td>
+</tr>
+<tr class="row-even"><td>must_not_exists</td>
+<td>To find documents in which the field specified does not exist</td>
+</tr>
+<tr class="row-odd"><td>nested_filter_exists</td>
+<td>To find documents in which the nested field specified exists</td>
+</tr>
+</tbody>
+</table>
+<p>Use the information from figure <a class="reference internal" href="#add-filter-fields">add_filter_fields</a> to add the remaining filter fields.</p>
+<div class="figure" id="id17">
+<span id="add-filter-fields"></span><a class="reference internal image-reference" href="_images/add_filter_fields.png"><img alt="All" src="_images/add_filter_fields.png" style="width: 1700.25px; height: 395.25px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 15 </span><span class="caption-text">Figure shows all the filter fields.</span></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ChoiceField</span></code> and <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code> require that you specify choices for them. You should have added three <code class="docutils literal notranslate"><span class="pre">MultipleChoiceField</span></code> – Sample_GT, Sample_ID, and ExonicFunc_refGene. These fields need choices. Click the <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">Add</span></code> next to the <code class="docutils literal notranslate"><span class="pre">Filter</span> <span class="pre">Choice</span> <span class="pre">Fields</span></code>. Click the search (magnifying glass) icon to open a another window from which you will choose <code class="docutils literal notranslate"><span class="pre">ExonicFunc_refGene</span> <span class="pre">(test-dataset)</span></code> for filter field by clicking the colored display text. This will automatically put the ID of the chosen field in the filter field. This unique number identifies filter fields and can be different based on which order you added the filter fields. Enter <code class="docutils literal notranslate"><span class="pre">stoploss</span></code> for value and click save. Figure <a class="reference internal" href="#add-filter-field-choice">add_filter_field_choice</a> shows an example add filter field choice page.</p>
+<div class="figure" id="id18">
+<span id="add-filter-field-choice"></span><a class="reference internal image-reference" href="_images/all_filter_field_choices.png"><img alt="Add filter field choice page" src="_images/all_filter_field_choices.png" style="width: 546.75px; height: 183.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 16 </span><span class="caption-text">Figure shows an example of an add filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.</span></p>
+</div>
+<p>Use figure _add_all_filter_field_choices_ to add two more filter choices.</p>
+<div class="figure" id="id19">
+<span id="add-all-filter-field-choices"></span><a class="reference internal image-reference" href="_images/all_filter_field_choices.png"><img alt="List Filter field choices" src="_images/all_filter_field_choices.png" style="width: 546.75px; height: 183.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 17 </span><span class="caption-text">Figure shows what the admin site should look like after adding all the filter field choice options.</span></p>
+</div>
+<p>Finally, you need to edit panels or sub-panels to add the filter fields to panels. Although you have already specified place in panel for each filter field, you still need to edit the panels or sub-panels to add the filters in the panel or sub-panel. Figure <a class="reference internal" href="#all-filter-fields-to-panel">all_filter_fields_to_panel</a> shows the change filter panel page for the <code class="docutils literal notranslate"><span class="pre">Variant</span> <span class="pre">Related</span> <span class="pre">Information</span></code> with all the filter fields selected. You can rearrange the order of the filter fields by dragging and dropping.</p>
+<div class="figure" id="id20">
+<span id="all-filter-fields-to-panel"></span><a class="reference internal image-reference" href="_images/all_filter_fields_to_panel.png"><img alt="Selecting filter fields to add to panel" src="_images/all_filter_fields_to_panel.png" style="width: 752.25px; height: 545.25px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 18 </span><span class="caption-text">Figure shows selecting and ordering the filter fields in a panel.</span></p>
+</div>
+<p>This completes the steps needed to manage the filters. To recap, there are nine steps for building the filter UI:</p>
+<ol class="arabic simple">
+<li>Add study</li>
+<li>Add dataset</li>
+<li>Add search options</li>
+<li>Add panel</li>
+<li>Add sub-panel if needed</li>
+<li>Add tab</li>
+<li>Add filter fields</li>
+<li>Add filter field choices if necessary</li>
+<li>Associate filter fields to panels or sub-panels.</li>
+</ol>
+</div>
+<div class="section" id="managing-attributes">
+<h3>Managing Attributes<a class="headerlink" href="#managing-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Start by adding three attribute panels and one sub-panel, see figures <a class="reference internal" href="#add-all-attribute-panels">add_all_attribute_panels</a> and <a class="reference internal" href="#add-all-attribute-sub-panels">add_all_attribute_sub_panels</a>.</p>
+<div class="figure" id="id21">
+<span id="add-all-attribute-panels"></span><a class="reference internal image-reference" href="_images/add_all_attribute_panels.png"><img alt="Adding attribute panels" src="_images/add_all_attribute_panels.png" style="width: 664.5px; height: 199.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 19 </span><span class="caption-text">Figure shows the attributes panels to add.</span></p>
+</div>
+<div class="figure" id="id22">
+<span id="add-all-attribute-sub-panels"></span><a class="reference internal image-reference" href="_images/add_all_attribute_sub_panels.png"><img alt="Adding attribute sub-panels" src="_images/add_all_attribute_sub_panels.png" style="width: 861.0px; height: 103.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 20 </span><span class="caption-text">Figure shows the attribute sub-panels to add.</span></p>
+</div>
+<p>Then add an attribute tab to contain the three panels.</p>
+<p>Next we will add a variant attribute. Click <code class="docutils literal notranslate"><span class="pre">+Add</span></code> next to <code class="docutils literal notranslate"><span class="pre">Attribute</span> <span class="pre">fields</span></code>. Select <cite>test_data</cite> for dataset. Enter <cite>Variant</cite> for display text. Enter <cite>Variant</cite> for Es name. Select <cite>Variant Related Information</cite> for place in panel. Check <cite>Is link field</cite>. The last option makes the variant field a link field that takes you to the variant detail page.</p>
+<div class="figure" id="id23">
+<span id="variant-attribute-field"></span><a class="reference internal image-reference" href="_images/variant_attribute_field.png"><img alt="Adding a variant attribute field" src="_images/variant_attribute_field.png" style="width: 464.25px; height: 439.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 21 </span><span class="caption-text">Figure shows an add attribute filter page for variant.</span></p>
+</div>
+<p>Use figure <a class="reference internal" href="#all-attribute-fields">all_attribute_fields</a> to add the other attribute fields.</p>
+<div class="figure" id="id24">
+<span id="all-attribute-fields"></span><a class="reference internal image-reference" href="_images/all_attribute_fields.png"><img alt="All the attribute fields" src="_images/all_attribute_fields.png" style="width: 902.25px; height: 345.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 22 </span><span class="caption-text">Figure shows all the attribute fields that should be added.</span></p>
+</div>
+<p>Finally, add the attributes fields to the appropriate panels and sub-panels.</p>
+<p>The steps for building the attribute fields GUI, assuming that the study, dataset, and the search options have been added, are:</p>
+<ol class="arabic simple">
+<li>Add panels</li>
+<li>Add sub-panels</li>
+<li>Add tab</li>
+<li>Add attribute fields</li>
+<li>Associate attribute fields to panels or sub-panels.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="automatically-creating-the-ui">
+<h2>Automatically Creating the UI<a class="headerlink" href="#automatically-creating-the-ui" title="Permalink to this headline">¶</a></h2>
+<p>By now you should be familiar with the components of the UI and how it is built using the GeneSysV admin site. In practice, you will use a script that will automatically import a VCF file and create the corresponding UI. The admin interface should be used tweak the UI. Stop the development server. From the main GDW folder execute the following command to import sample data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">utils</span><span class="o">/</span><span class="n">load_vcf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">vcf</span> <span class="n">test_data</span><span class="o">/</span><span class="n">test_4families_annovar</span><span class="o">.</span><span class="n">vcf</span><span class="o">.</span><span class="n">gz</span> <span class="o">--</span><span class="n">tmp_dir</span> <span class="o">/</span><span class="n">tmp</span> <span class="o">--</span><span class="n">annot</span> <span class="n">annovar</span> <span class="o">--</span><span class="n">hostname</span> <span class="mf">199.109</span><span class="o">.</span><span class="mf">192.181</span> <span class="o">--</span><span class="n">port</span> <span class="mi">9200</span> <span class="o">--</span><span class="n">index</span> <span class="n">test_4families_annovar</span> <span class="o">--</span><span class="n">study_name</span> <span class="n">test_4families_annovar</span> <span class="o">--</span><span class="n">dataset_name</span> <span class="n">test_4families_annovar</span> <span class="o">--</span><span class="n">num_cores</span> <span class="mi">4</span> <span class="o">--</span><span class="n">assembly</span> <span class="n">hg19</span> <span class="o">--</span><span class="n">ped</span> <span class="n">test_data</span><span class="o">/</span><span class="n">AshkenazimTrio</span><span class="o">.</span><span class="n">ped</span> <span class="o">--</span><span class="n">cleanup</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--vcf</span></code> option specifies the path of the vcf file. The <code class="docutils literal notranslate"><span class="pre">--tmp_dir</span></code> option specifies the path of the temporary directory where temporary data will be saved. The <code class="docutils literal notranslate"><span class="pre">annot</span></code> option specifies the annotation to use. Currently, only two types of annotations are supported: ANNOVAR and VEP. The <code class="docutils literal notranslate"><span class="pre">--hostname</span></code> specifies the hostname of Elasticsearch. The <code class="docutils literal notranslate"><span class="pre">--port</span></code> option specifies the port Elasticsearch is running on. The <code class="docutils literal notranslate"><span class="pre">--index</span></code> option specifies the index name to use in Elasticsearch. The <code class="docutils literal notranslate"><span class="pre">--study</span></code> options specifies the study name to use in the web interface when selecting the study. The <code class="docutils literal notranslate"><span class="pre">--dataset_name</span></code> specifies the dataset name that will be displayed when selecting the dataset in the web interface. The <code class="docutils literal notranslate"><span class="pre">--num_cores</span></code> options specifies the number of parallel processes to use when parsing the VCF file. The <code class="docutils literal notranslate"><span class="pre">--assembly</span> <span class="pre">hg19</span></code> specifies the reference genome assembly version. The <code class="docutils literal notranslate"><span class="pre">--ped</span></code> option specifies the path to the associated PED file. Lastly, the <code class="docutils literal notranslate"><span class="pre">--option</span></code> specifies that the temporary files should be removed. For more options, please run the <code class="docutils literal notranslate"><span class="pre">load_vcf.py</span></code> file without any input parameters. Start the development server to start searching the data.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="contents.html" title="GDW documentation contents"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="contents.html">GeneSysV 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
+  </body>
+</html>

@@ -120,7 +120,6 @@ class FilterField(TimeStampedModel):
     # relationship. But I still need the panel name to get the admin interface to filter
     # correctly.
     place_in_panel = models.CharField(max_length=255)
-
     is_visible = models.BooleanField(default=True)
 
     class Meta:
@@ -202,6 +201,8 @@ class FilterSubPanel(TimeStampedModel):
     filter_panel = models.ForeignKey(
         'FilterPanel',
         on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
     name = models.CharField(max_length=255)
     filter_fields = SortedManyToManyField(FilterField, blank=True)
@@ -257,6 +258,8 @@ class AttributeSubPanel(TimeStampedModel):
     attribute_panel = models.ForeignKey(
         'AttributePanel',
         on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
     name = models.CharField(max_length=255)
     attribute_fields = SortedManyToManyField(AttributeField, blank=True)

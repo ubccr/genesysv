@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'common',
     'complex',
     'mendelian',
-    'microbiome',
     # 'search',
     # 'pybamview',
     # 'subject_report',
