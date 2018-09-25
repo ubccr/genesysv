@@ -1595,8 +1595,10 @@ if __name__ == '__main__':
 	conn.close()
 
 	if gui_only:
-		gui_mapping = os.path.join("config", type_name + '_gui_config.json')
-		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+		gui_mapping_file = os.path.join("config", type_name + '_gui_config.json')
+		with open(gui_mapping_file) as f:
+			gui_mapping = json.load(f)
+			make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
 	else:
 		case_control = False
 		if control_vcf:
