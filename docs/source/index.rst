@@ -1,14 +1,14 @@
 =================================================
-GeneSysV documentation
+GenESysV documentation
 =================================================
 
-GeneSysV at a glance
+GenESysV at a glance
 ================================
-GeneSysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GeneSysV, you need to install Elasticsearch, samtools, grabix, and the GeneSysV Django app. 
+GenESysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GenESysV, you need to install Elasticsearch, samtools, grabix, and the GenESysV Django app. 
 
 Installing Elasticsearch
 =================================
-We assume that GeneSysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
+We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
 
 Add repository for installing the latest Oracle JAVA::
 
@@ -137,19 +137,19 @@ Make and and install grabix::
     cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
 
 
-Installing GeneSysV Data Warehouse
+Installing GenESysV Data Warehouse
 ==============================================
-GeneSysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GeneSysV Python packages from the system-wide Python packages. Note that GeneSysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
+GenESysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GenESysV Python packages from the system-wide Python packages. Note that GenESysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
 
     sudo apt-get install python3-venv
 
-Clone the GeneSysV repository in to your GeneSysV instance::
+Clone the GenESysV repository in to your GenESysV instance::
 
-    git clone https://github.com/ubccr/GeneSysV.git
+    git clone https://github.com/ubccr/GenESysV.git
 
-Change in to GeneSysV directory::
+Change in to GenESysV directory::
 
-    cd GeneSysV
+    cd GenESysV
 
 Install the python virtual environment::
 
@@ -159,12 +159,12 @@ Activate the newly created virtual environment::
 
     source venv/bin/activate
 
-Install the python packages required for GeneSysV, you can ignore the warning messages::
+Install the python packages required for GenESysV, you can ignore the warning messages::
     
     pip install wheel    
     pip install -r requirements.txt
 
-GeneSysV uses memcached to speed up form loading. Install memcached::
+GenESysV uses memcached to speed up form loading. Install memcached::
 
     sudo apt-get install memcached
 
@@ -183,7 +183,7 @@ Start the development server::
 
     python manage.py runserver 0.0.0.0:8000
 
-Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GeneSysV instance and the GeneSysV website should be running. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GeneSysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
+Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GenESysV instance and the GenESysV website should be running. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GenESysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
 
 .. raw:: latex
 
@@ -192,22 +192,22 @@ Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GeneSysV 
 Installation checklist for Genomics Data Warehouse
 ============================================================
 - [ ] Install Python3.5 venv
-- [ ] Clone GeneSysV repository
+- [ ] Clone GenESysV repository
 - [ ] Create new Python virtualenv and activate it
 - [ ] Install the requirements via ``pip``
 - [ ] Install memcached
 - [ ] Create database tables and import default settings
 - [ ] Create superuser
-- [ ] Start GeneSysV
+- [ ] Start GenESysV
 
 .. raw:: latex
 
     \newpage
 
 
-Manually building the GeneSysV Web User Interface
+Manually building the GenESysV Web User Interface
 ==============================================================
-Basically GeneSysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GeneSysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load vcf script that automatically builds the web interface. Both ways will be described to make you familiar with how GeneSysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GeneSysV admin site. We begin by showing you how to build the web interface using the GeneSysV admin site.
+Basically GenESysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GenESysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load vcf script that automatically builds the web interface. Both ways will be described to make you familiar with how GenESysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GenESysV admin site. We begin by showing you how to build the web interface using the GenESysV admin site.
 
 Before you can begin building the web interface, you need to become familiar with how its components are organized.
 
@@ -216,7 +216,7 @@ Before you can begin building the web interface, you need to become familiar wit
    :scale: 75 %
    :alt: Web interface components 1
 
-   Figure shows the components that make up the web interface of GeneSysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.
+   Figure shows the components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.
 
 
 Figure components_1_ shows the components of the web interface. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure components_2_ shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as `basic` and `advanced` search fields.
@@ -229,13 +229,13 @@ Figure components_1_ shows the components of the web interface. Fields used for 
    Figure shows an example of how sub-panels can be used to further organize filter fields within a panel.
 
 
-GeneSysV allows a user to select which fields they want to display in the search results. This allows a user to include more, less, or different fields in the search results than the ones used for searching. The result fields are called `attributes` – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.
+GenESysV allows a user to select which fields they want to display in the search results. This allows a user to include more, less, or different fields in the search results than the ones used for searching. The result fields are called `attributes` – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.
 
 Adding study, dataset, and search options
 --------------------------------------------
-Start by loading a test data dataset from the main GeneSysV folder::
+Start by loading a test data dataset from the main GenESysV folder::
 
-    # from the main GeneSysV folder
+    # from the main GenESysV folder
     source activate venv/bin/activate
     python manage.py import_test_data
 
@@ -343,7 +343,7 @@ Repeat the steps for creating a panel, sub-panel and tab for attributes, see fig
 
 Managing Filters
 ---------------------------
-Now we are ready to add filter fields. Currently GeneSysV supports three types of forms for filter fields: ``CharField``, ``ChoiceField`` and ``MultipleChoiceField``. The ``CharField`` can use three types of form widget: ``TextInput``, ``TextArea``, and ``UploadField``. The ``TextInput`` widget is a simple text input box that allows the user to search for a single term. The ``TextArea`` is also a text input box but allows rows of terms. Finally, the ``UploadField`` uses the ``TextArea`` widget but with an extra upload button that allows users to select a file from which to populate the ``TextArea`` widget. The ``TextArea`` and ``UploadField`` widgets allow users to search for multiple terms. The ``ChoiceField`` uses the ``Select`` widget
+Now we are ready to add filter fields. Currently GenESysV supports three types of forms for filter fields: ``CharField``, ``ChoiceField`` and ``MultipleChoiceField``. The ``CharField`` can use three types of form widget: ``TextInput``, ``TextArea``, and ``UploadField``. The ``TextInput`` widget is a simple text input box that allows the user to search for a single term. The ``TextArea`` is also a text input box but allows rows of terms. Finally, the ``UploadField`` uses the ``TextArea`` widget but with an extra upload button that allows users to select a file from which to populate the ``TextArea`` widget. The ``TextArea`` and ``UploadField`` widgets allow users to search for multiple terms. The ``ChoiceField`` uses the ``Select`` widget
 that renders a single-select drop down menu for selecting a single term to search for from a list of choices. And the ``MultipleChoiceField`` field uses a ``SelectMultiple`` widget that renders a multi-select field to allow users to select multiple terms to search for from a list of choices.
 
 Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dataset. Enter `Variant` for display text. Select `CharField` for form type. Select `TextInput` for widget type. Enter `Variant` for Es name. Select `keyword` for es data type. Select `filter_term` for es filter type. Select `Variant Related Information` for place in panel.   Click save to create the field. Figure variant_filter_field_ shows an example page for adding a filter field.
@@ -356,7 +356,7 @@ Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dat
    Figure shows an add filter field page.
 
 The ``Display name`` field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The ``In line tooltip`` field allows the user to display a tooltip next to the display name. The ``Tooltip`` field allows the user to specify
-a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The ``Form type`` is one of the three form types that GeneSysV currently supports. The ``Widget type`` is one of the five types of Widget that GeneSysV currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch. The ``path`` field specifies the path of the filter field if it is a nested field. The ``Es data type`` field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html for details about the various analyzers. The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel`` is used internally by GeneSysV for properly displaying the available filter fields for a given dataset. It should be the ``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GeneSysV.
+a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The ``Form type`` is one of the three form types that GenESysV currently supports. The ``Widget type`` is one of the five types of Widget that GenESysV currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch. The ``path`` field specifies the path of the filter field if it is a nested field. The ``Es data type`` field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html for details about the various analyzers. The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel`` is used internally by GenESysV for properly displaying the available filter fields for a given dataset. It should be the ``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GenESysV.
 
 ===========================  ===========================================================================================
 Es filter type               When to use
@@ -479,7 +479,7 @@ The steps for building the attribute fields GUI, assuming that the study, datase
 
 Automatically Creating the UI
 =================================================
-By now you should be familiar with the components of the UI and how it is built using the GeneSysV admin site. In practice, you will use a script that will automatically import a VCF file and create the corresponding UI. The admin interface should be used tweak the UI. Stop the development server. From the main GDW folder execute the following command to import sample data::
+By now you should be familiar with the components of the UI and how it is built using the GenESysV admin site. In practice, you will use a script that will automatically import a VCF file and create the corresponding UI. The admin interface should be used tweak the UI. Stop the development server. From the main GDW folder execute the following command to import sample data::
 
     python utils/load_vcf.py --vcf test_data/test_4families_annovar.vcf.gz --tmp_dir /tmp --annot annovar --hostname 199.109.192.181 --port 9200 --index test_4families_annovar --study_name test_4families_annovar --dataset_name test_4families_annovar --num_cores 4 --assembly hg19 --ped test_data/AshkenazimTrio.ped --cleanup
 

@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'contents'
 
 # General information about the project.
-project = 'GeneSysV'
+project = 'GenESysV'
 copyright = '2018'
 author = 'Paul Spurgeon, Mohammad K. Zia'
 
