@@ -205,11 +205,34 @@ Installation checklist for Genomics Data Warehouse
     \newpage
 
 
+Quick Guide to Loading Data 
+=================================================
+1. Single VCF for case only
+    python utils/load_vcf.py --vcf <path_to_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --cleanup
+
+2. Case and control VCF 
+    python utils/load_vcf.py --vcf <path_to_case_vcf_file> --control_vcf <path_to_control_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --cleanup
+
+3. Family based analysis
+    python utils/load_vcf.py --vcf <path_to_case_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --ped <path_to_ped_file> --cleanup
+
+
+Automatically Creating the UI
+=================================================
+Basically GenESysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GenESysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load VCF script that automatically builds the web interface. Both ways will be described to make you familiar with how GenESysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GenESysV admin site. 
+
+We begin by automatically building the web interface using the GenESysV script. From the main GenESysV folder execute the following command to import sample data:
+
+    python utils/load_vcf.py --vcf test_data/test_4families_annovar.vcf.gz --tmp_dir /tmp --annot annovar --hostname 127.0.0.1 --port 9200 --index test_4families_annovar --study_name test_4families_annovar --dataset_name test_4families_annovar --num_cores 4 --assembly hg19 --ped test_data/AshkenazimTrio.ped --cleanup
+
+The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` option specifies the path of the temporary directory where temporary data will be saved. The ``annot`` option specifies the annotation to use. Currently, only two types of annotations are supported: ANNOVAR and VEP. The ``--hostname`` specifies the hostname of Elasticsearch. The ``--port`` option specifies the port Elasticsearch is running on. The ``--index`` option specifies the index name to use in Elasticsearch. The ``--study`` options specifies the study name to use in the web interface when selecting the study. The ``--dataset_name`` specifies the dataset name that will be displayed when selecting the dataset in the web interface. The ``--num_cores`` options specifies the number of parallel processes to use when parsing the VCF file. The ``--assembly hg19`` specifies the reference genome assembly version. The ``--ped`` option specifies the path to the associated PED file. Lastly, the ``--option`` specifies that the temporary files should be removed. For more options, please run the ``load_vcf.py`` file without any input parameters. Start the development server to start searching the data to get familiar with GenESysV:
+
+    python manage.py runserver 0.0.0.0:8000
+
+
 Manually building the GenESysV Web User Interface
 ==============================================================
-Basically GenESysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GenESysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load vcf script that automatically builds the web interface. Both ways will be described to make you familiar with how GenESysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GenESysV admin site. We begin by showing you how to build the web interface using the GenESysV admin site.
-
-Before you can begin building the web interface, you need to become familiar with how its components are organized.
+You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
 .. _components_1:
 .. figure:: images/component_1.png
@@ -476,12 +499,4 @@ The steps for building the attribute fields GUI, assuming that the study, datase
 4. Add attribute fields
 5. Associate attribute fields to panels or sub-panels. 
 
-
-Automatically Creating the UI
-=================================================
-By now you should be familiar with the components of the UI and how it is built using the GenESysV admin site. In practice, you will use a script that will automatically import a VCF file and create the corresponding UI. The admin interface should be used tweak the UI. Stop the development server. From the main GDW folder execute the following command to import sample data::
-
-    python utils/load_vcf.py --vcf test_data/test_4families_annovar.vcf.gz --tmp_dir /tmp --annot annovar --hostname 199.109.192.181 --port 9200 --index test_4families_annovar --study_name test_4families_annovar --dataset_name test_4families_annovar --num_cores 4 --assembly hg19 --ped test_data/AshkenazimTrio.ped --cleanup
-
-The ``--vcf`` option specifies the path of the vcf file. The ``--tmp_dir`` option specifies the path of the temporary directory where temporary data will be saved. The ``annot`` option specifies the annotation to use. Currently, only two types of annotations are supported: ANNOVAR and VEP. The ``--hostname`` specifies the hostname of Elasticsearch. The ``--port`` option specifies the port Elasticsearch is running on. The ``--index`` option specifies the index name to use in Elasticsearch. The ``--study`` options specifies the study name to use in the web interface when selecting the study. The ``--dataset_name`` specifies the dataset name that will be displayed when selecting the dataset in the web interface. The ``--num_cores`` options specifies the number of parallel processes to use when parsing the VCF file. The ``--assembly hg19`` specifies the reference genome assembly version. The ``--ped`` option specifies the path to the associated PED file. Lastly, the ``--option`` specifies that the temporary files should be removed. For more options, please run the ``load_vcf.py`` file without any input parameters. Start the development server to start searching the data. 
 
