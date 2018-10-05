@@ -1,5 +1,5 @@
 """
-WSGI config for gdw project.
+WSGI config for genesysv project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -18,6 +18,6 @@ sys.path.append('/data/www')
 sys.path.append('/data/www/env/lib/python3.5/site-packages')
 
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gdw.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "genesysv.settings")
 
 application = get_wsgi_application()

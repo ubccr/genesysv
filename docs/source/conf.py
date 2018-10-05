@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Genomic Data Warehouse (GDW) documentation build configuration file, created by
-# sphinx-quickstart on Wed Jan 25 17:47:00 2017.
-#
 # This file is execfile()d with the current directory set to its
 # containing dir.
 #
@@ -100,7 +97,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'GenomicDataWarehouseGDWdoc'
+htmlhelp_basename = 'GenESysVGDWdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -127,7 +124,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'GenomicDataWarehouseGDW.tex', 'Genomic Data Warehouse (GDW) Documentation',
+    (master_doc, 'GenESysVdoc.tex', 'GenESysV Documentation',
      'Mohammad K. Zia', 'manual'),
 ]
 

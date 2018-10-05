@@ -31,7 +31,7 @@ import pickle
 
 absproject_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(absproject_path) #here store is root folder(means parent).
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gdw.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "genesysv.settings")
 django.setup()
 
 from core.models import Dataset
