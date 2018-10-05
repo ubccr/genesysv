@@ -97,6 +97,7 @@ Installation checklist for Elasticsearch
 - [ ] Add JAVA repository and update apt-get
 - [ ] Download and install Java and Elasticsearch
 - [ ] Configure Elasticsearch
+
     - [ ] Become root ``sudo su - ``
     - [ ] Edit ``/etc/elasticsearch/jvm.options``
     - [ ] Edit ``/etc/elasticsearch/elasticsearch.yml``
@@ -170,7 +171,7 @@ GenESysV uses memcached to speed up form loading. Install memcached::
 
 Create the database tables associated with the app and some default values by executing::
 
-    python manage.py makemigrations core microbiome
+    python manage.py makemigrations core
     python manage.py migrate
 
 
