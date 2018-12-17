@@ -249,6 +249,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
+				gui_mapping_var[key]['filters'][0]["es_filter_type"] = "filter_terms"
 			elif key in ['VariantType', 'SVTYPE']:
 				gui_mapping_var[key]['filters'][0]["form_type"] = "ChoiceField"
 				gui_mapping_var[key]['filters'][0]['widget_type'] = "Select"
@@ -268,6 +269,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 				gui_mapping_var[key]['filters'][0]["widget_type"] = "SelectMultiple"
 				gui_mapping_var[key]['filters'][0]["form_type"] = "MultipleChoiceField"
 				gui_mapping_var[key]['filters'][0]["values"] = "get_values_from_es()"
+				gui_mapping_var[key]['filters'][0]["es_filter_type"] = "filter_terms"
 			elif key == 'ID':
 				gui_mapping_var[key]['filters'][0]['in_line_tooltip'] = "(from original VCF)"
 			elif key in ['EX_TARGET', 'IMPRECISE', 'MULTI_ALLELIC']:	
