@@ -231,17 +231,22 @@ def process_vcf_header(vcf):
 
 		# make a CSQ name to type dict
 		csq_dict = {key: {'type' : 'keyword'} for key in csq_fields }
-		{csq_dict[key].update({'type' : 'float', 'null_value' : -999.99}) for key in csq_dict if key.endswith('_AF') or key == 'AF' or key.startswith('CADD')}
+		{csq_dict[key].update({'type' : 'float', 'null_value' : -999.99}) for key in csq_dict if key.endswith('_AF') or key == 'AF' or key.startswith('CADD') or key.endswith('score')}
 		{csq_dict[key].update({'type' : 'integer', 'null_value' : -999}) for key in csq_dict if key == 'DISTANCE'}
 		{csq_dict[key].update({'type' : 'keyword'}) for key in csq_dict if key.endswith('position')}
 
 		# partition keys into local and global space
 		# at this moment, we have to hard code the feature list to include in each of the lists
 		csq_local = ['Consequence', 'IMPACT', 'SYMBOL', 'Gene', 'Feature_type', 'Feature', 'BIOTYPE', 'EXON', 'INTRON', 'HGVSc', 'HGVSp', 'cDNA_position', 'CDS_position', 'Protein_position', 'Amino_acids', 'Codons', 'DISTANCE', 'STRAND', 'HGNC_ID', 'SWISSPROT', 'DOMAINS', 'miRNA', 'SIFT', 'PolyPhen', 'RadialSVM_score', 'RadialSVM_pred', 'LR_score', 'LR_pred']
-		csq_global = ['Existing_variation', 'AF', 'AFR_AF', 'AMR_AF', 'EAS_AF', 'EUR_AF', 'SAS_AF', 'AA_AF', 'EA_AF', 'gnomAD_AF', 'gnomAD_AFR_AF', 'gnomAD_AMR_AF', 'gnomAD_ASJ_AF', 'gnomAD_EAS_AF', 'gnomAD_FIN_AF', 'gnomAD_NFE_AF', 'gnomAD_OTH_AF', 'gnomAD_SAS_AF', 'MAX_AF', 'MAX_AF_POPS', 'EUR', 'CLIN_SIG', 'SOMATIC', 'CADD_PHRED', 'CADD_RAW', 'CADD_raw', 'CADD_phred']
+		csq_global = [ item for item in csq_fields if item not in csq_local]
+
+#		{csq_global.append(key) for key in csq_fields if key.endswith('score')}
+#		{csq_global.append(key) for key in csq_fields if key.endswith('_pred') or '-pred_' in key}
+#		{csq_global.append(key) for key in csq_fields if key.startswith('clinvar') or key.startswith('CLIN')}
 
 		csq_dict_local = {key:val for key, val in csq_dict.items() if key in csq_local}
 		csq_dict_global = {key:val for key, val in csq_dict.items() if key in csq_global}
+
 
 	# get chromosome length
 	valid_chrs = range(1, 23)
@@ -552,8 +557,12 @@ def parse_info_fields(info_fields, result, log, vcf_info, group = ''):
 							if key2 not in result:
 								result[key2] = -999.99
 						else:
+							if '&.' in val2 or '.&' in val2:
+								val2 = val2.replace('&.', '&-999')
+								val2 = val2.replace('.&', '-999&')
 							tmp = val2.split('&')
 							if len(tmp) > 1:
+								
 								result[key2] = [float(item) for item in tmp]
 							else:
 								result[key2] = float(val2)
