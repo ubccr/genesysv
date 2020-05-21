@@ -12,17 +12,15 @@ Installing Elasticsearch
 
 We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
 
-Install Elasticsearch::
+Install Elasticsearch into a directory of your choice (such as $HOME/Elasticsearch)::
 
-    wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.3.deb
-    sudo dpkg -i elasticsearch-6.1.3.deb
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-linux-x86_64.tar.gz
+    tar xvf elasticsearch-7.7.0-linux-x86_64.tar.gz
+    cd elasticsearch-7.7.0/ # We will refer this directory as elasticsearch root directory from now on
+    
+Next you will need to modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance. 
 
-Next you will modify Elasticsearch options and update system-wide configurations for optimal Elasticsearch performance. This is best done by becoming root and staying as root for the next series of steps. Become root by issuing the command::
-
-    sudo su -
-
-Open file ``/etc/elasticsearch/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. For instance if your machine has 16 GB of RAM, set it to 8 GB. You will have to update two lines to allow JVM to allocate 8 GB. WARNING: Never allocate more than 32 GB. Change lines::
+Open file ``config/jvm.options`` and update the amount of memory Elasticsearch can allocate when it starts up. The amount of memory is set to half the system memory. For instance if your machine has 16 GB of RAM, set it to 8 GB. You will have to update two lines to allow JVM to allocate 8 GB. WARNING: Never allocate more than 32 GB. Change lines::
 
     -Xms2g
     -Xmx2g
@@ -34,13 +32,18 @@ to::
 
 and save and close file.
 
-Next open file ``/etc/elasticsearch/elasticsearch.yml`` and uncomment the following line::
+Next open file ``config/elasticsearch.yml`` and uncomment the following line::
 
     # Uncomment line to enable JVM memory allocation when Elasticsearch starts
     bootstrap.memory_lock: true
+    
+    # Uncomment line to specify the path for storing eleasticsearch data files
+    path.data: /path/to/your/data
+    
+    # Uncomment line to specify the path for storing log files
+    path.logs: /path/to/your/log/files
 
-
-and save and close the file.  Setting ``bootstrap.memory_lock`` to ``true`` allocates RAM exclusively for Elasticsearch when it starts up. 
+and save and close this file.  Setting ``bootstrap.memory_lock`` to ``true`` allocates RAM exclusively for Elasticsearch when it starts up. 
 
 Next open ``/etc/sysctl.conf`` and add virtual memory limits::
    
@@ -69,42 +72,35 @@ and add the lines::
 
 save and close the file. This setting allows elasticsearch to allocate memory at startup.
 
-Next enable Elasticsearch and configure it to start at boot by executing the following lines::
+Cd into your elasticsearch root directory and start elasticsearch and test the Elasticsearch installation by going to localhost address on port 9200::
 
-    systemctl daemon-reload
-    systemctl enable elasticsearch.service
-    systemctl start elasticsearch.service
-
-Test the Elasticsearch installation by going to localhost address on port 9200::
-
+    ./bin/elasticsearch
+    
     curl 127.0.0.1:9200
+you would expect to see the output like below:
+    {
+  "name" : "node-1",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "Cf9Snb1gTSyI5W6S7N_kPQ",
+  "version" : {
+    "number" : "7.7.0",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "81a1e9eda8e6183f5237786246f6dced26a10eaf",
+    "build_date" : "2020-05-12T02:01:37.602180Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.5.1",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
 
 This completes the installation of Elasticsearch.
 
-.. raw:: latex
-
-    \newpage
-
-Installation checklist for Elasticsearch
-=================================================
-- [ ] Add JAVA repository and update apt-get
-- [ ] Download and install Java and Elasticsearch
-- [ ] Configure Elasticsearch
-
-    - [ ] Become root ``sudo su - ``
-    - [ ] Edit ``/etc/elasticsearch/jvm.options``
-    - [ ] Edit ``/etc/elasticsearch/elasticsearch.yml``
-    - [ ] Edit ``etc/security/limits.conf``
-    - [ ] Edit ``/etc/systemd/system/elasticsearch.service.d/override.conf`` using ``systemctl edit elasticsearch``
-    - [ ] Enable Elasticsearch at boot
-
-.. raw:: latex
-
-    \newpage
-
 
 Installing Samtools and Grabix 
-======================================
+
 Begin by installing required system packages::
 
     sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev git
@@ -141,13 +137,13 @@ Clone the GenESysV repository in to your GenESysV instance::
 
     git clone https://github.com/ubccr/GenESysV.git
 
-Change in to GenESysV directory::
+Change into GenESysV directory::
 
-    cd GenESysV
+    cd genesysv
 
 Install the python virtual environment::
 
-    python3.5 -mvenv venv
+    python3.6 -mvenv venv
 
 Activate the newly created virtual environment::
 
@@ -175,28 +171,9 @@ Create a superuser who can log in to the admin site::
 
 Start the development server::
 
-    python manage.py runserver 0.0.0.0:8000
+    python manage.py runserver 0.0.0.0:8000 # Put your IP Address and Port number here
 
 Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GenESysV instance and the GenESysV website should be running. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GenESysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
-
-.. raw:: latex
-
-    \newpage
-
-Installation checklist for Genomics Data Warehouse
-============================================================
-- [ ] Install Python3.5 venv
-- [ ] Clone GenESysV repository
-- [ ] Create new Python virtualenv and activate it
-- [ ] Install the requirements via ``pip``
-- [ ] Install memcached
-- [ ] Create database tables and import default settings
-- [ ] Create superuser
-- [ ] Start GenESysV
-
-.. raw:: latex
-
-    \newpage
 
 
 Quick Guide to Loading Data 
@@ -210,6 +187,11 @@ Quick Guide to Loading Data
 3. Family based analysis
     python utils/load_vcf.py --vcf <path_to_case_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --ped <path_to_ped_file> --cleanup
 
+Example: 
+
+$ python utils/load_vcf.py --vcf test_data/test_4families_annovar.vcf.gz --tmp_dir /data/tmp --annot annovar --index family_trio --study_name DEMO --dataset_name test_4_families --assembly hg19 --ped test_data/test_4families.ped --hostname localhost --port 9200
+
+After loading the sample dataset into GenESysV, you are ready to explore the features of GenESysV under your web-browser.
 
 Automatically Creating the UI
 =================================================
