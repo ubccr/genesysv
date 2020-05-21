@@ -206,10 +206,8 @@ The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` optio
 
 You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
-.. _components_1:
-.. figure:: images/component_1.png
-   :scale: 75 %
-   :alt: Web interface components 1
+![test image](docs/sources/images/component_1.png)
+![test image](./docs/sources/images/component_1.png)
 
    Figure shows the components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.
 
@@ -354,8 +352,8 @@ The ``Display name`` field allows the user to specify the name that will be disp
 a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The ``Form type`` is one of the three form types that GenESysV currently supports. The ``Widget type`` is one of the five types of Widget that GenESysV currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch. The ``path`` field specifies the path of the filter field if it is a nested field. The ``Es data type`` field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html for details about the various analyzers. The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel`` is used internally by GenESysV for properly displaying the available filter fields for a given dataset. It should be the ``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GenESysV.
 
 
-|Es filter type    |           When to use
-| ---------------------------------------------------------------------------------------------------------------------- |
+|Es filter type    |           When to use |
+| --------------------------|-------------------------------------------------------------------------------------------- |
 | filter_term               |   To find documents that contain the exact term specified  |
 | filter_terms              |   To find documents that contain at least one of the exact terms specified  |
 | nested_filter_term        |   To find documents that contain the exact term specified in a nested field |
