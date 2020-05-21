@@ -8,7 +8,7 @@ GenESysV is a fast, intuitive and scalable Genome Exploration Open Source Tool f
 
 GenESysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GenESysV, you need to install Elasticsearch, samtools, grabix, and the GenESysV Django app. 
 
-# Installing Elasticsearch
+## Installing Elasticsearch
 
 We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
 
@@ -100,7 +100,7 @@ you would expect to see the output like below:
 This completes the installation of Elasticsearch.
 
 
-# Installing Samtools and Grabix 
+## Installing Samtools and Grabix 
 
 Begin by installing required system packages::
 
@@ -128,9 +128,9 @@ Make and and install grabix::
     cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
 
 
-Installing GenESysV Data Warehouse
+## Installing GenESysV Data Warehouse
 ==============================================
-GenESysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GenESysV Python packages from the system-wide Python packages. Note that GenESysV requires Python version 3.5 because python-memcached only supports Python version upto 3.5. Begin by installing python3 virtual environment, which is not installed by default::
+GenESysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GenESysV Python packages from the system-wide Python packages. Begin by installing python3 virtual environment, which is not installed by default::
 
     sudo apt-get install python3-venv
 
@@ -188,15 +188,10 @@ Quick Guide to Loading Data
 3. Family based analysis
     python utils/load_vcf.py --vcf <path_to_case_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --ped <path_to_ped_file> --cleanup
 
-Example: 
 
-$ python utils/load_vcf.py --vcf test_data/test_4families_annovar.vcf.gz --tmp_dir /data/tmp --annot annovar --index family_trio --study_name DEMO --dataset_name test_4_families --assembly hg19 --ped test_data/test_4families.ped --hostname localhost --port 9200
+## Automatically Creating the UI
 
-After loading the sample dataset into GenESysV, you are ready to explore the features of GenESysV under your web-browser.
-
-Automatically Creating the UI
-=================================================
-Basically GenESysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by logging in to the GenESysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Second, by using the provided load VCF script that automatically builds the web interface. Both ways will be described to make you familiar with how GenESysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GenESysV admin site. 
+Basically GenESysV provides a web interface to make Elasticsearch queries. There are two ways to build the web interface. First, by using the provided load VCF script that automatically builds the web interface. Secondd, by logging in to the GenESysV admin site and building the web interface by clicking through it. This is quite flexible, but can become very tedious. Both ways will be described to make you familiar with how GenESysV works. They are complementary because in practice the web interface is initially built automatically and then modified and tweaked using the GenESysV admin site. 
 
 We begin by automatically building the web interface using the GenESysV script. From the main GenESysV folder execute the following command to import sample data:
 
@@ -207,8 +202,8 @@ The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` optio
     python manage.py runserver 0.0.0.0:8000
 
 
-Manually building the GenESysV Web User Interface
-==============================================================
+## Manually building the GenESysV Web User Interface
+
 You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
 .. _components_1:
@@ -476,5 +471,6 @@ The steps for building the attribute fields GUI, assuming that the study, datase
 4. Add attribute fields
 5. Associate attribute fields to panels or sub-panels. 
 
-For documentation of the first release, please refer to [this link](docs/source/index.rst)
-## License
+For documentation of the first release using Elasticsearch-3.6.1, please refer to [this link](docs/source/index.rst)
+
+## License: BSD 3-Clause "New" or "Revised" License
