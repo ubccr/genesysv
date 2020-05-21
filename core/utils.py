@@ -23,7 +23,6 @@ def flush_memcache():
 
 
 def get_values_from_es(dataset_es_index_name,
-                       dataset_es_type_name,
                        dataset_es_host,
                        dataset_es_port,
                        field_es_name,
@@ -45,7 +44,6 @@ def get_values_from_es(dataset_es_index_name,
         """
         body = body_non_nested_template % (field_es_name)
         results = es.search(index=dataset_es_index_name,
-                            doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["buckets"] if ele['key']])
 
@@ -70,14 +68,14 @@ def get_values_from_es(dataset_es_index_name,
                                        field_es_name)
 
         results = es.search(index=dataset_es_index_name,
-                            doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
 def get_es_document(dataset_obj, document_id):
     es = elasticsearch.Elasticsearch(host=dataset_obj.es_host)
-    result = es.get(index=dataset_obj.es_index_name, doc_type=dataset_obj.es_type_name, id=document_id)
+    result = es.get(index=dataset_obj.es_index_name, 
+            id=document_id)
     return result["_source"]
 
 
@@ -829,7 +827,6 @@ class BaseElasticSearchQueryExecutor:
             host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
         response = es.search(
             index=self.dataset_obj.es_index_name,
-            doc_type=self.dataset_obj.es_type_name,
             body=json.dumps(self.query_body),
             request_timeout=120,
             terminate_after=self.elasticsearch_terminate_after)
@@ -1158,7 +1155,7 @@ class BaseDownloadAllResults:
                                               size=1000,
                                               preserve_order=False,
                                               index=self.search_log_obj.dataset.es_index_name,
-                                              doc_type=self.search_log_obj.dataset.es_type_name):
+                                              ):
             tmp_source = hit['_source']
             es_id = hit['_id']
 

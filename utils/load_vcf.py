@@ -1056,7 +1056,7 @@ def process_line_data(variant_lines, log, f, vcf_info):
 
 		result = parse_sample_info(result, format_fields, sample_info, log, vcf_info)
 
-		json.dump({"_index" : index_name, "_type" : type_name, "_source" : result}, f, ensure_ascii=True)
+		json.dump({"_index" : index_name, "_type" : '_doc', "_source" : result}, f, ensure_ascii=True)
 		f.write("\n")
 
 
@@ -1278,7 +1278,7 @@ def parse_case_control(case_vcf, control_vcf, batch_sub_list, outfile, vcf_info)
 						result[v_id].update(result_sample)
 
 			for v_id in result:
-				json.dump({"_index" : index_name, "_type" : type_name, "_source": result[v_id]}, f, ensure_ascii=True)
+				json.dump({"_index" : index_name, "_type" : '_doc', "_source": result[v_id]}, f, ensure_ascii=True)
 				f.write("\n")
 
 		print("Pid %s: finished processing %s, batch %d of %d" % (p.pid, batch, batch_count, total_batches))
@@ -1288,8 +1288,8 @@ def make_es_mapping(vcf_info):
 	format_dict2 = vcf_info['format_dict']
 
 	mapping = defaultdict()
-	mapping[type_name] = {}
-	mapping[type_name]["properties"] = {}
+	mapping["properties"] = {}
+
 	p = re.compile(r'snp\d+')
 
 	if annot == 'vep':
@@ -1320,11 +1320,11 @@ def make_es_mapping(vcf_info):
 				csq_dict_global[key] = {"type" : "keyword"}
 
 		csq_annot = {"type" : "nested", "properties" : csq_dict_local}
-		mapping[type_name]["properties"]["CSQ_nested"] = csq_annot
+		mapping["properties"]["CSQ_nested"] = csq_annot
 
 		if 'Existing_variation' in csq_dict_global:
 			del csq_dict_global['Existing_variation']
-		mapping[type_name]["properties"].update(csq_dict_global)
+		mapping["properties"].update(csq_dict_global)
 
 	elif annot == 'annovar':
 		ensGene_dict = {"Ensembl_Transcript_ID" : {"type" : "keyword"}}
@@ -1339,42 +1339,42 @@ def make_es_mapping(vcf_info):
 		refGene_dict.update({"aa_change_rg" : {"type" : "keyword"}})
 		refGene_annot = {"type" : "nested", "properties" : refGene_dict}
 		ensGene_annot = {"type" : "nested", "properties" : ensGene_dict}
-		mapping[type_name]["properties"]['AAChange_refGene'] = refGene_annot
-		mapping[type_name]["properties"]['AAChange_ensGene'] = ensGene_annot
+		mapping["properties"]['AAChange_refGene'] = refGene_annot
+		mapping["properties"]['AAChange_ensGene'] = ensGene_annot
 
-		mapping[type_name]["properties"].update({"tfbsConsSites_Name" : {"type" : "keyword"}})
-		mapping[type_name]["properties"].update({"tfbsConsSites_Score" : {"type" : "integer"}})
-		mapping[type_name]["properties"].update({"targetScanS_Name" : {"type" : "keyword"}})
-		mapping[type_name]["properties"].update({"targetScanS_Score" : {"type" : "integer"}})
+		mapping["properties"].update({"tfbsConsSites_Name" : {"type" : "keyword"}})
+		mapping["properties"].update({"tfbsConsSites_Score" : {"type" : "integer"}})
+		mapping["properties"].update({"targetScanS_Name" : {"type" : "keyword"}})
+		mapping["properties"].update({"targetScanS_Score" : {"type" : "integer"}})
 
 		clinvar_dict = {'CLNSIG': {"type" : "keyword"}, 'CLNDN': {"type" : "keyword"}, 'CLNREVSTAT': {"type" : "keyword"}}
-		mapping[type_name]["properties"]['CLNVAR_nested'] = {"type" : "nested", "properties" : clinvar_dict}
-		mapping[type_name]["properties"]['gwasCatalog'] = {"type" : "text", "analyzer": "simple"}
+		mapping["properties"]['CLNVAR_nested'] = {"type" : "nested", "properties" : clinvar_dict}
+		mapping["properties"]['gwasCatalog'] = {"type" : "text", "analyzer": "simple"}
 
 		GTEx_dict = {'GTEx_V6_gene': {"type" : "keyword"}, 'GTEx_V6_tissue': {"type" : "text", "analyzer": "simple", "fielddata": True} }
-		mapping[type_name]["properties"]['GTEx_nested'] = {"type": "nested", "properties" : GTEx_dict}
-		mapping[type_name]["properties"]['Interpro_domain'] = {"type" : "text", "analyzer": "simple"}
-		mapping[type_name]["properties"]['COSMIC_Occurrence'] = {"type" : "keyword"}
+		mapping["properties"]['GTEx_nested'] = {"type": "nested", "properties" : GTEx_dict}
+		mapping["properties"]['Interpro_domain'] = {"type" : "text", "analyzer": "simple"}
+		mapping["properties"]['COSMIC_Occurrence'] = {"type" : "keyword"}
 		ICGC_dict = {"ICGC_Cancer_Site": {"type": "keyword"}, "ICGC_Allele_Count": {"type": "integer", "null_value": -999}, "ICGC_Allele_Number": {"type": "integer", "null_value": -999}, "ICGC_Allele_Frequency": {"type": "float", "null_value": -999.99}}
 		ICGC_annot = {"type": "nested", "properties" : ICGC_dict}
-		mapping[type_name]["properties"]['ICGC_nested'] = ICGC_annot
+		mapping["properties"]['ICGC_nested'] = ICGC_annot
 		COSMIC_dict = {'COSMIC_Occurrence': {"type": 'integer'}, 'COSMIC_Cancer_Site': {"type": 'keyword'}}
 		COSMIC_annot = {"type": "nested", "properties" : COSMIC_dict}
-		mapping[type_name]["properties"]['COSMIC_nested'] = COSMIC_annot
+		mapping["properties"]['COSMIC_nested'] = COSMIC_annot
 
-		mapping[type_name]["properties"]['Gene_refGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Gene_ensGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Upstream_refGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Upstream_ensGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Downstream_refGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Downstream_ensGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['GeneDetail_refGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['GeneDetail_ensGene'] = {"type" : "keyword"}
-		mapping[type_name]["properties"]['Distance_to_upstream_refGene'] = {"type": "integer"}
-		mapping[type_name]["properties"]['Distance_to_downstream_refGene'] = {"type": "integer"}
-		mapping[type_name]["properties"]['Distance_to_upstream_ensGene'] = {"type": "integer"}
-		mapping[type_name]["properties"]['Distance_to_downstream_ensGene'] = {"type": "integer"}
-		mapping[type_name]["properties"]['ICGC_ID'] = {"type" : "keyword"}
+		mapping["properties"]['Gene_refGene'] = {"type" : "keyword"}
+		mapping["properties"]['Gene_ensGene'] = {"type" : "keyword"}
+		mapping["properties"]['Upstream_refGene'] = {"type" : "keyword"}
+		mapping["properties"]['Upstream_ensGene'] = {"type" : "keyword"}
+		mapping["properties"]['Downstream_refGene'] = {"type" : "keyword"}
+		mapping["properties"]['Downstream_ensGene'] = {"type" : "keyword"}
+		mapping["properties"]['GeneDetail_refGene'] = {"type" : "keyword"}
+		mapping["properties"]['GeneDetail_ensGene'] = {"type" : "keyword"}
+		mapping["properties"]['Distance_to_upstream_refGene'] = {"type": "integer"}
+		mapping["properties"]['Distance_to_downstream_refGene'] = {"type": "integer"}
+		mapping["properties"]['Distance_to_upstream_ensGene'] = {"type": "integer"}
+		mapping["properties"]['Distance_to_downstream_ensGene'] = {"type": "integer"}
+		mapping["properties"]['ICGC_ID'] = {"type" : "keyword"}
 
 		# these variables are replaced with the nested variable names, so remove them
 		excluded_list.append('AAChange_refGene')
@@ -1396,7 +1396,7 @@ def make_es_mapping(vcf_info):
 		excluded_list.append('GeneDetail_ensGene')
 
 	# variables used for boolean type need to have None value if empty
-	mapping[type_name]["properties"].update({"COSMIC_ID" : {"type" : "keyword"}, "dbSNP_ID" : {"type" : "keyword"}})
+	mapping["properties"].update({"COSMIC_ID" : {"type" : "keyword"}, "dbSNP_ID" : {"type" : "keyword"}})
 
 	tmp_keys = info_dict2.keys()
 
@@ -1482,18 +1482,18 @@ def make_es_mapping(vcf_info):
 	if control_vcf:
 		fixed_dict = {"CHROM" : {"type" : "keyword"}, "ID" : {"type" : "keyword", "null_value" : "NA"}, "POS" : {"type" : "integer"},
 				"REF" : {"type" : "keyword"}, "ALT" : {"type" : "keyword"}}
-	mapping[type_name]["properties"].update(fixed_dict)
-	mapping[type_name]["properties"].update(info_dict2)
+	mapping["properties"].update(fixed_dict)
+	mapping["properties"].update(info_dict2)
 
 
-	mapping[type_name]["properties"]["sample"] = {}
+	mapping["properties"]["sample"] = {}
 	sample_annot = {"type" : "nested", "properties" : format_dict2}
-	mapping[type_name]["properties"]["sample"].update(sample_annot)
+	mapping["properties"]["sample"].update(sample_annot)
 
 	#remove features that have been appended with  '_case' and '_control'
-	case_control_features = [key for key in mapping[type_name]["properties"] if key.endswith('_control')]
+	case_control_features = [key for key in mapping["properties"] if key.endswith('_control')]
 	features_to_remove = [re.sub('_control', '', item) for item in case_control_features]
-	mapping[type_name]["properties"] = {key:val for key, val in mapping[type_name]["properties"].items() if key not in features_to_remove }
+	mapping["properties"] = {key:val for key, val in mapping["properties"].items() if key not in features_to_remove }
 
 
 	index_settings = {}
@@ -1519,7 +1519,7 @@ def make_es_mapping(vcf_info):
 		fp.write("curl -XPUT \'%s:%s/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name))
 		json.dump(index_settings, fp, sort_keys=True, indent=2, ensure_ascii=False)
 		fp.write("\'\n")
-		fp.write("curl -XPUT \'%s:%s/%s/_mapping/%s?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name, type_name))
+		fp.write("curl -XPUT \'%s:%s/%s/_mapping?pretty\' -H \'Content-Type: application/json\' -d\'\n" % (hostname, port, index_name))
 		json.dump(mapping, fp, sort_keys=True, indent=2, ensure_ascii=False)
 		fp.write("\'")
 

@@ -86,7 +86,7 @@ tooltip = ""
 
 def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control, ped):
 	mapping = json.load(open(mapping_file, 'r'))
-	mapping = mapping[type_name]['properties']
+	mapping = mapping['properties']
 	vcf_info = json.load(open(vcf_info_file, 'r'))
 	
 	info_dict = vcf_info['info_dict']
@@ -918,10 +918,8 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
         add_required_data_to_db()
 
         mapping = elasticsearch.client.IndicesClient.get_mapping(
-            es, index=index_name, doc_type=type_name)
-        # mapping =
-        # mapping[options.get('study]')['mappings'][options.get('dataset]['properties']
-        mapping = mapping[index_name]['mappings'][type_name]['properties']
+            es, index=index_name) #, doc_type=type_name)
+        mapping = mapping[index_name]['mappings']['properties']
 
         nested_fields = []
         for var_name, var_info in mapping.items():
@@ -1020,7 +1018,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
                     match = re.search(r'python_eval(.+)', field_values)
                     if field_values == 'get_values_from_es()':
                         field_values = get_values_from_es(index_name,
-                                                   type_name,
                                                    hostname,
                                                    port,
                                                    field_es_name,
