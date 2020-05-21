@@ -12,7 +12,7 @@ GenESysV is built using Elasticsearch, a distributed RESTful search and analytic
 
 We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
 
-Install Elasticsearch into a directory of your choice (such as $HOME/Elasticsearch)::
+Install Elasticsearch into a directory of your choice (such as $HOME/Elasticsearch):
 
     wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-linux-x86_64.tar.gz
     tar xvf elasticsearch-7.7.0-linux-x86_64.tar.gz
@@ -32,7 +32,7 @@ to::
 
 and save and close file.
 
-Next open file ``config/elasticsearch.yml`` and uncomment the following line::
+Next open file ``config/elasticsearch.yml`` and uncomment the following line:
 
     # Uncomment line to enable JVM memory allocation when Elasticsearch starts
     bootstrap.memory_lock: true
@@ -45,14 +45,14 @@ Next open file ``config/elasticsearch.yml`` and uncomment the following line::
 
 and save and close this file.  Setting ``bootstrap.memory_lock`` to ``true`` allocates RAM exclusively for Elasticsearch when it starts up. 
 
-Next open ``/etc/sysctl.conf`` and add virtual memory limits::
+Next open ``/etc/sysctl.conf`` and add virtual memory limits:
    
     # At the end of file add line:
     vm.max_map_count=262144
 
 and save and close the file. This setting increases the limit on mmap counts in order to avoid out of memory exceptions.
 
-Next open ``/etc/security/limits.conf`` and add limits for Elasticsearch at the end of file::
+Next open ``/etc/security/limits.conf`` and add limits for Elasticsearch at the end of file:
 
     # At the end of file add lines:
     elasticsearch - nofile 65536
@@ -65,7 +65,7 @@ Next update the elasticsearch systemd configuration::
     
     systemctl edit elasticsearch
 
-and add the lines::
+and add the lines:
 
     [Service]
     LimitMEMLOCK=infinity
@@ -123,18 +123,18 @@ Git clone grabix::
     
     cd /tmp; git clone https://github.com/arq5x/grabix.git
 
-Make and and install grabix::
+Make and and install grabix:
 
     cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
 
 
 ## Installing GenESysV Data Warehouse
-==============================================
+
 GenESysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GenESysV Python packages from the system-wide Python packages. Begin by installing python3 virtual environment, which is not installed by default::
 
     sudo apt-get install python3-venv
 
-Clone the GenESysV repository in to your GenESysV instance::
+Clone the GenESysV repository in to your GenESysV instance:
 
     git clone https://github.com/ubccr/GenESysV.git
 
@@ -142,11 +142,11 @@ Change into GenESysV directory::
 
     cd genesysv
 
-Install the python virtual environment::
+Install the python virtual environment:
 
     python3.6 -mvenv venv
 
-Activate the newly created virtual environment::
+Activate the newly created virtual environment:
 
     source venv/bin/activate
 
@@ -155,30 +155,30 @@ Install the python packages required for GenESysV, you can ignore the warning me
     pip install wheel    
     pip install -r requirements.txt
 
-GenESysV uses memcached to speed up form loading. Install memcached::
+GenESysV uses memcached to speed up form loading. Install memcached:
 
     sudo apt-get install memcached
 
-Create the database tables associated with the app and some default values by executing::
+Create the database tables associated with the app and some default values by executing:
 
     python manage.py makemigrations core
     python manage.py migrate
 
 
-Create a superuser who can log in to the admin site::
+Create a superuser who can log in to the admin site:
 
     python manage.py createsuperuser
 
 
-Start the development server::
+Start the development server:
 
     python manage.py runserver 0.0.0.0:8000 # Put your IP Address and Port number here
 
 Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GenESysV instance and the GenESysV website should be running. You can stop the development server using ``CTRL + c`` inside the terminal that is ssh'd into the GenESysV instance. Note that the manage.py commands also have to be run inside the virtualenv.
 
 
-Quick Guide to Loading Data 
-=================================================
+### Quick Guide to Loading Data 
+
 1. Single VCF for case only
     python utils/load_vcf.py --vcf <path_to_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --cleanup
 
@@ -353,22 +353,22 @@ Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dat
 The ``Display name`` field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The ``In line tooltip`` field allows the user to display a tooltip next to the display name. The ``Tooltip`` field allows the user to specify
 a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The ``Form type`` is one of the three form types that GenESysV currently supports. The ``Widget type`` is one of the five types of Widget that GenESysV currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch. The ``path`` field specifies the path of the filter field if it is a nested field. The ``Es data type`` field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html for details about the various analyzers. The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel`` is used internally by GenESysV for properly displaying the available filter fields for a given dataset. It should be the ``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GenESysV.
 
-===========================  ===========================================================================================
-Es filter type               When to use
-===========================  ===========================================================================================
-filter_term                  To find documents that contain the exact term specified
-filter_terms                 To find documents that contain at least one of the exact terms specified
-nested_filter_term           To find documents that contain the exact term specified in a nested field
-nested_filter_terms          To find documents that contain at least one of the terms specified in a nested field
-filter_range_gte             To find documents with values greater than or equal to specified
-filter_range_gt              To find documents with values greater than specified
-filter_range_lte             To find documents with values less than or equal to specified
-filter_range_lt              To find documents with values less than specified
-nested_filter_range_gte      To find documents with values greater than or equal to specified in a nested field
-filter_exists                To find documents in which the field specified exists
-must_not_exists              To find documents in which the field specified does not exist
-nested_filter_exists         To find documents in which the nested field specified exists
-===========================  ===========================================================================================
+
+|Es filter type    |           When to use
+| ---------------------------------------------------------------------------------------------------------------------- |
+| filter_term               |   To find documents that contain the exact term specified  |
+| filter_terms              |   To find documents that contain at least one of the exact terms specified  |
+| nested_filter_term        |   To find documents that contain the exact term specified in a nested field |
+| nested_filter_terms       |   To find documents that contain at least one of the terms specified in a nested field |
+| filter_range_gte          |   To find documents with values greater than or equal to specified  |
+| filter_range_gt           |   To find documents with values greater than specified  |
+| filter_range_lte          |   To find documents with values less than or equal to specified  |
+| filter_range_lt           |   To find documents with values less than specified  |
+| nested_filter_range_gte   |   To find documents with values greater than or equal to specified in a nested field  |
+| filter_exists             |   To find documents in which the field specified exists  |
+| must_not_exists           |   To find documents in which the field specified does not exist  |
+| nested_filter_exists      |   To find documents in which the nested field specified exists  |
+
 
 Use the information from figure add_filter_fields_ to add the remaining filter fields.  
 
@@ -473,4 +473,5 @@ The steps for building the attribute fields GUI, assuming that the study, datase
 
 For documentation of the first release using Elasticsearch-3.6.1, please refer to [this link](docs/source/index.rst)
 
-## License: BSD 3-Clause "New" or "Revised" License
+## License: 
+BSD 3-Clause "New" or "Revised" License
