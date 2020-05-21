@@ -4,11 +4,11 @@
 GenESysV is a fast, intuitive and scalable Genome Exploration Open Source Tool for Variants generated from high-throughput sequencing technologies
 
 
-GenESysV at a glance
+## GenESysV at a glance
 
 GenESysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GenESysV, you need to install Elasticsearch, samtools, grabix, and the GenESysV Django app. 
 
-Installing Elasticsearch
+# Installing Elasticsearch
 
 We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
 
@@ -78,28 +78,29 @@ Cd into your elasticsearch root directory and start elasticsearch and test the E
     
     curl 127.0.0.1:9200
 you would expect to see the output like below:
+
     {
-  "name" : "node-1",
-  "cluster_name" : "elasticsearch",
-  "cluster_uuid" : "Cf9Snb1gTSyI5W6S7N_kPQ",
-  "version" : {
-    "number" : "7.7.0",
-    "build_flavor" : "default",
-    "build_type" : "tar",
-    "build_hash" : "81a1e9eda8e6183f5237786246f6dced26a10eaf",
-    "build_date" : "2020-05-12T02:01:37.602180Z",
-    "build_snapshot" : false,
-    "lucene_version" : "8.5.1",
-    "minimum_wire_compatibility_version" : "6.8.0",
-    "minimum_index_compatibility_version" : "6.0.0-beta1"
-  },
-  "tagline" : "You Know, for Search"
-}
+      "name" : "node-1",
+      "cluster_name" : "elasticsearch",
+      "cluster_uuid" : "Cf9Snb1gTSyI5W6S7N_kPQ",
+      "version" : {
+        "number" : "7.7.0",
+        "build_flavor" : "default",
+        "build_type" : "tar",
+        "build_hash" : "81a1e9eda8e6183f5237786246f6dced26a10eaf",
+        "build_date" : "2020-05-12T02:01:37.602180Z",
+        "build_snapshot" : false,
+        "lucene_version" : "8.5.1",
+        "minimum_wire_compatibility_version" : "6.8.0",
+        "minimum_index_compatibility_version" : "6.0.0-beta1"
+      },
+      "tagline" : "You Know, for Search"
+    }
 
 This completes the installation of Elasticsearch.
 
 
-Installing Samtools and Grabix 
+# Installing Samtools and Grabix 
 
 Begin by installing required system packages::
 
