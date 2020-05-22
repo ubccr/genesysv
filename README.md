@@ -128,7 +128,7 @@ Make and and install grabix:
     cd /tmp/grabix; make; sudo cp grabix /usr/local/bin/;
 
 
-## Installing GenESysV Data Warehouse
+## Installing GenESysV
 
 GenESysV is built on top of Django. Django requires Python. The best way to install Django is to first create a virtualenv, and then install all the required python packages in the virtual environment using ``pip``. This setup ensures complete isolation of the GenESysV Python packages from the system-wide Python packages. Begin by installing python3 virtual environment, which is not installed by default::
 
@@ -206,8 +206,8 @@ The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` optio
 
 You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
-![test image](docs/sources/images/component_1.png)
-![test image](./docs/sources/images/component_1.png)
+![Figure 1. ](images/component_1.png)
+
 
    Figure shows the components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.
 
