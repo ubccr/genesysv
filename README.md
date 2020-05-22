@@ -202,11 +202,15 @@ The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` optio
     python manage.py runserver 0.0.0.0:8000
 
 
-## Manually building the GenESysV Web User Interface
+## Manually building the GenESysV Web User Interface (Optional, you can safely skip this section if you feel no need/desire to fine-tune your UI)
 
 You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
-![Figure 1. Components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.](images/component_1.png)
+
+![Figure 1](images/component_1.png)
+
+
+*Figure 1. Components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.*
 
 Figure 1 shows the components of the web interface. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure 2 shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as `basic` and `advanced` search fields.
 
