@@ -206,20 +206,11 @@ The ``--vcf`` option specifies the path of the VCF file. The ``--tmp_dir`` optio
 
 You should now be familiar with how GenESysV works. Before manually building the web interface, you need to become familiar with how its components are organized.
 
-![Figure 1. ](images/component_1.png)
+![Figure 1. Components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.](images/component_1.png)
 
+Figure 1 shows the components of the web interface. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure 2 shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as `basic` and `advanced` search fields.
 
-   Figure shows the components that make up the web interface of GenESysV. Filter fields, example `Variant Name`, are put inside panels, example `Variant Related Information`. Panels are put inside a tab, example `Simple`. Tabs are associated with a dataset. Datasets are associated with a study.
-
-
-Figure components_1_ shows the components of the web interface. Fields used for filtering are put inside a panel. Panels are used to logically group filter fields. Panels can also contain sub-panels that in turn can contain filter fields. Sub-panels allow further grouping of filter fields within a panel. Figure components_2_ shows an example of a sub-panel. Panels themselves are put inside a tab. Tabs can be used to separate panels into different groups such as `basic` and `advanced` search fields.
-
-.. _components_2:
-.. figure:: images/component_2.png
-   :scale: 75 %
-   :alt: Web interface components 2
-
-   Figure shows an example of how sub-panels can be used to further organize filter fields within a panel.
+![Figure 2. Sub-panels that can be used to further organize filter fields within a panel.](images/component_2.png)
 
 
 GenESysV allows a user to select which fields they want to display in the search results. This allows a user to include more, less, or different fields in the search results than the ones used for searching. The result fields are called `attributes` – we are selecting the attributes of the filtered data that we want to see. Attribute fields are organized in a similar manner to filter fields. Attribute fields are placed inside panels to logically group them. Panels can contain sub-panels. Panels are placed inside tabs. Both the filter and attribute tabs are associated with a dataset. Datasets are associated with a study. Finally, a study can contain multiple datasets.
@@ -233,106 +224,49 @@ Start by loading a test data dataset from the main GenESysV folder::
     python manage.py import_test_data
 
 
-To begin building the web interface, log in to the admin site by going to http://172.0.0.1/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure add_study_. In the ``Add Study`` page, see Figure add_study_page_, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Click the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
+To begin building the web interface, log in to the admin site by going to http://172.0.0.1/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure 3. In the ``Add Study`` page, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Click the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
 
-.. _add_study:
-.. figure:: images/add_study.png
-   :scale: 75 %
-   :alt: Add Study
+![ Figure 3. Adding a study page with the '+ Add' button. This page is used to add and update a study.](imagesadd_study.png)
 
-   Figure shows the ``+ Add`` button that is used to add a new study.
-
-.. _add_study_page:
-.. figure:: images/add_study_page.png
-   :scale: 75 %
-   :alt: Add Study Page
-
-   Figure shows the Add study page. This page is used to add and update a study.
 
 Next we will add a dataset that is associated with the study that we just added. Click ``+ Add`` button next to ``Datasets``. Select the study that you just added from the drop down menu, which should be ``test_data``. Select ``complex`` for analysis type. Fill in the dataset name and description field. Next fill in ``Es index name``, ``Es type name``, ``Es host``, and ``Es port``, which should be `test_data`, `test_data`, `127.0.0.1`, and 9200, respectively. Check the ``is_public`` field to make the test dataset accessible by all. The allowed groups field allows you to manage which groups can access the dataset if you want to restrict access to the dataset. To restrict a dataset based on the user, add the user to a group and add the group to ``allowed_groups`` field. Figure add_dataset_page_ shows the add dataset page with the fields filled. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
 
-.. _add_dataset_page:
-.. figure:: images/add_dataset_page.png
-   :scale: 50 %
-   :alt: Add Dataset Page
+![Figure 4. Adding a dataset page. This page is used to add and update a dataset.](images/add_dataset_page.png)
+ 
 
-   Figure shows the add dataset page. This page is used to add and update a dataset.
+Next we need to add search options for the dataset. A dataset can contain millions of documents. Displaying so many results can cause rendering issues, so we use search options to limit the number of results that are shown to 400 documents. If you want to fetch all the results, you can download them from the search results page. To add the default search options, click the ``+ Add`` button next to ``Search options``. Choose the dataset you just added and leave the other values to the default and click SAVE. Figure 5 shows the page for adding searching options for a dataset.
 
-Next we need to add search options for the dataset. A dataset can contain millions of documents. Displaying so many results can cause rendering issues, so we use search options to limit the number of results that are shown to 400 documents. If you want to fetch all the results, you can download them from the search results page. To add the default search options, click the ``+ Add`` button next to ``Search options``. Choose the dataset you just added and leave the other values to the default and click SAVE. Figure add_search_options_page_ shows the page for adding searching options for a dataset.
-
-.. _add_search_options_page:
-.. figure:: images/add_search_options_page.png
-   :scale: 75 %
-   :alt: Add Search Options Page
-
-   Figure shows the Add search options page. This page is used to add and update the search options associated with a dataset. Search options limit the number of results returned matching the search criteria.
-
+![Figure 5. The Add search options page. This page is used to add and update the search options associated with a dataset. Search options limit the number of results returned matching the search criteria.](images/add_search_options_page.png)
+  
 
 Adding filter and attribute panels and tabs
 -----------------------------------------------
-Before we add filter and attribute fields, we need to first add panels, and maybe sub-panels, and tabs to contain the panels. Click ``+Add`` button next to ``Filter panels``. Select ``test_data`` for dataset. Enter ``Variant Related Information`` for name and click save to create the panel. Figure variant_panel_ shows the page for adding a filter panel. Repeat these steps and add two more panels called ``Functional Consequence`` and ``Sample Related Information``. 
+Before we add filter and attribute fields, we need to first add panels, and maybe sub-panels, and tabs to contain the panels. Click ``+Add`` button next to ``Filter panels``. Select ``test_data`` for dataset. Enter ``Variant Related Information`` for name and click save to create the panel. Figure 6 shows the page for adding a filter panel. Repeat these steps and add two more panels called ``Functional Consequence`` and ``Sample Related Information``. 
 
-.. _variant_panel:
-.. figure:: images/variant_panel.png
-   :scale: 75 %
-   :alt: Adding a filter panel
+![Figure 6. Adding a filter variant panel.](mages/variant_panel.png)
+  
+We will also add a sub-panel to demonstrate how sub-panels work. Click ``+Add`` button next to ``Filter sub panels``. Sub-panels have to be associated with a panel because the former are placed inside the later. So when creating a sub-panel, you have to first select the dataset and specify the name of the panel and click save and continue editing. Once the panel has been saved, the refreshed page for sub-panel will now show a drop down list for panels in which the sub-panel can be placed. Figure 7 shows add sub-panel page before saving and figure 8 shows the add sub-panel page after the initial save. Note that the panel drop down is now populated.  
 
-   Figure shows an add filter variant panel page.
-
-We will also add a sub-panel to demonstrate how sub-panels work. Click ``+Add`` button next to ``Filter sub panels``. Sub-panels have to be associated with a panel because the former are placed inside the later. So when creating a sub-panel, you have to first select the dataset and specify the name of the panel and click save and continue editing. Once the panel has been saved, the refreshed page for sub-panel will now show a drop down list for panels in which the sub-panel can be placed. Figure ncbi_panel_1_ shows add sub-panel page before saving and figure ncbi_panel_2_ shows the add sub-panel page after the initial save. Note that the panel drop down is now populated.  
+![Figure 7. Adding a filter sub-panel](images/ncbi_panel_1.png)
+ 
 
 
-.. _ncbi_panel_1:
-.. figure:: images/ncbi_panel_1.png
-   :scale: 75 %
-   :alt: Add a filter sub-panel
-
-   Figure shows an add filter sub-panel page.
-
-.. _ncbi_panel_2:
-.. figure:: images/ncbi_panel_2.png
-   :scale: 75 %
-   :alt: Editing a sub-panel for filter after initial save
-
-   Figure shows an add filter sub-panel page after saving. Note that the panel drop down is now populated. 
+![Figure 8. Adding a filter sub-panel page after saving. Note that the panel dropdown is now populated.](images/ncbi_panel_2.png)
 
 
-Now we will add a filter tab that will contain all the filter panels. Click the ``+Add`` button next to  ``Filter Tab``. Select 'test_data' for dataset and name the tab 'Basic'. Check all three filter panels that we had created. Figure filter_tab_ shows an add filter tab page. 
+Now we will add a filter tab that will contain all the filter panels. Click the ``+Add`` button next to  ``Filter Tab``. Select 'test_data' for dataset and name the tab 'Basic'. Check all three filter panels that we had created. Figure 9 shows an add filter tab page. 
+
+![Figure 9. Adding a filter tab page.](images/filter_tab.png)
 
 
-.. _filter_tab:
-.. figure:: images/filter_tab.png
-   :scale: 75 %
-   :alt: Adding a filter tab. 
+Repeat the steps for creating a panel, sub-panel and tab for attributes, see figures 10, 11, and 12.
 
-   Figure shows an add filter tab page. 
+![Figure 10. Adding attribute panel page.](images/variant_attribute_panel.png)
+ 
+![Figure 11. Adding an attribute sub-panel page. Note that you have to save the sub-panel before you can select the panel to place the sub-panel inside.](images/ncbi_attribute_panel_2.png)
 
-
-Repeat the steps for creating a panel, sub-panel and tab for attributes, see figures variant_attribute_panel_, ncbi_attribute_panel_2_, and attribute_tab_
-
-
-.. _variant_attribute_panel:
-.. figure:: images/variant_attribute_panel.png
-   :scale: 75 %
-   :alt: Adding an attribute panel. 
-
-   Figure shows an add attribute panel page. 
-
-.. _ncbi_attribute_panel_2:
-.. figure:: images/ncbi_attribute_panel_2.png
-   :scale: 75 %
-   :alt: Editing an attribute sub-panel page. 
-
-   Figure shows an add attribute sub-panel page after initial save. Note that you have to save the sub-panel before you can select the panel to place the sub-panel inside. 
-
-
-.. _attribute_tab:
-.. figure:: images/attribute_tab.png
-   :scale: 75 %
-   :alt: Adding an attribute tab. 
-
-   Figure shows an add attribute tab page. 
-
+![Figure 13. Adding attribute tab page.](images/attribute_tab.png)
+ 
 
 Managing Filters
 ---------------------------
@@ -341,13 +275,8 @@ that renders a single-select drop down menu for selecting a single term to searc
 
 Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dataset. Enter `Variant` for display text. Select `CharField` for form type. Select `TextInput` for widget type. Enter `Variant` for Es name. Select `keyword` for es data type. Select `filter_term` for es filter type. Select `Variant Related Information` for place in panel.   Click save to create the field. Figure variant_filter_field_ shows an example page for adding a filter field.
 
-.. _variant_filter_field:
-.. figure:: images/variant_filter_field.png
-   :scale: 75 %
-   :alt: Adding a filter field
-
-   Figure shows an add filter field page.
-
+![Figure 14. Adding a filter field page.]( images/variant_filter_field.png)
+ 
 The ``Display name`` field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The ``In line tooltip`` field allows the user to display a tooltip next to the display name. The ``Tooltip`` field allows the user to specify
 a hover-over tooltip associated with the filter field. This can be used to guide the user and explain the filter field. The ``Form type`` is one of the three form types that GenESysV currently supports. The ``Widget type`` is one of the five types of Widget that GenESysV currently supports. The ``Es name`` is the name of field that will be searched in Elasticsearch. The ``path`` field specifies the path of the filter field if it is a nested field. The ``Es data type`` field specifies what Elasticsearch data type the field is such as float, integer, keyword, or text. ``Es text analyzer`` specifics the Elasticsearch text analyzer to use if the ``Es data type`` is set to text. See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html for details about the various analyzers. The ``Es filter type`` field allows the user to specify which Elasticsearch type query to use. The ``Place in panel`` is used internally by GenESysV for properly displaying the available filter fields for a given dataset. It should be the ``display_name`` of the panel the filter field is associated with. Finally, the ``Is visible`` field is  used to show or hide filter fields. Table 1 explains the query types. Not all queries that Elasticsearch can do are currently supported by GenESysV.
 
@@ -368,42 +297,20 @@ a hover-over tooltip associated with the filter field. This can be used to guide
 | nested_filter_exists      |   To find documents in which the nested field specified exists  |
 
 
-Use the information from figure add_filter_fields_ to add the remaining filter fields.  
+Use the information from figure 14 to add the remaining filter fields.  
 
-
-.. _add_filter_fields:
-.. figure:: images/add_filter_fields.png
-   :scale: 75 %
-   :alt: All 
-
-   Figure shows all the filter fields.
+![Figure 15. All the filter fields/](images/add_filter_fields.png)
+ 
 
 ``ChoiceField`` and ``MultipleChoiceField`` require that you specify choices for them. You should have added three ``MultipleChoiceField`` -- Sample_GT, Sample_ID, and ExonicFunc_refGene. These fields need choices. Click the ``+ Add`` next to the ``Filter Choice Fields``. Click the search (magnifying glass) icon to open a another window from which you will choose ``ExonicFunc_refGene (test-dataset)`` for filter field by clicking the colored display text. This will automatically put the ID of the chosen field in the filter field. This unique number identifies filter fields and can be different based on which order you added the filter fields. Enter ``stoploss`` for value and click save. Figure add_filter_field_choice_ shows an example add filter field choice page.
 
-.. _add_filter_field_choice:
-.. figure:: images/all_filter_field_choices.png
-   :scale: 75 %
-   :alt: Add filter field choice page
-
-   Figure shows an example of an add filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.
-
-Use figure _add_all_filter_field_choices_ to add two more filter choices. 
-
-.. _add_all_filter_field_choices:
-.. figure:: images/all_filter_field_choices.png
-   :scale: 75 %
-   :alt: List Filter field choices
-
-   Figure shows what the admin site should look like after adding all the filter field choice options.
+![Figure 16. Adding filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.](images/all_filter_field_choices.png)
+  
+![Figure 17. Screenshot showing the admin site after adding all the filter field choice options.](images/all_filter_field_choices.png)
 
 Finally, you need to edit panels or sub-panels to add the filter fields to panels. Although you have already specified place in panel for each filter field, you still need to edit the panels or sub-panels to add the filters in the panel or sub-panel. Figure all_filter_fields_to_panel_ shows the change filter panel page for the ``Variant Related Information`` with all the filter fields selected. You can rearrange the order of the filter fields by dragging and dropping. 
 
-.. _all_filter_fields_to_panel:
-.. figure:: images/all_filter_fields_to_panel.png
-   :scale: 75 %
-   :alt: Selecting filter fields to add to panel
-
-   Figure shows selecting and ordering the filter fields in a panel.
+![Figure 18. Selecting and ordering the filter fields in a panel.](images/all_filter_fields_to_panel.png)
 
 
 This completes the steps needed to manage the filters. To recap, there are nine steps for building the filter UI:
@@ -423,40 +330,21 @@ Managing Attributes
 Start by adding three attribute panels and one sub-panel, see figures add_all_attribute_panels_ and add_all_attribute_sub_panels_.
 
 
-.. _add_all_attribute_panels:
-.. figure:: images/add_all_attribute_panels.png
-   :scale: 75 %
-   :alt: Adding attribute panels
-
-   Figure shows the attributes panels to add.
-
-.. _add_all_attribute_sub_panels:
-.. figure:: images/add_all_attribute_sub_panels.png
-   :scale: 75 %
-   :alt: Adding attribute sub-panels
-
-   Figure shows the attribute sub-panels to add.
+![Figure 19. Adding attributes panels.](images/add_all_attribute_panels.png)
+ 
+![Figure 20. Adding attribute sub-panels.](images/add_all_attribute_sub_panels.png)
+ 
 
 Then add an attribute tab to contain the three panels. 
 
 Next we will add a variant attribute. Click ``+Add`` next to ``Attribute fields``. Select `test_data` for dataset. Enter `Variant` for display text. Enter `Variant` for Es name. Select `Variant Related Information` for place in panel. Check `Is link field`. The last option makes the variant field a link field that takes you to the variant detail page. 
 
-.. _variant_attribute_field:
-.. figure:: images/variant_attribute_field.png
-   :scale: 75 %
-   :alt: Adding a variant attribute field
-
-   Figure shows an add attribute filter page for variant.
+![Figure 21. Adding a attribute filter page for variant.](images/variant_attribute_field.png)
 
 
-Use figure all_attribute_fields_ to add the other attribute fields. 
+Use figure 22 to add the other attribute fields. 
 
-.. _all_attribute_fields:
-.. figure:: images/all_attribute_fields.png
-   :scale: 75 %
-   :alt: All the attribute fields
-
-   Figure shows all the attribute fields that should be added.
+![Figure 22. all the attribute fields that should be added.](images/all_attribute_fields.png)
 
 
 Finally, add the attributes fields to the appropriate panels and sub-panels. 
