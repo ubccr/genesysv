@@ -188,6 +188,8 @@ Open a browser on your  machine and navigate to 127.0.0.1:8000 of your GenESysV 
 3. Family based analysis
     python utils/load_vcf.py --vcf <path_to_case_vcf_file> --tmp_dir /tmp --annot <annovar/vep> --hostname 127.0.0.1 --port 9200 --index <index_name> --study_name <study_name> --dataset_name <dataset_name> --num_cores <int> --assembly <hg19|hg38|GRCh37|GRCh38> --ped <path_to_ped_file> --cleanup
 
+*Please see next step for loading our test dataset as an example*
+    
 
 ## Automatically Creating the UI
 
@@ -222,7 +224,7 @@ GenESysV allows a user to select which fields they want to display in the search
 
 Adding study, dataset, and search options
 --------------------------------------------
-Start by loading a test data dataset from the main GenESysV folder::
+Start by loading a test data dataset from the main GenESysV folder:
 
     # from the main GenESysV folder
     source activate venv/bin/activate
@@ -232,7 +234,7 @@ Start by loading a test data dataset from the main GenESysV folder::
 To begin building the web interface, log in to the admin site by going to http://172.0.0.1/admin. Make sure that the development server is running. Use the username and password that you used to create the ``superuser``. First we will add a new study by clicking the ``+ Add`` button next to ``Studies``, see Figure 3. In the ``Add Study`` page, specify a name for the study. You can also add a description, but this is optional as indicated by the non-bold text label. Click the save button to create the study. Click on the `home` link in the breadcrumb navigation to return to the admin home page.
 
 
-![ Figure 3. ](imagesadd_study.png)
+![Figure 3](images/add_study.png)
 
 *Figure 3. Adding a study page with the '+ Add' button. This page is used to add and update a study.*
 
@@ -256,7 +258,7 @@ Adding filter and attribute panels and tabs
 -----------------------------------------------
 Before we add filter and attribute fields, we need to first add panels, and maybe sub-panels, and tabs to contain the panels. Click ``+Add`` button next to ``Filter panels``. Select ``test_data`` for dataset. Enter ``Variant Related Information`` for name and click save to create the panel. Figure 6 shows the page for adding a filter panel. Repeat these steps and add two more panels called ``Functional Consequence`` and ``Sample Related Information``. 
 
-![Figure 6. Adding a filter variant panel.](mages/variant_panel.png)
+![Figure 6](images/variant_panel.png)
   
 *Figure 6. Adding a filter variant panel.*
 
@@ -295,10 +297,10 @@ Repeat the steps for creating a panel, sub-panel and tab for attributes, see fig
 *Figure 11. Adding an attribute sub-panel page. Note that you have to save the sub-panel before you can select the panel to place the sub-panel inside.*
 
 
-![Figure 13. Adding attribute tab page.](images/attribute_tab.png)
+![Figure 12. Adding attribute tab page.](images/attribute_tab.png)
 
 
-*Figure 13. Adding attribute tab page.*
+*Figure 12. Adding attribute tab page.*
 
 
 Managing Filters
@@ -306,11 +308,11 @@ Managing Filters
 Now we are ready to add filter fields. Currently GenESysV supports three types of forms for filter fields: ``CharField``, ``ChoiceField`` and ``MultipleChoiceField``. The ``CharField`` can use three types of form widget: ``TextInput``, ``TextArea``, and ``UploadField``. The ``TextInput`` widget is a simple text input box that allows the user to search for a single term. The ``TextArea`` is also a text input box but allows rows of terms. Finally, the ``UploadField`` uses the ``TextArea`` widget but with an extra upload button that allows users to select a file from which to populate the ``TextArea`` widget. The ``TextArea`` and ``UploadField`` widgets allow users to search for multiple terms. The ``ChoiceField`` uses the ``Select`` widget
 that renders a single-select drop down menu for selecting a single term to search for from a list of choices. And the ``MultipleChoiceField`` field uses a ``SelectMultiple`` widget that renders a multi-select field to allow users to select multiple terms to search for from a list of choices.
 
-Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dataset. Enter `Variant` for display text. Select `CharField` for form type. Select `TextInput` for widget type. Enter `Variant` for Es name. Select `keyword` for es data type. Select `filter_term` for es filter type. Select `Variant Related Information` for place in panel.   Click save to create the field. Figure variant_filter_field_ shows an example page for adding a filter field.
+Click ``+ Add`` button next to the ``Filter Fields``. Select `test_data` for dataset. Enter `Variant` for display text. Select `CharField` for form type. Select `TextInput` for widget type. Enter `Variant` for Es name. Select `keyword` for es data type. Select `filter_term` for es filter type. Select `Variant Related Information` for place in panel.   Click save to create the field. Figure 13 shows an example page for adding a filter field.
 
-![Figure 14]( images/variant_filter_field.png)
+![Figure 13]( images/variant_filter_field.png)
 
-*Figure 14. Adding a filter field page.*
+*Figure 13. Adding a filter field page.*
 
 
 The ``Display name`` field allows the user to specify the name that will be displayed as the text label for the filter field. This name can be different from the name in Elasticsearch. The ``In line tooltip`` field allows the user to display a tooltip next to the display name. The ``Tooltip`` field allows the user to specify
@@ -337,30 +339,30 @@ a hover-over tooltip associated with the filter field. This can be used to guide
 
 Use the information from figure 14 to add the remaining filter fields.  
 
-![Figure 15](images/add_filter_fields.png)
+![Figure 14](images/add_filter_fields.png)
  
-*Figure 15. All the filter fields*
+*Figure 14. All the filter fields*
 
 
 ``ChoiceField`` and ``MultipleChoiceField`` require that you specify choices for them. You should have added three ``MultipleChoiceField`` -- Sample_GT, Sample_ID, and ExonicFunc_refGene. These fields need choices. Click the ``+ Add`` next to the ``Filter Choice Fields``. Click the search (magnifying glass) icon to open a another window from which you will choose ``ExonicFunc_refGene (test-dataset)`` for filter field by clicking the colored display text. This will automatically put the ID of the chosen field in the filter field. This unique number identifies filter fields and can be different based on which order you added the filter fields. Enter ``stoploss`` for value and click save. Figure add_filter_field_choice_ shows an example add filter field choice page.
 
+![Figure 15](images/all_filter_field_choices.png)
+ 
+ 
+*Figure 15. Adding filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.*
+
+
 ![Figure 16](images/all_filter_field_choices.png)
- 
- 
-*Figure 16. Adding filter choice field page. Single and multiple select choice fields require that you specify the choices. This page is used to add choices.*
 
-
-![Figure 17](images/all_filter_field_choices.png)
-
-*Figure 17. Screenshot showing the admin site after adding all the filter field choice options.*
+*Figure 16. Screenshot showing the admin site after adding all the filter field choice options.*
 
 
 Finally, you need to edit panels or sub-panels to add the filter fields to panels. Although you have already specified place in panel for each filter field, you still need to edit the panels or sub-panels to add the filters in the panel or sub-panel. Figure all_filter_fields_to_panel_ shows the change filter panel page for the ``Variant Related Information`` with all the filter fields selected. You can rearrange the order of the filter fields by dragging and dropping. 
 
-![Figure 18](images/all_filter_fields_to_panel.png)
+![Figure 17](images/all_filter_fields_to_panel.png)
 
 
-*Figure 18. Selecting and ordering the filter fields in a panel.*
+*Figure 17. Selecting and ordering the filter fields in a panel.*
 
 
 
@@ -378,33 +380,33 @@ This completes the steps needed to manage the filters. To recap, there are nine 
 
 Managing Attributes
 -----------------------------
-Start by adding three attribute panels and one sub-panel, see figures add_all_attribute_panels_ and add_all_attribute_sub_panels_.
+Start by adding three attribute panels and one sub-panel, see figures 18 and 19.
 
 
-![Figure 19](images/add_all_attribute_panels.png)
+![Figure 18](images/add_all_attribute_panels.png)
 
-*Figure 19. Adding attributes panels.*
+*Figure 18. Adding attributes panels.*
 
 
-![Figure 20](images/add_all_attribute_sub_panels.png)
+![Figure 19](images/add_all_attribute_sub_panels.png)
 
-*Figure 20. Adding attribute sub-panels.*
+*Figure 19. Adding attribute sub-panels.*
 
 
 Then add an attribute tab to contain the three panels. 
 
 Next we will add a variant attribute. Click ``+Add`` next to ``Attribute fields``. Select `test_data` for dataset. Enter `Variant` for display text. Enter `Variant` for Es name. Select `Variant Related Information` for place in panel. Check `Is link field`. The last option makes the variant field a link field that takes you to the variant detail page. 
 
-![Figure 21](images/variant_attribute_field.png)
+![Figure 20](images/variant_attribute_field.png)
 
-*Figure 21. Adding a attribute filter page for variant.*
+*Figure 20. Adding a attribute filter page for variant.*
 
 
-Use figure 22 to add the other attribute fields. 
+Use figure 21 to add the other attribute fields. 
 
-![Figure 22](images/all_attribute_fields.png)
+![Figure 21](images/all_attribute_fields.png)
 
-*Figure 22. all the attribute fields that should be added.*
+*Figure 21. all the attribute fields that should be added.*
 
 Finally, add the attributes fields to the appropriate panels and sub-panels. 
 
