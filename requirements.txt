@@ -9,7 +9,7 @@ celery==4.1.1
 certifi==2018.4.16
 chardet==3.0.4
 decorator==4.3.0
-Django==2.0.5
+Django==2.2.10
 django-crispy-forms==1.7.2
 django-formtools==2.1
 django-htmlmin==0.10.0
