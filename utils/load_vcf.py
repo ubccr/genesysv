@@ -85,7 +85,6 @@ control_vcf = args.control_vcf
 tmp_dir = args.tmp_dir
 annot = args.annot
 index_name = args.index
-type_name = index_name + '_'
 study = args.study_name
 dataset_name = args.dataset_name
 ped = args.ped
@@ -1528,44 +1527,44 @@ def make_es_mapping(vcf_info):
 
 	return(create_index_script, mapping_file)
 
-def put_mendelian_to_es(es, index_name, doc_type_name, annotation):
+def put_mendelian_to_es(es, index_name,  annotation):
 
-	family_dict = get_family_dict(es, index_name, doc_type_name)
+	family_dict = get_family_dict(es, index_name)
 	all_start_time = datetime.datetime.now()
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_autosomal_recessive', start_time)
-	annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+	annotate_autosomal_recessive(es, index_name,  family_dict, annotation)
 	print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_denovo', start_time)
-	annotate_denovo(es, index_name, doc_type_name, family_dict)
+	annotate_denovo(es, index_name,  family_dict)
 	print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_autosomal_dominant', start_time)
-	annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+	annotate_autosomal_dominant(es, index_name, family_dict)
 	print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_x_linked_dominant', start_time)
-	annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+	annotate_x_linked_dominant(es, index_name, family_dict)
 	print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_x_linked_recessive', start_time)
-	annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+	annotate_x_linked_recessive(es, index_name, family_dict, annotation)
 	print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_x_linked_denovo', start_time)
-	annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+	annotate_x_linked_denovo(es, index_name,  family_dict)
 	print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	start_time = datetime.datetime.now()
 	print('Starting annotate_compound_heterozygous', start_time)
-	annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+	annotate_compound_heterozygous(es, index_name,  family_dict, annotation)
 	print('Finished annotate_compound_heterozygous', int((datetime.datetime.now() - start_time).total_seconds()))
 
 	print('Finished annotating all in seconds: ', int((datetime.datetime.now() - all_start_time).total_seconds()))
@@ -1604,10 +1603,10 @@ if __name__ == '__main__':
 	conn.close()
 
 	if gui_only:
-		gui_mapping_file = os.path.join("config", type_name + '_gui_config.json')
+		gui_mapping_file = os.path.join("config", index_name + '_gui_config.json')
 		with open(gui_mapping_file) as f:
 			gui_mapping = json.load(f)
-			make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+			make_gui(es, hostname, port, index_name, study, dataset_name,  gui_mapping)
 	else:
 		case_control = False
 		if control_vcf:
@@ -1709,10 +1708,10 @@ if __name__ == '__main__':
 		#  make a gui config file
 		print("Creating Web user interface, please wait ...")
 
-		gui_mapping = make_gui_config(out_vcf_info, mapping_file, type_name, annot, case_control, ped)
+		gui_mapping = make_gui_config(out_vcf_info, mapping_file, index_name,  annot, case_control, ped)
 
 
-		make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+		make_gui(es, hostname, port, index_name, study, dataset_name,  gui_mapping)
 
 		print("*"*80+"\n")
 		print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))
@@ -1724,7 +1723,7 @@ if __name__ == '__main__':
 
 	# annotate variants for Mendelian inheritance and insert results back to es index
 	if ped:
-		put_mendelian_to_es(es, index_name, type_name, annot)
+		put_mendelian_to_es(es, index_name,  annot)
 
 
 	# clean up

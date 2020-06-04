@@ -47,7 +47,6 @@ class KindredSnippetView(View):
 
     def generate_kindred_form(self, dataset_obj):
         family_ids = get_values_from_es(dataset_obj.es_index_name,
-                                        dataset_obj.es_type_name,
                                         dataset_obj.es_host,
                                         dataset_obj.es_port,
                                         'Family_ID',
@@ -85,7 +84,6 @@ class FamilySnippetView(View):
 
     def generate_family_form(self, dataset_obj):
         sample_ids = get_values_from_es(dataset_obj.es_index_name,
-                                        dataset_obj.es_type_name,
                                         dataset_obj.es_host,
                                         dataset_obj.es_port,
                                         'sample_ID',
@@ -124,12 +122,12 @@ class MendelianSearchView(BaseSearchView):
 
     def validate_additional_forms(self, request, POST_data):
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
-                                        self.dataset_obj.es_type_name,
                                         self.dataset_obj.es_host,
                                         self.dataset_obj.es_port,
                                         'Family_ID',
                                         'sample')
         number_of_families = len(family_ids)
+
         kindred_form = KindredForm(number_of_families, POST_data)
         if kindred_form.is_valid():
             if kindred_form.cleaned_data['number_of_kindred']:

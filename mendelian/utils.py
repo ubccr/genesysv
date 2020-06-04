@@ -129,9 +129,9 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
 
         es = elasticsearch.Elasticsearch(host=self.dataset_obj.es_host, port=self.dataset_obj.es_port)
 
-        if 'CSQ_nested' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+        if 'CSQ_nested' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings']['properties']:
             annotation = 'VEP'
-        elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings'][self.dataset_obj.es_type_name]['properties']:
+        elif 'ExonicFunc_refGene' in es.indices.get_mapping()[self.dataset_obj.es_index_name]['mappings']['properties']:
             annotation = 'ANNOVAR'
 
         query_body = self.add_analysis_type_filter(self.mendelian_analysis_type)
@@ -152,15 +152,15 @@ class MendelianElasticSearchQueryExecutor(BaseElasticSearchQueryExecutor):
                 }
              })
 
+        print("$$$$ query %s" % query_body)
         for hit in helpers.scan(
                 es,
                 query=query_body,
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=self.dataset_obj.es_index_name,
-                doc_type=self.dataset_obj.es_type_name):
-
+                doc_type = '_doc',
+                index=self.dataset_obj.es_index_name):
 
             if self.limit_results and len(results['hits']['hits']) > self.elasticsearch_terminate_after:
                 break
@@ -226,7 +226,6 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
 
         body = body_template % (Family_ID)
         results = es.search(index=dataset_es_index_name,
-                            doc_type=dataset_es_type_name,
                             body=body, request_timeout=120)
 
         result = results['hits']['hits'][0]['inner_hits']['sample']['hits']['hits'][0]["_source"]
@@ -239,7 +238,6 @@ class MendelianSearchElasticsearch(BaseSearchElasticsearch):
     def get_family_dict(self):
 
         family_ids = get_values_from_es(self.dataset_obj.es_index_name,
-                                        self.dataset_obj.es_type_name,
                                         self.dataset_obj.es_host,
                                         self.dataset_obj.es_port,
                                         'Family_ID',

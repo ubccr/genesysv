@@ -16,7 +16,7 @@ django-htmlmin==0.10.0
 django-sortedm2m==1.5.0
 django-tinymce==2.7.0
 docutils==0.14
-elasticsearch==6.2.0
+elasticsearch==7.7.0
 html5lib==1.0.1
 idna==2.6
 imagesize==1.0.0
@@ -35,7 +35,7 @@ pandas==0.23.0
 parso==0.2.1
 pexpect==4.5.0
 pickleshare==0.7.4
-pkg-resources==0.0.0
+#pkg-resources==0.0.0
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 pycodestyle==2.4.0

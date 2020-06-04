@@ -68,7 +68,7 @@ def get_values_from_es(dataset_es_index_name,
                                        field_es_name)
 
         results = es.search(index=dataset_es_index_name,
-                            body=body, request_timeout=120)
+                            body=body, request_timeout=240)
         return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 

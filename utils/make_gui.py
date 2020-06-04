@@ -84,7 +84,7 @@ ANALYSIS_TYPES = (
 
 tooltip = ""
 
-def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control, ped):
+def make_gui_config(vcf_info_file, mapping_file, index_name, annot, case_control, ped):
 	mapping = json.load(open(mapping_file, 'r'))
 	mapping = mapping['properties']
 	vcf_info = json.load(open(vcf_info_file, 'r'))
@@ -884,7 +884,7 @@ def make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control,
 	for dict_ in [gui_mapping_var, gui_mapping_stat, gui_mapping_qc, gui_mapping_gene, gui_mapping_func, gui_mapping_maf, gui_mapping_conserv, gui_mapping_patho_p, gui_mapping_patho_s, gui_mapping_intvar, gui_mapping_disease, gui_mapping_sample, gui_mapping_others]:
 		result.update(dict_)
 
-	gui_config_file = type_name + '_gui_config.json'
+	gui_config_file = index_name + '_gui_config.json'
 	with open(os.path.join("config", gui_config_file), 'w') as fp:
 		json.encoder.c_make_encoder = None	
 		json.dump(result, fp, sort_keys=True, indent=2, ensure_ascii=False)
@@ -913,7 +913,7 @@ def get_order_of_import(ele, vcf_gui_mapping_order):
     else:
         return len(vcf_gui_mapping_order)+1
 
-def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_mapping):
+def make_gui(es, hostname, port, index_name, study, dataset,  vcf_gui_mapping):
 
         add_required_data_to_db()
 
@@ -938,7 +938,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
         print('Study Name: %s' % (study))
         print('Dataset Name: %s' % (dataset))
         print('Dataset ES Index Name: %s' % (index_name))
-        print('Dataset ES Type Name: %s' % (type_name))
         print('Dataset ES Host: %s' % (hostname))
         print('Dataset ES Port: %s' % (port))
 
@@ -950,7 +949,6 @@ def make_gui(es, hostname, port, index_name, study, dataset, type_name, vcf_gui_
                                                              name=dataset,
                                                              description=dataset,
                                                              es_index_name=index_name,
-                                                             es_type_name=type_name,
                                                              es_host=hostname,
                                                              es_port=port,
                                                              is_public=True)
@@ -1129,12 +1127,11 @@ if __name__ == '__main__':
 	mapping_file = 'utils/scripts/test_mapping.json' #AshkenazimTrio.hg19_annovar_mapping.json' #ub_ms16_vep_mapping.json' 
 	index_name = os.path.basename(mapping_file) #NB: only takes all lower case letters
 	index_name = re.sub('_mapping.json', '', index_name)
-	type_name = index_name + '_' 
 	annot = 'annovar'
 	case_control = False #True
 	ped = False
 
-	gui_mapping = make_gui_config(vcf_info_file, mapping_file, type_name, annot, case_control, ped)
+	gui_mapping = make_gui_config(vcf_info_file, mapping_file, index_name, annot, case_control, ped)
 
 
 	es = elasticsearch.Elasticsearch( host=hostname, port=port, request_timeout=180, max_retries=10, timeout=400, read_timeout=400)
@@ -1155,7 +1152,7 @@ if __name__ == '__main__':
 	conn.commit()
 	conn.close()
 	
-	make_gui(es, hostname, port, index_name, study, dataset_name, type_name, gui_mapping)
+	make_gui(es, hostname, port, index_name, study, dataset_name, gui_mapping)
 	
 	print("*"*80+"\n")	
 	print("Successfully imported VCF file. You can now explore your data at %s:%s" % (hostname, webserver_port))

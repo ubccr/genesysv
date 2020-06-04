@@ -478,7 +478,7 @@ def is_x_linked_denovo(sample_information):
     return False
 
 
-def get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name):
+def get_vep_genes_from_es_for_compound_heterozygous(es, index_name):
     compound_heterozygous_query_body_template = """{
          "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant", "CSQ_nested"
          ],
@@ -531,12 +531,12 @@ def get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_nam
         }
         }"""
 
-    results = es.search(index=index_name, doc_type=doc_type_name,
+    results = es.search(index=index_name,
                         body=compound_heterozygous_query_body_template, request_timeout=120)
     return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
-def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name):
+def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name):
     compound_heterozygous_query_body_template = """{
          "_source": ["sample", "CHROM", "ID", "POS", "REF", "Variant", "CSQ_nested"
          ],
@@ -584,12 +584,12 @@ def get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type
         }
         }"""
 
-    results = es.search(index=index_name, doc_type=doc_type_name,
+    results = es.search(index=index_name,
                         body=compound_heterozygous_query_body_template, request_timeout=120)
     return natsorted([ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']])
 
 
-def get_values_from_es(es, index_name, doc_type_name, field_es_name, field_path):
+def get_values_from_es(es, index_name, field_es_name, field_path):
 
     if not field_path:
         body_non_nested_template = """
@@ -603,7 +603,7 @@ def get_values_from_es(es, index_name, doc_type_name, field_es_name, field_path)
             }
         """
         body = body_non_nested_template % (field_es_name)
-        results = es.search(index=index_name, doc_type=doc_type_name, body=body, request_timeout=120)
+        results = es.search(index=index_name,  body=body, request_timeout=120)
         return [ele['key'] for ele in results["aggregations"]["values"]["buckets"] if ele['key']]
 
     elif field_path:
@@ -626,13 +626,13 @@ def get_values_from_es(es, index_name, doc_type_name, field_es_name, field_path)
                                        field_path,
                                        field_es_name)
 
-        results = es.search(index=index_name, doc_type=doc_type_name, body=body, request_timeout=120)
+        results = es.search(index=index_name, body=body, request_timeout=120)
         return [ele['key'] for ele in results["aggregations"]["values"]["values"]["buckets"] if ele['key']]
 
 
-def get_family_dict(es, index_name, doc_type_name):
+def get_family_dict(es, index_name):
 
-    family_ids = get_values_from_es(es, index_name, doc_type_name, 'Family_ID', 'sample')
+    family_ids = get_values_from_es(es, index_name, 'Family_ID', 'sample')
 
     family_dict = {}
 
@@ -662,7 +662,7 @@ def get_family_dict(es, index_name, doc_type_name):
     for family_id in family_ids:
 
         body = body_template % (family_id)
-        results = es.search(index=index_name, doc_type=doc_type_name, body=body, request_timeout=120)
+        results = es.search(index=index_name, body=body, request_timeout=120)
 
         result = results['hits']['hits'][0]['inner_hits']['sample']['hits']['hits'][0]["_source"]
         father_id = result.get('Father_ID')
@@ -737,7 +737,7 @@ def are_variants_compound_heterozygous(variants):
         return False
 
 
-def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation):
+def annotate_autosomal_recessive(es, index_name,family_dict, annotation):
 
     sample_matched = []
     for family_id, family in family_dict.items():
@@ -757,8 +757,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
 
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
@@ -788,7 +787,6 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
                 action = {
                     "_index": index_name,
                     '_op_type': 'update',
-                    "_type": doc_type_name,
                     "_id": es_id,
                     "doc": {
                         "sample": sample_array
@@ -811,7 +809,7 @@ def annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, ann
     print('Found {} autosomal_recessive samples'.format(len(list(set(sample_matched)))))
 
 
-def annotate_denovo(es, index_name, doc_type_name, family_dict):
+def annotate_denovo(es, index_name, family_dict):
 
 
     sample_matched = []
@@ -830,8 +828,7 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
 
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
@@ -860,7 +857,6 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
                 action = {
                     "_index": index_name,
                     '_op_type': 'update',
-                    "_type": doc_type_name,
                     "_id": es_id,
                     "doc": {
                         "sample": sample_array
@@ -883,7 +879,7 @@ def annotate_denovo(es, index_name, doc_type_name, family_dict):
     print('Found {} denovo samples'.format(len(list(set(sample_matched)))))
 
 
-def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
+def annotate_autosomal_dominant(es, index_name, family_dict):
 
 
     sample_matched = []
@@ -902,8 +898,7 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
             # pprint.pprint(hit["_source"])
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
@@ -934,7 +929,6 @@ def annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict):
                     action = {
                         "_index": index_name,
                         '_op_type': 'update',
-                        "_type": doc_type_name,
                         "_id": es_id,
                         "doc": {
                             "sample": sample_array
@@ -964,7 +958,7 @@ range_rules = {
 24, 382, 427
 
 
-def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
+def annotate_x_linked_dominant(es, index_name, family_dict):
 
 
     sample_matched = []
@@ -987,8 +981,7 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
             # pprint.pprint(hit["_source"])
             es_id = hit['_id']
             # print(es_id)
@@ -1022,7 +1015,6 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
                     action = {
                         "_index": index_name,
                         '_op_type': 'update',
-                        "_type": doc_type_name,
                         "_id": es_id,
                         "doc": {
                             "sample": sample_array
@@ -1045,7 +1037,7 @@ def annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict):
     print('Found {} x_linked_dominant samples'.format(len(list(set(sample_matched)))))
 
 
-def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation):
+def annotate_x_linked_recessive(es, index_name, family_dict, annotation):
 
 
     sample_matched = []
@@ -1080,8 +1072,7 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
             # pprint.pprint(hit["_source"])
             es_id = hit['_id']
             sample_array = hit["_source"]["sample"]
@@ -1110,16 +1101,12 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
                 if tmp_id not in sample_matched:
                     sample_matched.append(tmp_id)
 
-                # if to_update:
-                #     es.update(index=index_name, doc_type=doc_type_name, id=es_id,
-                #               body={"doc": {"sample": sample_array}})
 
                 if to_update:
                     sample_array.append(sample)
                     action = {
                         "_index": index_name,
                         '_op_type': 'update',
-                        "_type": doc_type_name,
                         "_id": es_id,
                         "doc": {
                             "sample": sample_array
@@ -1141,7 +1128,7 @@ def annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, anno
     print('Found {} x_linked_recessive samples'.format(len(list(set(sample_matched)))))
 
 
-def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
+def annotate_x_linked_denovo(es, index_name, family_dict):
 
 
 
@@ -1165,8 +1152,7 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                 scroll=u'5m',
                 size=1000,
                 preserve_order=False,
-                index=index_name,
-                doc_type=doc_type_name):
+                index=index_name):
             # pprint.pprint(hit["_source"])
             es_id = hit['_id']
 
@@ -1202,7 +1188,6 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
                     action = {
                         "_index": index_name,
                         '_op_type': 'update',
-                        "_type": doc_type_name,
                         "_id": es_id,
                         "doc": {
                             "sample": sample_array
@@ -1225,16 +1210,16 @@ def annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict):
     print('Found {} x_linked_denovo samples'.format(len(list(set(sample_matched)))))
 
 
-def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation):
+def annotate_compound_heterozygous(es, index_name, family_dict, annotation):
 
 
     sample_matched = []
     for family_id, family in family_dict.items():
         child_id = family.get('child_id')
         if annotation == 'vep':
-            genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+            genes = get_vep_genes_from_es_for_compound_heterozygous(es, index_name)
         elif annotation == 'annovar':
-            genes = get_annovar_genes_from_es_for_compound_heterozygous(es, index_name, doc_type_name)
+            genes = get_annovar_genes_from_es_for_compound_heterozygous(es, index_name)
 
         for gene in genes:
 
@@ -1250,8 +1235,7 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
                     scroll=u'5m',
                     size=1000,
                     preserve_order=False,
-                    index=index_name,
-                    doc_type=doc_type_name):
+                    index=index_name):
 
                 es_id = hit['_id']
                 sample_array = hit["_source"]["sample"]
@@ -1271,7 +1255,7 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
                 for sample in samples:
                     es_id = sample.pop("es_id")
 
-                    es_document = es.get(index_name, doc_type_name, es_id)
+                    es_document = es.get(index_name, es_id)
                     sample_array = es_document["_source"]["sample"]
                     sample = pop_sample_with_id(sample_array, child_id)
 
@@ -1301,7 +1285,6 @@ def annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, a
                         action = {
                             "_index": index_name,
                             '_op_type': 'update',
-                            "_type": doc_type_name,
                             "_id": es_id,
                             "doc": {
                                 "sample": sample_array
@@ -1328,48 +1311,47 @@ def main():
     import datetime
 
     index_name = "ashkenazitrio4families"
-    doc_type_name = "ashkenazitrio4families_"
     annotation = 'vep'
 
     es = elasticsearch.Elasticsearch(host='199.109.192.181', port=9200)
-    family_dict = get_family_dict(es, index_name, doc_type_name)
+    family_dict = get_family_dict(es, index_name)
     pprint.pprint(family_dict)
 
     all_start_time = datetime.datetime.now()
 
     start_time = datetime.datetime.now()
     print('Starting annotate_autosomal_recessive', start_time)
-    annotate_autosomal_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    annotate_autosomal_recessive(es, index_name, family_dict, annotation)
     print('Finished annotate_autosomal_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_denovo', start_time)
-    annotate_denovo(es, index_name, doc_type_name, family_dict)
+    annotate_denovo(es, index_name,  family_dict)
     print('Finished annotate_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_autosomal_dominant', start_time)
-    annotate_autosomal_dominant(es, index_name, doc_type_name, family_dict)
+    annotate_autosomal_dominant(es, index_name, family_dict)
     print('Finished annotate_autosomal_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_dominant', start_time)
-    annotate_x_linked_dominant(es, index_name, doc_type_name, family_dict)
+    annotate_x_linked_dominant(es, index_name, family_dict)
     print('Finished annotate_x_linked_dominant', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_recessive', start_time)
-    annotate_x_linked_recessive(es, index_name, doc_type_name, family_dict, annotation)
+    annotate_x_linked_recessive(es, index_name, family_dict, annotation)
     print('Finished annotate_x_linked_recessive', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_x_linked_denovo', start_time)
-    annotate_x_linked_denovo(es, index_name, doc_type_name, family_dict)
+    annotate_x_linked_denovo(es, index_name, family_dict)
     print('Finished annotate_x_linked_denovo', int((datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
     start_time = datetime.datetime.now()
     print('Starting annotate_compound_heterozygous', start_time)
-    annotate_compound_heterozygous(es, index_name, doc_type_name, family_dict, annotation)
+    annotate_compound_heterozygous(es, index_name, family_dict, annotation)
     print('Finished annotate_compound_heterozygous', int(
         (datetime.datetime.now() - start_time).total_seconds()), 'seconds')
 
