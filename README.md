@@ -104,7 +104,7 @@ This completes the installation of Elasticsearch.
 
 Begin by installing required system packages::
 
-    sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev git
+    sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev python3-dev git
 
 Download samtools in /tmp::
 
@@ -144,7 +144,7 @@ Change into GenESysV directory::
 
 Install the python virtual environment:
 
-    python3.6 -mvenv venv
+    python3 -mvenv venv
 
 Activate the newly created virtual environment:
 
@@ -153,6 +153,7 @@ Activate the newly created virtual environment:
 Install the python packages required for GenESysV, you can ignore the warning messages::
     
     pip install wheel    
+    pip install cython
     pip install -r requirements.txt
 
 GenESysV uses memcached to speed up form loading. Install memcached:
