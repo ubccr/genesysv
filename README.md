@@ -104,7 +104,7 @@ This completes the installation of Elasticsearch.
 
 Begin by installing required system packages::
 
-    sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev python3-dev libxslt1-dev git
+    sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev python3-dev libxslt1-dev python3-venv git
 
 Download samtools in /tmp::
 
