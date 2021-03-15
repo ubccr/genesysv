@@ -6,8 +6,7 @@ GenESysV is a fast, intuitive and scalable Genome Exploration Open Source Tool f
 
 ## GenESysV at a glance
 
-GenESysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GenESysV, you need to install Elasticsearch, samtools, grabix, and the GenESysV Django app. To see GeneSysV in action, please visit our demo server at "http://genesysv-demo.ccr.buffalo.edu".
-
+GenESysV is built using Elasticsearch, a distributed RESTful search and analytics engine, and Django, a Python web framework. To use GenESysV, you need to install Elasticsearch, samtools, grabix, and the GenESysV Django app.
 ## Installing Elasticsearch
 
 We assume that GenESysV will be installed locally in an Ubuntu Linux environment with sudo privileges.
