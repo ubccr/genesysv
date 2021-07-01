@@ -1,6 +1,9 @@
 # GenESysV - Genome Exploration System for Variants 
 
 
+> **IMPORTANT NOTICE:  This software is no longer actively supported.**
+
+
 GenESysV is a fast, intuitive and scalable Genome Exploration Open Source Tool for Variants generated from high-throughput sequencing technologies
 
 
