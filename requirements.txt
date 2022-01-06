@@ -5,7 +5,7 @@ backcall==0.1.0
 beautifulsoup4==4.6.0
 billiard==3.5.0.3
 bokeh==0.12.16
-celery==4.1.1
+celery==5.2.2
 certifi==2018.4.16
 chardet==3.0.4
 decorator==4.3.0
